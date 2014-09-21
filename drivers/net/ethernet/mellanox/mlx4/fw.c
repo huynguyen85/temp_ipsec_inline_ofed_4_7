@@ -174,6 +174,7 @@ static void dump_dev_cap_flags2(struct mlx4_dev *dev, u64 flags)
 		[40] = "SW CQ initialization support",
 		[41] = "Disable E-Switch loopback support",
 		[42] = "QinQ Service VLAN TPID configuration support",
+		[43] = "Set ingress parser mode support",
 	};
 	int i;
 
@@ -1055,6 +1056,8 @@ int mlx4_QUERY_DEV_CAP(struct mlx4_dev *dev, struct mlx4_dev_cap *dev_cap)
 	MLX4_GET(field32, outbox, QUERY_DEV_CAP_ETH_BACKPL_OFFSET);
 	if (field32 & (1 << 0))
 		dev_cap->flags2 |= MLX4_DEV_CAP_FLAG2_ETH_BACKPL_AN_REP;
+	if (field32 & (1 << 4))
+		dev_cap->flags2 |= MLX4_DEV_CAP_FLAG2_MODIFY_PARSER;
 	if (field32 & (1 << 7))
 		dev_cap->flags2 |= MLX4_DEV_CAP_FLAG2_RECOVERABLE_ERROR_EVENT;
 	if (field32 & (1 << 8))
@@ -2007,6 +2010,15 @@ int mlx4_INIT_HCA(struct mlx4_dev *dev, struct mlx4_init_hca_param *param)
 		mlx4_dbg(dev, "Reporting Driver Version to FW: %s\n", dst);
 	}
 
+	if (ingress_parser_mode == MLX4_INGRESS_PARSER_MODE_NON_L4_CSUM_OFFLOAD) {
+		if (dev->caps.flags2 & MLX4_DEV_CAP_FLAG2_MODIFY_PARSER) {
+			*(inbox + INIT_HCA_RECOVERABLE_ERROR_EVENT_OFFSET / 4) |= cpu_to_be32(1 << 26);
+			*(inbox + INIT_HCA_RECOVERABLE_ERROR_EVENT_OFFSET / 4) |= cpu_to_be32(1 << 28);
+		} else {
+			mlx4_warn(dev, "Device does not support change of ingress parser\n");
+		}
+	}
+
 	/* QPC/EEC/CQC/EQC/RDMARC attributes */
 
 	MLX4_PUT(inbox, param->qpc_base,      INIT_HCA_QPC_BASE_OFFSET);
@@ -2508,7 +2520,10 @@ static const u8 config_dev_csum_flags[] = {
 		MLX4_RX_CSUM_MODE_L4,
 	[3] =	MLX4_RX_CSUM_MODE_L4			|
 		MLX4_RX_CSUM_MODE_IP_OK_IP_NON_TCP_UDP	|
-		MLX4_RX_CSUM_MODE_MULTI_VLAN
+		MLX4_RX_CSUM_MODE_MULTI_VLAN,
+	[4] =	MLX4_RX_CSUM_MODE_VAL_NON_TCP_UDP	|
+		MLX4_RX_CSUM_MODE_L4			|
+		MLX4_RX_CSUM_MODE_IP_OK_IP_NON_TCP_UDP,
 };
 
 int mlx4_config_dev_retrieval(struct mlx4_dev *dev,
