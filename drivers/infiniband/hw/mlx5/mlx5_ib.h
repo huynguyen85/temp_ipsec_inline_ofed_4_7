@@ -687,6 +687,8 @@ struct mlx5_mr_cache {
 	int			stopped;
 	struct dentry		*root;
 	unsigned long		last_add;
+	int			rel_timeout;
+	int			rel_imm;
 };
 
 struct mlx5_ib_gsi_qp;
@@ -980,8 +982,8 @@ struct mlx5_ib_dev {
 	struct list_head	ib_dev_list;
 	u64			sys_image_guid;
 	struct mlx5_dm		dm;
-	struct kobject          *mr_cache;
 	u16			devx_whitelist_uid;
+	struct kobject          mr_cache;
 	struct mlx5_srq_table   srq_table;
 	struct mlx5_async_ctx   async_ctx;
 	int			free_port;
