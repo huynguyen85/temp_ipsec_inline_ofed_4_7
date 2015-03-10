@@ -641,6 +641,8 @@ struct mlx5e_channel {
 	int                        ix;
 	int                        cpu;
 	cpumask_var_t              xps_cpumask;
+
+	struct dentry             *dfs_root;
 };
 
 struct mlx5e_channels {
@@ -749,6 +751,8 @@ struct mlx5e_priv {
 	struct mlx5e_tls          *tls;
 #endif
 	struct devlink_health_reporter *tx_reporter;
+
+	struct dentry *dfs_root;
 };
 
 struct mlx5e_profile {
@@ -937,6 +941,9 @@ mlx5e_set_eseg_swp(struct sk_buff *skb, struct mlx5_wqe_eth_seg *eseg,
 		break;
 	}
 }
+
+void mlx5e_create_debugfs(struct mlx5e_priv *priv);
+void mlx5e_destroy_debugfs(struct mlx5e_priv *priv);
 
 static inline void mlx5e_sq_fetch_wqe(struct mlx5e_txqsq *sq,
 				      struct mlx5e_tx_wqe **wqe,
