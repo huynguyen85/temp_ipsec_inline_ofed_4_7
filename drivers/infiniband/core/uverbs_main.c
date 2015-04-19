@@ -759,7 +759,12 @@ static ssize_t ib_uverbs_write(struct file *filp, const char __user *buf,
 			u64_to_user_ptr(ex_hdr.response) + bundle.ucore.outlen,
 			ex_hdr.provider_in_words * 8,
 			ex_hdr.provider_out_words * 8);
-
+/* TALAT TODO _ Yoni should provide a functionality that tell if we are in exp flow 
+		if (exp_cmd) {
+			&bundle.ucore.src = IB_UDATA_EXP_CMD;
+			&bundle.driver_udata.src = IB_UDATA_EXP_CMD;
+		}
+*/
 	}
 
 	ret = method_elm->handler(&bundle);
