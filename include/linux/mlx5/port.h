@@ -183,6 +183,14 @@ int mlx5_query_port_ets_rate_limit(struct mlx5_core_dev *mdev,
 int mlx5_set_port_wol(struct mlx5_core_dev *mdev, u8 wol_mode);
 int mlx5_query_port_wol(struct mlx5_core_dev *mdev, u8 *wol_mode);
 
+int mlx5_query_port_cong_status(struct mlx5_core_dev *mdev, int protocol,
+				int priority, int *is_enable);
+int mlx5_modify_port_cong_status(struct mlx5_core_dev *mdev, int protocol,
+				 int priority, int enable);
+int mlx5_query_port_cong_params(struct mlx5_core_dev *mdev, int protocol,
+				void *out, int out_size);
+int mlx5_modify_port_cong_params(struct mlx5_core_dev *mdev,
+				 void *in, int in_size);
 int mlx5_query_ports_check(struct mlx5_core_dev *mdev, u32 *out, int outlen);
 int mlx5_set_ports_check(struct mlx5_core_dev *mdev, u32 *in, int inlen);
 int mlx5_set_port_fcs(struct mlx5_core_dev *mdev, u8 enable);
