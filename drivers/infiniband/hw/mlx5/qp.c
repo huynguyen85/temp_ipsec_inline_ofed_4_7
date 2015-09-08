@@ -3084,7 +3084,12 @@ static int mlx5_set_path(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
 
 	if (ah_flags & IB_AH_GRH) {
 		path->mgid_index = grh->sgid_index;
-		path->hop_limit  = grh->hop_limit;
+		if ((ah->type == RDMA_AH_ATTR_TYPE_ROCE) &&
+		    (gid_type != IB_GID_TYPE_IB) &&
+		    (ah->grh.hop_limit < 2))
+			path->hop_limit  = IPV6_DEFAULT_HOPLIMIT;
+		else
+			path->hop_limit  = ah->grh.hop_limit;
 		path->tclass_flowlabel =
 			cpu_to_be32((grh->traffic_class << 20) |
 				    (grh->flow_label));
@@ -3954,6 +3959,7 @@ int mlx5_ib_modify_dct(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 	int err = 0;
 	int required = IB_QP_STATE;
 	void *dctc;
+	u8 tmp_hop_limit;
 
 	if (!(attr_mask & IB_QP_STATE))
 		return -EINVAL;
@@ -3992,10 +3998,10 @@ int mlx5_ib_modify_dct(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 		u32 min_resp_len = offsetof(typeof(resp), dctn) +
 				   sizeof(resp.dctn);
 		u8 tclass = attr->ah_attr.grh.traffic_class;
-		/* Talat Need to enable it when we add "Add TCLASS complex matching
-		 * rules"
 		u8 port = MLX5_GET(dctc, dctc, port);
 
+		/* Talat Need to enable it when we add "Add TCLASS complex matching
+		 * rules"
 		if (mlx5_lag_is_active(dev->mdev))
 			port = 1;
 
@@ -4016,7 +4022,14 @@ int mlx5_ib_modify_dct(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 		MLX5_SET(dctc, dctc, flow_label, attr->ah_attr.grh.flow_label);
 		MLX5_SET(dctc, dctc, mtu, attr->path_mtu);
 		MLX5_SET(dctc, dctc, my_addr_index, attr->ah_attr.grh.sgid_index);
-		MLX5_SET(dctc, dctc, hop_limit, attr->ah_attr.grh.hop_limit);
+
+		attr->ah_attr.type = rdma_ah_find_type(&dev->ib_dev, port);
+		if ((attr->ah_attr.type == RDMA_AH_ATTR_TYPE_ROCE) &&
+		    (attr->ah_attr.grh.hop_limit < 2))
+			tmp_hop_limit = IPV6_DEFAULT_HOPLIMIT;
+		else
+			tmp_hop_limit  = attr->ah_attr.grh.hop_limit;
+		MLX5_SET(dctc, dctc, hop_limit, tmp_hop_limit);
 
 		err = mlx5_core_create_dct(dev->mdev, &qp->dct.mdct, qp->dct.in,
 					   MLX5_ST_SZ_BYTES(create_dct_in), out,
