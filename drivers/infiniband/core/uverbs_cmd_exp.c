@@ -284,3 +284,55 @@ int ib_uverbs_exp_modify_cq(struct uverbs_attr_bundle *attrs)
 
 	return ret;
 }
+/*
+int ib_uverbs_exp_query_device(struct ib_uverbs_file *file,
+				struct ib_device *ib_dev,
+			       struct ib_udata *ucore, struct ib_udata *uhw)
+*/
+int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
+{
+	struct ib_uverbs_exp_query_device_resp *resp;
+	struct ib_uverbs_exp_query_device cmd;
+	struct ib_exp_device_attr              *exp_attr;
+	int                                    ret;
+
+	ret = ib_copy_from_udata(&cmd,  &attrs->ucore, sizeof(cmd));
+	if (ret)
+		return ret;
+
+	resp = kzalloc(sizeof(*resp), GFP_KERNEL);
+	exp_attr = kzalloc(sizeof(*exp_attr), GFP_KERNEL);
+	if (!exp_attr || !resp) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	ret = ib_exp_query_device(attrs->ufile->device->ib_dev, exp_attr, &attrs->driver_udata);
+	if (ret)
+		goto out;
+
+	memset(resp, 0, sizeof(*resp));
+	copy_query_dev_fields(attrs->ufile->ucontext, &resp->base, &exp_attr->base);
+
+	resp->comp_mask = 0;
+	resp->device_cap_flags2 = 0;
+
+	/* Handle experimental attr fields */
+	if (exp_attr->exp_comp_mask & IB_EXP_DEVICE_ATTR_CAP_FLAGS2 ||
+	    exp_attr->base.device_cap_flags & IB_EXP_DEVICE_MASK) {
+		resp->device_cap_flags2 = exp_attr->device_cap_flags2;
+		resp->comp_mask |= IB_EXP_DEVICE_ATTR_CAP_FLAGS2;
+		resp->device_cap_flags2 |= IB_EXP_DEVICE_MASK & exp_attr->base.device_cap_flags;
+		resp->base.device_cap_flags &= ~IB_EXP_DEVICE_MASK;
+		if (resp->device_cap_flags2 & IB_DEVICE_CROSS_CHANNEL) {
+			resp->device_cap_flags2 &= ~IB_DEVICE_CROSS_CHANNEL;
+			resp->device_cap_flags2 |= IB_EXP_DEVICE_CROSS_CHANNEL;
+		}
+	}
+
+	ret = ib_copy_to_udata( &attrs->ucore, resp, min_t(size_t, sizeof(*resp),  &attrs->ucore.outlen));
+out:
+	kfree(exp_attr);
+	kfree(resp);
+	return ret;
+}
