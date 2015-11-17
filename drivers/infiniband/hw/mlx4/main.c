@@ -2570,6 +2570,7 @@ static const struct ib_device_ops mlx4_ib_dev_ops = {
 	.exp_modify_cq	= mlx4_ib_exp_modify_cq,
 	.exp_create_qp = mlx4_ib_exp_create_qp,
 	.exp_query_device	= mlx4_ib_exp_query_device,
+	.exp_ioctl         = mlx4_ib_exp_ioctl,
 
 	INIT_RDMA_OBJ_SIZE(ib_ah, mlx4_ib_ah, ibah),
 	INIT_RDMA_OBJ_SIZE(ib_pd, mlx4_ib_pd, ibpd),
