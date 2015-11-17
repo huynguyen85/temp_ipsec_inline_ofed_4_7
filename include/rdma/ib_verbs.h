@@ -2555,6 +2555,8 @@ struct ib_device_ops {
 			     struct ib_counters_read_attr *counters_read_attr,
 			     struct uverbs_attr_bundle *attrs);
 	/* EXP APIs will be added below to minimize conflicts via upstream rebase */
+	int                     (*exp_ioctl)(struct ib_ucontext *context, unsigned int cmd,
+					     unsigned long arg);
 	int			(*exp_query_device)(struct ib_device *device,
 						    struct ib_exp_device_attr *device_attr,
 						    struct ib_udata *udata);
