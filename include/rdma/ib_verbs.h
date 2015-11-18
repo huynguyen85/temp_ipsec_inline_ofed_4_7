@@ -1123,6 +1123,7 @@ struct ib_qp_cap {
 	 * and MRs based on this.
 	 */
 	u32	max_rdma_ctxs;
+	u32	qpg_tss_mask_sz;
 };
 
 enum ib_sig_type {
@@ -1833,6 +1834,7 @@ struct ib_qp {
 	struct ib_rwq_ind_table *rwq_ind_tbl;
 	struct ib_qp_security  *qp_sec;
 	u8			port;
+	enum ib_qpg_type        qpg_type;
 
 	/*
 	 * Implementation details of the RDMA core, don't use in drivers:
