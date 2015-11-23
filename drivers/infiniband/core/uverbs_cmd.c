@@ -3719,9 +3719,9 @@ int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 { return 0; }
 int ib_uverbs_exp_create_cq(struct uverbs_attr_bundle *attrs)
 { return 0; }
-*/
 int ib_uverbs_exp_modify_qp(struct uverbs_attr_bundle *attrs)
 { return 0; }
+*/
 int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
 { return 0; }
 int ib_uverbs_exp_create_mr(struct uverbs_attr_bundle *attrs)
