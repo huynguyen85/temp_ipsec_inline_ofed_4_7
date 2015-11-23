@@ -2706,7 +2706,8 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 		(1ull << IB_USER_VERBS_EXP_CMD_CREATE_QP)	|
 		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_CQ)	|
 		(1ull << IB_USER_VERBS_EXP_CMD_QUERY_DEVICE)	|
-		(1ull << IB_USER_VERBS_EXP_CMD_CREATE_CQ);
+		(1ull << IB_USER_VERBS_EXP_CMD_CREATE_CQ)	|
+		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_QP);
 
 
 	if ((dev->caps.flags2 & MLX4_DEV_CAP_FLAG2_RSS) &&
