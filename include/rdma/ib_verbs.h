@@ -1338,6 +1338,7 @@ struct ib_qp_attr {
 	u8			alt_port_num;
 	u8			alt_timeout;
 	u32			rate_limit;
+	u32			flow_entropy;
 };
 
 enum ib_wr_opcode {
