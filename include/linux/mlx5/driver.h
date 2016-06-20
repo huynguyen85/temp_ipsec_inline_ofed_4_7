@@ -672,6 +672,8 @@ struct mlx5_clock {
 	struct mlx5_pps            pps_info;
 };
 
+struct mlx5_mst_dump;
+
 struct mlx5_fw_tracer;
 struct mlx5_vxlan;
 
@@ -718,6 +720,7 @@ struct mlx5_core_dev {
 #endif
 	struct mlx5_clock        clock;
 	struct mlx5_ib_clock_info  *clock_info;
+	struct mlx5_mst_dump *mst_dump;
 	struct mlx5_fw_tracer   *tracer;
 };
 
