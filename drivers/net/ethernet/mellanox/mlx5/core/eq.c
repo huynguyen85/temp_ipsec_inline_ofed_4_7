@@ -466,7 +466,6 @@ unlock:
 void mlx5_rename_comp_eq(struct mlx5_core_dev *dev, unsigned int eq_ix,
 			 char *name)
 {
-	struct mlx5_priv *priv = &dev->priv;
 	struct mlx5_eq_table *table = dev->priv.eq_table;
 	char *dst_name;
 	int irq_ix;
@@ -490,6 +489,26 @@ void mlx5_rename_comp_eq(struct mlx5_core_dev *dev, unsigned int eq_ix,
 	}
 unlock:
 	mutex_unlock(&table->lock);
+}
+
+int mlx5_vector2eq(struct mlx5_core_dev *dev, int vector, struct mlx5_eq_comp *eqc)
+{
+	struct mlx5_eq_table *table = dev->priv.eq_table;
+	struct mlx5_eq_comp *eq, *n;
+	int err = -ENOENT;
+	int i = 0;
+
+	mutex_lock(&table->lock);
+	list_for_each_entry_safe(eq, n, &table->comp_eqs_list, list) {
+		if (i++ == vector) {
+			*eqc = *eq;
+			err = 0;
+			break;
+		}
+	}
+	mutex_unlock(&table->lock);
+
+	return err;
 }
 
 static int destroy_async_eq(struct mlx5_core_dev *dev, struct mlx5_eq *eq)

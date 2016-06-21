@@ -31,6 +31,7 @@
  */
 
 #include "en.h"
+#include "lib/eq.h"
 
 #define MLX5_DRV_VER_SZ 64
 #define MLX5_DEV_NAME_SZ 64
@@ -66,6 +67,128 @@ static int mlx5e_diag_fill_driver_version(void *buff)
 	return MLX5_DRV_VER_SZ;
 }
 
+static int dump_rq_info(struct mlx5e_rq *rq, void *buffer)
+{
+	struct mlx5_diag_wq *rqd = (struct mlx5_diag_wq *)buffer;
+
+	rqd->wq_type = MLX5_DIAG_RQ;
+	rqd->wqn = rq->rqn;
+	rqd->ci = 0;
+	rqd->pi = rq->wqe.wq.cur_sz;
+	rqd->wqe_stride = rq->wqe.wq.fbc.log_stride;
+	rqd->size = rq->wqe.wq.fbc.sz_m1 + 1;
+	rqd->wqe_num = ((rq->wqe.wq.fbc.sz_m1 + 1) << rq->wqe.wq.fbc.log_stride);
+	rqd->group_id = rq->channel->ix;
+
+	return sizeof(*rqd);
+}
+
+static int dump_sq_info(struct mlx5e_txqsq *sq, void *buffer)
+{
+	struct mlx5_diag_wq *sqd = (struct mlx5_diag_wq *)buffer;
+
+	sqd->wq_type = MLX5_DIAG_SQ;
+	sqd->wqn = sq->sqn;
+	sqd->ci = sq->cc;
+	sqd->pi = sq->pc;
+	sqd->wqe_stride = sq->wq.fbc.log_stride;
+	sqd->size = sq->wq.fbc.sz_m1 + 1;
+	sqd->wqe_num = ((sq->wq.fbc.sz_m1 + 1) << sq->wq.fbc.log_stride);
+	sqd->group_id = sq->channel->ix;
+
+	return sizeof(*sqd);
+}
+
+static int dump_cq_info(struct mlx5e_cq *cq, void *buffer)
+{
+	struct mlx5_diag_wq *cqd = (struct mlx5_diag_wq *)buffer;
+	struct mlx5_cqwq *wq = &cq->wq;
+
+	cqd->wq_type = MLX5_DIAG_CQ;
+	cqd->wqn = cq->mcq.cqn;
+	cqd->ci = wq->cc & wq->fbc.sz_m1;
+	cqd->pi = 0;
+	cqd->wqe_stride = wq->fbc.log_stride;
+	cqd->size = wq->fbc.sz_m1 + 1;
+	cqd->wqe_num = cqd->size;
+	cqd->group_id = cq->channel->ix;
+
+	return sizeof(*cqd);
+}
+
+static int dump_eq_info(struct mlx5_eq_comp *eq, void *buffer)
+{
+	struct mlx5_diag_eq *eqd = (struct mlx5_diag_eq *)buffer;
+
+	eqd->type = MLX5_DIAG_EQ;
+	eqd->ci = eq->core.cons_index;
+	eqd->size = eq->core.size;
+	eqd->irqn = eq->core.irqn;
+	eqd->eqn = eq->core.eqn;
+	eqd->nent = eq->core.nent;
+	eqd->mask = 0;
+//	eqd->index = eq->index;
+//      eqd->group_id = eq->index;
+
+	return sizeof(*eqd);
+}
+
+static void dump_channel_info(struct mlx5e_channel *c,
+			      struct mlx5_diag_dump *dump_hdr)
+{
+	struct mlx5_diag_blk *dump_blk;
+	struct mlx5_eq_comp eqc;
+	int i;
+
+	for (i = 0; i < c->num_tc; i++) {
+		/* Dump SQ */
+		dump_blk = DIAG_GET_NEXT_BLK(dump_hdr);
+		dump_blk->type = MLX5_DIAG_SQ;
+		dump_blk->length = dump_sq_info(&c->sq[i], &dump_blk->data);
+		dump_hdr->total_length += DIAG_BLK_SZ(dump_blk->length);
+		dump_hdr->num_blocks++;
+
+		/* Dump SQ CQ */
+		dump_blk = DIAG_GET_NEXT_BLK(dump_hdr);
+		dump_blk->type = MLX5_DIAG_CQ;
+		dump_blk->length = dump_cq_info(&c->sq[i].cq, &dump_blk->data);
+		dump_hdr->total_length += DIAG_BLK_SZ(dump_blk->length);
+		dump_hdr->num_blocks++;
+	}
+
+	/* Dump RQ */
+	dump_blk = DIAG_GET_NEXT_BLK(dump_hdr);
+	dump_blk->type = MLX5_DIAG_RQ;
+	dump_blk->length = dump_rq_info(&c->rq, &dump_blk->data);
+	dump_hdr->total_length += DIAG_BLK_SZ(dump_blk->length);
+	dump_hdr->num_blocks++;
+
+	/* Dump RQ CQ */
+	dump_blk = DIAG_GET_NEXT_BLK(dump_hdr);
+	dump_blk->type = MLX5_DIAG_CQ;
+	dump_blk->length = dump_cq_info(&c->rq.cq, &dump_blk->data);
+	dump_hdr->total_length += DIAG_BLK_SZ(dump_blk->length);
+	dump_hdr->num_blocks++;
+
+	/* Dump EQ */
+	mlx5_vector2eq(c->priv->mdev, c->ix, &eqc);
+	dump_blk = DIAG_GET_NEXT_BLK(dump_hdr);
+	dump_blk->type = MLX5_DIAG_EQ;
+	dump_blk->length = dump_eq_info(&eqc, &dump_blk->data);
+	dump_hdr->total_length += DIAG_BLK_SZ(dump_blk->length);
+	dump_hdr->num_blocks++;
+}
+
+static void dump_channels_info(struct mlx5e_priv *priv,
+			       struct mlx5_diag_dump *dump_hdr)
+{
+	u32 nch = priv->channels.num;
+	int i;
+
+	for (i = 0; i < nch; i++)
+		dump_channel_info(priv->channels.c[i], dump_hdr);
+}
+
 int mlx5e_set_dump(struct net_device *netdev, struct ethtool_dump *dump)
 {
 	struct mlx5e_priv *priv = netdev_priv(netdev);
@@ -95,6 +218,21 @@ int mlx5e_get_dump_flag(struct net_device *netdev, struct ethtool_dump *dump)
 		priv->channels.params.dump.mst_size = mst_size;
 		extra_len += mst_size ? DIAG_BLK_SZ(mst_size) : 0;
 	}
+
+	mutex_lock(&priv->state_lock);
+	if (dump->flag & MLX5_DIAG_FLAG_CHANNELS &&
+	    test_bit(MLX5E_STATE_OPENED, &priv->state)) {
+		u32 nch = priv->channels.num;
+		u32 ntc = priv->channels.params.num_tc;
+
+		extra_len +=
+			nch * ntc * DIAG_BLK_SZ(sizeof(struct mlx5_diag_wq)) + /* SQs     */
+			nch * ntc * DIAG_BLK_SZ(sizeof(struct mlx5_diag_wq)) + /* SQs CQs */
+			nch * DIAG_BLK_SZ(sizeof(struct mlx5_diag_wq)) +       /* RQs     */
+			nch * DIAG_BLK_SZ(sizeof(struct mlx5_diag_wq)) +       /* RQs CQs */
+			nch * DIAG_BLK_SZ(sizeof(struct mlx5_diag_eq));        /* EQs     */
+	}
+	mutex_unlock(&priv->state_lock);
 
 	dump->len = sizeof(struct mlx5_diag_dump) +
 		    DIAG_BLK_SZ(MLX5_DRV_VER_SZ)  +
@@ -128,6 +266,13 @@ int mlx5e_get_dump_data(struct net_device *netdev, struct ethtool_dump *dump,
 	dump_blk->length = mlx5e_diag_fill_device_name(priv, &dump_blk->data);
 	dump_hdr->total_length += DIAG_BLK_SZ(dump_blk->length);
 	dump_hdr->num_blocks++;
+
+	/* Dump channels info */
+	mutex_lock(&priv->state_lock);
+	if (priv->channels.params.dump.flag & MLX5_DIAG_FLAG_CHANNELS &&
+	    test_bit(MLX5E_STATE_OPENED, &priv->state))
+		dump_channels_info(priv, dump_hdr);
+	mutex_unlock(&priv->state_lock);
 
 	if (priv->channels.params.dump.flag & MLX5_DIAG_FLAG_MST) {
 		/* Dump mst buffer */
