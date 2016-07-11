@@ -130,7 +130,7 @@ int ib_uverbs_exp_create_qp(struct uverbs_attr_bundle *attrs)
 				srq = uobj_get_obj_read(srq, UVERBS_OBJECT_SRQ,
 							cmd_exp->srq_handle,
 							attrs);
-				if (!srq || srq->srq_type != IB_SRQT_BASIC) {
+				if (!srq || srq->srq_type != IB_SRQT_XRC) {
 					ret = -EINVAL;
 					goto err_put;
 				}
