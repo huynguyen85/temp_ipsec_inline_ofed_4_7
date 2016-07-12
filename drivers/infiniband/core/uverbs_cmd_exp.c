@@ -619,6 +619,17 @@ int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 		resp->odp_mr_max_size = exp_attr->odp_caps.max_size;
 		resp->comp_mask |= IB_EXP_DEVICE_ATTR_ODP_MAX_SIZE;
 	}
+	
+	if (exp_attr->exp_comp_mask & IB_EXP_DEVICE_ATTR_TM_CAPS) {
+		resp->tm_caps.max_rndv_hdr_size = exp_attr->tm_caps.max_rndv_hdr_size;
+		resp->tm_caps.max_num_tags = exp_attr->tm_caps.max_num_tags;
+		resp->tm_caps.capability_flags = exp_attr->tm_caps.capability_flags;
+		resp->tm_caps.max_ops = exp_attr->tm_caps.max_ops;
+		resp->tm_caps.max_sge = exp_attr->tm_caps.max_sge;
+		resp->comp_mask |= IB_EXP_DEVICE_ATTR_TM_CAPS;
+
+	}
+
 
 	ret = ib_copy_to_udata( &attrs->ucore, resp, min_t(size_t, sizeof(*resp),  &attrs->ucore.outlen));
 out:
