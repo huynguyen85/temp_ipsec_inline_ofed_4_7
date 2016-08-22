@@ -274,7 +274,7 @@ void mlx5_query_port_oper_mtu(struct mlx5_core_dev *dev, u16 *oper_mtu,
 }
 EXPORT_SYMBOL_GPL(mlx5_query_port_oper_mtu);
 
-static int mlx5_query_module_num(struct mlx5_core_dev *dev, int *module_num)
+int mlx5_query_module_num(struct mlx5_core_dev *dev, int *module_num)
 {
 	u32 in[MLX5_ST_SZ_DW(pmlp_reg)] = {0};
 	u32 out[MLX5_ST_SZ_DW(pmlp_reg)];
@@ -292,6 +292,7 @@ static int mlx5_query_module_num(struct mlx5_core_dev *dev, int *module_num)
 
 	return 0;
 }
+EXPORT_SYMBOL_GPL(mlx5_query_module_num);
 
 static int mlx5_eeprom_page(int offset)
 {

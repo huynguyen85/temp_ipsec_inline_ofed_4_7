@@ -247,11 +247,27 @@ int mlx5e_get_dump_data(struct net_device *netdev, struct ethtool_dump *dump,
 	struct mlx5e_priv *priv = netdev_priv(netdev);
 	struct mlx5_diag_dump *dump_hdr = buffer;
 	struct mlx5_diag_blk *dump_blk;
+	struct mlx5_mcion_reg mcion = {};
+	int module_num;
+	int err;
 
+	err = mlx5_query_module_num(priv->mdev, &module_num);
+
+	if (err)
+		return err;
+
+	mcion.module = module_num;
 	dump_hdr->version = MLX5_DIAG_DUMP_VERSION;
 	dump_hdr->flag = 0;
 	dump_hdr->num_blocks = 0;
 	dump_hdr->total_length = 0;
+	mlx5_icmd_access_register(priv->mdev,
+				  MLX5_ICMD_MCION,
+				  MLX5_ICMD_QUERY,
+				  &mcion,
+				  sizeof(mcion) / 4);
+	dump_hdr->module_no = mcion.module;
+	dump_hdr->module_status = mcion.module_status;
 
 	/* Dump driver version */
 	dump_blk = DIAG_GET_NEXT_BLK(dump_hdr);
