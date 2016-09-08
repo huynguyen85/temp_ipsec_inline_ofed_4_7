@@ -419,7 +419,7 @@ int mlx4_ib_gid_index_to_real_index(struct mlx4_ib_dev *ibdev,
 #define field_avail(type, fld, sz) (offsetof(type, fld) + \
 				    sizeof(((type *)0)->fld) <= (sz))
 
-static int mlx4_ib_query_device(struct ib_device *ibdev,
+int mlx4_ib_query_device(struct ib_device *ibdev,
 				struct ib_device_attr *props,
 				struct ib_udata *uhw)
 {
@@ -2569,6 +2569,7 @@ static const struct ib_device_ops mlx4_ib_dev_ops = {
 	/* Add EXP verbs here to minimize conflicts via rebase */
 	.exp_modify_cq	= mlx4_ib_exp_modify_cq,
 	.exp_create_qp = mlx4_ib_exp_create_qp,
+	.exp_query_device	= mlx4_ib_exp_query_device,
 
 	INIT_RDMA_OBJ_SIZE(ib_ah, mlx4_ib_ah, ibah),
 	INIT_RDMA_OBJ_SIZE(ib_pd, mlx4_ib_pd, ibpd),
@@ -2702,7 +2703,8 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 
 	ibdev->ib_dev.uverbs_exp_cmd_mask =
 		(1ull << IB_USER_VERBS_EXP_CMD_CREATE_QP)	|
-		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_CQ);
+		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_CQ)	|
+		(1ull << IB_USER_VERBS_EXP_CMD_QUERY_DEVICE);
 
 
 	if ((dev->caps.flags2 & MLX4_DEV_CAP_FLAG2_RSS) &&

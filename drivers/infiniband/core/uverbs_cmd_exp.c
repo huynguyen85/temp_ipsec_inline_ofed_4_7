@@ -284,11 +284,7 @@ int ib_uverbs_exp_modify_cq(struct uverbs_attr_bundle *attrs)
 
 	return ret;
 }
-/*
-int ib_uverbs_exp_query_device(struct ib_uverbs_file *file,
-				struct ib_device *ib_dev,
-			       struct ib_udata *ucore, struct ib_udata *uhw)
-*/
+
 int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 {
 	struct ib_uverbs_exp_query_device_resp *resp;
