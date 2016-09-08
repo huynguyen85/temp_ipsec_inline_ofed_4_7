@@ -75,6 +75,7 @@ extern struct workqueue_struct *ib_wq;
 extern struct workqueue_struct *ib_comp_wq;
 extern struct workqueue_struct *ib_comp_unbound_wq;
 struct ib_cq_attr;
+struct ib_exp_qp_init_attr;
 
 __printf(3, 4) __cold
 void ibdev_printk(const char *level, const struct ib_device *ibdev,
@@ -2550,6 +2551,9 @@ struct ib_device_ops {
 			     struct ib_counters_read_attr *counters_read_attr,
 			     struct uverbs_attr_bundle *attrs);
 	/* EXP APIs will be added below to minimize conflicts via upstream rebase */
+	struct ib_qp *		(*exp_create_qp)(struct ib_pd *pd,
+						 struct ib_exp_qp_init_attr *qp_init_attr,
+						 struct ib_udata *udata);
 	int			(*exp_modify_cq)(struct ib_cq *cq, struct ib_cq_attr *cq_attr,
 						 int cq_attr_mask);
 	unsigned long		   (*exp_get_unmapped_area)(struct file *file,
