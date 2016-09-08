@@ -811,7 +811,10 @@ __attribute_const__ int ib_rate_to_mbps(enum ib_rate rate);
 enum ib_mr_type {
 	IB_MR_TYPE_MEM_REG,
 	IB_MR_TYPE_SIGNATURE,
+	IB_MR_INDIRECT_REG,
 	IB_MR_TYPE_SG_GAPS,
+	IB_MR_TYPE_DM,
+	IB_MR_TYPE_FIXED_SIZE,
 };
 
 /**
@@ -2561,6 +2564,7 @@ struct ib_device_ops {
 							    unsigned long len,
 							    unsigned long pgoff,
 							    unsigned long flags);
+        int (*exp_prefetch_mr)(struct ib_mr *mr, u64 start, u64 length, u32 flags);
 
 
 	/**

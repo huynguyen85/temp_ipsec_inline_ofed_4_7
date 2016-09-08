@@ -3709,9 +3709,11 @@ static int ib_uverbs_ex_modify_cq(struct uverbs_attr_bundle *attrs)
 	return ret;
 }
 
-
+#include "uverbs_cmd_exp.c"
+/*
 int ib_uverbs_exp_create_qp(struct uverbs_attr_bundle *attrs)
 { return 0; }
+*/
 int ib_uverbs_exp_modify_qp(struct uverbs_attr_bundle *attrs)
 { return 0; }
 int ib_uverbs_exp_create_cq(struct uverbs_attr_bundle *attrs)
@@ -3738,6 +3740,53 @@ int ib_uverbs_exp_destroy_rwq_ind_table(struct uverbs_attr_bundle *attrs)
 { return 0; }
 int ib_uverbs_exp_create_srq(struct uverbs_attr_bundle *attrs)
 { return 0; }
+int ib_uverbs_exp_prefetch_mr(struct uverbs_attr_bundle *attrs)
+{
+	struct ib_uverbs_exp_prefetch_mr  cmd;
+	struct ib_mr                     *mr;
+	int                               ret = -EINVAL;
+
+	if (attrs->ucore.inlen < sizeof(cmd))
+		return -EINVAL;
+
+	ret = ib_copy_from_udata(&cmd, &attrs->ucore, sizeof(cmd));
+	if (ret)
+		return ret;
+
+	attrs->ucore.inbuf += sizeof(cmd);
+	attrs->ucore.inlen -= sizeof(cmd);
+
+	if (cmd.comp_mask)
+		return -EINVAL;
+
+	mr = uobj_get_obj_read(mr, UVERBS_OBJECT_MR, cmd.mr_handle, attrs);
+	if (!mr)
+		return -EINVAL;
+
+	if (!mr->device->ops.exp_prefetch_mr) {
+		ret = -ENOSYS;
+		goto out;
+	}
+
+	ret = mr->device->ops.exp_prefetch_mr(mr, cmd.start, cmd.length, cmd.flags);
+	if (ret)
+		goto out;
+
+	//ib_umem_odp_account_prefetch_handled(mr->device);
+
+out:
+	uobj_put_read(mr->uobject);
+	return ret;
+}
+int ib_uverbs_exp_create_dct(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_destroy_dct(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_query_dct(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_arm_dct(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+
 
 
 /*
@@ -3965,7 +4014,16 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 			ib_uverbs_exp_create_mr,
 			UAPI_DEF_WRITE_UDATA_IO(struct ib_uverbs_reg_mr,
 						struct ib_uverbs_reg_mr_resp)/*,
-			UAPI_DEF_METHOD_NEEDS_FN(reg_user_mr)*/)),
+			UAPI_DEF_METHOD_NEEDS_FN(reg_user_mr)*/)
+#ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
+		,DECLARE_UVERBS_WRITE(
+			IB_USER_VERBS_EXP_CMD_PREFETCH_MR,
+			ib_uverbs_exp_prefetch_mr,
+			UAPI_DEF_WRITE_UDATA_IO(struct ib_uverbs_reg_mr,
+						struct ib_uverbs_reg_mr_resp)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(reg_user_mr)*/)
+#endif
+			),
 
 	DECLARE_UVERBS_OBJECT(
 		UVERBS_OBJECT_MW,
@@ -4073,6 +4131,38 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 		DECLARE_UVERBS_WRITE_EX(
 			IB_USER_VERBS_EXP_CMD_MODIFY_QP,
 			ib_uverbs_exp_modify_qp,
+			UAPI_DEF_WRITE_IO_EX(struct ib_uverbs_ex_modify_qp,
+					     base,
+					     struct ib_uverbs_ex_modify_qp_resp,
+					     response_length)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(modify_qp)*/),
+		/* experimental dct */
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_CREATE_DCT,
+			ib_uverbs_exp_create_dct,
+			UAPI_DEF_WRITE_IO_EX(struct ib_uverbs_ex_create_qp,
+					     comp_mask,
+					     struct ib_uverbs_ex_create_qp_resp,
+					     response_length)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(create_qp)*/),
+
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_DESTROY_DCT,
+			ib_uverbs_exp_destroy_dct,
+			UAPI_DEF_WRITE_IO(struct ib_uverbs_destroy_qp,
+					  struct ib_uverbs_destroy_qp_resp)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(destroy_qp)*/),
+
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_QUERY_DCT,
+			ib_uverbs_exp_query_dct,
+			UAPI_DEF_WRITE_IO(struct ib_uverbs_query_qp,
+					  struct ib_uverbs_query_qp_resp)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(query_qp)*/),
+
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_ARM_DCT,
+			ib_uverbs_exp_arm_dct,
 			UAPI_DEF_WRITE_IO_EX(struct ib_uverbs_ex_modify_qp,
 					     base,
 					     struct ib_uverbs_ex_modify_qp_resp,
@@ -4238,10 +4328,10 @@ static int (*uverbs_exp_cmd_table[])(struct ib_uverbs_file *file,
 	[IB_USER_VERBS_EXP_CMD_CREATE_CQ]	= ib_uverbs_exp_create_cq, <--- done
 	[IB_USER_VERBS_EXP_CMD_REG_MR]		= ib_uverbs_exp_reg_mr,    <--- done
 
-	[IB_USER_VERBS_EXP_CMD_CREATE_DCT]	= ib_uverbs_exp_create_dct,
-	[IB_USER_VERBS_EXP_CMD_DESTROY_DCT]	= ib_uverbs_exp_destroy_dct,
-	[IB_USER_VERBS_EXP_CMD_QUERY_DCT]	= ib_uverbs_exp_query_dct,
-	[IB_USER_VERBS_EXP_CMD_ARM_DCT]		= ib_uverbs_exp_arm_dct,
+	[IB_USER_VERBS_EXP_CMD_CREATE_DCT]	= ib_uverbs_exp_create_dct, <--- done
+	[IB_USER_VERBS_EXP_CMD_DESTROY_DCT]	= ib_uverbs_exp_destroy_dct, <--- done
+	[IB_USER_VERBS_EXP_CMD_QUERY_DCT]	= ib_uverbs_exp_query_dct, <--- done
+	[IB_USER_VERBS_EXP_CMD_ARM_DCT]		= ib_uverbs_exp_arm_dct, <--- done
 	[IB_USER_VERBS_EXP_CMD_CREATE_MR]       = ib_uverbs_exp_create_mr, <--- done
 
 	[IB_USER_VERBS_EXP_CMD_QUERY_MKEY]	= ib_uverbs_exp_query_mkey,
