@@ -74,6 +74,7 @@ struct ib_umem_odp;
 extern struct workqueue_struct *ib_wq;
 extern struct workqueue_struct *ib_comp_wq;
 extern struct workqueue_struct *ib_comp_unbound_wq;
+struct ib_cq_attr;
 
 __printf(3, 4) __cold
 void ibdev_printk(const char *level, const struct ib_device *ibdev,
@@ -353,6 +354,7 @@ struct ib_cq_init_attr {
 
 enum ib_cq_attr_mask {
 	IB_CQ_MODERATE = 1 << 0,
+	IB_CQ_CAP_FLAGS = 1 << 1,
 };
 
 struct ib_cq_caps {
@@ -2548,6 +2550,8 @@ struct ib_device_ops {
 			     struct ib_counters_read_attr *counters_read_attr,
 			     struct uverbs_attr_bundle *attrs);
 	/* EXP APIs will be added below to minimize conflicts via upstream rebase */
+	int			(*exp_modify_cq)(struct ib_cq *cq, struct ib_cq_attr *cq_attr,
+						 int cq_attr_mask);
 	unsigned long		   (*exp_get_unmapped_area)(struct file *file,
 							    unsigned long addr,
 							    unsigned long len,
@@ -4674,4 +4678,5 @@ static inline struct ib_device *rdma_device_to_ibdev(struct device *device)
 
 bool rdma_dev_access_netns(const struct ib_device *device,
 			   const struct net *net);
+#include <rdma/ib_verbs_exp.h>
 #endif /* IB_VERBS_H */
