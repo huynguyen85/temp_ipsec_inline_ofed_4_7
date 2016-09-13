@@ -2676,6 +2676,7 @@ struct ib_device {
 	struct ib_port_data *port_data;
 
 	int			      num_comp_vectors;
+	struct kobject		      *mad_sa_cc_kobj;
 
 	struct module               *owner;
 	union {
