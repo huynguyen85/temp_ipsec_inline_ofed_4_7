@@ -330,10 +330,11 @@ struct ib_odp_caps {
 	u64 general_caps;
 	u64 max_size;
 	struct {
-		uint32_t  rc_odp_caps;
-		uint32_t  uc_odp_caps;
-		uint32_t  ud_odp_caps;
-		uint32_t  xrc_odp_caps;
+		u32 rc_odp_caps;
+		u32 uc_odp_caps;
+		u32 ud_odp_caps;
+		u32 xrc_odp_caps;
+		u32 dc_odp_caps;
 	} per_transport_caps;
 };
 

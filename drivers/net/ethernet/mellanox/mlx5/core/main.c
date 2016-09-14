@@ -586,12 +586,39 @@ static int handle_hca_cap_odp(struct mlx5_core_dev *dev)
 	ODP_CAP_SET_MAX(dev, xrc_odp_caps.read);
 	ODP_CAP_SET_MAX(dev, xrc_odp_caps.atomic);
 
-	if (do_set)
+	if (do_set) {
+		err = set_caps(dev, set_ctx, set_sz,
+			       MLX5_SET_HCA_CAP_OP_MOD_ODP);
+		goto err;
+	}
+
+#define MLX5_CAP_ODP_INACTIVE(...) \
+	(MLX5_CAP_ODP_MAX(__VA_ARGS__) && !MLX5_CAP_ODP(__VA_ARGS__))
+
+	/* On old hardware (e.g Connect-IB) SET_HCA_CAP with OP_MOD_ODP
+	 * will cause error. Call it only if there is difference
+	 * between max and cur caps */
+	if (MLX5_CAP_ODP_INACTIVE(dev, dc_odp_caps.send) ||
+	    MLX5_CAP_ODP_INACTIVE(dev, dc_odp_caps.write) ||
+	    MLX5_CAP_ODP_INACTIVE(dev, dc_odp_caps.atomic) ||
+	    MLX5_CAP_ODP_INACTIVE(dev, dc_odp_caps.srq_receive)) {
+		memcpy(MLX5_ADDR_OF(odp_cap, set_hca_cap, dc_odp_caps),
+		       MLX5_ADDR_OF(odp_cap,
+				    dev->caps.hca_max[MLX5_CAP_ODP],
+				    dc_odp_caps),
+		       MLX5_ST_SZ_BYTES(odp_per_transport_service_cap));
+
 		err = set_caps(dev, set_ctx, set_sz,
 			       MLX5_SET_HCA_CAP_OP_MOD_ODP);
 
-	kfree(set_ctx);
+		if (err) {
+			mlx5_core_warn(dev, "SET_HCA_CAP ODP not supported\n");
+			err = 0;
+		}
+	}
 
+err:
+	kfree(set_ctx);
 	return err;
 }
 
