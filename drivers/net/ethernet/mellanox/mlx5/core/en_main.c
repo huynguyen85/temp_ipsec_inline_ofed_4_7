@@ -3014,6 +3014,11 @@ int mlx5e_close_locked(struct net_device *netdev)
 
 	clear_bit(MLX5E_STATE_OPENED, &priv->state);
 
+	if (MLX5E_GET_PFLAG(&priv->channels.params, MLX5E_PFLAG_SNIFFER)) {
+		mlx5e_sniffer_stop(priv);
+		MLX5E_SET_PFLAG(&priv->channels.params, MLX5E_PFLAG_SNIFFER, 0);
+	}
+
 	netif_carrier_off(priv->netdev);
 	mlx5e_destroy_debugfs(priv);
 	mlx5e_deactivate_priv_channels(priv);
