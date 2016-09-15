@@ -4686,6 +4686,9 @@ void mlx5e_build_nic_params(struct mlx5_core_dev *mdev,
 	mlx5e_build_rss_params(rss_params, params->num_channels);
 	params->tunneled_offload_en =
 		mlx5e_tunnel_inner_ft_supported(mdev);
+
+	/* Sniffer is off by default - performance wise */
+	MLX5E_SET_PFLAG(params, MLX5E_PFLAG_SNIFFER, 0);
 }
 
 static void mlx5e_set_netdev_dev_addr(struct net_device *netdev)
