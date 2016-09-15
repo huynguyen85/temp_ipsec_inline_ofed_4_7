@@ -6181,6 +6181,7 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
 
 	/* Add EXP verbs here to minimize conflicts via rebase */
 	.exp_modify_cq	= mlx5_ib_exp_modify_cq,
+	.exp_create_qp	= mlx5_ib_exp_create_qp,
 
 	INIT_RDMA_OBJ_SIZE(ib_ah, mlx5_ib_ah, ibah),
 	INIT_RDMA_OBJ_SIZE(ib_pd, mlx5_ib_pd, ibpd),
@@ -6263,7 +6264,8 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 		(1ull << IB_USER_VERBS_EX_CMD_DESTROY_FLOW);
 
 	dev->ib_dev.uverbs_exp_cmd_mask =
-		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_CQ);
+		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_CQ)	|
+		(1ull << IB_USER_VERBS_EXP_CMD_CREATE_QP);
 
 
 	if (MLX5_CAP_GEN(mdev, ipoib_enhanced_offloads) &&
