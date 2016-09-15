@@ -47,6 +47,7 @@
 #include <linux/sched/task.h>
 #include <linux/delay.h>
 #include <rdma/ib_user_verbs.h>
+#include <rdma/ib_user_verbs_exp.h>
 #include <rdma/ib_addr.h>
 #include <rdma/ib_cache.h>
 #include <linux/mlx5/port.h>
@@ -6178,6 +6179,9 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
 	.rereg_user_mr = mlx5_ib_rereg_user_mr,
 	.resize_cq = mlx5_ib_resize_cq,
 
+	/* Add EXP verbs here to minimize conflicts via rebase */
+	.exp_modify_cq	= mlx5_ib_exp_modify_cq,
+
 	INIT_RDMA_OBJ_SIZE(ib_ah, mlx5_ib_ah, ibah),
 	INIT_RDMA_OBJ_SIZE(ib_pd, mlx5_ib_pd, ibpd),
 	INIT_RDMA_OBJ_SIZE(ib_srq, mlx5_ib_srq, ibsrq),
@@ -6257,6 +6261,10 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 		(1ull << IB_USER_VERBS_EX_CMD_MODIFY_CQ)	|
 		(1ull << IB_USER_VERBS_EX_CMD_CREATE_FLOW)	|
 		(1ull << IB_USER_VERBS_EX_CMD_DESTROY_FLOW);
+
+	dev->ib_dev.uverbs_exp_cmd_mask =
+		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_CQ);
+
 
 	if (MLX5_CAP_GEN(mdev, ipoib_enhanced_offloads) &&
 	    IS_ENABLED(CONFIG_MLX5_CORE_IPOIB))
