@@ -825,9 +825,9 @@ static int mlx5_query_node_desc(struct mlx5_ib_dev *dev, char *node_desc)
 				    MLX5_REG_NODE_DESC, 0, 0);
 }
 
-static int mlx5_ib_query_device(struct ib_device *ibdev,
-				struct ib_device_attr *props,
-				struct ib_udata *uhw)
+int mlx5_ib_query_device(struct ib_device *ibdev,
+			 struct ib_device_attr *props,
+			 struct ib_udata *uhw)
 {
 	struct mlx5_ib_dev *dev = to_mdev(ibdev);
 	struct mlx5_core_dev *mdev = dev->mdev;
@@ -6181,6 +6181,7 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
 
 	/* Add EXP verbs here to minimize conflicts via rebase */
 	.exp_modify_cq	= mlx5_ib_exp_modify_cq,
+	.exp_query_device	= mlx5_ib_exp_query_device,
 	.exp_create_qp	= mlx5_ib_exp_create_qp,
 
 	INIT_RDMA_OBJ_SIZE(ib_ah, mlx5_ib_ah, ibah),
@@ -6265,6 +6266,7 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 
 	dev->ib_dev.uverbs_exp_cmd_mask =
 		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_CQ)	|
+		(1ULL << IB_USER_VERBS_EXP_CMD_QUERY_DEVICE)	|
 		(1ull << IB_USER_VERBS_EXP_CMD_CREATE_QP);
 
 
