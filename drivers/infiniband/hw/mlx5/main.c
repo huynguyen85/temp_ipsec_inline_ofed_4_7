@@ -6267,7 +6267,8 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 	dev->ib_dev.uverbs_exp_cmd_mask =
 		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_CQ)	|
 		(1ULL << IB_USER_VERBS_EXP_CMD_QUERY_DEVICE)	|
-		(1ull << IB_USER_VERBS_EXP_CMD_CREATE_QP);
+		(1ull << IB_USER_VERBS_EXP_CMD_CREATE_QP)	|
+		(1ull << IB_USER_VERBS_EXP_CMD_CREATE_CQ);
 
 
 	if (MLX5_CAP_GEN(mdev, ipoib_enhanced_offloads) &&
