@@ -2152,6 +2152,9 @@ static int create_qp_common(struct mlx5_ib_dev *dev, struct ib_pd *pd,
 	       &qp->raw_packet_qp.rq.base :
 	       &qp->trans_qp.base;
 
+	if (is_exp && mlx5_ib_exp_max_inl_recv(init_attr))
+		qp->scat_cqe = 1;
+
 	qp->has_rq = qp_has_rq(init_attr);
 	err = set_rq_size(dev, &init_attr->cap, qp->has_rq,
 			  qp, udata ? pucmd : NULL);
