@@ -43,6 +43,7 @@
 #include <linux/mlx5/driver.h>
 #include <linux/mlx5/cq.h>
 #include <linux/mlx5/qp.h>
+#include <linux/mlx5/qp_exp.h>
 #include <linux/debugfs.h>
 #include <linux/kmod.h>
 #include <linux/mlx5/mlx5_ifc.h>
@@ -93,13 +94,17 @@ static struct mlx5_profile profile[] = {
 		.mask           = 0,
 	},
 	[1] = {
-		.mask		= MLX5_PROF_MASK_QP_SIZE,
+		.mask		= MLX5_PROF_MASK_QP_SIZE |
+				  MLX5_PROF_MASK_DCT,
 		.log_max_qp	= 12,
+		.dct_enable	= 1,
 	},
 	[2] = {
-		.mask		= MLX5_PROF_MASK_QP_SIZE |
-				  MLX5_PROF_MASK_MR_CACHE,
+		.mask		= MLX5_PROF_MASK_QP_SIZE  |
+				  MLX5_PROF_MASK_MR_CACHE |
+				  MLX5_PROF_MASK_DCT,
 		.log_max_qp	= 18,
+		.dct_enable	= 1,
 		.mr_cache[0]	= {
 			.size	= 500,
 			.limit	= 250
@@ -534,6 +539,18 @@ static int handle_hca_cap(struct mlx5_core_dev *dev)
 	/* disable cmdif checksum */
 	MLX5_SET(cmd_hca_cap, set_hca_cap, cmdif_checksum, 0);
 
+	if (prof->mask & MLX5_PROF_MASK_DCT) {
+		if (prof->dct_enable) {
+			if (MLX5_CAP_GEN_MAX(dev, dct)) {
+				MLX5_SET(cmd_hca_cap, set_hca_cap, dct, 1);
+				dev->async_events_mask |= (1ull << MLX5_EVENT_TYPE_DCT_DRAINED) |
+					(1ull << MLX5_EVENT_TYPE_DCT_KEY_VIOLATION);
+			}
+		} else {
+			MLX5_SET(cmd_hca_cap, set_hca_cap, dct, 0);
+		}
+	}
+
 	/* Enable 4K UAR only when HCA supports it and page size is bigger
 	 * than 4K.
 	 */
@@ -815,6 +832,7 @@ static int mlx5_init_once(struct mlx5_core_dev *dev)
 	mlx5_init_qp_table(dev);
 
 	mlx5_init_mkey_table(dev);
+	mlx5_init_dct_table(dev);
 
 	mlx5_init_reserved_gids(dev);
 
@@ -866,6 +884,7 @@ err_rl_cleanup:
 	mlx5_cleanup_rl_table(dev);
 err_tables_cleanup:
 	mlx5_vxlan_destroy(dev->vxlan);
+	mlx5_cleanup_dct_table(dev);
 	mlx5_cleanup_mkey_table(dev);
 	mlx5_cleanup_qp_table(dev);
 	mlx5_cq_debugfs_cleanup(dev);
@@ -887,6 +906,7 @@ static void mlx5_cleanup_once(struct mlx5_core_dev *dev)
 	mlx5_eswitch_cleanup(dev->priv.eswitch);
 	mlx5_mpfs_cleanup(dev);
 	mlx5_cleanup_rl_table(dev);
+	mlx5_cleanup_dct_table(dev);
 	mlx5_vxlan_destroy(dev->vxlan);
 	mlx5_cleanup_clock(dev);
 	mlx5_cleanup_reserved_gids(dev);

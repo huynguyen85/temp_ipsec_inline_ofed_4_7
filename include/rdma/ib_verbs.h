@@ -2592,7 +2592,7 @@ struct ib_device_ops {
 	struct ib_dct *		(*exp_create_dct)(struct ib_pd *pd,
 						  struct ib_dct_init_attr *attr,
 						  struct ib_udata *udata);
-	int			(*exp_destroy_dct)(struct ib_dct *dct);
+	int			(*exp_destroy_dct)(struct ib_dct *dct, struct ib_udata *udata);
 	int			(*exp_query_dct)(struct ib_dct *dct, struct ib_dct_attr *attr);
 	int			(*exp_arm_dct)(struct ib_dct *dct, struct ib_udata *udata);
 	unsigned long		   (*exp_get_unmapped_area)(struct file *file,

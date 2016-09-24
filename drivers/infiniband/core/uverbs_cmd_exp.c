@@ -780,7 +780,7 @@ int ib_uverbs_exp_create_dct(struct uverbs_attr_bundle *attrs)
 	return uobj_alloc_commit(&obj->uevent.uobject, 0);
 
 err_copy:
-	ib_exp_destroy_dct(dct);
+	ib_exp_destroy_dct(dct, &attrs->driver_udata);
 
 err_put:
 	if (srq)

@@ -128,6 +128,10 @@ static const char *eqe_type_str(u8 type)
 		return "MLX5_EVENT_TYPE_MONITOR_COUNTER";
 	case MLX5_EVENT_TYPE_DEVICE_TRACER:
 		return "MLX5_EVENT_TYPE_DEVICE_TRACER";
+	case MLX5_EVENT_TYPE_DCT_DRAINED:
+		return "MLX5_EVENT_TYPE_DCT_DRAINED";
+	case MLX5_EVENT_TYPE_DCT_KEY_VIOLATION:
+		return "MLX5_EVENT_TYPE_DCT_KEY_VIOLATION";
 	default:
 		return "Unrecognized event";
 	}

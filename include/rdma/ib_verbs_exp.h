@@ -463,7 +463,7 @@ int ib_exp_query_device(struct ib_device *device,
 struct ib_dct *ib_exp_create_dct(struct ib_pd *pd,
 				 struct ib_dct_init_attr *attr,
 				 struct ib_udata *udata);
-int ib_exp_destroy_dct(struct ib_dct *dct);
+int ib_exp_destroy_dct(struct ib_dct *dct,  struct ib_udata *udata);
 int ib_exp_query_dct(struct ib_dct *dct, struct ib_dct_attr *attr);
 
 int ib_exp_query_mkey(struct ib_mr *mr, u64 mkey_attr_mask,

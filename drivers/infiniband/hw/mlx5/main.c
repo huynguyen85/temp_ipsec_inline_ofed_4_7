@@ -1765,12 +1765,18 @@ static void set_exp_data(struct mlx5_ib_dev *dev,
 {
 	resp->exp_data.comp_mask = MLX5_EXP_ALLOC_CTX_RESP_MASK_CQE_VERSION |
 		MLX5_EXP_ALLOC_CTX_RESP_MASK_CQE_COMP_MAX_NUM |
-		MLX5_EXP_ALLOC_CTX_RESP_MASK_HCA_CORE_CLOCK_OFFSET;
+		MLX5_EXP_ALLOC_CTX_RESP_MASK_HCA_CORE_CLOCK_OFFSET |
+		MLX5_EXP_ALLOC_CTX_RESP_MASK_MAX_DESC_SZ_SQ_DC |
+		MLX5_EXP_ALLOC_CTX_RESP_MASK_ATOMIC_ARG_SIZES_DC;
+
 	resp->exp_data.cqe_version = MLX5_CAP_GEN(dev->mdev, cqe_version);
 	resp->exp_data.cqe_comp_max_num = MLX5_CAP_GEN(dev->mdev,
 						      cqe_compression_max_num);
 	resp->exp_data.hca_core_clock_offset =
 		offsetof(struct mlx5_init_seg, internal_timer_h) % PAGE_SIZE;
+
+	resp->exp_data.max_desc_sz_sq_dc = MLX5_CAP_GEN(dev->mdev, max_wqe_sz_sq_dc);
+	resp->exp_data.atomic_arg_sizes_dc = MLX5_CAP_ATOMIC(dev->mdev, atomic_size_dc);
 }
 
 static int mlx5_ib_alloc_ucontext(struct ib_ucontext *uctx,
@@ -5256,6 +5262,7 @@ static const struct mlx5_ib_counter retrans_q_cnts[] = {
 	INIT_Q_COUNTER(packet_seq_err),
 	INIT_Q_COUNTER(implied_nak_seq_err),
 	INIT_Q_COUNTER(local_ack_timeout_err),
+	INIT_Q_COUNTER(rx_dct_connect),
 };
 
 #define INIT_CONG_COUNTER(_name)		\
@@ -6206,6 +6213,10 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
 	.exp_modify_cq	= mlx5_ib_exp_modify_cq,
 	.exp_query_device	= mlx5_ib_exp_query_device,
 	.exp_create_qp	= mlx5_ib_exp_create_qp,
+	.exp_create_dct = mlx5_ib_create_dc_target,
+	.exp_destroy_dct = mlx5_ib_destroy_dc_target,
+	.exp_query_dct = mlx5_ib_query_dc_target,
+	.exp_arm_dct = mlx5_ib_arm_dc_target,
 
 	INIT_RDMA_OBJ_SIZE(ib_ah, mlx5_ib_ah, ibah),
 	INIT_RDMA_OBJ_SIZE(ib_pd, mlx5_ib_pd, ibpd),
@@ -6295,6 +6306,14 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 		(1ull << IB_USER_VERBS_EXP_CMD_REG_MR)		|
 		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_QP);
 
+
+	if (MLX5_CAP_GEN(mdev, dct)) {
+		dev->ib_dev.uverbs_exp_cmd_mask |=
+			(1ull << IB_USER_VERBS_EXP_CMD_CREATE_DCT)	|
+			(1ull << IB_USER_VERBS_EXP_CMD_DESTROY_DCT)	|
+			(1ull << IB_USER_VERBS_EXP_CMD_QUERY_DCT)	|
+			(1ull << IB_USER_VERBS_EXP_CMD_ARM_DCT);
+	}
 
 	if (MLX5_CAP_GEN(mdev, ipoib_enhanced_offloads) &&
 	    IS_ENABLED(CONFIG_MLX5_CORE_IPOIB))

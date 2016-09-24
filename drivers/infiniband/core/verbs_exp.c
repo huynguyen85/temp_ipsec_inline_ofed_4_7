@@ -64,7 +64,7 @@ struct ib_dct *ib_exp_create_dct(struct ib_pd *pd, struct ib_dct_init_attr *attr
 }
 EXPORT_SYMBOL(ib_exp_create_dct);
 
-int ib_exp_destroy_dct(struct ib_dct *dct)
+int ib_exp_destroy_dct(struct ib_dct *dct,  struct ib_udata *udata)
 {
 	struct ib_srq *srq;
 	struct ib_cq *cq;
@@ -77,7 +77,7 @@ int ib_exp_destroy_dct(struct ib_dct *dct)
 	srq = dct->srq;
 	cq = dct->cq;
 	pd = dct->pd;
-	err = dct->device->ops.exp_destroy_dct(dct);
+	err = dct->device->ops.exp_destroy_dct(dct, udata);
 	if (!err) {
 		atomic_dec(&srq->usecnt);
 		atomic_dec(&cq->usecnt);

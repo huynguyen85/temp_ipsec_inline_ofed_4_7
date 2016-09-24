@@ -37,6 +37,7 @@
 #include <linux/mlx5/driver.h>
 #include <linux/mlx5/transobj.h>
 
+#include <linux/mlx5/qp_exp.h>
 #include "mlx5_core.h"
 #include "lib/eq.h"
 
@@ -77,7 +78,9 @@ static u64 qp_allowed_event_types(void)
 	       BIT(MLX5_EVENT_TYPE_WQ_CATAS_ERROR) |
 	       BIT(MLX5_EVENT_TYPE_PATH_MIG_FAILED) |
 	       BIT(MLX5_EVENT_TYPE_WQ_INVAL_REQ_ERROR) |
-	       BIT(MLX5_EVENT_TYPE_WQ_ACCESS_ERROR);
+	       BIT(MLX5_EVENT_TYPE_WQ_ACCESS_ERROR) |
+	       BIT(MLX5_EVENT_TYPE_DCT_DRAINED) |
+	       BIT(MLX5_EVENT_TYPE_DCT_KEY_VIOLATION);
 
 	return mask;
 }
@@ -99,7 +102,14 @@ static u64 sq_allowed_event_types(void)
 
 static u64 dct_allowed_event_types(void)
 {
-	return BIT(MLX5_EVENT_TYPE_DCT_DRAINED);
+	u64 mask;
+
+	mask =  BIT(MLX5_EVENT_TYPE_DCT_DRAINED) |
+		BIT(MLX5_EVENT_TYPE_WQ_ACCESS_ERROR) |
+		BIT(MLX5_EVENT_TYPE_DCT_KEY_VIOLATION) |
+		BIT(MLX5_EVENT_TYPE_WQ_INVAL_REQ_ERROR);
+
+	return mask;
 }
 
 static bool is_event_type_allowed(int rsc_type, int event_type)
@@ -134,6 +144,7 @@ static int rsc_event_notifier(struct notifier_block *nb,
 
 	switch (event_type) {
 	case MLX5_EVENT_TYPE_DCT_DRAINED:
+	case MLX5_EVENT_TYPE_DCT_KEY_VIOLATION:
 		eqe = data;
 		rsn = be32_to_cpu(eqe->data.dct.dctn) & 0xffffff;
 		rsn |= (MLX5_RES_DCT << MLX5_USER_INDEX_LEN);
@@ -183,6 +194,8 @@ static int rsc_event_notifier(struct notifier_block *nb,
 		dct = (struct mlx5_core_dct *)common;
 		if (event_type == MLX5_EVENT_TYPE_DCT_DRAINED)
 			complete(&dct->drained);
+		else
+			dct->mqp.event(&dct->mqp, event_type);
 		break;
 	default:
 		mlx5_core_warn(dev, "invalid resource type for 0x%x\n", rsn);

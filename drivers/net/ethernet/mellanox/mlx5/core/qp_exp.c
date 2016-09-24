@@ -30,39 +30,29 @@
  * SOFTWARE.
  */
 
-#include "mlx5_ib.h"
+#include <linux/mlx5/qp.h>
+#include <linux/mlx5/qp_exp.h>
+#include <linux/mlx5/driver.h>
+#include "mlx5_core.h"
 
-int mlx5_ib_exp_query_device(struct ib_device *ibdev,
-			     struct ib_exp_device_attr *props,
-			     struct ib_udata *uhw)
+void mlx5_init_dct_table(struct mlx5_core_dev *dev)
 {
-	struct mlx5_ib_dev *dev = to_mdev(ibdev);
-	int ret;
-
-	ret = mlx5_ib_query_device(ibdev, &props->base, uhw);
-	if (ret)
-		return ret;
-
-	props->exp_comp_mask = 0;
-	props->device_cap_flags2 = 0;
-	props->exp_comp_mask |= IB_EXP_DEVICE_ATTR_CAP_FLAGS2;
-
-	props->exp_comp_mask |= IB_EXP_DEVICE_ATTR_WITH_TIMESTAMP_MASK |
-		IB_EXP_DEVICE_ATTR_WITH_HCA_CORE_CLOCK;
-
-	props->exp_comp_mask |= IB_EXP_DEVICE_ATTR_DC_REQ_RD;
-	props->exp_comp_mask |= IB_EXP_DEVICE_ATTR_DC_RES_RD;
-	props->exp_comp_mask |= IB_EXP_DEVICE_ATTR_MAX_DCT;
-	if (MLX5_CAP_GEN(dev->mdev, dct)) {
-		props->device_cap_flags2 |= IB_EXP_DEVICE_DC_TRANSPORT;
-		props->dc_rd_req = 1 << MLX5_CAP_GEN(dev->mdev, log_max_ra_req_dc);
-		props->dc_rd_res = 1 << MLX5_CAP_GEN(dev->mdev, log_max_ra_res_dc);
-		props->max_dct = props->base.max_qp;
-	} else {
-		props->dc_rd_req = 0;
-		props->dc_rd_res = 0;
-		props->max_dct = 0;
-	}
-
-	return 0;
+	mlx5_dct_debugfs_init(dev);
 }
+
+void mlx5_cleanup_dct_table(struct mlx5_core_dev *dev)
+{
+	mlx5_dct_debugfs_cleanup(dev);
+}
+
+int mlx5_core_arm_dct(struct mlx5_core_dev *dev, struct mlx5_core_dct *dct)
+{
+	u32 out[MLX5_ST_SZ_DW(arm_dct_out)] = {0};
+	u32 in[MLX5_ST_SZ_DW(arm_dct_in)]   = {0};
+
+	MLX5_SET(arm_dct_in, in, opcode, MLX5_CMD_OP_ARM_DCT_FOR_KEY_VIOLATION);
+	MLX5_SET(arm_dct_in, in, dct_number, dct->mqp.qpn);
+	return mlx5_cmd_exec(dev, (void *)&in, sizeof(in),
+			     (void *)&out, sizeof(out));
+}
+EXPORT_SYMBOL_GPL(mlx5_core_arm_dct);

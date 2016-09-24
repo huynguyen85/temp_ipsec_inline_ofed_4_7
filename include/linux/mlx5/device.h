@@ -349,6 +349,7 @@ enum mlx5_event {
 	MLX5_EVENT_TYPE_HOST_PARAMS_CHANGE = 0xe,
 
 	MLX5_EVENT_TYPE_DCT_DRAINED        = 0x1c,
+	MLX5_EVENT_TYPE_DCT_KEY_VIOLATION  = 0x1d,
 
 	MLX5_EVENT_TYPE_FPGA_ERROR         = 0x20,
 	MLX5_EVENT_TYPE_FPGA_QP_ERROR      = 0x21,
@@ -468,6 +469,7 @@ enum {
 };
 
 enum {
+	MLX5_CAP_OFF_DCT		= 41,
 	MLX5_CAP_OFF_CMDIF_CSUM		= 46,
 };
 
@@ -972,6 +974,16 @@ struct mlx5_mkey_seg {
 enum {
 	MLX_EXT_PORT_CAP_FLAG_EXTENDED_PORT_INFO	= 1 <<  0
 };
+
+static inline const char *mlx5_dct_state_str(u8 state)
+{
+	switch (state) {
+	case MLX5_DCTC_STATE_ACTIVE:	return "Active";
+	case MLX5_DCTC_STATE_DRAINING:	return "Drained";
+	case MLX5_DCTC_STATE_DRAINED:	return "Drained";
+	default: return "Invalid";
+	}
+}
 
 enum {
 	VPORT_STATE_DOWN		= 0x0,

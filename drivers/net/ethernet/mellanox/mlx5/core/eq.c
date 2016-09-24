@@ -565,7 +565,7 @@ static int create_async_eqs(struct mlx5_core_dev *dev)
 
 	param = (struct mlx5_eq_param) {
 		.index = MLX5_EQ_ASYNC_IDX,
-		.mask = gather_async_events_mask(dev),
+		.mask = gather_async_events_mask(dev) | dev->async_events_mask,
 		.nent = MLX5_NUM_ASYNC_EQE,
 		.context = &table->async_eq,
 		.handler = mlx5_eq_async_int,

@@ -393,6 +393,7 @@ struct mlx5_bf {
 
 struct mlx5_ib_dct {
 	struct mlx5_core_dct    mdct;
+	struct mlx5_ib_dc_target *dc_target;
 	u32                     *in;
 };
 
@@ -1234,7 +1235,6 @@ struct ib_rwq_ind_table *mlx5_ib_create_rwq_ind_table(struct ib_device *device,
 						      struct ib_rwq_ind_table_init_attr *init_attr,
 						      struct ib_udata *udata);
 int mlx5_ib_destroy_rwq_ind_table(struct ib_rwq_ind_table *wq_ind_table);
-bool mlx5_ib_dc_atomic_is_supported(struct mlx5_ib_dev *dev);
 struct ib_dm *mlx5_ib_alloc_dm(struct ib_device *ibdev,
 			       struct ib_ucontext *context,
 			       struct ib_dm_alloc_attr *attr,
@@ -1330,6 +1330,13 @@ struct mlx5_core_dev *mlx5_ib_get_native_port_mdev(struct mlx5_ib_dev *dev,
 						   u8 *native_port_num);
 void mlx5_ib_put_native_port_mdev(struct mlx5_ib_dev *dev,
 				  u8 port_num);
+struct ib_qp *mlx5_ib_create_dct(struct ib_pd *pd,
+				 struct ib_qp_init_attr *attr,
+				 struct mlx5_ib_create_qp *ucmd, 
+				 struct ib_udata *udata);
+int mlx5_ib_destroy_dct(struct mlx5_ib_qp *qp);
+int mlx5_ib_modify_dct(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+		       int attr_mask, struct ib_udata *udata);
 
 #if IS_ENABLED(CONFIG_INFINIBAND_USER_ACCESS)
 int mlx5_ib_devx_create(struct mlx5_ib_dev *dev, bool is_user);
