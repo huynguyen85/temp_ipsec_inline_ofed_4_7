@@ -2448,6 +2448,10 @@ void ib_set_device_ops(struct ib_device *dev, const struct ib_device_ops *ops)
 	SET_DEVICE_OP(dev_ops, exp_create_qp);
 	SET_DEVICE_OP(dev_ops, exp_query_device);
 	SET_DEVICE_OP(dev_ops, exp_ioctl);
+	SET_DEVICE_OP(dev_ops, exp_create_dct);
+	SET_DEVICE_OP(dev_ops, exp_destroy_dct);
+	SET_DEVICE_OP(dev_ops, exp_query_dct);
+	SET_DEVICE_OP(dev_ops, exp_arm_dct);
 
 	SET_OBJ_SIZE(dev_ops, ib_ah);
 	SET_OBJ_SIZE(dev_ops, ib_pd);

@@ -13,6 +13,9 @@
 #include <linux/uaccess.h>
 
 #include "uverbs.h"
+#include "uverbs_exp.h"
+
+DEFINE_IDR(ib_uverbs_dct_idr);
 
 unsigned long ib_uverbs_exp_get_unmapped_area(struct file *filp,
 					      unsigned long addr,
@@ -49,7 +52,7 @@ out:
 	srcu_read_unlock(&file->device->disassociate_srcu, srcu_key);
 	return ret;
 }
-/*  TODO TALAT - reopen this function when we start to use
+
 void ib_uverbs_dct_event_handler(struct ib_event *event, void *context_ptr)
 {
 	struct ib_uevent_object *uobj;
@@ -61,4 +64,3 @@ void ib_uverbs_dct_event_handler(struct ib_event *event, void *context_ptr)
 				event->event, &uobj->event_list,
 				&uobj->events_reported);
 }
-*/

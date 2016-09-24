@@ -38,6 +38,7 @@
 #include <rdma/restrack.h>
 #include "rdma_core.h"
 #include "uverbs.h"
+#include "uverbs_exp.h"
 
 static int uverbs_free_ah(struct ib_uobject *uobject,
 			  enum rdma_remove_reason why,
@@ -335,6 +336,8 @@ const struct uapi_definition uverbs_def_obj_intf[] = {
 				      UAPI_DEF_OBJ_NEEDS_FN(destroy_flow)),
 	UAPI_DEF_CHAIN_OBJ_TREE_NAMED(UVERBS_OBJECT_WQ,
 				      UAPI_DEF_OBJ_NEEDS_FN(destroy_wq)),
+	UAPI_DEF_CHAIN_OBJ_TREE_NAMED(UVERBS_OBJECT_DCT,
+				      UAPI_DEF_OBJ_NEEDS_FN(exp_destroy_dct)),
 	UAPI_DEF_CHAIN_OBJ_TREE_NAMED(
 		UVERBS_OBJECT_RWQ_IND_TBL,
 		UAPI_DEF_OBJ_NEEDS_FN(destroy_rwq_ind_table)),

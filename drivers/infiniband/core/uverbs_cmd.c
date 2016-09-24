@@ -3724,6 +3724,15 @@ int ib_uverbs_exp_modify_qp(struct uverbs_attr_bundle *attrs)
 { return 0; }
 int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
 { return 0; }
+------ DCT -----
+int ib_uverbs_exp_create_dct(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_destroy_dct(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_query_dct(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_arm_dct(struct uverbs_attr_bundle *attrs)
+{ return 0; }
 */
 int ib_uverbs_exp_create_mr(struct uverbs_attr_bundle *attrs)
 { return 0; }
@@ -3779,14 +3788,6 @@ out:
 	uobj_put_read(mr->uobject);
 	return ret;
 }
-int ib_uverbs_exp_create_dct(struct uverbs_attr_bundle *attrs)
-{ return 0; }
-int ib_uverbs_exp_destroy_dct(struct uverbs_attr_bundle *attrs)
-{ return 0; }
-int ib_uverbs_exp_query_dct(struct uverbs_attr_bundle *attrs)
-{ return 0; }
-int ib_uverbs_exp_arm_dct(struct uverbs_attr_bundle *attrs)
-{ return 0; }
 
 
 
