@@ -1332,7 +1332,8 @@ static int create_qp(struct uverbs_attr_bundle *attrs,
 		}
 		device = xrcd->device;
 	} else {
-		if (cmd->qp_type == IB_QPT_XRC_INI) {
+		if (cmd->qp_type == IB_QPT_XRC_INI ||
+		    cmd->qp_type == IB_EXP_QPT_DC_INI) {
 			cmd->max_recv_wr = 0;
 			cmd->max_recv_sge = 0;
 		} else {

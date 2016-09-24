@@ -1262,6 +1262,9 @@ static const struct {
 				[IB_QPT_RC]  = (IB_QP_PKEY_INDEX		|
 						IB_QP_PORT			|
 						IB_QP_ACCESS_FLAGS),
+				[IB_EXP_QPT_DC_INI]  = (IB_QP_PKEY_INDEX	|
+							IB_QP_PORT		|
+							IB_QP_DC_KEY),
 				[IB_QPT_XRC_INI] = (IB_QP_PKEY_INDEX		|
 						IB_QP_PORT			|
 						IB_QP_ACCESS_FLAGS),
@@ -1299,6 +1302,9 @@ static const struct {
 				[IB_QPT_RC]  = (IB_QP_PKEY_INDEX		|
 						IB_QP_PORT			|
 						IB_QP_ACCESS_FLAGS),
+				[IB_EXP_QPT_DC_INI]  = (IB_QP_PKEY_INDEX	|
+							IB_QP_PORT		|
+							IB_QP_DC_KEY),
 				[IB_QPT_XRC_INI] = (IB_QP_PKEY_INDEX		|
 						IB_QP_PORT			|
 						IB_QP_ACCESS_FLAGS),
@@ -1324,6 +1330,8 @@ static const struct {
 						IB_QP_RQ_PSN			|
 						IB_QP_MAX_DEST_RD_ATOMIC	|
 						IB_QP_MIN_RNR_TIMER),
+				[IB_EXP_QPT_DC_INI]  = (IB_QP_AV		|
+							IB_QP_PATH_MTU),
 				[IB_QPT_XRC_INI] = (IB_QP_AV			|
 						IB_QP_PATH_MTU			|
 						IB_QP_DEST_QPN			|
@@ -1344,6 +1352,8 @@ static const struct {
 				 [IB_QPT_RC]  = (IB_QP_ALT_PATH			|
 						 IB_QP_ACCESS_FLAGS		|
 						 IB_QP_PKEY_INDEX),
+				 [IB_EXP_QPT_DC_INI]  = (IB_QP_PKEY_INDEX	|
+							 IB_QP_DC_KEY),
 				 [IB_QPT_XRC_INI] = (IB_QP_ALT_PATH		|
 						 IB_QP_ACCESS_FLAGS		|
 						 IB_QP_PKEY_INDEX),
@@ -1370,6 +1380,10 @@ static const struct {
 						IB_QP_RNR_RETRY			|
 						IB_QP_SQ_PSN			|
 						IB_QP_MAX_QP_RD_ATOMIC),
+				[IB_EXP_QPT_DC_INI]  = (IB_QP_TIMEOUT		|
+							IB_QP_RETRY_CNT		|
+							IB_QP_RNR_RETRY		|
+							IB_QP_MAX_QP_RD_ATOMIC),
 				[IB_QPT_XRC_INI] = (IB_QP_TIMEOUT		|
 						IB_QP_RETRY_CNT			|
 						IB_QP_RNR_RETRY			|
@@ -1392,6 +1406,10 @@ static const struct {
 						 IB_QP_ACCESS_FLAGS		|
 						 IB_QP_MIN_RNR_TIMER		|
 						 IB_QP_PATH_MIG_STATE),
+				 [IB_EXP_QPT_DC_INI] = (IB_QP_CUR_STATE		|
+							IB_QP_ALT_PATH		|
+							IB_QP_MIN_RNR_TIMER	|
+							IB_QP_PATH_MIG_STATE),
 				 [IB_QPT_XRC_INI] = (IB_QP_CUR_STATE		|
 						 IB_QP_ALT_PATH			|
 						 IB_QP_ACCESS_FLAGS		|
@@ -1426,6 +1444,10 @@ static const struct {
 						IB_QP_ALT_PATH			|
 						IB_QP_PATH_MIG_STATE		|
 						IB_QP_MIN_RNR_TIMER),
+				[IB_EXP_QPT_DC_INI]  = (IB_QP_CUR_STATE		|
+							IB_QP_ALT_PATH		|
+							IB_QP_PATH_MIG_STATE	|
+							IB_QP_MIN_RNR_TIMER),
 				[IB_QPT_XRC_INI] = (IB_QP_CUR_STATE		|
 						IB_QP_ACCESS_FLAGS		|
 						IB_QP_ALT_PATH			|
