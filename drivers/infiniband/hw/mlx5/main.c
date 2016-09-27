@@ -6219,6 +6219,10 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
 	.exp_destroy_dct = mlx5_ib_destroy_dc_target,
 	.exp_query_dct = mlx5_ib_query_dc_target,
 	.exp_arm_dct = mlx5_ib_arm_dc_target,
+#ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
+	.exp_prefetch_mr	= mlx5_ib_prefetch_mr,
+#endif
+
 
 	INIT_RDMA_OBJ_SIZE(ib_ah, mlx5_ib_ah, ibah),
 	INIT_RDMA_OBJ_SIZE(ib_pd, mlx5_ib_pd, ibpd),
@@ -6308,6 +6312,10 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 		(1ull << IB_USER_VERBS_EXP_CMD_REG_MR)		|
 		(1ull << IB_USER_VERBS_EXP_CMD_MODIFY_QP);
 
+#ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
+	dev->ib_dev.uverbs_exp_cmd_mask |=
+		(1ull << IB_USER_VERBS_EXP_CMD_PREFETCH_MR);
+#endif
 
 	if (MLX5_CAP_GEN(mdev, dct)) {
 		dev->ib_dev.uverbs_exp_cmd_mask |=
