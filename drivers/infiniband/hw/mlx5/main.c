@@ -6016,6 +6016,7 @@ static void mlx5_ib_stage_init_cleanup(struct mlx5_ib_dev *dev)
 	mlx5_ib_cleanup_multiport_master(dev);
 	if (IS_ENABLED(CONFIG_INFINIBAND_ON_DEMAND_PAGING)) {
 		srcu_barrier(&dev->mr_srcu);
+		debugfs_remove_recursive(dev->odp_stats.odp_debugfs);
 		cleanup_srcu_struct(&dev->mr_srcu);
 	}
 

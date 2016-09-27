@@ -107,7 +107,7 @@ static bool use_umr_mtt_update(struct mlx5_ib_mr *mr, u64 start, u64 length)
 		length + (start & (MLX5_ADAPTER_PAGE_SIZE - 1));
 }
 
-static void update_odp_mr(struct mlx5_ib_mr *mr)
+static void update_odp_mr(struct mlx5_ib_mr *mr, struct mlx5_ib_dev *dev)
 {
 	if (is_odp_mr(mr)) {
 		/*
@@ -130,6 +130,11 @@ static void update_odp_mr(struct mlx5_ib_mr *mr)
 		 * the invalidation handler.
 		 */
 		smp_wmb();
+		if (dev) {
+			atomic_inc(&dev->odp_stats.num_odp_mrs);
+			atomic_add(ib_umem_num_pages(mr->umem),
+				   &dev->odp_stats.num_odp_mr_pages);
+		}
 	}
 }
 
@@ -1251,7 +1256,7 @@ struct ib_mr *mlx5_ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 	mr->umem = umem;
 	set_mr_fields(dev, mr, npages, length, access_flags);
 
-	update_odp_mr(mr);
+	update_odp_mr(mr, dev);
 
 	if (!populate_mtts) {
 		int update_xlt_flags = MLX5_IB_UPD_XLT_ENABLE;
@@ -1420,7 +1425,7 @@ int mlx5_ib_rereg_user_mr(struct ib_mr *ib_mr, int flags, u64 start,
 
 	set_mr_fields(dev, mr, npages, len, access_flags);
 
-	update_odp_mr(mr);
+	update_odp_mr(mr, NULL);
 	return 0;
 
 err:
@@ -1533,6 +1538,10 @@ static void dereg_mr(struct mlx5_ib_dev *dev, struct mlx5_ib_mr *mr)
 						 ib_umem_end(umem));
 		else
 			mlx5_ib_free_implicit_mr(mr);
+		atomic_dec(&dev->odp_stats.num_odp_mrs);
+
+		atomic_sub(ib_umem_num_pages(mr->umem),
+			   &dev->odp_stats.num_odp_mr_pages);
 		/*
 		 * We kill the umem before the MR for ODP,
 		 * so that there will not be any invalidations in

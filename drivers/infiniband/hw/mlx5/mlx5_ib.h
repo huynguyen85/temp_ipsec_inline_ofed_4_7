@@ -973,6 +973,7 @@ struct mlx5_ib_dev {
 	 */
 	struct srcu_struct      mr_srcu;
 	u32			null_mkey;
+	struct mlx5_ib_exp_odp_stats	odp_stats;
 	struct mlx5_ib_flow_db	*flow_db;
 	/* protect resources needed as part of reset flow */
 	spinlock_t		reset_flow_resource_lock;
