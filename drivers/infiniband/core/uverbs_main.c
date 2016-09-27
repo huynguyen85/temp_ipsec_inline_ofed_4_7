@@ -52,6 +52,8 @@
 #include <rdma/ib.h>
 #include <rdma/uverbs_std_types.h>
 
+#include <rdma/ib_umem_odp.h>
+
 #include "uverbs.h"
 #include "uverbs_exp.h"
 #include "core_priv.h"
@@ -1284,6 +1286,9 @@ static void ib_uverbs_add_one(struct ib_device *device)
 
 	ret = cdev_device_add(&uverbs_dev->cdev, &uverbs_dev->dev);
 	if (ret)
+		goto err_uapi;
+
+	if (ib_umem_odp_add_statistic_nodes(&uverbs_dev->dev))
 		goto err_uapi;
 
 	ib_set_client_data(device, &uverbs_client, uverbs_dev);

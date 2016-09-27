@@ -2701,6 +2701,7 @@ struct ib_device {
 
 	int			      num_comp_vectors;
 	struct kobject		      *mad_sa_cc_kobj;
+	struct ib_odp_statistics     odp_statistics;
 
 	struct module               *owner;
 	union {
