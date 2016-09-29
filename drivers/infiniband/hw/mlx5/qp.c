@@ -2902,7 +2902,7 @@ static int to_mlx5_access_flags(struct mlx5_ib_qp *qp,
 			return -EOPNOTSUPP;
 
 		hw_access_flags |= MLX5_QP_BIT_RAE;
-		hw_access_flags |= atomic_mode << MLX5_ATOMIC_MODE_OFFSET;
+		hw_access_flags |= atomic_mode << MLX5_ATOMIC_MODE_OFF;
 	}
 
 	if (access_flags & IB_ACCESS_REMOTE_WRITE)
