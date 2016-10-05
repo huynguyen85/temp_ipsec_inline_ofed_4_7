@@ -436,6 +436,7 @@ struct ib_mr_init_attr {
 	u32 max_num_sg;
 };
 
+
 /**
  * struct ib_mkey_attr - Memory key attributes
  *
