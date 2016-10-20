@@ -806,10 +806,6 @@ out:
  * RDMA drivers supporting disassociation must have their user space designed
  * to cope in some way with their IO pages going to the zero page.
  */
-struct rdma_umap_priv {
-	struct vm_area_struct *vma;
-	struct list_head list;
-};
 
 static const struct vm_operations_struct rdma_umap_ops;
 
@@ -940,10 +936,10 @@ static const struct vm_operations_struct rdma_umap_ops = {
  * to userspace.
  */
 int rdma_user_mmap_io(struct ib_ucontext *ucontext, struct vm_area_struct *vma,
-		      unsigned long pfn, unsigned long size, pgprot_t prot)
+		      unsigned long pfn, unsigned long size, pgprot_t prot,  struct rdma_umap_priv *priv)
 {
 	struct ib_uverbs_file *ufile = ucontext->ufile;
-	struct rdma_umap_priv *priv;
+	struct rdma_umap_priv *new_priv;
 
 	if (!(vma->vm_flags & VM_SHARED))
 		return -EINVAL;
@@ -956,18 +952,22 @@ int rdma_user_mmap_io(struct ib_ucontext *ucontext, struct vm_area_struct *vma,
 		    vma->vm_file->private_data != ufile))
 		return -EINVAL;
 	lockdep_assert_held(&ufile->device->disassociate_srcu);
-
-	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-	if (!priv)
-		return -ENOMEM;
+	
+	if(!priv) {
+		new_priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+		if (!new_priv)
+			return -ENOMEM;
+	}
+	else
+		new_priv = priv;
 
 	vma->vm_page_prot = prot;
 	if (io_remap_pfn_range(vma, vma->vm_start, pfn, size, prot)) {
-		kfree(priv);
+		kfree(new_priv);
 		return -EAGAIN;
 	}
 
-	rdma_umap_priv_init(priv, vma);
+	rdma_umap_priv_init(new_priv, vma);
 	return 0;
 }
 EXPORT_SYMBOL(rdma_user_mmap_io);

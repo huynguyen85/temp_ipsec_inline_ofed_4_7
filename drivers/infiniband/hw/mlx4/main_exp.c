@@ -175,7 +175,7 @@ int mlx4_ib_exp_uar_mmap(struct ib_ucontext *context, struct vm_area_struct *vma
 
 	rdma_user_mmap_io(context, vma,
 				uar->uar.pfn, PAGE_SIZE,
-				pgprot_noncached(vma->vm_page_prot));
+				pgprot_noncached(vma->vm_page_prot), NULL);
         //We need it as in use in find_user_uar func
 	(&uar->hw_bar_info[HW_BAR_DB])->vma = vma;
 	
@@ -218,7 +218,7 @@ int mlx4_ib_exp_bf_mmap(struct ib_ucontext *context, struct vm_area_struct *vma,
 
 	rdma_user_mmap_io(context, vma, 
 				uar->uar.pfn + dev->dev->caps.num_uars, PAGE_SIZE, 
-				pgprot_noncached(vma->vm_page_prot));
+				pgprot_noncached(vma->vm_page_prot), NULL);
 	(&uar->hw_bar_info[HW_BAR_BF])->vma = vma;
 
 	return 0;

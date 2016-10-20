@@ -2902,17 +2902,21 @@ static inline void *ib_get_client_data(struct ib_device *device,
 }
 void  ib_set_client_data(struct ib_device *device, struct ib_client *client,
 			 void *data);
+struct rdma_umap_priv {
+	struct vm_area_struct *vma;
+	struct list_head list;
+};
 void ib_set_device_ops(struct ib_device *device,
 		       const struct ib_device_ops *ops);
 
 #if IS_ENABLED(CONFIG_INFINIBAND_USER_ACCESS)
 int rdma_user_mmap_io(struct ib_ucontext *ucontext, struct vm_area_struct *vma,
-		      unsigned long pfn, unsigned long size, pgprot_t prot);
+		      unsigned long pfn, unsigned long size, pgprot_t prot, struct rdma_umap_priv *priv);
 #else
 static inline int rdma_user_mmap_io(struct ib_ucontext *ucontext,
 				    struct vm_area_struct *vma,
 				    unsigned long pfn, unsigned long size,
-				    pgprot_t prot)
+				    pgprot_t prot, struct rdma_umap_priv *priv)
 {
 	return -EINVAL;
 }
