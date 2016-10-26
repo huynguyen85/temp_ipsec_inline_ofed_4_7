@@ -1145,3 +1145,14 @@ int ib_uverbs_exp_destroy_wq(struct uverbs_attr_bundle *attrs)
 {
 	return ib_uverbs_ex_destroy_wq(attrs);
 }
+
+int ib_uverbs_exp_create_rwq_ind_table(struct uverbs_attr_bundle *attrs)
+{
+	return ib_uverbs_ex_create_rwq_ind_table(attrs);
+}
+
+int ib_uverbs_exp_destroy_rwq_ind_table(struct uverbs_attr_bundle *attrs)
+{
+	return ib_uverbs_ex_destroy_rwq_ind_table(attrs);
+}
+

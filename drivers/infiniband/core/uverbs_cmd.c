@@ -3764,11 +3764,11 @@ int ib_uverbs_exp_modify_wq(struct uverbs_attr_bundle *attrs)
 { return 0; }
 int ib_uverbs_exp_destroy_wq(struct uverbs_attr_bundle *attrs)
 { return 0; }
-*/
 int ib_uverbs_exp_create_rwq_ind_table(struct uverbs_attr_bundle *attrs)
 { return 0; }
 int ib_uverbs_exp_destroy_rwq_ind_table(struct uverbs_attr_bundle *attrs)
 { return 0; }
+*/
 int ib_uverbs_exp_create_srq(struct uverbs_attr_bundle *attrs)
 { return 0; }
 
