@@ -1130,3 +1130,18 @@ out:
 
 	return err;
 }
+
+int ib_uverbs_exp_create_wq(struct uverbs_attr_bundle *attrs)
+{
+	return ib_uverbs_ex_create_wq(attrs);
+}
+
+int ib_uverbs_exp_modify_wq(struct uverbs_attr_bundle *attrs)
+{
+	return ib_uverbs_ex_modify_wq(attrs);
+}
+
+int ib_uverbs_exp_destroy_wq(struct uverbs_attr_bundle *attrs)
+{
+	return ib_uverbs_ex_destroy_wq(attrs);
+}
