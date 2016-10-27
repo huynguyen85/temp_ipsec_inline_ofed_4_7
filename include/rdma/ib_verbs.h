@@ -1584,6 +1584,9 @@ struct ib_ucontext {
 	struct list_head per_mm_list;
 
 	struct ib_rdmacg_object	cg_obj;
+
+	void		*peer_mem_private_data;
+	char		*peer_mem_name;
 	/*
 	 * Implementation details of the RDMA core, don't use in drivers:
 	 */
