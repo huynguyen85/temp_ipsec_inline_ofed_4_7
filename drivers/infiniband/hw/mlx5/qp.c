@@ -1638,7 +1638,7 @@ static void destroy_rss_raw_qp_tir(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *q
 static int create_rss_raw_qp_tir(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
 				 struct ib_pd *pd,
 				 struct ib_qp_init_attr *init_attr,
-				 struct ib_udata *udata)
+				 struct ib_udata *udata, int is_exp)
 {
 	struct mlx5_ib_ucontext *mucontext = rdma_udata_to_drv_context(
 		udata, struct mlx5_ib_ucontext, ibucontext);
@@ -1657,6 +1657,20 @@ static int create_rss_raw_qp_tir(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
 	struct mlx5_ib_create_qp_rss ucmd = {};
 	size_t required_cmd_sz;
 	u8 lb_flag = 0;
+	struct ib_rwq_ind_table *rwq_ind_tbl;
+	u64 rx_hash_fields_mask;
+	u32 ind_tbl_num;
+	u8 *rx_hash_key;
+	u8 rx_hash_function;
+	u8 rx_key_len;
+
+	if (is_exp) {
+		mlx5_ib_exp_get_hash_parameters(init_attr, &rwq_ind_tbl,
+						&rx_hash_fields_mask,
+						&ind_tbl_num, &rx_hash_key,
+						&rx_hash_function, &rx_key_len);
+		goto common;
+	}
 
 	if (init_attr->qp_type != IB_QPT_RAW_PACKET)
 		return -EOPNOTSUPP;
@@ -1726,6 +1740,13 @@ static int create_rss_raw_qp_tir(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
 		return -EINVAL;
 	}
 
+	rx_hash_fields_mask = ucmd.rx_hash_fields_mask;
+	ind_tbl_num = init_attr->rwq_ind_tbl->ind_tbl_num;
+	rx_hash_key = ucmd.rx_hash_key;
+	rx_hash_function = ucmd.rx_hash_function;
+	rx_key_len = ucmd.rx_key_len;
+
+common:
 	inlen = MLX5_ST_SZ_BYTES(create_tir_in);
 	outlen = MLX5_ST_SZ_BYTES(create_tir_out);
 	in = kvzalloc(inlen + outlen, GFP_KERNEL);
@@ -1737,8 +1758,7 @@ static int create_rss_raw_qp_tir(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
 	tirc = MLX5_ADDR_OF(create_tir_in, in, ctx);
 	MLX5_SET(tirc, tirc, disp_type,
 		 MLX5_TIRC_DISP_TYPE_INDIRECT);
-	MLX5_SET(tirc, tirc, indirect_table,
-		 init_attr->rwq_ind_tbl->ind_tbl_num);
+	MLX5_SET(tirc, tirc, indirect_table, ind_tbl_num);
 	MLX5_SET(tirc, tirc, transport_domain, tdn);
 
 	hfso = MLX5_ADDR_OF(tirc, tirc, rx_hash_field_selector_outer);
@@ -1753,20 +1773,20 @@ static int create_rss_raw_qp_tir(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
 	else
 		hfso = MLX5_ADDR_OF(tirc, tirc, rx_hash_field_selector_outer);
 
-	switch (ucmd.rx_hash_function) {
+	switch (rx_hash_function) {
 	case MLX5_RX_HASH_FUNC_TOEPLITZ:
 	{
 		void *rss_key = MLX5_ADDR_OF(tirc, tirc, rx_hash_toeplitz_key);
 		size_t len = MLX5_FLD_SZ_BYTES(tirc, rx_hash_toeplitz_key);
 
-		if (len != ucmd.rx_key_len) {
+		if (len != rx_key_len) {
 			err = -EINVAL;
 			goto err;
 		}
 
 		MLX5_SET(tirc, tirc, rx_hash_fn, MLX5_RX_HASH_FN_TOEPLITZ);
 		MLX5_SET(tirc, tirc, rx_hash_symmetric, 1);
-		memcpy(rss_key, ucmd.rx_hash_key, len);
+		memcpy(rss_key, rx_hash_key, len);
 		break;
 	}
 	default:
@@ -1774,37 +1794,37 @@ static int create_rss_raw_qp_tir(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
 		goto err;
 	}
 
-	if (!ucmd.rx_hash_fields_mask) {
+	if (!rx_hash_fields_mask) {
 		/* special case when this TIR serves as steering entry without hashing */
-		if (!init_attr->rwq_ind_tbl->log_ind_tbl_size)
+		if (!rwq_ind_tbl->log_ind_tbl_size)
 			goto create_tir;
 		err = -EINVAL;
 		goto err;
 	}
 
-	if (((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV4) ||
-	     (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV4)) &&
-	     ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV6) ||
-	     (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV6))) {
+	if (((rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV4) ||
+	     (rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV4)) &&
+	     ((rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV6) ||
+	     (rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV6))) {
 		err = -EINVAL;
 		goto err;
 	}
 
 	/* If none of IPV4 & IPV6 SRC/DST was set - this bit field is ignored */
-	if ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV4) ||
-	    (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV4))
+	if ((rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV4) ||
+	    (rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV4))
 		MLX5_SET(rx_hash_field_select, hfso, l3_prot_type,
 			 MLX5_L3_PROT_TYPE_IPV4);
-	else if ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV6) ||
-		 (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV6))
+	else if ((rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV6) ||
+		 (rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV6))
 		MLX5_SET(rx_hash_field_select, hfso, l3_prot_type,
 			 MLX5_L3_PROT_TYPE_IPV6);
 
-	outer_l4 = ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_TCP) ||
-		    (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_TCP)) << 0 |
-		   ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_UDP) ||
-		    (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_UDP)) << 1 |
-		   (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_IPSEC_SPI) << 2;
+	outer_l4 = ((rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_TCP) ||
+		    (rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_TCP)) << 0 |
+		   ((rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_UDP) ||
+		    (rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_UDP)) << 1 |
+		   (rx_hash_fields_mask & MLX5_RX_HASH_IPSEC_SPI) << 2;
 
 	/* Check that only one l4 protocol is set */
 	if (outer_l4 & (outer_l4 - 1)) {
@@ -1813,29 +1833,29 @@ static int create_rss_raw_qp_tir(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
 	}
 
 	/* If none of TCP & UDP SRC/DST was set - this bit field is ignored */
-	if ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_TCP) ||
-	    (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_TCP))
+	if ((rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_TCP) ||
+	    (rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_TCP))
 		MLX5_SET(rx_hash_field_select, hfso, l4_prot_type,
 			 MLX5_L4_PROT_TYPE_TCP);
-	else if ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_UDP) ||
-		 (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_UDP))
+	else if ((rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_UDP) ||
+		 (rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_UDP))
 		MLX5_SET(rx_hash_field_select, hfso, l4_prot_type,
 			 MLX5_L4_PROT_TYPE_UDP);
 
-	if ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV4) ||
-	    (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV6))
+	if ((rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV4) ||
+	    (rx_hash_fields_mask & MLX5_RX_HASH_SRC_IPV6))
 		selected_fields |= MLX5_HASH_FIELD_SEL_SRC_IP;
 
-	if ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV4) ||
-	    (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV6))
+	if ((rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV4) ||
+	    (rx_hash_fields_mask & MLX5_RX_HASH_DST_IPV6))
 		selected_fields |= MLX5_HASH_FIELD_SEL_DST_IP;
 
-	if ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_TCP) ||
-	    (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_UDP))
+	if ((rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_TCP) ||
+	    (rx_hash_fields_mask & MLX5_RX_HASH_SRC_PORT_UDP))
 		selected_fields |= MLX5_HASH_FIELD_SEL_L4_SPORT;
 
-	if ((ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_TCP) ||
-	    (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_UDP))
+	if ((rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_TCP) ||
+	    (rx_hash_fields_mask & MLX5_RX_HASH_DST_PORT_UDP))
 		selected_fields |= MLX5_HASH_FIELD_SEL_L4_DPORT;
 
 	if (ucmd.rx_hash_fields_mask & MLX5_RX_HASH_IPSEC_SPI)
@@ -2030,11 +2050,11 @@ static int create_qp_common(struct mlx5_ib_dev *dev, struct ib_pd *pd,
 	if (mlx5_st < 0)
 		return -EINVAL;
 
-	if (init_attr->rwq_ind_tbl) {
+	if (init_attr->rwq_ind_tbl || (is_exp && mlx5_ib_exp_is_rss(init_attr))) {
 		if (!udata)
 			return -ENOSYS;
 
-		err = create_rss_raw_qp_tir(dev, qp, pd, init_attr, udata);
+		err = create_rss_raw_qp_tir(dev, qp, pd, init_attr, udata, is_exp);
 		return err;
 	}
 
