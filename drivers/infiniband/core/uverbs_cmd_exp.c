@@ -532,6 +532,17 @@ int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 		resp->comp_mask |= IB_EXP_DEVICE_ATTR_RX_HASH;
 	}
 
+	if (exp_attr->exp_comp_mask & IB_EXP_DEVICE_ATTR_MP_RQ) {
+		resp->mp_rq_caps.allowed_shifts =  exp_attr->mp_rq_caps.allowed_shifts;
+		resp->mp_rq_caps.supported_qps =  exp_attr->mp_rq_caps.supported_qps;
+		resp->mp_rq_caps.max_single_stride_log_num_of_bytes =  exp_attr->mp_rq_caps.max_single_stride_log_num_of_bytes;
+		resp->mp_rq_caps.min_single_stride_log_num_of_bytes =  exp_attr->mp_rq_caps.min_single_stride_log_num_of_bytes;
+		resp->mp_rq_caps.max_single_wqe_log_num_of_strides =  exp_attr->mp_rq_caps.max_single_wqe_log_num_of_strides;
+		resp->mp_rq_caps.min_single_wqe_log_num_of_strides =  exp_attr->mp_rq_caps.min_single_wqe_log_num_of_strides;
+		resp->comp_mask |= IB_EXP_DEVICE_ATTR_MP_RQ;
+	}
+
+
 
 	ret = ib_copy_to_udata( &attrs->ucore, resp, min_t(size_t, sizeof(*resp),  &attrs->ucore.outlen));
 out:
