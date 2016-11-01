@@ -58,6 +58,7 @@ enum {
 enum {
 	MLX5_WQ_FLAG_SIGNATURE		= 1 << 0,
 	/* Exp part */
+	MLX5_EXP_WQ_FLAG_SCATTER_FCS	= 1 << 30,
 	MLX5_EXP_WQ_FLAG_RX_END_PADDING = 1 << 31,
 };
 
