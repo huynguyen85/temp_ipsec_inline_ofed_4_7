@@ -37,6 +37,7 @@
 #include <linux/scatterlist.h>
 #include <linux/workqueue.h>
 #include <rdma/ib_verbs.h>
+#include <rdma/ib_peer_mem.h>
 
 struct ib_ucontext;
 struct ib_umem_odp;
@@ -53,6 +54,10 @@ struct ib_umem {
 	struct sg_table sg_head;
 	int             nmap;
 	unsigned int    sg_nents;
+	/* peer memory that manages this umem */
+	struct ib_peer_memory_client *ib_peer_mem;
+	/* peer memory private context */
+	void *peer_mem_client_context;
 };
 
 /* Returns the offset of the umem start relative to the first page. */
@@ -81,7 +86,8 @@ static inline size_t ib_umem_num_pages(struct ib_umem *umem)
 #ifdef CONFIG_INFINIBAND_USER_MEM
 
 struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
-			    size_t size, int access, int dmasync);
+			    size_t size, int access, int dmasync,
+			    unsigned long peer_mem_flags);
 void ib_umem_release(struct ib_umem *umem);
 int ib_umem_page_count(struct ib_umem *umem);
 int ib_umem_copy_from(void *dst, struct ib_umem *umem, size_t offset,
@@ -95,8 +101,9 @@ unsigned long ib_umem_find_best_pgsz(struct ib_umem *umem,
 #include <linux/err.h>
 
 static inline struct ib_umem *ib_umem_get(struct ib_udata *udata,
-					  unsigned long addr, size_t size,
-					  int access, int dmasync)
+					     unsigned long addr, size_t size,
+					     int access, int dmasync,
+					     unsigned long peer_mem_flags) {
 {
 	return ERR_PTR(-EINVAL);
 }
