@@ -798,7 +798,7 @@ static int get_indirect_num_descs(struct mlx5_core_mkey *mmkey)
  * -EFAULT when there's an error mapping the requested pages. The caller will
  *  abort the page fault handling.
  */
-static int pagefault_single_data_segment(struct mlx5_ib_dev *dev,
+int pagefault_single_data_segment(struct mlx5_ib_dev *dev,
 					 struct ib_pd *pd, u32 key,
 					 u64 io_virt, size_t bcnt,
 					 u32 *bytes_committed,
@@ -1743,11 +1743,21 @@ int mlx5_ib_odp_init_one(struct mlx5_ib_dev *dev)
 
 	ret = mlx5_ib_create_pf_eq(dev, &dev->odp_pf_eq);
 
+	init_completion(&dev->comp_prefetch);
+	atomic_set(&dev->num_prefetch, 1);
+
 	return ret;
 out_srcu:
 	cleanup_srcu_struct(&dev->mr_srcu);
 	return ret;
 }
+
+void mlx5_ib_odp_shutdown_one(struct mlx5_ib_dev *dev)
+{
+	if (!atomic_dec_and_test(&dev->num_prefetch))
+		wait_for_completion(&dev->comp_prefetch);
+}
+
 
 void mlx5_ib_odp_cleanup_one(struct mlx5_ib_dev *dev)
 {
