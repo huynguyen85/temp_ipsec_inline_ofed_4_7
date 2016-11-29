@@ -1002,6 +1002,7 @@ struct mlx5_ib_dev {
 	u32			null_mkey;
 	struct mlx5_ib_exp_odp_stats	odp_stats;
 	struct mlx5_ib_flow_db	*flow_db;
+	struct ib_nvmf_caps	nvmf_caps;
 	/* protect resources needed as part of reset flow */
 	spinlock_t		reset_flow_resource_lock;
 	struct list_head	qp_list;

@@ -852,6 +852,11 @@ int mlx5_ib_query_device(struct ib_device *ibdev,
 	if (MLX5_CAP_GEN(mdev, block_lb_mc))
 		props->device_cap_flags |= IB_DEVICE_BLOCK_MULTICAST_LOOPBACK;
 
+	if (MLX5_CAP_GEN(mdev, nvmf_target_offload)) {
+		props->device_cap_flags |= IB_DEVICE_NVMF_TARGET_OFFLOAD;
+		props->nvmf_caps = dev->nvmf_caps;
+	}
+
 	if (MLX5_CAP_GEN(dev->mdev, eth_net_offloads) && raw_support) {
 		if (MLX5_CAP_ETH(mdev, csum_cap)) {
 			/* Legacy bit to support old userspace libraries */
@@ -6330,6 +6335,9 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 	    IS_ENABLED(CONFIG_MLX5_CORE_IPOIB))
 		ib_set_device_ops(&dev->ib_dev,
 				  &mlx5_ib_dev_ipoib_enhanced_ops);
+
+	if (MLX5_CAP_GEN(mdev, nvmf_target_offload))
+		mlx5_ib_internal_fill_nvmf_caps(dev);
 
 	if (mlx5_core_is_pf(mdev))
 		ib_set_device_ops(&dev->ib_dev, &mlx5_ib_dev_sriov_ops);
