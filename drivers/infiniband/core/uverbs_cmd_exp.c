@@ -615,6 +615,11 @@ int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 		resp->comp_mask |= IB_EXP_DEVICE_ATTR_SW_PARSING_CAPS;
 	}
 
+	if (exp_attr->exp_comp_mask & IB_EXP_DEVICE_ATTR_ODP_MAX_SIZE) {
+		resp->odp_mr_max_size = exp_attr->odp_caps.max_size;
+		resp->comp_mask |= IB_EXP_DEVICE_ATTR_ODP_MAX_SIZE;
+	}
+
 	ret = ib_copy_to_udata( &attrs->ucore, resp, min_t(size_t, sizeof(*resp),  &attrs->ucore.outlen));
 out:
 	kfree(exp_attr);
