@@ -752,7 +752,7 @@ static bool mkey_is_eq(struct mlx5_core_mkey *mmkey, u32 key)
 	if (!mmkey)
 		return false;
 	if (mmkey->type == MLX5_MKEY_MW)
-		return mlx5_base_mkey(mmkey->key) == mlx5_base_mkey(key);
+		return mlx5_mkey_to_idx(mmkey->key) == mlx5_mkey_to_idx(key);
 	return mmkey->key == key;
 }
 
@@ -804,7 +804,7 @@ static int pagefault_single_data_segment(struct mlx5_ib_dev *dev,
 	bcnt -= *bytes_committed;
 
 next_mr:
-	mmkey = __mlx5_mr_lookup(dev->mdev, mlx5_base_mkey(key));
+	mmkey = __mlx5_mr_lookup(dev->mdev, mlx5_mkey_to_idx(key));
 	if (!mkey_is_eq(mmkey, key)) {
 		mlx5_ib_dbg(dev, "failed to find mkey %x\n", key);
 		atomic_inc(&dev->odp_stats.num_mrs_not_found);
@@ -1722,7 +1722,7 @@ static void num_pending_prefetch_dec(struct mlx5_ib_dev *dev,
 		struct mlx5_ib_mr *mr;
 
 		mmkey = __mlx5_mr_lookup(dev->mdev,
-					 mlx5_base_mkey(sg_list[i].lkey));
+					 mlx5_mkey_to_idx(sg_list[i].lkey));
 		mr = container_of(mmkey, struct mlx5_ib_mr, mmkey);
 		atomic_dec(&mr->num_pending_prefetch);
 	}
@@ -1742,7 +1742,7 @@ static bool num_pending_prefetch_inc(struct ib_pd *pd,
 		struct mlx5_ib_mr *mr;
 
 		mmkey = __mlx5_mr_lookup(dev->mdev,
-					 mlx5_base_mkey(sg_list[i].lkey));
+					 mlx5_mkey_to_idx(sg_list[i].lkey));
 		if (!mmkey || mmkey->key != sg_list[i].lkey) {
 			ret = false;
 			break;

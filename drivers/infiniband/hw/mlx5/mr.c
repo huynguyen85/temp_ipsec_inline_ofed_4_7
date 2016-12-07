@@ -150,10 +150,11 @@ static void reg_mr_callback(int status, struct mlx5_async_work *context)
 	struct mlx5_mr_cache *cache = &dev->cache;
 	int c = order2idx(dev, mr->order);
 	struct mlx5_cache_ent *ent = &cache->ent[c];
-	u8 key;
-	unsigned long flags;
+	struct mlx5_core_mkey *mkey = &mr->mmkey;
 	struct mlx5_mkey_table *table = &dev->mdev->priv.mkey_table;
+	unsigned long flags;
 	int err;
+	u8 key;
 
 	spin_lock_irqsave(&ent->lock, flags);
 	ent->pending--;
@@ -170,7 +171,8 @@ static void reg_mr_callback(int status, struct mlx5_async_work *context)
 	spin_lock_irqsave(&dev->mdev->priv.mkey_lock, flags);
 	key = dev->mdev->priv.mkey_key++;
 	spin_unlock_irqrestore(&dev->mdev->priv.mkey_lock, flags);
-	mr->mmkey.key = mlx5_idx_to_mkey(MLX5_GET(create_mkey_out, mr->out, mkey_index)) | key;
+	mkey->key = mlx5_idx_to_mkey(MLX5_GET(create_mkey_out, mr->out,
+					      mkey_index)) | key;
 
 	cache->last_add = jiffies;
 
@@ -180,12 +182,13 @@ static void reg_mr_callback(int status, struct mlx5_async_work *context)
 	ent->size++;
 	spin_unlock_irqrestore(&ent->lock, flags);
 
-	write_lock_irqsave(&table->lock, flags);
-	err = radix_tree_insert(&table->tree, mlx5_base_mkey(mr->mmkey.key),
-				&mr->mmkey);
+	spin_lock_irqsave(&table->lock, flags);
+	err = radix_tree_insert(&table->tree, mlx5_mkey_to_idx(mkey->key),
+				mkey);
+	spin_unlock_irqrestore(&table->lock, flags);
 	if (err)
-		pr_err("Error inserting to mkey tree. 0x%x\n", -err);
-	write_unlock_irqrestore(&table->lock, flags);
+		pr_err("failed radix tree insert of mkey 0x%x, %d\n",
+		       mkey->key, err);
 
 	if (!completion_done(&ent->compl))
 		complete(&ent->compl);
