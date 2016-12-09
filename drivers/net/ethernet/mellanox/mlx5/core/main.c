@@ -83,6 +83,10 @@ static unsigned int prof_sel = MLX5_DEFAULT_PROF;
 module_param_named(prof_sel, prof_sel, uint, 0444);
 MODULE_PARM_DESC(prof_sel, "profile selector. Valid range 0 - 2");
 
+static bool probe_vf = 1;
+module_param_named(probe_vf, probe_vf, bool, 0644);
+MODULE_PARM_DESC(probe_vf, "probe VFs or not, 0 = not probe, 1 = probe. Default = 1");
+
 static u32 sw_owner_id[4];
 
 enum {
@@ -1344,6 +1348,7 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 {
 	struct mlx5_core_dev *dev;
 	struct devlink *devlink;
+	struct mlx5_priv *priv;
 	int err;
 
 	devlink = devlink_alloc(&mlx5_devlink_ops, sizeof(*dev));
@@ -1353,7 +1358,15 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	}
 
 	dev = devlink_priv(devlink);
+	priv = &dev->priv;
 	dev->device = &pdev->dev;
+	priv->sriov.probe_vf = probe_vf;
+
+	if (pdev->is_virtfn && !probe_vf) {
+		dev_info(&pdev->dev, "VFs are not binded to mlx5_core\n");
+		return 0;
+	}
+
 	dev->pdev = pdev;
 
 	err = mlx5_mdev_init(dev, prof_sel);
@@ -1398,8 +1411,16 @@ mdev_init_err:
 
 static void remove_one(struct pci_dev *pdev)
 {
-	struct mlx5_core_dev *dev  = pci_get_drvdata(pdev);
-	struct devlink *devlink = priv_to_devlink(dev);
+	struct mlx5_core_dev *dev;
+	struct devlink *devlink;
+	struct mlx5_priv *priv;
+
+	dev  = pci_get_drvdata(pdev);
+	devlink = priv_to_devlink(dev);
+	priv = &dev->priv;
+
+	if (pdev->is_virtfn && !priv->sriov.probe_vf)
+		goto out;
 
 	devlink_unregister(devlink);
 	mlx5_unregister_device(dev);
@@ -1412,6 +1433,7 @@ static void remove_one(struct pci_dev *pdev)
 
 	mlx5_pci_close(dev);
 	mlx5_mdev_uninit(dev);
+out:
 	devlink_free(devlink);
 }
 

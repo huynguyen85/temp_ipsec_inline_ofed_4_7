@@ -500,6 +500,7 @@ struct mlx5_core_sriov {
 	struct kobject		*config;
 	struct kobject		node_guid_kobj;
 	struct mlx5_sriov_vf	*vfs;
+	bool			probe_vf;
 };
 
 struct mlx5_fc_stats {
