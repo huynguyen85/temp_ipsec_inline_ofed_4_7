@@ -911,7 +911,7 @@ int ib_uverbs_exp_create_cq(struct uverbs_attr_bundle *attrs)
 
 int ib_uverbs_exp_modify_qp(struct uverbs_attr_bundle *attrs)
 {
-	struct ib_uverbs_exp_modify_qp	cmd;
+	struct ib_uverbs_exp_modify_qp	cmd = {};
 	int ret;
 	struct ib_qp		       *qp;
 	struct ib_qp_attr	       *attr;
