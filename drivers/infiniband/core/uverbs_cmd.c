@@ -189,6 +189,12 @@ struct ib_udata *uverbs_get_cleared_udata(struct uverbs_attr_bundle *attrs)
 	return &attrs->driver_udata;
 }
 
+static int disable_raw_qp_enforcement;
+module_param_named(disable_raw_qp_enforcement, disable_raw_qp_enforcement, int,
+		   0444);
+MODULE_PARM_DESC(disable_raw_qp_enforcement, "Disable RAW QP enforcement for "
+		 "being opened by root (default: 0)");
+
 static struct ib_uverbs_completion_event_file *
 _ib_uverbs_lookup_comp_file(s32 fd, struct uverbs_attr_bundle *attrs)
 {
@@ -1288,7 +1294,8 @@ static int create_qp(struct uverbs_attr_bundle *attrs,
 	bool has_sq = true;
 	struct ib_device *ib_dev;
 
-	if (cmd->qp_type == IB_QPT_RAW_PACKET && !capable(CAP_NET_RAW))
+	if (!disable_raw_qp_enforcement &&
+	    cmd->qp_type == IB_QPT_RAW_PACKET && !capable(CAP_NET_RAW))
 		return -EPERM;
 
 	obj = (struct ib_uqp_object *)uobj_alloc(UVERBS_OBJECT_QP, attrs,
@@ -3222,7 +3229,9 @@ int ib_uverbs_create_flow_common(struct uverbs_attr_bundle *attrs, bool is_exp)
 	if (cmd.comp_mask)
 		return -EINVAL;
 
-	if (!capable(CAP_NET_RAW))
+	if ((cmd.flow_attr.type == IB_FLOW_ATTR_SNIFFER &&
+	     !capable(CAP_NET_ADMIN)) ||
+	    (!capable(CAP_NET_RAW) && !disable_raw_qp_enforcement))
 		return -EPERM;
 
 	if (cmd.flow_attr.flags >= IB_FLOW_ATTR_FLAGS_RESERVED)
