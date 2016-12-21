@@ -271,6 +271,11 @@ int mlx5_icmd_access_register(struct mlx5_core_dev *dev,
 void mlx5e_init(void);
 void mlx5e_cleanup(void);
 
+int mlx5_modify_other_hca_cap_roce(struct mlx5_core_dev *mdev,
+				   int function_id, bool value);
+int mlx5_get_other_hca_cap_roce(struct mlx5_core_dev *mdev,
+				int function_id, bool *value);
+
 static inline bool mlx5_sriov_is_enabled(struct mlx5_core_dev *dev)
 {
 	return pci_num_vf(dev->pdev) ? true : false;

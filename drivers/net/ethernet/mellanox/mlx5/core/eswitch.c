@@ -1829,6 +1829,7 @@ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
 {
 	int total_vports = MLX5_TOTAL_VPORTS(dev);
 	struct mlx5_eswitch *esw;
+	bool access_other_hca_roce;
 	struct mlx5_vport *vport;
 	int err, i;
 
@@ -1871,9 +1872,17 @@ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
 	hash_init(esw->offloads.mod_hdr_tbl);
 	mutex_init(&esw->state_lock);
 
+	access_other_hca_roce = MLX5_CAP_GEN(dev, vhca_group_manager) &&
+				MLX5_CAP_GEN(dev, access_other_hca_roce);
+
 	mlx5_esw_for_all_vports(esw, i, vport) {
 		vport->vport = mlx5_eswitch_index_to_vport_num(esw, i);
 		vport->info.link_state = MLX5_VPORT_ADMIN_STATE_AUTO;
+		vport->info.roce = true;
+		if (access_other_hca_roce)
+			mlx5_get_other_hca_cap_roce(dev, vport->vport,
+						    &vport->info.roce);
+
 		vport->dev = dev;
 		INIT_WORK(&vport->vport_change_handler,
 			  esw_vport_change_handler);
@@ -1897,6 +1906,49 @@ abort:
 	kfree(esw->vports);
 	kfree(esw);
 	return err;
+}
+
+int mlx5_eswitch_vport_modify_other_hca_cap_roce(struct mlx5_eswitch *esw,
+						 int vport_num, bool value)
+{
+	int err = 0;
+
+	if (!(MLX5_CAP_GEN(esw->dev, vhca_group_manager) &&
+	      MLX5_CAP_GEN(esw->dev, access_other_hca_roce)))
+		return -EOPNOTSUPP;
+
+	if ((vport_num < 1) || (vport_num >= esw->total_vports))
+		return -EINVAL;
+
+	mutex_lock(&esw->state_lock);
+
+	if (esw->vports[vport_num].info.roce == value)
+		goto out;
+
+	err = mlx5_modify_other_hca_cap_roce(esw->dev, vport_num, value);
+	if (!err)
+		esw->vports[vport_num].info.roce = value;
+
+out:
+	mutex_unlock(&esw->state_lock);
+	return err;
+}
+
+int mlx5_eswitch_vport_get_other_hca_cap_roce(struct mlx5_eswitch *esw,
+					      int vport_num, bool *value)
+{
+	if (!(MLX5_CAP_GEN(esw->dev, vhca_group_manager) &&
+	      MLX5_CAP_GEN(esw->dev, access_other_hca_roce)))
+		return -EOPNOTSUPP;
+
+	if ((vport_num < 1) || (vport_num >= esw->total_vports))
+		return -EINVAL;
+
+	mutex_lock(&esw->state_lock);
+	*value = esw->vports[vport_num].info.roce;
+	mutex_unlock(&esw->state_lock);
+
+	return 0;
 }
 
 void mlx5_eswitch_cleanup(struct mlx5_eswitch *esw)
