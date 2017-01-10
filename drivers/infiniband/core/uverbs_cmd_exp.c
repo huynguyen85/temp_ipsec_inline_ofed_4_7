@@ -83,6 +83,12 @@ int ib_uverbs_exp_create_qp(struct uverbs_attr_bundle *attrs)
 	if (ret)
 		goto err_cmd_attr;
 
+	if (!disable_raw_qp_enforcement &&
+	    cmd_exp->qp_type == IB_QPT_RAW_PACKET && !capable(CAP_NET_RAW)) {
+		ret = -EPERM;
+		goto err_cmd_attr;
+	}
+
 	for (i = 0; i < sizeof(cmd_exp->reserved3); i++) {
 		if (cmd_exp->reserved3[i] != 0) {
 			ret = -EINVAL;
