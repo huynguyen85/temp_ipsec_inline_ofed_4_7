@@ -328,11 +328,15 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
 	 * region causes an integer overflow, return error.
 	 */
 	if (((addr + size) < addr) ||
-	    PAGE_ALIGN(addr + size) < (addr + size))
-		return ERR_PTR(-EINVAL);
+	    PAGE_ALIGN(addr + size) < (addr + size)) {
+		pr_err("%s: integer overflow, size=%zu\n", __func__, size);
+ 		return ERR_PTR(-EINVAL);
+	}
 
-	if (!can_do_mlock())
-		return ERR_PTR(-EPERM);
+	if (!can_do_mlock()) {
+		pr_err("%s: no mlock permission\n", __func__);
+ 		return ERR_PTR(-EPERM);
+	}
 
 	if (access & IB_ACCESS_ON_DEMAND) {
 		umem = kzalloc(sizeof(struct ib_umem_odp), GFP_KERNEL);
@@ -383,6 +387,8 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
 
 	npages = ib_umem_num_pages(umem);
 	if (npages == 0 || npages > UINT_MAX) {
+		pr_err("%s: npages(%lu) isn't in the range 1..%u\n", __func__,
+		       npages, UINT_MAX);
 		ret = -EINVAL;
 		goto out;
 	}
@@ -392,6 +398,8 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
 	new_pinned = atomic64_add_return(npages, &mm->pinned_vm);
 	if (new_pinned > lock_limit && !capable(CAP_IPC_LOCK)) {
 		atomic64_sub(npages, &mm->pinned_vm);
+		pr_err("%s: requested to lock(%lu) while limit is(%lu)\n",
+		       __func__, new_pinned, lock_limit);
 		ret = -ENOMEM;
 		goto out;
 	}
@@ -399,8 +407,11 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
 	cur_base = addr & PAGE_MASK;
 
 	ret = sg_alloc_table(&umem->sg_head, npages, GFP_KERNEL);
-	if (ret)
+	if (ret) {
+		pr_err("%s: failed to allocate sg table, npages=%lu\n",
+		       __func__, npages);
 		goto vma;
+	}
 
 	if (!umem->writable)
 		gup_flags |= FOLL_FORCE;
@@ -415,6 +426,10 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
 				     gup_flags | FOLL_LONGTERM,
 				     page_list, NULL);
 		if (ret < 0) {
+			pr_err("%s: failed to get user pages, nr_pages=%lu, flags=%u\n", __func__,
+			       min_t(unsigned long, npages,
+				     PAGE_SIZE / sizeof(struct page *)),
+			       gup_flags);
 			up_read(&mm->mmap_sem);
 			goto umem_release;
 		}
@@ -438,6 +453,8 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
 				  dma_attrs);
 
 	if (!umem->nmap) {
+		pr_err("%s: failed to map scatterlist, npages=%lu\n", __func__,
+		       npages);
 		ret = -ENOMEM;
 		goto umem_release;
 	}
