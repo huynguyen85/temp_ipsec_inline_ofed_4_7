@@ -3052,7 +3052,10 @@ static int ib_uverbs_ex_modify_wq(struct uverbs_attr_bundle *attrs)
 	if (ret)
 		return ret;
 
-	if (!cmd.attr_mask)
+	/* exp cmd can be without attr_mask, some values are passed via vendor
+	 * channel.
+	 */
+	if ((!cmd.attr_mask) && (attrs->ucore.src != IB_UDATA_EXP_CMD))
 		return -EINVAL;
 
 	if (cmd.attr_mask > (IB_WQ_STATE | IB_WQ_CUR_STATE | IB_WQ_FLAGS))
