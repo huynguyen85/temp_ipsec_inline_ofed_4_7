@@ -3407,7 +3407,7 @@ static int __uverbs_create_xsrq(struct uverbs_attr_bundle *attrs,
 	struct ib_srq                   *srq;
 	struct ib_uobject               *uninitialized_var(xrcd_uobj);
 	struct ib_srq_init_attr          attr;
-	int ret;
+	int    ret = 0;
 	struct ib_device *ib_dev;
 
 	obj = (struct ib_usrq_object *)uobj_alloc(UVERBS_OBJECT_SRQ, attrs,
@@ -3501,7 +3501,14 @@ static int __uverbs_create_xsrq(struct uverbs_attr_bundle *attrs,
 	if (cmd->srq_type == IB_SRQT_XRC)
 		resp.srqn = srq->ext.xrc.srq_num;
 
-	ret = uverbs_response(attrs, &resp, sizeof(resp));
+	if (udata->src == IB_UDATA_EXP_CMD) {
+		ret = ib_uverbs_exp_create_srq_resp(&resp, cmd->response);
+	} else {
+		if (copy_to_user(u64_to_user_ptr(cmd->response),
+				 &resp, sizeof resp))
+			ret = -EFAULT;
+	}
+
 	if (ret)
 		goto err_copy;
 
@@ -3782,9 +3789,9 @@ int ib_uverbs_exp_create_rwq_ind_table(struct uverbs_attr_bundle *attrs)
 { return 0; }
 int ib_uverbs_exp_destroy_rwq_ind_table(struct uverbs_attr_bundle *attrs)
 { return 0; }
-*/
 int ib_uverbs_exp_create_srq(struct uverbs_attr_bundle *attrs)
 { return 0; }
+*/
 
 
 /*

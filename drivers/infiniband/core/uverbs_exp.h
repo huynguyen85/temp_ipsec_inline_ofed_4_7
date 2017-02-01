@@ -30,4 +30,8 @@ void ib_uverbs_async_handler(struct ib_uverbs_file *file,
 void ib_uverbs_dct_event_handler(struct ib_event *event, void *context_ptr);
 
 int ib_uverbs_create_flow_common(struct uverbs_attr_bundle *attrs, bool is_exp);
+
+int ib_uverbs_exp_create_srq_resp(struct ib_uverbs_create_srq_resp *resp,
+				  u64 response);
+
 #endif
