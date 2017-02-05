@@ -36,6 +36,7 @@
 
 #include "mlx5_ib.h"
 #include "user_exp.h"
+#include "srq_exp.h"
 
 int mlx5_ib_exp_create_srq_user(struct mlx5_ib_dev *dev,
 				struct mlx5_srq_attr *in,
@@ -71,5 +72,55 @@ int mlx5_ib_exp_create_srq_user(struct mlx5_ib_dev *dev,
 	memcpy(ucmd, &ucmd_exp, ucmdlen);
 
 	return 0;
+}
+
+int get_nvmf_pas_size(struct mlx5_nvmf_attr *nvmf)
+{
+	return nvmf->staging_buffer_number_of_pages * sizeof(u64);
+}
+
+void set_nvmf_srq_pas(struct mlx5_nvmf_attr *nvmf, __be64 *pas)
+{
+	int i;
+
+	for (i = 0; i < nvmf->staging_buffer_number_of_pages; i++)
+		pas[i] = cpu_to_be64(nvmf->staging_buffer_pas[i]);
+}
+
+void set_nvmf_xrq_context(struct mlx5_nvmf_attr *nvmf, void *xrqc)
+{
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.nvmf_offload_type,
+		 nvmf->type);
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.log_max_namespace,
+		 nvmf->log_max_namespace);
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.offloaded_capsules_count,
+		 nvmf->offloaded_capsules_count);
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.ioccsz,
+		 nvmf->ioccsz);
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.icdoff,
+		 nvmf->icdoff);
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.log_max_io_size,
+		 nvmf->log_max_io_size);
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.nvme_memory_log_page_size,
+		 nvmf->nvme_memory_log_page_size);
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.staging_buffer_log_page_size,
+		 nvmf->staging_buffer_log_page_size);
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.staging_buffer_number_of_pages,
+		 nvmf->staging_buffer_number_of_pages);
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.staging_buffer_page_offset,
+		 nvmf->staging_buffer_page_offset);
+	MLX5_SET(xrqc, xrqc,
+		 nvme_offload_context.nvme_queue_size,
+		 nvmf->nvme_queue_size);
 }
 
