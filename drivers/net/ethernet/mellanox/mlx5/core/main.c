@@ -68,6 +68,7 @@
 #include "lib/devcom.h"
 #include "diag/fw_tracer.h"
 #include "ecpf.h"
+#include "icmd.h"
 
 MODULE_AUTHOR("Eli Cohen <eli@mellanox.com>");
 MODULE_DESCRIPTION("Mellanox 5th generation network adapters (ConnectX series) core driver");
@@ -1492,6 +1493,14 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto pci_init_err;
 	}
 
+#ifdef CONFIG_CXL_LIB
+	if (mlx5_core_is_pf(dev)) {
+		err = mlx5_icmd_init(dev);
+		if (err)
+			dev_info(&pdev->dev, "mlx5_icmd_init failed with error code %d\n", err);
+	}
+#endif
+
 	err = mlx5_crdump_init(dev);
 	if (err) {
 		dev_err(&pdev->dev, "mlx5_crdump_init failed with error code %d\n", err);
@@ -1520,6 +1529,10 @@ err_load_one:
 	mlx5_crdump_cleanup(dev);
 clean_crdump:
 	mlx5_pci_close(dev);
+#ifdef CONFIG_CXL_LIB
+	if (mlx5_core_is_pf(dev))
+		mlx5_icmd_cleanup(dev);
+#endif
 pci_init_err:
 	mlx5_mdev_uninit(dev);
 mdev_init_err:
@@ -1551,6 +1564,10 @@ static void remove_one(struct pci_dev *pdev)
 	}
 
 	mlx5_crdump_cleanup(dev);
+#ifdef CONFIG_CXL_LIB
+	if (mlx5_core_is_pf(dev))
+		mlx5_icmd_cleanup(dev);
+#endif
 	mlx5_pci_close(dev);
 	mlx5_mdev_uninit(dev);
 out:
