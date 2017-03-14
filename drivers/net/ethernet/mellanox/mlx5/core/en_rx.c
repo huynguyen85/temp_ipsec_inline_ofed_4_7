@@ -191,6 +191,17 @@ static inline void mlx5e_rx_cache_page_swap(struct mlx5e_page_cache *cache,
 	cache->page_cache[b] = tmp;
 }
 
+static inline void
+mlx5e_rx_cache_reduce_reset_watch(struct mlx5e_page_cache *cache)
+{
+	struct mlx5e_page_cache_reduce *reduce = &cache->reduce;
+
+	reduce->next_ts = ilog2(cache->sz) == cache->log_min_sz ?
+		MAX_JIFFY_OFFSET :
+		jiffies + reduce->graceful_period;
+	reduce->successive = 0;
+}
+
 static inline bool mlx5e_rx_cache_is_empty(struct mlx5e_page_cache *cache)
 {
 	return cache->head < 0;
@@ -213,10 +224,10 @@ static inline bool mlx5e_rx_cache_check_reduce(struct mlx5e_rq *rq)
 
 	if (likely(!mlx5e_rx_cache_is_empty(cache)) &&
 	    mlx5e_rx_cache_page_busy(cache, cache->head))
-		return false;
+		goto reset_watch;
 
 	if (ilog2(cache->sz) == cache->log_min_sz)
-		return false;
+		goto reset_watch;
 
 	/* would like to reduce */
 	if (cache->reduce.successive < MLX5E_PAGE_CACHE_REDUCE_SUCCESSIVE_CNT) {
@@ -225,13 +236,11 @@ static inline bool mlx5e_rx_cache_check_reduce(struct mlx5e_rq *rq)
 	}
 
 	return true;
-}
 
-static inline void
-mlx5e_rx_cache_reduce_reset_watch(struct mlx5e_page_cache_reduce *reduce)
-{
-	reduce->next_ts = jiffies + reduce->graceful_period;
-	reduce->successive = 0;
+reset_watch:
+	mlx5e_rx_cache_reduce_reset_watch(cache);
+	return false;
+
 }
 
 static inline void mlx5e_rx_cache_may_reduce(struct mlx5e_rq *rq)
@@ -260,8 +269,7 @@ static inline void mlx5e_rx_cache_may_reduce(struct mlx5e_rq *rq)
 		set_bit(MLX5E_RQ_STATE_CACHE_REDUCE_PENDING, &rq->state);
 	}
 
-	mlx5e_rx_cache_reduce_reset_watch(reduce);
-
+	mlx5e_rx_cache_reduce_reset_watch(cache);
 }
 
 static inline bool mlx5e_rx_cache_extend(struct mlx5e_rq *rq)
@@ -275,7 +283,7 @@ static inline bool mlx5e_rx_cache_extend(struct mlx5e_rq *rq)
 	rq->stats->cache_ext++;
 	cache->sz <<= 1;
 
-	mlx5e_rx_cache_reduce_reset_watch(reduce);
+	mlx5e_rx_cache_reduce_reset_watch(cache);
 	schedule_delayed_work_on(smp_processor_id(), &reduce->reduce_work,
 				 reduce->delay);
 	return true;
