@@ -4,6 +4,8 @@
 #ifndef MLX5_CORE_EQ_H
 #define MLX5_CORE_EQ_H
 
+#include <linux/interrupt.h>
+
 enum {
 	MLX5_EQ_PAGEREQ_IDX        = 0,
 	MLX5_EQ_CMD_IDX            = 1,
