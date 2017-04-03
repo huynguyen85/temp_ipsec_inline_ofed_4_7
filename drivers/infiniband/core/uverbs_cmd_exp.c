@@ -46,6 +46,11 @@
 #include "uverbs_exp.h"
 #include "core_priv.h"
 
+int ib_uverbs_exp_create_flow(struct uverbs_attr_bundle *attrs)
+{
+	return ib_uverbs_create_flow_common(attrs, true);
+}
+
 int ib_uverbs_exp_create_qp(struct uverbs_attr_bundle *attrs)
 {
 	struct ib_uqp_object           *obj;

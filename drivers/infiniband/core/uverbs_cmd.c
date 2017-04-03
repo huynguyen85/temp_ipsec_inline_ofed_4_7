@@ -2889,7 +2889,8 @@ static int kern_spec_to_ib_spec_filter(struct ib_uverbs_flow_spec *kern_spec,
 static int kern_spec_to_ib_spec(struct uverbs_attr_bundle *attrs,
 				struct ib_uverbs_flow_spec *kern_spec,
 				union ib_flow_spec *ib_spec,
-				struct ib_uflow_resources *uflow_res)
+				struct ib_uflow_resources *uflow_res,
+				bool is_exp)
 {
 	if (kern_spec->reserved)
 		return -EINVAL;
@@ -3183,7 +3184,7 @@ static int ib_uverbs_ex_destroy_rwq_ind_table(struct uverbs_attr_bundle *attrs)
 				    cmd.ind_tbl_handle, attrs);
 }
 
-static int ib_uverbs_ex_create_flow(struct uverbs_attr_bundle *attrs)
+int ib_uverbs_create_flow_common(struct uverbs_attr_bundle *attrs, bool is_exp)
 {
 	struct ib_uverbs_create_flow	  cmd;
 	struct ib_uverbs_create_flow_resp resp;
@@ -3192,6 +3193,7 @@ static int ib_uverbs_ex_create_flow(struct uverbs_attr_bundle *attrs)
 	struct ib_uverbs_flow_attr	  *kern_flow_attr;
 	struct ib_flow_attr		  *flow_attr;
 	struct ib_qp			  *qp;
+	unsigned long spec_size;
 	struct ib_uflow_resources	  *uflow_res;
 	struct ib_uverbs_flow_spec_hdr	  *kern_spec;
 	struct uverbs_req_iter iter;
@@ -3221,8 +3223,10 @@ static int ib_uverbs_ex_create_flow(struct uverbs_attr_bundle *attrs)
 	if (cmd.flow_attr.num_of_specs > IB_FLOW_SPEC_SUPPORT_LAYERS)
 		return -EINVAL;
 
+	spec_size = (is_exp) ? sizeof(struct ib_uverbs_exp_flow_spec) :
+		sizeof(struct ib_uverbs_flow_spec);
 	if (cmd.flow_attr.size >
-	    (cmd.flow_attr.num_of_specs * sizeof(struct ib_uverbs_flow_spec)))
+	    (cmd.flow_attr.num_of_specs * spec_size))
 		return -EINVAL;
 
 	if (cmd.flow_attr.reserved[0] ||
@@ -3292,7 +3296,7 @@ static int ib_uverbs_ex_create_flow(struct uverbs_attr_bundle *attrs)
 	     i++) {
 		err = kern_spec_to_ib_spec(
 				attrs, (struct ib_uverbs_flow_spec *)kern_spec,
-				ib_spec, uflow_res);
+				ib_spec, uflow_res, is_exp);
 		if (err)
 			goto err_free;
 
@@ -3346,6 +3350,11 @@ err_free_attr:
 	if (cmd.flow_attr.num_of_specs)
 		kfree(kern_flow_attr);
 	return err;
+}
+
+int ib_uverbs_ex_create_flow(struct uverbs_attr_bundle *attrs)
+{
+	return ib_uverbs_create_flow_common(attrs, false);
 }
 
 static int ib_uverbs_ex_destroy_flow(struct uverbs_attr_bundle *attrs)
@@ -3736,9 +3745,9 @@ int ib_uverbs_exp_arm_dct(struct uverbs_attr_bundle *attrs)
 { return 0; }
 int ib_uverbs_exp_create_mr(struct uverbs_attr_bundle *attrs)
 { return 0; }
-*/
 int ib_uverbs_exp_create_flow(struct uverbs_attr_bundle *attrs)
 { return 0; }
+*/
 int ib_uverbs_exp_create_wq(struct uverbs_attr_bundle *attrs)
 { return 0; }
 int ib_uverbs_exp_modify_wq(struct uverbs_attr_bundle *attrs)

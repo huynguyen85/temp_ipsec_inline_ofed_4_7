@@ -29,4 +29,5 @@ void ib_uverbs_async_handler(struct ib_uverbs_file *file,
 			     u32 *counter);
 void ib_uverbs_dct_event_handler(struct ib_event *event, void *context_ptr);
 
+int ib_uverbs_create_flow_common(struct uverbs_attr_bundle *attrs, bool is_exp);
 #endif
