@@ -3,6 +3,9 @@
  * NVMe admin command implementation.
  * Copyright (c) 2015-2016 HGST, a Western Digital Company.
  */
+#ifdef pr_fmt
+#undef pr_fmt
+#endif
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>
 #include <linux/rculist.h>

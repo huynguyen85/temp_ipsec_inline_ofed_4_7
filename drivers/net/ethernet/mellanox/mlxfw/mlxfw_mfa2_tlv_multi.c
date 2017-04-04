@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
 /* Copyright (c) 2017-2019 Mellanox Technologies. All rights reserved */
 
+#ifdef pr_fmt
+#undef pr_fmt
+#endif
 #define pr_fmt(fmt) "MFA2: " fmt
 
 #include "mlxfw_mfa2_tlv_multi.h"
