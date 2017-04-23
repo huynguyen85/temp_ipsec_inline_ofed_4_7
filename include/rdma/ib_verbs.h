@@ -80,6 +80,7 @@ struct ib_exp_device_attr;
 struct ib_dct_attr;
 struct ib_dct_init_attr;
 struct ib_mkey_attr;
+struct ib_exp_context_attr;
 
 __printf(3, 4) __cold
 void ibdev_printk(const char *level, const struct ib_device *ibdev,
@@ -1539,6 +1540,10 @@ enum ib_mr_rereg_flags {
 	IB_MR_REREG_SUPPORTED	= ((IB_MR_REREG_ACCESS << 1) - 1)
 };
 
+enum ib_ucontext_flags {
+	IB_UCONTEXT_LOCAL_PEER_ALLOC	= 1
+};
+
 struct ib_fmr_attr {
 	int	max_pages;
 	int	max_maps;
@@ -1588,6 +1593,7 @@ struct ib_ucontext {
 
 	void		*peer_mem_private_data;
 	char		*peer_mem_name;
+	u32		flags; /* use ib_ucontext_flags enum */
 	/*
 	 * Implementation details of the RDMA core, don't use in drivers:
 	 */
@@ -2622,6 +2628,9 @@ struct ib_device_ops {
 							    unsigned long pgoff,
 							    unsigned long flags);
         int (*exp_prefetch_mr)(struct ib_mr *mr, u64 start, u64 length, u32 flags);
+	int			(*exp_set_context_attr)(struct ib_device *device,
+							struct ib_ucontext *context,
+							struct ib_exp_context_attr *attr);
 
 
 	/**
