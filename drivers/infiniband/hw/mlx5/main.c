@@ -2005,6 +2005,8 @@ static void mlx5_ib_dealloc_ucontext(struct ib_ucontext *ibcontext)
 		mlx5_ib_devx_destroy(dev, context->devx_uid);
 
 	deallocate_uars(dev, context);
+	if (ibcontext->peer_mem_private_data)
+		ib_put_peer_private_data(ibcontext);
 	kfree(bfregi->sys_pages);
 	kfree(bfregi->count);
 }
@@ -6199,6 +6201,7 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
 	.resize_cq = mlx5_ib_resize_cq,
 
 	/* Add EXP verbs here to minimize conflicts via rebase */
+	.exp_set_context_attr = mlx5_ib_exp_set_context_attr,
 	.exp_modify_cq	= mlx5_ib_exp_modify_cq,
 	.exp_query_device	= mlx5_ib_exp_query_device,
 	.exp_query_mkey      = mlx5_ib_exp_query_mkey,
@@ -6315,6 +6318,7 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 			(1ull << IB_USER_VERBS_EXP_CMD_ARM_DCT);
 	}
 	dev->ib_dev.uverbs_exp_cmd_mask |= (1ull << IB_USER_VERBS_EXP_CMD_CREATE_MR);
+	dev->ib_dev.uverbs_exp_cmd_mask	|= (1ull << IB_USER_VERBS_EXP_CMD_SET_CTX_ATTR);
 
 	if (MLX5_CAP_GEN(mdev, ipoib_enhanced_offloads) &&
 	    IS_ENABLED(CONFIG_MLX5_CORE_IPOIB))
