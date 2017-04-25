@@ -600,6 +600,13 @@ int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 		resp->comp_mask |= IB_EXP_DEVICE_ATTR_PACKET_PACING_CAPS;
 	}
 
+	if (exp_attr->exp_comp_mask & IB_EXP_DEVICE_ATTR_OOO_CAPS) {
+		resp->ooo_caps.rc_caps = exp_attr->ooo_caps.rc_caps;
+		resp->ooo_caps.xrc_caps = exp_attr->ooo_caps.xrc_caps;
+		resp->ooo_caps.dc_caps = exp_attr->ooo_caps.dc_caps;
+		resp->comp_mask |= IB_EXP_DEVICE_ATTR_OOO_CAPS;
+	}
+
 	ret = ib_copy_to_udata( &attrs->ucore, resp, min_t(size_t, sizeof(*resp),  &attrs->ucore.outlen));
 out:
 	kfree(exp_attr);
