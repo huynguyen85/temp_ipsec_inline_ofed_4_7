@@ -41,6 +41,13 @@
 #include "lib/eq.h"
 #include "fpga/cmd.h"
 
+/* Represents client-specific and Innova device-specific information */
+struct mlx5_fpga_client_data {
+	struct list_head  list;
+	struct mlx5_fpga_client *client;
+	bool added;
+};
+
 /* Represents an Innova device */
 struct mlx5_fpga_device {
 	struct mlx5_core_dev *mdev;
@@ -60,6 +67,9 @@ struct mlx5_fpga_device {
 
 	struct mlx5_fpga_ipsec *ipsec;
 	struct mlx5_fpga_tls *tls;
+
+	struct list_head list;
+	struct list_head client_data_list;
 };
 
 #define mlx5_fpga_dbg(__adev, format, ...) \
