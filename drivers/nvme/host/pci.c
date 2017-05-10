@@ -83,6 +83,11 @@ static int poll_queues = 0;
 module_param_cb(poll_queues, &queue_count_ops, &poll_queues, 0644);
 MODULE_PARM_DESC(poll_queues, "Number of queues to use for polled IO.");
 
+static int num_p2p_queues = 0;
+module_param(num_p2p_queues, int, S_IRUGO);
+MODULE_PARM_DESC(num_p2p_queues,
+		 "number of I/O queues to create for peer-to-peer data transfer per pci function (Default: 0)");
+
 struct nvme_dev;
 struct nvme_queue;
 
@@ -116,6 +121,7 @@ struct nvme_dev {
 	u32 cmbsz;
 	u32 cmbloc;
 	struct nvme_ctrl ctrl;
+	int num_p2p_queues;
 
 	mempool_t *iod_mempool;
 
@@ -205,6 +211,9 @@ struct nvme_queue {
 	u32 *dbbuf_sq_ei;
 	u32 *dbbuf_cq_ei;
 	struct completion delete_done;
+
+	/* p2p */
+	bool p2p;
 };
 
 /*
@@ -1137,6 +1146,9 @@ static int adapter_alloc_cq(struct nvme_dev *dev, u16 qid,
 	struct nvme_command c;
 	int flags = NVME_QUEUE_PHYS_CONTIG;
 
+	if (!nvmeq->p2p)
+		flags |= NVME_CQ_IRQ_ENABLED;
+
 	if (!test_bit(NVMEQ_POLLED, &nvmeq->flags))
 		flags |= NVME_CQ_IRQ_ENABLED;
 
@@ -1400,7 +1412,7 @@ static int nvme_suspend_queue(struct nvme_queue *nvmeq)
 	nvmeq->dev->online_queues--;
 	if (!nvmeq->qid && nvmeq->dev->ctrl.admin_q)
 		blk_mq_quiesce_queue(nvmeq->dev->ctrl.admin_q);
-	if (!test_and_clear_bit(NVMEQ_POLLED, &nvmeq->flags))
+	if (!nvmeq->p2p && !test_and_clear_bit(NVMEQ_POLLED, &nvmeq->flags))
 		pci_free_irq(to_pci_dev(nvmeq->dev->dev), nvmeq->cq_vector, nvmeq);
 	return 0;
 }
@@ -1494,6 +1506,7 @@ static int nvme_alloc_queue(struct nvme_dev *dev, int qid, int depth)
 	nvmeq->q_db = &dev->dbs[qid * 2 * dev->db_stride];
 	nvmeq->q_depth = depth;
 	nvmeq->qid = qid;
+	nvmeq->p2p = qid > (dev->max_qid - dev->num_p2p_queues);
 	dev->ctrl.queue_count++;
 
 	return 0;
@@ -1564,7 +1577,7 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
 	nvmeq->cq_vector = vector;
 	nvme_init_queue(nvmeq, qid);
 
-	if (!polled) {
+	if (!nvmeq->p2p && !polled) {
 		nvmeq->cq_vector = vector;
 		result = queue_request_irq(nvmeq);
 		if (result < 0)
@@ -2078,7 +2091,7 @@ static int nvme_setup_irqs(struct nvme_dev *dev, unsigned int nr_io_queues)
 		this_p_queues = nr_io_queues - 1;
 		irq_queues = 1;
 	} else {
-		irq_queues = nr_io_queues - this_p_queues + 1;
+		irq_queues = nr_io_queues - this_p_queues + 1 - dev->num_p2p_queues;
 	}
 	dev->io_queues[HCTX_TYPE_POLL] = this_p_queues;
 
@@ -2103,7 +2116,7 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 	int result, nr_io_queues;
 	unsigned long size;
 
-	nr_io_queues = max_io_queues();
+	nr_io_queues = max_io_queues() + dev->num_p2p_queues;
 	result = nvme_set_queue_count(&dev->ctrl, &nr_io_queues);
 	if (result < 0)
 		return result;
@@ -2122,11 +2135,22 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 			dev->cmb_use_sqes = false;
 	}
 
+	if (dev->num_p2p_queues) {
+		if (nr_io_queues > num_present_cpus())
+			dev->num_p2p_queues = nr_io_queues - num_present_cpus();
+		else if (nr_io_queues > 1)
+			dev->num_p2p_queues = 1;// dedicate at least 1 queue for p2p
+		else
+			dev->num_p2p_queues = 0;// dedicate the only io queue for non p2p
+	}
+
 	do {
 		size = db_bar_size(dev, nr_io_queues);
 		result = nvme_remap_bar(dev, size);
 		if (!result)
 			break;
+		if (dev->num_p2p_queues)
+			dev->num_p2p_queues--;
 		if (!--nr_io_queues)
 			return -ENOMEM;
 	} while (1);
@@ -2147,7 +2171,7 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 		return -EIO;
 
 	dev->num_vecs = result;
-	result = max(result - 1, 1);
+	result = max((unsigned)result - 1 + dev->num_p2p_queues, 1u);
 	dev->max_qid = result + dev->io_queues[HCTX_TYPE_POLL];
 
 	/*
@@ -2259,10 +2283,11 @@ static bool __nvme_disable_io_queues(struct nvme_dev *dev, u8 opcode)
 static int nvme_dev_add(struct nvme_dev *dev)
 {
 	int ret;
+	unsigned nr_hw_queues = dev->online_queues - 1 - dev->num_p2p_queues;
 
 	if (!dev->ctrl.tagset) {
 		dev->tagset.ops = &nvme_mq_ops;
-		dev->tagset.nr_hw_queues = dev->online_queues - 1;
+		dev->tagset.nr_hw_queues = nr_hw_queues;
 		dev->tagset.nr_maps = 2; /* default + read */
 		if (dev->io_queues[HCTX_TYPE_POLL])
 			dev->tagset.nr_maps++;
@@ -2282,7 +2307,7 @@ static int nvme_dev_add(struct nvme_dev *dev)
 		}
 		dev->ctrl.tagset = &dev->tagset;
 	} else {
-		blk_mq_update_nr_hw_queues(&dev->tagset, dev->online_queues - 1);
+		blk_mq_update_nr_hw_queues(&dev->tagset, nr_hw_queues);
 
 		/* Free previously allocated queues that are no longer usable */
 		nvme_free_queues(dev, dev->online_queues);
@@ -2719,11 +2744,12 @@ static int nvme_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (!dev)
 		return -ENOMEM;
 
-	dev->queues = kcalloc_node(max_queue_count(), sizeof(struct nvme_queue),
+	dev->queues = kcalloc_node(max_queue_count() + num_p2p_queues, sizeof(struct nvme_queue),
 					GFP_KERNEL, node);
 	if (!dev->queues)
 		goto free;
 
+	dev->num_p2p_queues = num_p2p_queues;
 	dev->dev = get_device(&pdev->dev);
 	pci_set_drvdata(pdev, dev);
 
