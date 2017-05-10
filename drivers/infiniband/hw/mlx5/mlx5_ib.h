@@ -53,6 +53,7 @@
 
 #include "srq.h"
 
+#define MLX5_PAS_ALIGN 64
 #define mlx5_ib_dbg(_dev, format, arg...)                                      \
 	dev_dbg(&(_dev)->ib_dev.dev, "%s:%d:(pid %d): " format, __func__,      \
 		__LINE__, current->pid, ##arg)

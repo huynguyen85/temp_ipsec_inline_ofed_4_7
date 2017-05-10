@@ -32,7 +32,6 @@
 #ifndef MLX5_IB_SRQ_EXP_H
 #define MLX5_IB_SRQ_EXP_H
 
-#define MLX5_PAS_ALIGN 64
 /* NVMEoF API */
 int get_nvmf_pas_size(struct mlx5_nvmf_attr *nvmf);
 void set_nvmf_srq_pas(struct mlx5_nvmf_attr *nvmf, __be64 *pas);
