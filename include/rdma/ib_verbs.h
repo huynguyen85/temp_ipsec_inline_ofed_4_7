@@ -66,7 +66,6 @@
 #include <rdma/restrack.h>
 #include <uapi/rdma/rdma_user_ioctl.h>
 #include <uapi/rdma/ib_user_ioctl_verbs.h>
-
 #define IB_FW_VERSION_NAME_MAX	ETHTOOL_FWVERS_LEN
 
 struct ib_umem_odp;
@@ -81,6 +80,13 @@ struct ib_dct_attr;
 struct ib_dct_init_attr;
 struct ib_mkey_attr;
 struct ib_exp_context_attr;
+struct ib_nvmf_backend_ctrl_init_attr;
+struct ib_nvmf_ns;
+struct ib_nvmf_ns_init_attr;
+struct ib_nvmf_ns_attr;
+struct ib_mr_init_attr;
+struct ib_nvmf_ctrl;
+struct mlx5_core_srq;
 
 __printf(3, 4) __cold
 void ibdev_printk(const char *level, const struct ib_device *ibdev,

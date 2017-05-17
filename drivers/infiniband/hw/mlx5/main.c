@@ -6240,6 +6240,13 @@ static const struct ib_device_ops mlx5_ib_dev_ipoib_enhanced_ops = {
 	.rdma_netdev_get_params = mlx5_ib_rn_get_params,
 };
 
+static const struct ib_device_ops mlx5_ib_dev_nvmf_ops = {
+	.create_nvmf_backend_ctrl = mlx5_ib_create_nvmf_backend_ctrl,
+	.destroy_nvmf_backend_ctrl = mlx5_ib_destroy_nvmf_backend_ctrl, 
+	.attach_nvmf_ns = mlx5_ib_attach_nvmf_ns,
+	.detach_nvmf_ns = mlx5_ib_detach_nvmf_ns,
+};
+
 static const struct ib_device_ops mlx5_ib_dev_sriov_ops = {
 	.get_vf_config = mlx5_ib_get_vf_config,
 	.get_vf_stats = mlx5_ib_get_vf_stats,
@@ -6336,8 +6343,10 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 		ib_set_device_ops(&dev->ib_dev,
 				  &mlx5_ib_dev_ipoib_enhanced_ops);
 
-	if (MLX5_CAP_GEN(mdev, nvmf_target_offload))
+	if (MLX5_CAP_GEN(mdev, nvmf_target_offload)) {
 		mlx5_ib_internal_fill_nvmf_caps(dev);
+		ib_set_device_ops(&dev->ib_dev, &mlx5_ib_dev_nvmf_ops);
+	}
 
 	if (mlx5_core_is_pf(mdev))
 		ib_set_device_ops(&dev->ib_dev, &mlx5_ib_dev_sriov_ops);
