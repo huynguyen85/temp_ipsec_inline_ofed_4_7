@@ -2453,6 +2453,11 @@ void ib_set_device_ops(struct ib_device *dev, const struct ib_device_ops *ops)
 	SET_DEVICE_OP(dev_ops, exp_query_dct);
 	SET_DEVICE_OP(dev_ops, exp_arm_dct);
 
+	SET_DEVICE_OP(dev_ops, create_nvmf_backend_ctrl);
+	SET_DEVICE_OP(dev_ops, destroy_nvmf_backend_ctrl);
+	SET_DEVICE_OP(dev_ops, attach_nvmf_ns);
+	SET_DEVICE_OP(dev_ops, detach_nvmf_ns);
+
 	SET_OBJ_SIZE(dev_ops, ib_ah);
 	SET_OBJ_SIZE(dev_ops, ib_pd);
 	SET_OBJ_SIZE(dev_ops, ib_srq);

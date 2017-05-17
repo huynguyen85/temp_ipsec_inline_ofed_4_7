@@ -2403,6 +2403,7 @@ struct iw_cm_conn_param;
  * This structure defines all the InfiniBand device operations, providers will
  * need to define the supported operations, otherwise they will be set to null.
  */
+#include <rdma/ib_verbs_exp.h>
 struct ib_device_ops {
 	int (*post_send)(struct ib_qp *qp, const struct ib_send_wr *send_wr,
 			 const struct ib_send_wr **bad_send_wr);
@@ -2614,6 +2615,12 @@ struct ib_device_ops {
 			     struct ib_counters_read_attr *counters_read_attr,
 			     struct uverbs_attr_bundle *attrs);
 	/* EXP APIs will be added below to minimize conflicts via upstream rebase */
+	struct ib_nvmf_ctrl *   (*create_nvmf_backend_ctrl)(struct ib_srq *srq,
+				struct ib_nvmf_backend_ctrl_init_attr *init_attr);
+	int                     (*destroy_nvmf_backend_ctrl)(struct ib_nvmf_ctrl *ctrl);
+	struct ib_nvmf_ns *     (*attach_nvmf_ns)(struct ib_nvmf_ctrl *ctrl,
+				struct ib_nvmf_ns_init_attr *init_attr);
+	int                     (*detach_nvmf_ns)(struct ib_nvmf_ns *ns);
 	int                     (*exp_ioctl)(struct ib_ucontext *context, unsigned int cmd,
 					     unsigned long arg);
 	int			(*exp_query_device)(struct ib_device *device,
@@ -4843,5 +4850,4 @@ static inline struct ib_device *rdma_device_to_ibdev(struct device *device)
 
 bool rdma_dev_access_netns(const struct ib_device *device,
 			   const struct net *net);
-#include <rdma/ib_verbs_exp.h>
 #endif /* IB_VERBS_H */
