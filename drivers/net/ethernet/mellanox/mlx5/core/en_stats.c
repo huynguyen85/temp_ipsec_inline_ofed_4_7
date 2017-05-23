@@ -135,7 +135,7 @@ static int mlx5e_grp_sw_fill_stats(struct mlx5e_priv *priv, u64 *data, int idx)
 	return idx;
 }
 
-static void mlx5e_grp_sw_update_stats(struct mlx5e_priv *priv)
+void mlx5e_grp_sw_update_stats(struct mlx5e_priv *priv)
 {
 	struct mlx5e_sw_stats *s = &priv->stats.sw;
 	int i;
