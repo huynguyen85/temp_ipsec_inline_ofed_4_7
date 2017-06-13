@@ -743,10 +743,9 @@ int ib_uverbs_exp_create_mr(struct uverbs_attr_bundle *attrs)
 		goto err_free;
 	}
 
-
 	attr.mr_type = mr_create_flag_to_mr_type(cmd_exp.create_flags);
 	attr.max_num_sg = cmd_exp.max_reg_descriptors;
-	mr = ib_exp_alloc_mr(pd, &attr);
+	mr = __ib_exp_alloc_mr(pd, &attr, &attrs->driver_udata);
 	if (IS_ERR(mr)) {
 		ret = PTR_ERR(mr);
 		goto err_put;

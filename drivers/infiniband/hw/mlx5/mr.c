@@ -1852,7 +1852,13 @@ struct ib_mr *mlx5_ib_alloc_mr(struct ib_pd *pd, enum ib_mr_type mr_type,
 		mr->desc_size = sizeof(struct mlx5_klm);
 		mr->max_descs = ndescs;
 	} else if (mr_type == IB_MR_TYPE_SIGNATURE) {
+		struct mlx5_ib_create_mr_resp resp = {};
 		u32 psv_index[2];
+
+		if (udata && udata->outlen < sizeof(resp)) {
+			err = -EINVAL;
+			goto err_free_in;
+		}
 
 		MLX5_SET(mkc, mkc, bsf_en, 1);
 		MLX5_SET(mkc, mkc, bsf_octword_size, MLX5_MKEY_BSF_OCTO_SIZE);
@@ -1876,6 +1882,14 @@ struct ib_mr *mlx5_ib_alloc_mr(struct ib_pd *pd, enum ib_mr_type mr_type,
 		mr->sig->sig_err_exists = false;
 		/* Next UMR, Arm SIGERR */
 		++mr->sig->sigerr_count;
+
+		if (udata) {
+			resp.psv_mem_idx = psv_index[0];
+			resp.psv_wire_idx = psv_index[1];
+			err = ib_copy_to_udata(udata, &resp, sizeof(resp));
+			if (err)
+				return ERR_PTR(err);
+		}
 	} else if (mr_type == IB_MR_INDIRECT_REG) {
 		MLX5_SET(mkc, mkc, translations_octword_size,
 			 ALIGN(max_num_sg + 1, 4));
