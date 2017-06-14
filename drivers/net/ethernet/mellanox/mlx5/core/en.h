@@ -979,6 +979,7 @@ void mlx5e_build_indir_tir_ctx_hash(struct mlx5e_rss_params *rss_params,
 				    const struct mlx5e_tirc_config *ttconfig,
 				    void *tirc, bool inner);
 void mlx5e_modify_tirs_hash(struct mlx5e_priv *priv, void *in, int inlen);
+void mlx5e_sysfs_modify_tirs_hash(struct mlx5e_priv *priv, void *in, int inlen);
 struct mlx5e_tirc_config mlx5e_tirc_get_default_config(enum mlx5e_traffic_types tt);
 
 int mlx5e_open_locked(struct net_device *netdev);
