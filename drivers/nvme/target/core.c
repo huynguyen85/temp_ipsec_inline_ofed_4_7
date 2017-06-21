@@ -1334,6 +1334,11 @@ u16 nvmet_alloc_ctrl(const char *subsysnqn, const char *hostnqn,
 	ctrl->err_counter = 0;
 	spin_lock_init(&ctrl->error_lock);
 
+	if (ctrl->port->offload)
+		ctrl->sqe_inline_size = ctrl->ops->peer_to_peer_sqe_inline_size(ctrl);
+	else
+		ctrl->sqe_inline_size = req->port->inline_data_size;
+
 	nvmet_start_keep_alive_timer(ctrl);
 
 	mutex_lock(&subsys->lock);
