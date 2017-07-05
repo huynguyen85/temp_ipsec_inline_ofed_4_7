@@ -1827,6 +1827,18 @@ static int set_pflag_rx_no_csum_complete(struct net_device *netdev, bool enable)
 	return 0;
 }
 
+static int set_pflag_per_channel_stats(struct net_device *netdev, bool enable)
+{
+	struct mlx5e_priv *priv = netdev_priv(netdev);
+	struct mlx5e_channels *channels = &priv->channels;
+	struct mlx5e_channel *c;
+	int i;
+
+	/*Talat and Tariq need to implement it */
+
+	return 0;
+}
+
 static int set_pflag_xdp_tx_mpwqe(struct net_device *netdev, bool enable)
 {
 	struct mlx5e_priv *priv = netdev_priv(netdev);
@@ -1892,6 +1904,7 @@ static const struct pflag_desc mlx5e_priv_flags[MLX5E_NUM_PFLAGS] = {
 	{ "xdp_tx_mpwqe",        set_pflag_xdp_tx_mpwqe },
 	{ "sniffer",        	 set_pflag_sniffer },
 	{ "dropless_rq",	 set_pflag_dropless_rq},
+	{ "per_channel_stats",	 set_pflag_per_channel_stats},
 };
 
 static int mlx5e_handle_pflag(struct net_device *netdev,
