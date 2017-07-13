@@ -580,6 +580,7 @@ enum mlx5_ib_mtt_access_flags {
 struct mlx5_ib_dm {
 	struct ib_dm		ibdm;
 	phys_addr_t		dev_addr;
+	void *dm_base_addr;
 	u32			type;
 	size_t			size;
 	union {

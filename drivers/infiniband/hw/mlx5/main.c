@@ -6251,6 +6251,12 @@ static const struct ib_device_ops mlx5_ib_dev_nvmf_ops = {
 	.detach_nvmf_ns = mlx5_ib_detach_nvmf_ns,
 };
 
+static const struct ib_device_ops mlx5_ib_dev_exp_dm_ops = {
+	.exp_alloc_dm = mlx5_ib_exp_alloc_dm,
+	.exp_free_dm = mlx5_ib_exp_free_dm,
+	.exp_memcpy_dm = mlx5_ib_exp_memcpy_dm,
+};
+
 static const struct ib_device_ops mlx5_ib_dev_sriov_ops = {
 	.get_vf_config = mlx5_ib_get_vf_config,
 	.get_vf_stats = mlx5_ib_get_vf_stats,
@@ -6341,6 +6347,13 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 	}
 	dev->ib_dev.uverbs_exp_cmd_mask |= (1ull << IB_USER_VERBS_EXP_CMD_CREATE_MR);
 	dev->ib_dev.uverbs_exp_cmd_mask	|= (1ull << IB_USER_VERBS_EXP_CMD_SET_CTX_ATTR);
+
+	if (MLX5_CAP_DEVICE_MEM(mdev, memic)) {
+		ib_set_device_ops(&dev->ib_dev, &mlx5_ib_dev_exp_dm_ops);
+		dev->ib_dev.uverbs_exp_cmd_mask |=
+			(1ull << IB_USER_VERBS_EXP_CMD_ALLOC_DM)	|
+			(1ull << IB_USER_VERBS_EXP_CMD_FREE_DM);
+	}
 
 	if (MLX5_CAP_GEN(mdev, ipoib_enhanced_offloads) &&
 	    IS_ENABLED(CONFIG_MLX5_CORE_IPOIB))
