@@ -1411,6 +1411,7 @@ static int mlx5_mdev_init(struct mlx5_core_dev *dev, int profile_idx)
 	spin_lock_init(&priv->ctx_lock);
 	mutex_init(&dev->pci_status_mutex);
 	mutex_init(&dev->intf_state_mutex);
+	spin_lock_init(&priv->memic_lock);
 
 	mutex_init(&priv->bfregs.reg_head.lock);
 	mutex_init(&priv->bfregs.wc_head.lock);

@@ -46,6 +46,7 @@
 #include <linux/mempool.h>
 #include <linux/interrupt.h>
 #include <linux/idr.h>
+#include <linux/bitmap.h>
 #include <linux/notifier.h>
 
 #include <linux/mlx5/device.h>
@@ -78,6 +79,10 @@ enum mlx5_sqp_t {
 	MLX5_SQP_IEEE_1588	= 2,
 	MLX5_SQP_SNIFFER	= 3,
 	MLX5_SQP_SYNC_UMR	= 4,
+};
+
+enum {
+	MLX5_MAX_MEMIC_PAGES = 256,
 };
 
 enum {
@@ -607,6 +612,10 @@ struct mlx5_priv {
 	spinlock_t		mkey_lock;
 	u8			mkey_key;
 
+	/* memic page allocation bitmap */
+	spinlock_t		memic_lock;
+	DECLARE_BITMAP(memic_alloc_pages, MLX5_MAX_MEMIC_PAGES);
+
 	struct list_head        dev_list;
 	struct list_head        ctx_list;
 	spinlock_t              ctx_lock;
@@ -994,6 +1003,9 @@ int mlx5_core_create_mkey_cb(struct mlx5_core_dev *dev,
 			     int inlen, u32 *out, int outlen,
 			     mlx5_async_cbk_t callback,
 			     struct mlx5_async_work *context);
+int mlx5_core_alloc_memic(struct mlx5_core_dev *dev, phys_addr_t *address,
+			  u64 length);
+int mlx5_core_dealloc_memic(struct mlx5_core_dev *dev, u64 addr, u64 length);
 int mlx5_core_create_mkey(struct mlx5_core_dev *dev,
 			  struct mlx5_core_mkey *mkey,
 			  u32 *in, int inlen);
