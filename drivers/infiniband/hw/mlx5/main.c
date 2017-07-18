@@ -6476,6 +6476,7 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
 	.resize_cq = mlx5_ib_resize_cq,
 
 	/* Add EXP verbs here to minimize conflicts via rebase */
+	.exp_alloc_mr	= mlx5_ib_exp_alloc_mr,
 	.exp_set_context_attr = mlx5_ib_exp_set_context_attr,
 	.exp_modify_cq	= mlx5_ib_exp_modify_cq,
 	.exp_query_device	= mlx5_ib_exp_query_device,

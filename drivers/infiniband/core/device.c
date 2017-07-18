@@ -2475,6 +2475,7 @@ void ib_set_device_ops(struct ib_device *dev, const struct ib_device_ops *ops)
 	SET_DEVICE_OP(dev_ops, set_vf_link_state);
 	SET_DEVICE_OP(dev_ops, unmap_fmr);
 	/* EXP */
+	SET_DEVICE_OP(dev_ops, exp_alloc_mr);
 	SET_DEVICE_OP(dev_ops, exp_modify_cq);
 	SET_DEVICE_OP(dev_ops, exp_create_qp);
 	SET_DEVICE_OP(dev_ops, exp_query_device);

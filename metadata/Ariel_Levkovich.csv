@@ -22,3 +22,4 @@ Change-Id=I26a44bdae6af27222b061917aea473269fea45ed; subject=net/mlx5: Prevent A
 Change-Id=I1645fc8307a95cf844a14c7d38b4a3b610c6efe7; subject=net/mlx5: Decrease vgroup vport counter only on VF removal; feature=vf_group_rate_limit; upstream_status=NA; general=;
 Change-Id=I0cb508c96869564054844e9fd0a26c2cf9a01aa7; subject=net/mlx5: VF group code adjustments; feature=vf_group_bw_share; upstream_status=NA; general=;
 Change-Id=I9d892e6672f2012fbe1dd2ae90ea2073e9535be4; subject=net/mlx5: Eswitch: Support VF group minimum tx rate; feature=vf_group_bw_share; upstream_status=NA; general=;
+Change-Id=I4424c31a97411c713f5a25ef0f3560000e1578cd; subject=IB/mlx5: exp_alloc_mr support in mlx5_ib; feature=memic; upstream_status=NA; general=;
