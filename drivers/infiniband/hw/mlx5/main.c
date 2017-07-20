@@ -52,6 +52,7 @@
 #include <rdma/ib_cache.h>
 #include <linux/mlx5/port.h>
 #include <linux/mlx5/vport.h>
+#include <linux/mlx5/capi.h>
 #include <linux/mlx5/fs.h>
 #include <linux/list.h>
 #include <rdma/ib_smi.h>
@@ -1764,6 +1765,66 @@ static void set_exp_data(struct mlx5_ib_dev *dev,
 	}
 }
 
+#ifdef CONFIG_CXL_LIB
+static int alloc_capi_context(struct mlx5_ib_dev *dev, struct mlx5_capi_context *cctx)
+{
+	struct cxllib_pe_attributes attr;
+	int err;
+
+	if (!dev->mdev->capi.enabled)
+		return 0;
+
+	err = cxllib_get_PE_attributes(current, CXL_TRANSLATED_MODE, &attr);
+	if (err)
+		goto out;
+
+	mlx5_ib_dbg(dev, "sr 0x%llx\n", attr.sr);
+	mlx5_ib_dbg(dev, "lpid 0x%x\n", attr.lpid);
+	mlx5_ib_dbg(dev, "tid 0x%x\n", attr.tid);
+	mlx5_ib_dbg(dev, "pid 0x%x\n", attr.pid);
+
+	cctx->mm = get_task_mm(current);
+	if (!cctx->mm) {
+		err = -ENOMEM;
+		goto out;
+	}
+
+	err = mlx5_core_create_pec(dev->mdev, &attr, &cctx->pasid);
+	if (err) {
+		mlx5_ib_warn(dev, "create pec failed %d\n", err);
+		goto out_mm;
+	}
+
+	return 0;
+
+out_mm:
+	mmput(cctx->mm);
+out:
+	return err;
+}
+
+static int free_capi_context(struct mlx5_ib_dev *dev, struct mlx5_capi_context *cctx)
+{
+	int err;
+
+	if (!dev->mdev->capi.enabled)
+		return 0;
+
+	err = mlx5_core_destroy_pec(dev->mdev, cctx->pasid);
+	if (err) {
+		mlx5_ib_warn(dev, "destroy pec failed\n");
+		goto out;
+	}
+	mmput(cctx->mm);
+
+out:
+	return err;
+}
+#else
+static int alloc_capi_context(struct mlx5_ib_dev *dev, struct mlx5_capi_context *cctx) {return 0; }
+static int free_capi_context(struct mlx5_ib_dev *dev, struct mlx5_capi_context *cctx) {return 0; }
+#endif
+
 static int mlx5_ib_alloc_ucontext(struct ib_ucontext *uctx,
 				  struct ib_udata *udata)
 {
@@ -1977,6 +2038,10 @@ static int mlx5_ib_alloc_ucontext(struct ib_ucontext *uctx,
 				   1, &dev->port[port].roce.tx_port_affinity));
 	}
 
+	err = alloc_capi_context(dev, &context->cctx);
+	if (err)
+		goto out_mdev;
+
 	return 0;
 
 out_mdev:
@@ -2009,6 +2074,7 @@ static void mlx5_ib_dealloc_ucontext(struct ib_ucontext *ibcontext)
 	WARN_ON(!list_empty(&ibcontext->per_mm_list));
 	mutex_unlock(&ibcontext->per_mm_list_lock);
 
+	free_capi_context(dev, &context->cctx);
 	bfregi = &context->bfregi;
 	mlx5_ib_dealloc_transport_domain(dev, context->tdn, context->devx_uid);
 

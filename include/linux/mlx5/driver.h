@@ -54,6 +54,9 @@
 #include <linux/mlx5/eq.h>
 #include <linux/timecounter.h>
 #include <linux/ptp_clock_kernel.h>
+#ifdef CONFIG_CXL_LIB
+#include <misc/cxllib.h>
+#endif
 
 enum {
 	MLX5_BOARD_ID_LEN = 64,
@@ -721,6 +724,16 @@ struct mlx5_icmd {
 	bool		initialized;
 };
 
+struct mlx5_core_capi {
+	u64				icmd_caps;
+	bool				hw_support;
+	bool				enabled;
+	bool				owner;
+#ifdef CONFIG_CXL_LIB
+	struct cxllib_xsl_config	cxl_cfg;
+#endif
+};
+
 struct mlx5_core_dev {
 	struct device *device;
 	struct pci_dev	       *pdev;
@@ -765,6 +778,7 @@ struct mlx5_core_dev {
 #endif
 	struct mlx5_clock        clock;
 	struct mlx5_ib_clock_info  *clock_info;
+	struct mlx5_core_capi	capi;
 	struct mlx5_mst_dump *mst_dump;
 	struct mlx5_special_contexts special_contexts;
 	struct mlx5_fw_tracer   *tracer;
@@ -1314,5 +1328,4 @@ struct mlx5_diag_dump {
 	u32	module_status;
 	char	dump[0];
 } __packed;
-
 #endif /* MLX5_DRIVER_H */
