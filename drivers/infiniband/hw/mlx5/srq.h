@@ -84,6 +84,9 @@ struct mlx5_core_srq {
 	int wqe_shift;
 	void (*event)(struct mlx5_core_srq *srq, enum mlx5_event e);
 
+	/* protect ctrl list */
+	spinlock_t		lock;
+	struct list_head	ctrl_list;
 	u16 uid;
 };
 
