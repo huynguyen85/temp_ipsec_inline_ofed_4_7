@@ -315,6 +315,11 @@ enum {
 	MLX5_EVENT_QUEUE_TYPE_DCT = 6,
 };
 
+enum mlx5_xrq_error_type {
+	MLX5_XRQ_ERROR_TYPE_QP_ERROR                    = 0x0,
+	MLX5_XRQ_ERROR_TYPE_BACKEND_CONTROLLER_ERROR    = 0x1,
+};
+
 /* mlx5 components can subscribe to any one of these events via
  * mlx5_eq_notifier_register API.
  */
@@ -342,6 +347,7 @@ enum mlx5_event {
 	MLX5_EVENT_TYPE_GPIO_EVENT	   = 0x15,
 	MLX5_EVENT_TYPE_PORT_MODULE_EVENT  = 0x16,
 	MLX5_EVENT_TYPE_TEMP_WARN_EVENT    = 0x17,
+	MLX5_EVENT_TYPE_XRQ_ERROR          = 0x18,
 	MLX5_EVENT_TYPE_REMOTE_CONFIG	   = 0x19,
 	MLX5_EVENT_TYPE_GENERAL_EVENT	   = 0x22,
 	MLX5_EVENT_TYPE_MONITOR_COUNTER    = 0x24,
