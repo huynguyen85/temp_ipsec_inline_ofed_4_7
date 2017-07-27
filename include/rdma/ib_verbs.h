@@ -655,6 +655,7 @@ struct ib_port_attr {
 	u8			active_width;
 	u8			active_speed;
 	u8                      phys_state;
+	bool			has_smi;
 	u16			port_cap_flags2;
 };
 
