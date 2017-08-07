@@ -1062,10 +1062,8 @@ static int pagefault_data_segments(struct mlx5_ib_dev *dev,
 
 static int ext_atomic_handler(struct mlx5_ib_dev *dev,
 			      struct mlx5_wqe_ctrl_seg *ctrl,
-			      void **wqe, int op)
+			      void **wqe, int op, int opmod)
 {
-	int opmod = be32_to_cpu(ctrl->opmod_idx_opcode) >>
-		    MLX5_WQE_CTRL_OPMOD_SHIFT;
 	int log_arg_sz;
 	int num_fields = op == MLX5_OPCODE_ATOMIC_MASKED_FA ? 2 : 4;
 
@@ -1084,6 +1082,25 @@ static int ext_atomic_handler(struct mlx5_ib_dev *dev,
 	*wqe += ALIGN(num_fields << (log_arg_sz + 2), 16);
 
 	return 0;
+}
+
+static size_t vec_calc_handler(void *wqe)
+{
+	struct mlx5_vec_calc_seg *vc = wqe;
+	int m;
+
+	vc->vec_size = cpu_to_be32(be32_to_cpu(vc->vec_size) * vc->vec_count);
+
+	if (vc->mat_le_tag_cs & MLX5_CALC_MATRIX) {
+		for (m = 0; m < 4; m++)
+			if (!vc->calc_op[m])
+				break;
+		/* fill rsvd2 so calc matrix seg may be processed as data seg */
+		vc->rsvd2 = cpu_to_be32(m * vc->vec_count);
+		return offsetof(struct mlx5_vec_calc_seg, rsvd2);
+	} else {
+		return offsetof(struct mlx5_vec_calc_seg, vec_size);
+	}
 }
 
 static const uint32_t mlx5_ib_odp_opcode_cap[] = {
@@ -1111,7 +1128,7 @@ static int mlx5_ib_mr_initiator_pfault_handler(
 	u16 wqe_index = pfault->wqe.wqe_index;
 	u32 transport_caps;
 	struct mlx5_base_av *av;
-	unsigned ds, opcode;
+	unsigned int ds, opcode, opmod;
 #if defined(DEBUG)
 	u32 ctrl_wqe_index, ctrl_qpn;
 #endif
@@ -1156,6 +1173,8 @@ static int mlx5_ib_mr_initiator_pfault_handler(
 
 	opcode = be32_to_cpu(ctrl->opmod_idx_opcode) &
 		 MLX5_WQE_CTRL_OPCODE_MASK;
+	opmod  = be32_to_cpu(ctrl->opmod_idx_opcode) >>
+		 MLX5_WQE_CTRL_OPMOD_SHIFT;
 
 	switch (qp->ibqp.qp_type) {
 	case IB_QPT_XRC_INI:
@@ -1193,6 +1212,12 @@ static int mlx5_ib_mr_initiator_pfault_handler(
 	}
 
 	switch (opcode) {
+	case MLX5_OPCODE_SEND:
+	case MLX5_OPCODE_SEND_IMM:
+	case MLX5_OPCODE_SEND_INVAL:
+		if (opmod == 0xff)
+			*wqe += vec_calc_handler(*wqe);
+		break;
 	case MLX5_OPCODE_RDMA_WRITE:
 	case MLX5_OPCODE_RDMA_WRITE_IMM:
 	case MLX5_OPCODE_RDMA_READ:
@@ -1206,7 +1231,7 @@ static int mlx5_ib_mr_initiator_pfault_handler(
 	case MLX5_OPCODE_ATOMIC_MASKED_CS:
 	case MLX5_OPCODE_ATOMIC_MASKED_FA:
 		*wqe += sizeof(struct mlx5_wqe_raddr_seg);
-		return ext_atomic_handler(dev, ctrl, wqe, opcode);
+		return ext_atomic_handler(dev, ctrl, wqe, opcode, opmod);
 	}
 
 	return 0;
