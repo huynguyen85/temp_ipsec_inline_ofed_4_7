@@ -794,6 +794,7 @@ static int pagefault_single_data_segment(struct mlx5_ib_dev *dev,
 	struct pf_frame *head = NULL, *frame;
 	struct mlx5_core_mkey *mmkey;
 	struct mlx5_ib_mr *mr;
+	struct mlx5_ib_mw *mw;
 	struct mlx5_klm *pklm;
 	u32 *out = NULL;
 	size_t offset;
@@ -819,8 +820,7 @@ next_mr:
 		goto srcu_unlock;
 	}
 
-	switch (mmkey->type) {
-	case MLX5_MKEY_MR:
+	if (mmkey->type == MLX5_MKEY_MR) {
 		mr = container_of(mmkey, struct mlx5_ib_mr, mmkey);
 		if (!mr->live || !mr->ibmr.pd) {
 			mlx5_ib_dbg(dev, "got dead MR\n");
@@ -862,10 +862,19 @@ next_mr:
 
 		npages += ret;
 		ret = 0;
-		break;
 
-	case MLX5_MKEY_MW:
-	case MLX5_MKEY_INDIRECT_DEVX:
+	} else {
+		if (mmkey->type == MLX5_MKEY_MW) {
+			mw = container_of(mmkey, struct mlx5_ib_mw, mmkey);
+			ndescs = mw->ndescs;
+		} else if (mmkey->type == MLX5_MKEY_MR_USER) {
+			mr = container_of(mmkey, struct mlx5_ib_mr, mmkey);
+			ndescs = mr->max_descs;
+		} else {
+			mlx5_ib_warn(dev, "wrong mkey type %d\n", mmkey->type);
+			ret = -EFAULT;
+			goto srcu_unlock;
+		}
 		ndescs = get_indirect_num_descs(mmkey);
 
 		if (depth >= MLX5_CAP_GEN(dev->mdev, max_indirection)) {
@@ -891,8 +900,10 @@ next_mr:
 						       bsf0_klm0_pas_mtt0_1);
 
 		ret = mlx5_core_query_mkey(dev->mdev, mmkey, out, outlen);
-		if (ret)
+		if (ret) {
+			mlx5_ib_warn(dev, "ret %d\n", ret);
 			goto srcu_unlock;
+		}
 
 		offset = io_virt - MLX5_GET64(query_mkey_out, out,
 					      memory_key_mkey_entry.start_addr);
@@ -920,12 +931,7 @@ next_mr:
 			bcnt -= frame->bcnt;
 			offset = 0;
 		}
-		break;
 
-	default:
-		mlx5_ib_dbg(dev, "wrong mkey type %d\n", mmkey->type);
-		ret = -EFAULT;
-		goto srcu_unlock;
 	}
 
 	if (head) {

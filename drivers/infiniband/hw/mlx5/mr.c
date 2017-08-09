@@ -1743,10 +1743,12 @@ struct ib_mr *mlx5_ib_alloc_mr(struct ib_pd *pd, enum ib_mr_type mr_type,
 	if (err)
 		goto err_destroy_psv;
 
-	mr->mmkey.type = MLX5_MKEY_MR;
+	mr->mmkey.type = MLX5_MKEY_MR_USER;
+	mr->ibmr.pd = pd;
 	mr->ibmr.lkey = mr->mmkey.key;
 	mr->ibmr.rkey = mr->mmkey.key;
 	mr->umem = NULL;
+	mr->live = 1;
 	kfree(in);
 
 	return &mr->ibmr;
