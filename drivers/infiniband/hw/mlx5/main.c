@@ -526,8 +526,8 @@ static int mlx5_query_port_roce(struct ib_device *device, u8 port_num,
 	props->port_cap_flags |= IB_PORT_CM_SUP;
 	props->ip_gids = true;
 
-	props->gid_tbl_len      = MLX5_CAP_ROCE(dev->mdev,
-						roce_address_table_size);
+	props->gid_tbl_len      = (!dev->is_rep) ? MLX5_CAP_ROCE(dev->mdev,
+							      roce_address_table_size) : 0;
 	props->max_mtu          = IB_MTU_4096;
 	props->max_msg_sz       = 1 << MLX5_CAP_GEN(dev->mdev, log_max_msg);
 	props->pkey_tbl_len     = 1;
@@ -5069,6 +5069,8 @@ static u32 get_core_cap_flags(struct ib_device *ibdev,
 
 	if (raw_support)
 		ret |= RDMA_CORE_PORT_RAW_PACKET;
+	if (dev->is_rep)
+		return ret;
 
 	if (!(l3_type_cap & MLX5_ROCE_L3_TYPE_IPV4_CAP))
 		return ret;
@@ -5108,7 +5110,8 @@ static int mlx5_port_immutable(struct ib_device *ibdev, u8 port_num,
 	immutable->pkey_tbl_len = attr.pkey_tbl_len;
 	immutable->gid_tbl_len = attr.gid_tbl_len;
 	immutable->core_cap_flags = get_core_cap_flags(ibdev, &rep);
-	if ((ll == IB_LINK_LAYER_INFINIBAND) || MLX5_CAP_GEN(dev->mdev, roce))
+	if (!dev->is_rep &&
+	    ((ll == IB_LINK_LAYER_INFINIBAND) || MLX5_CAP_GEN(dev->mdev, roce)))
 		immutable->max_mad_size = IB_MGMT_MAD_SIZE;
 
 	return 0;
@@ -5212,7 +5215,7 @@ static int mlx5_enable_eth(struct mlx5_ib_dev *dev)
 {
 	int err;
 
-	if (MLX5_CAP_GEN(dev->mdev, roce)) {
+	if (MLX5_CAP_GEN(dev->mdev, roce) && !dev->is_rep) {
 		err = mlx5_nic_vport_enable_roce(dev->mdev);
 		if (err)
 			return err;
@@ -5225,7 +5228,7 @@ static int mlx5_enable_eth(struct mlx5_ib_dev *dev)
 	return 0;
 
 err_disable_roce:
-	if (MLX5_CAP_GEN(dev->mdev, roce))
+	if (MLX5_CAP_GEN(dev->mdev, roce) && !dev->is_rep)
 		mlx5_nic_vport_disable_roce(dev->mdev);
 
 	return err;
@@ -5234,7 +5237,7 @@ err_disable_roce:
 static void mlx5_disable_eth(struct mlx5_ib_dev *dev)
 {
 	mlx5_eth_lag_cleanup(dev);
-	if (MLX5_CAP_GEN(dev->mdev, roce))
+	if (MLX5_CAP_GEN(dev->mdev, roce) && !dev->is_rep)
 		mlx5_nic_vport_disable_roce(dev->mdev);
 }
 
