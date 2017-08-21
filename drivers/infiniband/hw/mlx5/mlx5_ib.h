@@ -863,6 +863,7 @@ enum mlx5_ib_stages {
 	MLX5_IB_STAGE_POST_IB_REG_UMR,
 	MLX5_IB_STAGE_DELAY_DROP,
 	MLX5_IB_STAGE_DC_TRACER,
+	MLX5_IB_STAGE_TC_SYSFS,
 	MLX5_IB_STAGE_CLASS_ATTR,
 	MLX5_IB_STAGE_MAX,
 };
@@ -1016,7 +1017,9 @@ struct mlx5_ib_dev {
 	u32			max_dc_cnak_qps;
 	struct mlx5_dc_stats	dc_stats[MLX5_MAX_PORTS];
 	struct mlx5_dc_data	*dcd[MLX5_MAX_PORTS];
+	struct mlx5_tc_data	tcd[MLX5_MAX_PORTS];
 	struct kobject		*dc_kobj;
+	struct kobject		*tc_kobj;
 	/* Array with num_ports elements */
 	struct mlx5_ib_port	*port;
 	struct mlx5_sq_bfreg	bfreg;
@@ -1328,6 +1331,8 @@ static inline void mlx5_ib_invalidate_range(struct ib_umem_odp *umem_odp,
 
 /* Needed for rep profile */
 void mlx5_ib_stage_post_ib_reg_umr_cleanup(struct mlx5_ib_dev *dev);
+int mlx5_ib_stage_tc_sysfs_init(struct mlx5_ib_dev *dev);
+void mlx5_ib_stage_tc_sysfs_cleanup(struct mlx5_ib_dev *dev);
 void __mlx5_ib_remove(struct mlx5_ib_dev *dev,
 		      const struct mlx5_ib_profile *profile,
 		      int stage);
