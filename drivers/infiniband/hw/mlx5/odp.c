@@ -255,7 +255,7 @@ void mlx5_ib_invalidate_range(struct ib_umem_odp *umem_odp, unsigned long start,
 				    sizeof(struct mlx5_mtt)) - 1;
 	u64 idx = 0, blk_start_idx = 0;
 	struct ib_umem *umem;
-	int in_block = 0;
+	int in_block = 0, np_stat;
 	u64 addr;
 
 	if (!umem_odp) {
@@ -316,7 +316,8 @@ void mlx5_ib_invalidate_range(struct ib_umem_odp *umem_odp, unsigned long start,
 	 * needed.
 	 */
 
-	ib_umem_odp_unmap_dma_pages(umem_odp, start, end);
+	ib_umem_odp_unmap_dma_pages(umem_odp, start, end, &np_stat);
+	atomic_sub(np_stat, &mr->dev->odp_stats.num_odp_mr_pages);
 
 	if (unlikely(!umem_odp->npages && mr->parent &&
 		     !umem_odp->dying)) {
@@ -597,12 +598,15 @@ static int mr_leaf_free(struct ib_umem_odp *umem_odp, u64 start, u64 end,
 {
 	struct mlx5_ib_mr *mr = umem_odp->private, *imr = cookie;
 	struct ib_umem *umem = &umem_odp->umem;
+	int np_stat;
 
 	if (mr->parent != imr)
 		return 0;
 
 	ib_umem_odp_unmap_dma_pages(umem_odp, ib_umem_start(umem),
-				    ib_umem_end(umem));
+				    ib_umem_end(umem),
+				    &np_stat);
+	atomic_sub(np_stat, &mr->dev->odp_stats.num_odp_mr_pages);
 
 	if (umem_odp->dying)
 		return 0;
@@ -632,7 +636,7 @@ static int pagefault_mr(struct mlx5_ib_dev *dev, struct mlx5_ib_mr *mr,
 			u64 io_virt, size_t bcnt, u32 *bytes_mapped,
 			u32 flags)
 {
-	int npages = 0, current_seq, page_shift, ret, np;
+	int npages = 0, current_seq, page_shift, ret, np, np_stat;
 	bool implicit = false;
 	struct ib_umem_odp *odp_mr = to_ib_umem_odp(mr->umem);
 	bool downgrade = flags & MLX5_PF_FLAGS_DOWNGRADE;
@@ -679,8 +683,9 @@ next_mr:
 	 */
 	smp_rmb();
 
-	ret = ib_umem_odp_map_dma_pages(to_ib_umem_odp(mr->umem), io_virt, size,
-					access_mask, current_seq, 0);
+	ret = ib_umem_odp_map_dma_pages(to_ib_umem_odp(mr->umem), io_virt, size, access_mask,
+					current_seq, 0, &np_stat);
+	atomic_add(np_stat, &dev->odp_stats.num_odp_mr_pages);
 
 	if (ret < 0)
 		goto out;

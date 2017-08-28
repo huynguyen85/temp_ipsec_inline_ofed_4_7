@@ -471,7 +471,7 @@ void ib_umem_odp_release(struct ib_umem_odp *umem_odp)
 	 * that the hardware will not attempt to access the MR any more.
 	 */
 	ib_umem_odp_unmap_dma_pages(umem_odp, ib_umem_start(umem),
-				    ib_umem_end(umem));
+				    ib_umem_end(umem), NULL);
 
 	remove_umem_from_per_mm(umem_odp);
 	put_per_mm(umem_odp);
@@ -537,6 +537,7 @@ static int ib_umem_odp_map_dma_single_page(
 		else
 			atomic_inc(&dev->odp_statistics.num_page_fault_pages);
 
+		ret = 1;
 	} else if (umem_odp->page_list[page_index] == page) {
 		umem_odp->dma_list[page_index] |= access_mask;
 	} else {
@@ -548,7 +549,8 @@ static int ib_umem_odp_map_dma_single_page(
 	}
 
 out:
-	put_page(page);
+	if(ret != 1)
+		put_page(page);
 
 	if (remove_existing_mapping) {
 		ib_umem_notifier_start_account(umem_odp);
@@ -592,12 +594,15 @@ out:
  *	   was called from the prefetch verb. IB_ODP_DMA_MAP_FOR_PAGEFAULT is
  *	   used to indicate that the function was called from a pagefault
  *	   handler.
+ * @num_pages: returns number of affected pages
  */
 int ib_umem_odp_map_dma_pages(struct ib_umem_odp *umem_odp, u64 user_virt,
 			      u64 bcnt, u64 access_mask,
 			      unsigned long current_seq,
-			      enum ib_odp_dma_map_flags odp_flags)
+			      enum ib_odp_dma_map_flags odp_flags,
+			      int *num_pages)
 {
+	int num = 0;
 	struct ib_umem *umem = &umem_odp->umem;
 	struct task_struct *owning_process  = NULL;
 	struct mm_struct *owning_mm = umem_odp->umem.owning_mm;
@@ -721,15 +726,18 @@ out_put_task:
 	if (owning_process)
 		put_task_struct(owning_process);
 	free_page((unsigned long)local_page_list);
+
+	if (num_pages)
+		*num_pages = num;
 	return ret;
 }
 EXPORT_SYMBOL(ib_umem_odp_map_dma_pages);
 
 void ib_umem_odp_unmap_dma_pages(struct ib_umem_odp *umem_odp, u64 virt,
-				 u64 bound)
+				 u64 bound, int *num_pages)
 {
 	struct ib_umem *umem = &umem_odp->umem;
-	int idx;
+	int idx, num = 0;
 	u64 addr;
 	struct ib_device *dev = umem->context->device;
 
@@ -769,8 +777,13 @@ void ib_umem_odp_unmap_dma_pages(struct ib_umem_odp *umem_odp, u64 virt,
 			umem_odp->dma_list[idx] = 0;
 			atomic_inc(&dev->odp_statistics.num_invalidation_pages);
 			umem_odp->npages--;
+			num++;
 		}
 	}
+
+	if (num_pages)
+		*num_pages = num;
+
 	mutex_unlock(&umem_odp->umem_mutex);
 }
 EXPORT_SYMBOL(ib_umem_odp_unmap_dma_pages);
