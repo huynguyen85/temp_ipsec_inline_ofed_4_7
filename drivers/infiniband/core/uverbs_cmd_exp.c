@@ -1037,6 +1037,9 @@ int ib_uverbs_exp_modify_qp(struct uverbs_attr_bundle *attrs)
 				      modify_qp_mask(qp->qp_type, cmd.attr_mask | exp_mask),
 				      &attrs->driver_udata);
 
+	if (!ret && cmd.attr_mask & IB_QP_PORT)
+		qp->port = attr->port_num;
+
 out:
 	uobj_put_obj_read(qp);
 	kfree(attr);
