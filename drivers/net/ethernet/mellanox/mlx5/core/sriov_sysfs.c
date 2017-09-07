@@ -633,7 +633,9 @@ static ssize_t stats_show(struct mlx5_sriov_vf *g, struct vf_attributes *oa,
 			  char *buf)
 {
 	struct mlx5_core_dev *dev = g->dev;
+	struct mlx5_vport *vport = mlx5_eswitch_get_vport(dev->priv.eswitch, g->vf + 1);
 	struct ifla_vf_stats ifi;
+	struct mlx5_vport_drop_stats stats = {};
 	int err;
 	char *p = buf;
 
@@ -641,12 +643,19 @@ static ssize_t stats_show(struct mlx5_sriov_vf *g, struct vf_attributes *oa,
 	if (err)
 		return -EINVAL;
 
+	err = mlx5_eswitch_query_vport_drop_stats(dev, vport, &stats);
+	if (err)
+		return -EINVAL;
+
 	p += _sprintf(p, buf, "tx_packets    : %llu\n", ifi.tx_packets);
 	p += _sprintf(p, buf, "tx_bytes      : %llu\n", ifi.tx_bytes);
+	p += _sprintf(p, buf, "tx_dropped    : %llu\n", stats.tx_dropped);
 	p += _sprintf(p, buf, "rx_packets    : %llu\n", ifi.rx_packets);
 	p += _sprintf(p, buf, "rx_bytes      : %llu\n", ifi.rx_bytes);
 	p += _sprintf(p, buf, "rx_broadcast  : %llu\n", ifi.broadcast);
 	p += _sprintf(p, buf, "rx_multicast  : %llu\n", ifi.multicast);
+	p += _sprintf(p, buf, "rx_dropped    : %llu\n", stats.rx_dropped);
+
 	return (ssize_t)(p - buf);
 }
 

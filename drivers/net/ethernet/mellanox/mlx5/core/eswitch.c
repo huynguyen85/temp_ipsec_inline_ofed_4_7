@@ -2686,7 +2686,7 @@ unlock:
 	return err;
 }
 
-static int mlx5_eswitch_query_vport_drop_stats(struct mlx5_core_dev *dev,
+int mlx5_eswitch_query_vport_drop_stats(struct mlx5_core_dev *dev,
 					       struct mlx5_vport *vport,
 					       struct mlx5_vport_drop_stats *stats)
 {
