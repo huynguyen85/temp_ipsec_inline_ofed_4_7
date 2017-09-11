@@ -1185,6 +1185,9 @@ u32 mlx5e_choose_lro_timeout(struct mlx5_core_dev *mdev, u32 wanted_timeout);
 void mlx5e_update_ndo_stats(struct mlx5e_priv *priv);
 
 void mlx5e_queue_update_stats(struct mlx5e_priv *priv);
+u32 mlx5e_ptys_to_speed(u32 eth_proto_oper);
+int mlx5e_get_port_speed(struct mlx5e_priv *priv, u32 *speed);
+
 int mlx5e_bits_invert(unsigned long a, int size);
 
 typedef int (*change_hw_mtu_cb)(struct mlx5e_priv *priv);
