@@ -1850,6 +1850,39 @@ static int set_pflag_xdp_tx_mpwqe(struct net_device *netdev, bool enable)
 	return err;
 }
 
+static int set_pflag_dropless_rq(struct net_device *netdev,
+				 bool new_val)
+{
+	struct mlx5e_priv *priv = netdev_priv(netdev);
+	bool curr_val = MLX5E_GET_PFLAG(&priv->channels.params, MLX5E_PFLAG_DROPLESS_RQ);
+	struct mlx5_core_dev *mdev = priv->mdev;
+	struct mlx5e_channels new_channels = {};
+	int err = 0;
+
+	if (!mlx5e_dropless_rq_supported(mdev))
+		return -EOPNOTSUPP;
+
+	if (curr_val == new_val)
+		return 0;
+
+	new_channels.params = priv->channels.params;
+
+	MLX5E_SET_PFLAG(&new_channels.params, MLX5E_PFLAG_DROPLESS_RQ, new_val);
+
+	mlx5e_set_rq_type(priv->mdev, &new_channels.params);
+	mlx5e_init_rq_type_params(priv->mdev, &new_channels.params);
+
+
+	if (!test_bit(MLX5E_STATE_OPENED, &priv->state)) {
+		priv->channels.params = new_channels.params;
+		return 0;
+	}
+
+	err = mlx5e_safe_switch_channels(priv, &new_channels, NULL);
+
+	return err;
+}
+
 static const struct pflag_desc mlx5e_priv_flags[MLX5E_NUM_PFLAGS] = {
 	{ "rx_cqe_moder",        set_pflag_rx_cqe_based_moder },
 	{ "tx_cqe_moder",        set_pflag_tx_cqe_based_moder },
@@ -1858,6 +1891,7 @@ static const struct pflag_desc mlx5e_priv_flags[MLX5E_NUM_PFLAGS] = {
 	{ "rx_no_csum_complete", set_pflag_rx_no_csum_complete },
 	{ "xdp_tx_mpwqe",        set_pflag_xdp_tx_mpwqe },
 	{ "sniffer",        	 set_pflag_sniffer },
+	{ "dropless_rq",	 set_pflag_dropless_rq},
 };
 
 static int mlx5e_handle_pflag(struct net_device *netdev,
