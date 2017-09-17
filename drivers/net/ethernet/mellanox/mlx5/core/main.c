@@ -29,7 +29,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
+#include <linux/proc_fs.h>
 #include <linux/highmem.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -86,6 +86,9 @@ MODULE_PARM_DESC(prof_sel, "profile selector. Valid range 0 - 3");
 static bool probe_vf = 1;
 module_param_named(probe_vf, probe_vf, bool, 0644);
 MODULE_PARM_DESC(probe_vf, "probe VFs or not, 0 = not probe, 1 = probe. Default = 1");
+
+struct proc_dir_entry *mlx5_core_proc_dir;
+struct proc_dir_entry *mlx5_crdump_dir;
 
 static u32 sw_owner_id[4];
 
@@ -1488,6 +1491,12 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto pci_init_err;
 	}
 
+	err = mlx5_crdump_init(dev);
+	if (err) {
+		dev_err(&pdev->dev, "mlx5_crdump_init failed with error code %d\n", err);
+		goto clean_crdump;
+	}
+
 	err = mlx5_load_one(dev, true);
 	if (err) {
 		mlx5_core_err(dev, "mlx5_load_one failed with error code %d\n",
@@ -1506,8 +1515,9 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 
 clean_load:
 	mlx5_unload_one(dev, true);
-
 err_load_one:
+	mlx5_crdump_cleanup(dev);
+clean_crdump:
 	mlx5_pci_close(dev);
 pci_init_err:
 	mlx5_mdev_uninit(dev);
@@ -1539,6 +1549,7 @@ static void remove_one(struct pci_dev *pdev)
 		return;
 	}
 
+	mlx5_crdump_cleanup(dev);
 	mlx5_pci_close(dev);
 	mlx5_mdev_uninit(dev);
 out:
@@ -1841,6 +1852,32 @@ static void mlx5_core_verify_params(void)
 	}
 }
 
+static int mlx5_create_core_dir(void)
+{
+	if (!mlx5_core_proc_dir) {
+		mlx5_core_proc_dir = proc_mkdir(MLX5_CORE_PROC, NULL);
+		if (!mlx5_core_proc_dir)
+			return -1;
+	}
+
+	mlx5_crdump_dir = proc_mkdir(MLX5_CORE_PROC_CRDUMP, mlx5_core_proc_dir);
+	if (!mlx5_crdump_dir) {
+		remove_proc_entry(MLX5_CORE_PROC, NULL);
+		return -1;
+	}
+
+	return 0;
+}
+
+static void mlx5_remove_core_dir(void)
+{
+	if (mlx5_core_proc_dir) {
+		if (mlx5_crdump_dir)
+			remove_proc_entry(MLX5_CORE_PROC_CRDUMP, mlx5_core_proc_dir);
+		remove_proc_entry(MLX5_CORE_PROC, NULL);
+	}
+}
+
 static int __init init(void)
 {
 	int err;
@@ -1850,10 +1887,13 @@ static int __init init(void)
 	mlx5_core_verify_params();
 	mlx5_fpga_ipsec_build_fs_cmds();
 	mlx5_register_debugfs();
-
-	err = pci_register_driver(&mlx5_core_driver);
+	err = mlx5_create_core_dir();
 	if (err)
 		goto err_debug;
+ 
+	err = pci_register_driver(&mlx5_core_driver);
+	if (err)
+		goto err_core_dir;
 
 #ifdef CONFIG_MLX5_CORE_EN
 	mlx5e_init();
@@ -1861,6 +1901,8 @@ static int __init init(void)
 
 	return 0;
 
+err_core_dir:
+	mlx5_remove_core_dir();
 err_debug:
 	mlx5_unregister_debugfs();
 	return err;
@@ -1872,6 +1914,8 @@ static void __exit cleanup(void)
 	mlx5e_cleanup();
 #endif
 	pci_unregister_driver(&mlx5_core_driver);
+
+	mlx5_remove_core_dir();
 	mlx5_unregister_debugfs();
 }
 
