@@ -789,6 +789,7 @@ int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
 	struct ib_device *ib_dev;
 	struct ib_pd      *pd;
 	struct ib_mr      *mr;
+	struct ib_dm	  *dm = NULL;
 	int access_flags;
 	int                ret;
 	const int min_cmd_size = offsetof(typeof(cmd), comp_mask) +
@@ -832,6 +833,23 @@ int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
 		goto err_free;
 	}
 
+	if (attrs->ucore.inlen >= offsetof(typeof(cmd), dm_handle) +
+		      sizeof(cmd.dm_handle) &&
+		      (cmd.comp_mask & IB_UVERBS_EXP_REG_MR_EX_DM_HANDLE)) {
+		dm = uobj_get_obj_read(dm, UVERBS_OBJECT_DM, cmd.dm_handle, attrs);
+		if (!dm) {
+			ret = -EINVAL;
+			goto err_put;
+		}
+
+		if (cmd.start >= dm->length) {
+			ret = -EFAULT;
+			goto err_put;
+		}
+
+		attr.mr_type = IB_MR_TYPE_DM;
+	}
+
 	if (cmd.exp_access_flags & IB_UVERBS_EXP_ACCESS_ON_DEMAND) {
 #ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
 		struct ib_exp_device_attr exp_attr;
@@ -854,6 +872,7 @@ int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
 	attr.length = cmd.length;
 	attr.hca_va = cmd.hca_va;
 	attr.access_flags = access_flags;
+	attr.dm = dm;
 
 	mr = pd->device->ops.reg_user_mr(pd, &attr, &attrs->driver_udata);
 	if (IS_ERR(mr)) {
@@ -863,6 +882,7 @@ int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
 
 	mr->device  = pd->device;
 	mr->pd      = pd;
+	mr->dm	    = dm;
 	mr->uobject = uobj;
 	atomic_inc(&pd->usecnt);
 
@@ -877,6 +897,11 @@ int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
 	if (ret)
 		goto err_copy;
 
+	if (dm) {
+		atomic_inc(&dm->usecnt);
+		uobj_put_obj_read(dm);
+	}
+
 	uobj_put_obj_read(pd);
 
 	return uobj_alloc_commit(uobj, 0);
@@ -886,6 +911,9 @@ err_copy:
 
 err_put:
 	uobj_put_obj_read(pd);
+	if (dm)
+		uobj_put_obj_read(dm);
+
 
 err_free:
 	uobj_alloc_abort(uobj, attrs);

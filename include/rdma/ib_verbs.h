@@ -838,6 +838,8 @@ __attribute_const__ int ib_rate_to_mbps(enum ib_rate rate);
  *                            register any arbitrary sg lists (without
  *                            the normal mr constraints - see
  *                            ib_map_mr_sg)
+ * @IB_MR_TYPE_DM:	      memory region that is used for device
+ *			      memory registration
  */
 enum ib_mr_type {
 	IB_MR_TYPE_MEM_REG,
