@@ -87,6 +87,7 @@ struct ib_nvmf_ns_attr;
 struct ib_mr_init_attr;
 struct ib_nvmf_ctrl;
 struct mlx5_core_srq;
+struct ib_mr_init_attr;
 
 __printf(3, 4) __cold
 void ibdev_printk(const char *level, const struct ib_device *ibdev,
@@ -2549,8 +2550,7 @@ struct ib_device_ops {
 	int (*destroy_cq)(struct ib_cq *cq, struct ib_udata *udata);
 	int (*resize_cq)(struct ib_cq *cq, int cqe, struct ib_udata *udata);
 	struct ib_mr *(*get_dma_mr)(struct ib_pd *pd, int mr_access_flags);
-	struct ib_mr *(*reg_user_mr)(struct ib_pd *pd, u64 start, u64 length,
-				     u64 virt_addr, int mr_access_flags,
+	struct ib_mr *(*reg_user_mr)(struct ib_pd *pd, struct ib_mr_init_attr *attr,
 				     struct ib_udata *udata);
 	int (*rereg_user_mr)(struct ib_mr *mr, int flags, u64 start, u64 length,
 			     u64 virt_addr, int mr_access_flags,

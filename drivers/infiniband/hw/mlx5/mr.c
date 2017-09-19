@@ -1178,8 +1178,8 @@ struct ib_mr *mlx5_ib_reg_dm_mr(struct ib_pd *pd, struct ib_dm *dm,
 				 attr->access_flags, mode);
 }
 
-struct ib_mr *mlx5_ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
-				  u64 virt_addr, int access_flags,
+struct ib_mr *mlx5_ib_reg_user_mr(struct ib_pd *pd,
+				  struct ib_mr_init_attr *attr,
 				  struct ib_udata *udata)
 {
 	struct mlx5_ib_dev *dev = to_mdev(pd->device);
@@ -1193,6 +1193,10 @@ struct ib_mr *mlx5_ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 	int err;
 	struct ib_peer_memory_client *ib_peer_mem;
 	struct mlx5_ib_peer_id *mlx5_ib_peer_id = NULL;
+	int access_flags = attr->access_flags;
+	u64 length = attr->length;
+	u64 start = attr->start;
+	u64 virt_addr = attr->hca_va;
 
 	if (!IS_ENABLED(CONFIG_INFINIBAND_USER_MEM))
 		return ERR_PTR(-EOPNOTSUPP);

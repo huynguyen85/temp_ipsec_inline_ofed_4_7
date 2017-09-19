@@ -784,6 +784,7 @@ int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
 {
 	struct ib_uverbs_exp_reg_mr cmd;
 	struct ib_uverbs_exp_reg_mr_resp resp;
+	struct ib_mr_init_attr attr = {0};
 	struct ib_uobject *uobj;
 	struct ib_device *ib_dev;
 	struct ib_pd      *pd;
@@ -849,8 +850,12 @@ int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
 #endif
 	}
 
-	mr = pd->device->ops.reg_user_mr(pd, cmd.start, cmd.length, cmd.hca_va,
-					 access_flags, &attrs->driver_udata);
+	attr.start = cmd.start;
+	attr.length = cmd.length;
+	attr.hca_va = cmd.hca_va;
+	attr.access_flags = access_flags;
+
+	mr = pd->device->ops.reg_user_mr(pd, &attr, &attrs->driver_udata);
 	if (IS_ERR(mr)) {
 		ret = PTR_ERR(mr);
 		goto err_put;
