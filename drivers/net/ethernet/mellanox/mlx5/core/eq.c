@@ -147,7 +147,7 @@ static irqreturn_t mlx5_eq_comp_int(int irq, void *eq_ptr)
 			cq->comp(cq);
 			mlx5_cq_put(cq);
 		} else {
-			mlx5_core_warn(eq->dev, "Completion event for bogus CQ 0x%x\n", cqn);
+			mlx5_core_dbg(eq->dev, "Completion event for bogus CQ 0x%x\n", cqn);
 		}
 
 		++eq->cons_index;
