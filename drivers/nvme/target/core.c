@@ -291,6 +291,8 @@ static bool nvmet_peer_to_peer_capable(struct nvmet_port *port)
 	    ops->install_offload_queue &&
 	    ops->create_offload_ctrl &&
 	    ops->destroy_offload_ctrl &&
+	    ops->enable_offload_ns &&
+	    ops->disable_offload_ns &&
 	    ops->peer_to_peer_sqe_inline_size &&
 	    ops->peer_to_peer_mdts)
 		return ops->peer_to_peer_capable(port);
@@ -596,6 +598,16 @@ int nvmet_ns_enable(struct nvmet_ns *ns)
 			goto out_kill_ref;
 		}
 	}
+
+	if (ns->pdev) {
+		list_for_each_entry(ctrl, &subsys->ctrls, subsys_entry) {
+			// TODO: enable only one ns
+			ret = ctrl->ops->enable_offload_ns(ctrl);
+			if (ret)
+				goto out_remove_list;
+		}
+	}
+
 	if (ns->nsid > subsys->max_nsid)
 		subsys->max_nsid = ns->nsid;
 
@@ -607,6 +619,8 @@ int nvmet_ns_enable(struct nvmet_ns *ns)
 out_unlock:
 	mutex_unlock(&subsys->lock);
 	return ret;
+out_remove_list:
+	list_del_rcu(&ns->dev_link);
 out_kill_ref:
 	percpu_ref_kill(&ns->ref);
 	synchronize_rcu();
@@ -659,6 +673,9 @@ void nvmet_ns_disable(struct nvmet_ns *ns)
 	percpu_ref_exit(&ns->ref);
 
 	mutex_lock(&subsys->lock);
+	if (ns->pdev)
+		list_for_each_entry(ctrl, &subsys->ctrls, subsys_entry)
+			ctrl->ops->disable_offload_ns(ctrl);
 
 	subsys->nr_namespaces--;
 	nvmet_ns_changed(subsys, ns->nsid);
