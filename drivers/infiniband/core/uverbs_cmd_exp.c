@@ -603,6 +603,8 @@ int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 			exp_attr->packet_pacing_caps.qp_rate_limit_max;
 		resp->packet_pacing_caps.supported_qpts =
 			exp_attr->packet_pacing_caps.supported_qpts;
+		resp->packet_pacing_caps.cap_flags =
+			exp_attr->packet_pacing_caps.cap_flags;
 		resp->comp_mask |= IB_EXP_DEVICE_ATTR_PACKET_PACING_CAPS;
 	}
 
@@ -1060,6 +1062,25 @@ int ib_uverbs_exp_modify_qp(struct uverbs_attr_bundle *attrs)
 	attr->alt_timeout         = cmd.alt_timeout;
 	attr->dct_key             = cmd.dct_key;
 	attr->rate_limit	  = cmd.rate_limit;
+	if (cmd.comp_mask & IB_UVERBS_EXP_QP_ATTR_BURST_INFO) {
+		if (!attr->rate_limit){
+			ret = -EINVAL;
+			goto out;
+		}
+
+		if (offsetof(typeof(cmd), burst_info) + sizeof(cmd.burst_info) <=
+		    attrs->ucore.inlen) {
+			attr->burst_info.max_burst_sz = cmd.burst_info.max_burst_sz;
+			attr->burst_info.typical_pkt_sz = cmd.burst_info.typical_pkt_sz;
+			if (cmd.burst_info.reserved){
+				ret = -EINVAL;
+				goto out;
+			}
+		} else {
+			ret = -EINVAL;
+			goto out;
+		}
+	}
 
 	if (cmd.attr_mask & IB_QP_AV)
 		copy_ah_attr_from_uverbs(qp, &attr->ah_attr, &cmd.dest);
