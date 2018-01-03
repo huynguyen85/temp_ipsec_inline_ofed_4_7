@@ -11,6 +11,7 @@ enum {
 	MLX5_SRQ_FLAG_WQ_SIG = (1 << 1),
 	MLX5_SRQ_FLAG_RNDV   = (1 << 2),
 	MLX5_SRQ_FLAG_SET_DC_OP = (1 << 3),
+	MLX5_SRQ_FLAG_STRIDING_RECV_WQ = (1 << 4),
 };
 
 enum mlx5_nvmf_offload_type {
@@ -48,6 +49,11 @@ struct mlx5_dc_offload_params {
 	u32                             ooo_caps;
 };
 
+struct mlx5_striding_recv_wq {
+	u8 log_wqe_num_of_strides;
+	u8 log_wqe_stride_size;
+};
+
 struct mlx5_srq_attr {
 	u32 type;
 	u32 flags;
@@ -71,6 +77,7 @@ struct mlx5_srq_attr {
 	u16 uid;
 	struct mlx5_nvmf_attr nvmf;
 	struct mlx5_dc_offload_params dc_op;
+	struct mlx5_striding_recv_wq	striding_recv_wq;
 };
 
 struct mlx5_ib_dev;
