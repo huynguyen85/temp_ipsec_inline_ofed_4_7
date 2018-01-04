@@ -621,6 +621,11 @@ struct mlx5_priv {
 	spinlock_t              ctx_lock;
 	struct mlx5_events      *events;
 
+	/* Used for Disabel RoCE LAG sysfs */
+	bool                    lag_disabled;
+	/* Used to save RoCE LAG state during recovery flow */
+	bool                    lag_enabled;
+
 	struct mlx5_flow_steering *steering;
 	struct mlx5_mpfs        *mpfs;
 	struct mlx5_eswitch     *eswitch;

@@ -555,6 +555,58 @@ static void mlx5_lag_dev_remove_pf(struct mlx5_lag *ldev,
 	mutex_unlock(&lag_mutex);
 }
 
+static bool mlx5_is_lag_allowed(struct mlx5_core_dev *dev)
+{
+	struct mlx5_lag *ldev;
+	bool allowed = false;
+
+	mutex_lock(&lag_mutex);
+	ldev = mlx5_lag_dev_get(dev);
+	if (ldev)
+		allowed = mlx5_lag_check_prereq(ldev);
+	mutex_unlock(&lag_mutex);
+
+	return allowed;
+}
+
+static ssize_t mlx5_lag_show_enabled(struct device *device,
+				     struct device_attribute *attr,
+				     char *buf)
+{
+	struct pci_dev *pdev = container_of(device, struct pci_dev, dev);
+	struct mlx5_core_dev *dev  = pci_get_drvdata(pdev);
+
+	return sprintf(buf, "%d\n", mlx5_is_lag_allowed(dev) ? 1 : 0);
+}
+
+static ssize_t mlx5_lag_set_enabled(struct device *device,
+				    struct device_attribute *attr,
+				    const char *buf, size_t count)
+{
+	struct pci_dev *pdev = container_of(device, struct pci_dev, dev);
+	struct mlx5_core_dev *dev  = pci_get_drvdata(pdev);
+	int ret = -EINVAL;
+	u32 val;
+
+	ret = kstrtou32(buf, 0, &val);
+	if (ret)
+		return ret;
+
+	if (val == 1)
+		dev->priv.lag_disabled = 0;
+	else if (val == 0)
+		dev->priv.lag_disabled = 1;
+	else
+		return -EINVAL;
+
+	mlx5_lag_update(dev);
+
+	return ret ? ret : count;
+}
+
+static DEVICE_ATTR(roce_lag_enable, 0644, mlx5_lag_show_enabled, mlx5_lag_set_enabled);
+static struct device_attribute *mlx5_lag_dev_attrs = &dev_attr_roce_lag_enable;
+
 /* Must be called with intf_mutex held */
 void mlx5_lag_add(struct mlx5_core_dev *dev, struct net_device *netdev)
 {
@@ -567,6 +619,11 @@ void mlx5_lag_add(struct mlx5_core_dev *dev, struct net_device *netdev)
 	    (MLX5_CAP_GEN(dev, num_lag_ports) != MLX5_MAX_PORTS))
 		return;
 
+	if (device_create_file(&dev->pdev->dev, mlx5_lag_dev_attrs)) {
+		mlx5_core_err(dev, "Failed to create RoCE LAG sysfs\n");
+		return;
+	}
+
 	tmp_dev = mlx5_get_next_phys_dev(dev);
 	if (tmp_dev)
 		ldev = tmp_dev->priv.lag;
@@ -575,7 +632,7 @@ void mlx5_lag_add(struct mlx5_core_dev *dev, struct net_device *netdev)
 		ldev = mlx5_lag_dev_alloc();
 		if (!ldev) {
 			mlx5_core_err(dev, "Failed to alloc lag dev\n");
-			return;
+			goto remove_file;
 		}
 	}
 
@@ -593,6 +650,11 @@ void mlx5_lag_add(struct mlx5_core_dev *dev, struct net_device *netdev)
 	if (err)
 		mlx5_core_err(dev, "Failed to init multipath lag err=%d\n",
 			      err);
+
+	return;
+
+remove_file:
+	device_remove_file(&dev->pdev->dev, mlx5_lag_dev_attrs);
 }
 
 /* Must be called with intf_mutex held */
@@ -604,6 +666,8 @@ void mlx5_lag_remove(struct mlx5_core_dev *dev)
 	ldev = mlx5_lag_dev_get(dev);
 	if (!ldev)
 		return;
+
+	device_remove_file(&dev->pdev->dev, mlx5_lag_dev_attrs);
 
 	if (__mlx5_lag_is_active(ldev))
 		mlx5_deactivate_lag(ldev);
