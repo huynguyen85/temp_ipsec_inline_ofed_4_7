@@ -447,10 +447,10 @@ static void gc_work_handler(struct work_struct *work)
 	struct fw_page *tmp;
 	struct fw_page *fp;
 
-	list_for_each_entry_safe(fp, tmp, &dev->priv.free_list, list) {
-		if (!priv->gc_allowed)
-			break;
+	if (!priv->gc_allowed)
+		return;
 
+	list_for_each_entry_safe(fp, tmp, &dev->priv.free_list, list) {
 		/* In case of shared page that is in use leave it in the list */
 		if (fp->free_count != MLX5_NUM_4K_IN_PAGE)
 			continue;
@@ -524,9 +524,12 @@ static int req_pages_handler(struct notifier_block *nb,
 	INIT_WORK(&req->work, pages_work_handler);
 	queue_work(priv->pg_wq, &req->work);
 
-	priv->gc_allowed = true;
-	queue_delayed_work(priv->pg_wq, &priv->gc_dwork,
-			   msecs_to_jiffies(GARBAGE_COLLECTOR_DELAY_MSECS));
+	if (req->npages < 0) {
+		priv->gc_allowed = true;
+		queue_delayed_work(priv->pg_wq, &priv->gc_dwork,
+				   msecs_to_jiffies(GARBAGE_COLLECTOR_DELAY_MSECS));
+	}
+
 	return NOTIFY_OK;
 }
 
@@ -667,6 +670,7 @@ void mlx5_pagealloc_start(struct mlx5_core_dev *dev)
 void mlx5_pagealloc_stop(struct mlx5_core_dev *dev)
 {
 	cancel_delayed_work(&dev->priv.gc_dwork);
+	dev->priv.gc_allowed = true;
 	queue_delayed_work(dev->priv.pg_wq, &dev->priv.gc_dwork, 0);
 	mlx5_eq_notifier_unregister(dev, &dev->priv.pg_nb);
 	flush_workqueue(dev->priv.pg_wq);
