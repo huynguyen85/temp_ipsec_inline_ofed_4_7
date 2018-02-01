@@ -578,4 +578,5 @@ static inline struct nvme_ns *nvme_get_ns_from_dev(struct device *dev)
 	return dev_to_disk(dev)->private_data;
 }
 
+bool disk_is_nvme(struct gendisk *disk);
 #endif /* _NVME_H */
