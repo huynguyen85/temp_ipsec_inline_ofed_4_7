@@ -39,6 +39,7 @@
 #include "ib_rep.h"
 #include "cmd.h"
 #include "user_exp.h"
+#include "mlx5_ib_exp.h"
 
 /* not supported currently */
 static int wq_signature;
@@ -3197,8 +3198,7 @@ static int mlx5_set_path(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
 			return -EINVAL;
 		}
 
-		if (dev->tcd[port - 1].val >= 0)
-			tclass = dev->tcd[port - 1].val;
+		tclass_get_tclass(dev, &dev->tcd[port - 1], ah, port, &tclass);
 	}
 
 	if (ah->type == RDMA_AH_ATTR_TYPE_ROCE) {
@@ -4179,8 +4179,6 @@ int mlx5_ib_modify_dct(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 		u8 tclass = attr->ah_attr.grh.traffic_class;
 		u8 port = MLX5_GET(dctc, dctc, port);
 
-		/* Talat Need to enable it when we add "Add TCLASS complex matching
-		 * rules"
 		if (mlx5_lag_is_active(dev->mdev))
 			port = 1;
 
@@ -4192,11 +4190,8 @@ int mlx5_ib_modify_dct(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 		if (!is_valid_mask(attr_mask, required, 0))
 			return -EINVAL;
 		MLX5_SET(dctc, dctc, min_rnr_nak, attr->min_rnr_timer);
-		* Talat Need to enable it when we add "Add TCLASS complex matching
-		 * rules"
 		if (dev->tcd[port - 1].val >= 0)
 			tclass = dev->tcd[port - 1].val;
-		*/
 		MLX5_SET(dctc, dctc, tclass, tclass);
 		MLX5_SET(dctc, dctc, flow_label, attr->ah_attr.grh.flow_label);
 		MLX5_SET(dctc, dctc, mtu, attr->path_mtu);
