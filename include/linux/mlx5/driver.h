@@ -737,6 +737,11 @@ struct mlx5_core_capi {
 	__be32 __iomem		       *inv_io;
 };
 
+struct mlx5_as_notify {
+	bool                    enabled;
+	u64                     response_bar_address;
+};
+
 struct mlx5_core_dev {
 	struct device *device;
 	struct pci_dev	       *pdev;
@@ -785,6 +790,7 @@ struct mlx5_core_dev {
 	struct mlx5_mst_dump *mst_dump;
 	struct mlx5_special_contexts special_contexts;
 	struct mlx5_fw_tracer   *tracer;
+	struct mlx5_as_notify as_notify;
 };
 
 struct mlx5_db {
