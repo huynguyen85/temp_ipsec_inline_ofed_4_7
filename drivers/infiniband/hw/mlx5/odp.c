@@ -1450,12 +1450,13 @@ static void mlx5_ib_mr_wqe_pfault_handler(struct mlx5_ib_dev *dev,
 	}
 
 	wqe = (void *)__get_free_page(GFP_KERNEL);
-	if (!wqe) {
-		mlx5_ib_err(dev, "Error allocating memory for IO page fault handling.\n");
-		goto resolve_page_fault;
-	}
+	if (!wqe)
+		return;
 
 	qp = (res->res == MLX5_RES_QP) ? res_to_qp(res) : NULL;
+ 	if (!qp)
+		goto out_err;
+
 	if (qp && sq) {
 		ret = mlx5_ib_read_user_wqe_sq(qp, wqe_index, wqe, PAGE_SIZE,
 					       &bytes_copied);
@@ -1509,6 +1510,7 @@ resolve_page_fault:
 		    pfault->wqe.wq_num, resume_with_error,
 		    pfault->type);
 	mlx5_core_res_put(res);
+out_err:
 	free_page((unsigned long)wqe);
 }
 
