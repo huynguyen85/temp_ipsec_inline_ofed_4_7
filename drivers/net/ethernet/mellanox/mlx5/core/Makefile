@@ -15,7 +15,7 @@ mlx5_core-y :=	main.o cmd.o debugfs.o fw.o eq.o uar.o pagealloc.o \
 		health.o mcg.o cq.o alloc.o qp.o port.o mr.o pd.o \
 		transobj.o vport.o sriov.o fs_cmd.o fs_core.o \
 		fs_counters.o rl.o lag.o dev.o events.o wq.o lib/gid.o \
-		lib/devcom.o diag/fs_tracepoint.o diag/fw_tracer.o qp_exp.o fw_exp.o sriov_sysfs.o mst_dump.o en_diag.o params.o fs_debugfs.o crdump.o icmd.o capi.o diag/diag_cnt.o
+		lib/devcom.o diag/fs_tracepoint.o diag/fw_tracer.o qp_exp.o fw_exp.o sriov_sysfs.o mst_dump.o en_diag.o params.o fs_debugfs.o crdump.o icmd.o capi.o diag/diag_cnt.o eswitch_devlink_compat.o
 
 #
 # Netdev basic
@@ -36,7 +36,7 @@ mlx5_core-$(CONFIG_MLX5_ESWITCH)     += en_rep.o en_tc.o en/tc_tun.o lib/port_tu
 #
 # Core extra
 #
-mlx5_core-$(CONFIG_MLX5_ESWITCH)   += eswitch.o eswitch_offloads.o ecpf.o rdma.o eswitch_devlink_compat.o
+mlx5_core-$(CONFIG_MLX5_ESWITCH)   += eswitch.o eswitch_offloads.o ecpf.o rdma.o
 mlx5_core-$(CONFIG_MLX5_MPFS)      += lib/mpfs.o
 mlx5_core-$(CONFIG_VXLAN)          += lib/vxlan.o
 mlx5_core-$(CONFIG_PTP_1588_CLOCK) += lib/clock.o
