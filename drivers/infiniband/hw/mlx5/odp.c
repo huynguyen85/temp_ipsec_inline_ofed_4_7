@@ -93,6 +93,7 @@ struct mlx5_pagefault {
 #define MLX5_KSM_PAGE_SHIFT MLX5_IMR_MTT_SHIFT
 
 static u64 mlx5_imr_ksm_entries;
+static int pages_in_range(u64 address, u32 length);
 
 static int check_parent(struct ib_umem_odp *odp,
 			       struct mlx5_ib_mr *parent)
@@ -700,8 +701,12 @@ next_mr:
 			return -1;
 		}
 		ret = handle_capi_pg_fault(dev, mr->umem->owning_mm, io_virt, bcnt);
-		if (!ret && bytes_mapped)
-			*bytes_mapped += bcnt;
+		if (!ret) {
+			if (bytes_mapped)
+				*bytes_mapped += bcnt;
+			return pages_in_range(io_virt, bcnt);
+		}
+
 		return ret;
 	}
 
