@@ -1590,11 +1590,6 @@ static int capi_init(struct mlx5_core_dev *dev)
 	struct mlx5_core_capi *capi = &dev->capi;
 	int err;
 
-	if (!cxllib_slot_is_supported(dev->pdev, 0)) {
-		mlx5_core_dbg(dev, "slot does not NOT support CAPI\n");
-		return -ENOTSUPP;
-	}
-
 	err = mlx5_core_icmd_query_cap(dev, 0, &capi->icmd_caps);
 	if (err) {
 		mlx5_core_warn(dev, "failed to query icmd caps\n");
@@ -1605,6 +1600,11 @@ static int capi_init(struct mlx5_core_dev *dev)
 
 	if (!mlx5_capi_supported(dev)) {
 		mlx5_core_warn(dev, "capi is NOT enabled\n");
+		return -ENOTSUPP;
+	}
+
+	if (!cxllib_slot_is_supported(dev->pdev, 0)) {
+		mlx5_core_dbg(dev, "slot does not NOT support CAPI\n");
 		return -ENOTSUPP;
 	}
 
