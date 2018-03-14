@@ -296,6 +296,7 @@ struct nvmet_fabrics_ops {
 	void (*disc_traddr)(struct nvmet_req *req,
 			struct nvmet_port *port, char *traddr);
 	u16 (*install_queue)(struct nvmet_sq *nvme_sq);
+	bool (*is_port_active)(struct nvmet_port *port);
 	bool (*peer_to_peer_capable)(struct nvmet_port *port);
 	int (*install_offload_queue)(struct nvmet_ctrl *ctrl,
 				     struct nvmet_req *req);
@@ -454,6 +455,7 @@ void nvmet_unregister_transport(const struct nvmet_fabrics_ops *ops);
 
 int nvmet_enable_port(struct nvmet_port *port, bool offloadble);
 void nvmet_disable_port(struct nvmet_port *port);
+bool nvmet_is_port_active(struct nvmet_port *port);
 
 void nvmet_init_offload_subsystem_port_attrs(struct nvmet_port *port,
 					     struct nvmet_subsys *subsys);
