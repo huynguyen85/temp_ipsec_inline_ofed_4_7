@@ -6335,6 +6335,10 @@ static const struct ib_device_ops mlx5_ib_dev_nvmf_ops = {
 	.detach_nvmf_ns = mlx5_ib_detach_nvmf_ns,
 };
 
+static const struct ib_device_ops mlx5_ib_dev_frontend_ns_context_ops = {
+	.query_nvmf_ns = mlx5_ib_query_nvmf_ns,
+};
+
 static const struct ib_device_ops mlx5_ib_dev_exp_dm_ops = {
 	.exp_alloc_dm = mlx5_ib_exp_alloc_dm,
 	.exp_free_dm = mlx5_ib_exp_free_dm,
@@ -6447,6 +6451,9 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 	if (MLX5_CAP_GEN(mdev, nvmf_target_offload)) {
 		mlx5_ib_internal_fill_nvmf_caps(dev);
 		ib_set_device_ops(&dev->ib_dev, &mlx5_ib_dev_nvmf_ops);
+
+		if (MLX5_CAP_NVMF(mdev, frontend_namespace_context))
+			ib_set_device_ops(&dev->ib_dev, &mlx5_ib_dev_frontend_ns_context_ops);
 	}
 
 	if (mlx5_core_is_pf(mdev))
