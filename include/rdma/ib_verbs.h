@@ -2631,6 +2631,8 @@ struct ib_device_ops {
 			     struct ib_counters_read_attr *counters_read_attr,
 			     struct uverbs_attr_bundle *attrs);
 	/* EXP APIs will be added below to minimize conflicts via upstream rebase */
+	int                     (*query_nvmf_ns)(struct ib_nvmf_ns *ns,
+						 struct ib_nvmf_ns_attr *ns_attr);
 	struct ib_nvmf_ctrl *   (*create_nvmf_backend_ctrl)(struct ib_srq *srq,
 				struct ib_nvmf_backend_ctrl_init_attr *init_attr);
 	int                     (*destroy_nvmf_backend_ctrl)(struct ib_nvmf_ctrl *ctrl);
