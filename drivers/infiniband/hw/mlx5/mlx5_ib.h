@@ -873,6 +873,7 @@ enum mlx5_ib_stages {
 	MLX5_IB_STAGE_DC_TRACER,
 	MLX5_IB_STAGE_TC_SYSFS,
 	MLX5_IB_STAGE_CLASS_ATTR,
+	MLX5_IB_STAGE_OOO_DEBUGFS,
 	MLX5_IB_STAGE_MAX,
 };
 
@@ -973,6 +974,12 @@ struct mlx5_ib_lb_state {
 	bool			enabled;
 };
 
+struct mlx5_ib_dbg_ooo {
+	u8			enabled;
+	struct dentry		*dir_debugfs;
+	struct dentry		*ooo_debugfs;
+};
+
 struct mlx5_ib_pf_eq {
 	struct mlx5_ib_dev *dev;
 	struct mlx5_eq *core;
@@ -1044,6 +1051,8 @@ struct mlx5_ib_dev {
 	struct mlx5_dm		dm;
 	u16			devx_whitelist_uid;
 	struct kobject          mr_cache;
+
+	struct mlx5_ib_dbg_ooo	ooo;
 	struct mlx5_srq_table   srq_table;
 	struct mlx5_async_ctx   async_ctx;
 	int			free_port;

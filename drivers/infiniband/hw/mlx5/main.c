@@ -6835,6 +6835,80 @@ void __mlx5_ib_remove(struct mlx5_ib_dev *dev,
 	ib_dealloc_device(&dev->ib_dev);
 }
 
+static ssize_t ooo_read(struct file *filp, char __user *buf,
+			size_t count, loff_t *pos)
+{
+	struct mlx5_ib_dbg_ooo *ooo = filp->private_data;
+	char lbuf[20];
+	int len;
+
+	len = snprintf(lbuf, sizeof(lbuf), "%d\n", ooo->enabled);
+	return simple_read_from_buffer(buf, count, pos, lbuf, len);
+}
+
+static ssize_t ooo_write(struct file *filp, const char __user *buf,
+			 size_t count, loff_t *pos)
+{
+	struct mlx5_ib_dbg_ooo *ooo = filp->private_data;
+	u32 var;
+
+	if (kstrtouint_from_user(buf, count, 0, &var))
+		return -EFAULT;
+
+	ooo->enabled = !!var;
+	return count;
+}
+
+static const struct file_operations dbg_ooo_fops = {
+	.owner	= THIS_MODULE,
+	.open	= simple_open,
+	.write	= ooo_write,
+	.read	= ooo_read,
+};
+
+static void mlx5_ib_cleanup_ooo_debugfs(struct mlx5_ib_dev *dev)
+{
+	if (!mlx5_debugfs_root || !dev->ooo.dir_debugfs)
+		return;
+
+	debugfs_remove_recursive(dev->ooo.dir_debugfs);
+	memset(&dev->ooo, 0, sizeof(dev->ooo));
+}
+
+static int mlx5_ib_init_ooo_debugfs(struct mlx5_ib_dev *dev)
+{
+	if (!mlx5_debugfs_root || dev->is_rep)
+		return 0;
+
+	if (!MLX5_CAP_GEN(dev->mdev, multipath_rc_qp) &&
+	    !MLX5_CAP_GEN(dev->mdev, multipath_xrc_qp) &&
+	    !MLX5_CAP_GEN(dev->mdev, multipath_dc_qp))
+		return 0;
+
+	dev->ooo.dir_debugfs =
+		debugfs_create_dir("ooo",
+				   dev->mdev->priv.dbg_root);
+	if (!dev->ooo.dir_debugfs)
+		goto out_debugfs;
+
+	dev->ooo.ooo_debugfs =
+		debugfs_create_file("enable", 0600,
+				    dev->ooo.dir_debugfs,
+				    &dev->ooo,
+				    &dbg_ooo_fops);
+
+	if (!dev->ooo.ooo_debugfs)
+		goto out_debugfs;
+
+	return 0;
+
+out_debugfs:
+	mlx5_ib_warn(dev, "ooo debugfs failure\n");
+	mlx5_ib_cleanup_ooo_debugfs(dev);
+	
+	return 0;
+}
+
 void *__mlx5_ib_add(struct mlx5_ib_dev *dev,
 		    const struct mlx5_ib_profile *profile)
 {
@@ -6921,6 +6995,9 @@ static const struct mlx5_ib_profile pf_profile = {
 	STAGE_CREATE(MLX5_IB_STAGE_TC_SYSFS,
 		     mlx5_ib_stage_tc_sysfs_init,
 		     mlx5_ib_stage_tc_sysfs_cleanup),
+	STAGE_CREATE(MLX5_IB_STAGE_OOO_DEBUGFS,
+		     mlx5_ib_init_ooo_debugfs,
+		     mlx5_ib_cleanup_ooo_debugfs), 
 };
 
 const struct mlx5_ib_profile uplink_rep_profile = {
@@ -6972,6 +7049,9 @@ const struct mlx5_ib_profile uplink_rep_profile = {
 	STAGE_CREATE(MLX5_IB_STAGE_TC_SYSFS,
 		     mlx5_ib_stage_tc_sysfs_init,
 		     mlx5_ib_stage_tc_sysfs_cleanup),
+	STAGE_CREATE(MLX5_IB_STAGE_OOO_DEBUGFS,
+		     mlx5_ib_init_ooo_debugfs,
+		     mlx5_ib_cleanup_ooo_debugfs),
 };
 
 static void *mlx5_ib_add_slave_port(struct mlx5_core_dev *mdev)
