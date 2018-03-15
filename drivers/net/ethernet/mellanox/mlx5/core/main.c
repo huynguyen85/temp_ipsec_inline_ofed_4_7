@@ -1790,7 +1790,8 @@ static void mlx5_as_notify_init(struct mlx5_core_dev *dev)
 	if (!mlx5_core_is_pf(dev))
 		return;
 
-	if (!MLX5_CAP_GEN(dev, as_notify))
+	if (!MLX5_CAP_GEN(dev, tunneled_atomic) &&
+	    !MLX5_CAP_GEN(dev, as_notify))
 		return;
 
 	err = pnv_pci_enable_tunnel(pdev, &asn_match_value);
