@@ -1196,6 +1196,7 @@ int ib_uverbs_exp_create_dct(struct uverbs_attr_bundle *attrs)
 	attr->event_handler = ib_uverbs_dct_event_handler;
 	attr->dct_context   = attrs->ufile;
 
+	obj->uevent.uobject.user_handle = cmd->user_handle;
 	obj->uevent.events_reported = 0;
 	INIT_LIST_HEAD(&obj->uevent.event_list);
 	dct = ib_exp_create_dct(pd, attr, &attrs->driver_udata);
