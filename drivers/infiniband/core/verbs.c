@@ -260,7 +260,7 @@ EXPORT_SYMBOL(rdma_port_get_link_layer);
  * memory operations.
  */
 struct ib_pd *__ib_alloc_pd(struct ib_device *device, unsigned int flags,
-		const char *caller)
+			    const char *caller, bool skip_tracking)
 {
 	struct ib_pd *pd;
 	int mr_access_flags = 0;
@@ -284,7 +284,11 @@ struct ib_pd *__ib_alloc_pd(struct ib_device *device, unsigned int flags,
 		kfree(pd);
 		return ERR_PTR(ret);
 	}
-	rdma_restrack_kadd(&pd->res);
+
+	if (skip_tracking)
+		rdma_restrack_dontrack(&pd->res);
+	else
+		rdma_restrack_kadd(&pd->res);
 
 	if (device->attrs.device_cap_flags & IB_DEVICE_LOCAL_DMA_LKEY)
 		pd->local_dma_lkey = device->local_dma_lkey;

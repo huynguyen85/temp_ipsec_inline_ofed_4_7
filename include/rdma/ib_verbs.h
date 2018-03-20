@@ -3528,16 +3528,18 @@ enum ib_pd_flags {
 };
 
 struct ib_pd *__ib_alloc_pd(struct ib_device *device, unsigned int flags,
-		const char *caller);
+		const char *caller, bool skip_tracking);
 
 
 /* Part of Lustre compatibility patch */
 #define ib_alloc_pd(device, ...) ib_alloc_pd_(device, ##__VA_ARGS__, 2, 1)
 #define ib_alloc_pd_(device, flags, n, ...) ib_alloc_pd_##n(device, flags)
-#define ib_alloc_pd_1(device, ...) __ib_alloc_pd(device, 0, KBUILD_MODNAME)
-#define ib_alloc_pd_2(device, flags) __ib_alloc_pd(device, flags, KBUILD_MODNAME)
+#define ib_alloc_pd_1(device, ...) __ib_alloc_pd(device, 0, KBUILD_MODNAME, false)
+#define ib_alloc_pd_2(device, flags) __ib_alloc_pd(device, flags, KBUILD_MODNAME, false)
 
 
+#define ib_alloc_pd_notrack(device, flags) \
+	__ib_alloc_pd((device), (flags), KBUILD_MODNAME, true)
 /**
  * ib_dealloc_pd_user - Deallocate kernel/user PD
  * @pd: The protection domain
@@ -3916,7 +3918,7 @@ static inline int ib_post_recv(struct ib_qp *qp,
 struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
 				 int nr_cqe, int comp_vector,
 				 enum ib_poll_context poll_ctx,
-				 const char *caller, struct ib_udata *udata);
+				 const char *caller, struct ib_udata *udata, bool skip_tracking);
 
 /**
  * ib_alloc_cq_user: Allocate kernel/user CQ
@@ -3934,7 +3936,16 @@ static inline struct ib_cq *ib_alloc_cq_user(struct ib_device *dev,
 					     struct ib_udata *udata)
 {
 	return __ib_alloc_cq_user(dev, private, nr_cqe, comp_vector, poll_ctx,
-				  KBUILD_MODNAME, udata);
+				  KBUILD_MODNAME, udata, false);
+}
+static inline struct ib_cq *ib_alloc_cq_notrack(struct ib_device *dev,
+					     void *private, int nr_cqe,
+					     int comp_vector,
+					     enum ib_poll_context poll_ctx,
+					     struct ib_udata *udata)
+{
+	return __ib_alloc_cq_user(dev, private, nr_cqe, comp_vector, poll_ctx,
+				  KBUILD_MODNAME, udata, true);
 }
 
 /**

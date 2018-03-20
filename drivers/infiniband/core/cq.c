@@ -121,6 +121,7 @@ static void ib_cq_completion_workqueue(struct ib_cq *cq, void *private)
  * @poll_ctx:		context to poll the CQ from.
  * @caller:		module owner name.
  * @udata:		Valid user data or NULL for kernel object
+ * @skip_tracking:	avoid resource tracking
  *
  * This is the proper interface to allocate a CQ for in-kernel users. A
  * CQ allocated with this interface will automatically be polled from the
@@ -130,7 +131,7 @@ static void ib_cq_completion_workqueue(struct ib_cq *cq, void *private)
 struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
 				 int nr_cqe, int comp_vector,
 				 enum ib_poll_context poll_ctx,
-				 const char *caller, struct ib_udata *udata)
+				 const char *caller, struct ib_udata *udata, bool skip_tracking)
 {
 	struct ib_cq_init_attr cq_attr = {
 		.cqe		= nr_cqe,
@@ -156,7 +157,10 @@ struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
 
 	cq->res.type = RDMA_RESTRACK_CQ;
 	rdma_restrack_set_task(&cq->res, caller);
-	rdma_restrack_kadd(&cq->res);
+	if (skip_tracking)
+		rdma_restrack_dontrack(&cq->res);
+	else
+		rdma_restrack_kadd(&cq->res);
 
 	switch (cq->poll_ctx) {
 	case IB_POLL_DIRECT:
