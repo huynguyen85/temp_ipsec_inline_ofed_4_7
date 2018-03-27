@@ -307,6 +307,17 @@ int ib_uverbs_exp_create_qp(struct uverbs_attr_bundle *attrs)
 	}
 	qp->uobject = &obj->uevent.uobject;
 
+	/*
+	 * We don't track XRC QPs for now, because they don't have PD
+	 * and more importantly they are created internaly by driver,
+	 * see mlx5 create_dev_resources() as an example.
+	 */
+	qp->res.type = RDMA_RESTRACK_QP;
+	if (attr->qp_type < IB_QPT_XRC_INI)
+		rdma_restrack_kadd(&qp->res);
+	else
+		rdma_restrack_dontrack(&qp->res);
+
 	obj->uevent.uobject.object = qp;
 
 	memset(&resp_exp, 0, sizeof(resp_exp));
