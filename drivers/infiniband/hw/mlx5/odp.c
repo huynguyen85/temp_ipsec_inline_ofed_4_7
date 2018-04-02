@@ -37,6 +37,7 @@
 
 #include "mlx5_ib.h"
 #include "cmd.h"
+#include "odp_exp.h"
 
 #include <linux/mlx5/eq.h>
 
@@ -869,7 +870,7 @@ static int get_indirect_num_descs(struct mlx5_core_mkey *mmkey)
  * -EFAULT when there's an error mapping the requested pages. The caller will
  *  abort the page fault handling.
  */
-int pagefault_single_data_segment(struct mlx5_ib_dev *dev,
+static int pagefault_single_data_segment(struct mlx5_ib_dev *dev,
 					 struct ib_pd *pd, u32 key,
 					 u64 io_virt, size_t bcnt,
 					 u32 *bytes_committed,
@@ -938,6 +939,12 @@ next_mr:
 		}
 
 		if (mlx5_ib_capi_enabled(dev)) {
+			if (!pfault) {
+				mlx5_ib_dbg(dev, "CAPI: pfault is NULL\n");
+				ret = -EFAULT;
+				goto srcu_unlock;
+			}
+
 			if (!mr->umem->owning_mm) {
 				mlx5_ib_dbg(dev, "CAPI: skipping non ODP MR (lkey=0x%06x) in page fault handler.\n",
 					    key);
