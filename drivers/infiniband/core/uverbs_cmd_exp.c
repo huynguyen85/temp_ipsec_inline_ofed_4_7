@@ -664,6 +664,14 @@ int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 		resp->comp_mask |= IB_EXP_DEVICE_ATTR_TUNNELED_ATOMIC;
 	}
 
+	if (exp_attr->exp_comp_mask & IB_EXP_DEVICE_ATTR_COMP_MASK_2) {
+		if (exp_attr->exp_comp_mask_2 & IB_EXP_DEVICE_ATTR_UMR_FIXED_SIZE_CAPS) {
+			resp->umr_fixed_size_caps.max_entity_size = exp_attr->umr_fixed_size_caps.max_entity_size;
+			resp->comp_mask_2 |= IB_EXP_DEVICE_ATTR_UMR_FIXED_SIZE_CAPS;
+		}
+		resp->comp_mask |= IB_EXP_DEVICE_ATTR_COMP_MASK_2;
+	}
+
 	ret = ib_copy_to_udata( &attrs->ucore, resp, min_t(size_t, sizeof(*resp),  &attrs->ucore.outlen));
 out:
 	kfree(exp_attr);
