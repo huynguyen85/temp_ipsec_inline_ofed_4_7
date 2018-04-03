@@ -679,11 +679,26 @@ out:
 	return ret;
 }
 
+static u32 mr_create_flag_to_mr_type(u32 create_flags)
+{
+	switch (create_flags) {
+	case IB_EXP_MR_SIGNATURE_EN:
+		return IB_MR_TYPE_SIGNATURE;
+	case IB_EXP_MR_INDIRECT_KLMS:
+		return IB_MR_INDIRECT_REG;
+	case IB_EXP_MR_FIXED_BUFFER_SIZE:
+		return IB_MR_TYPE_FIXED_SIZE;
+	default:
+		return 0;
+	}
+}
+
 int ib_uverbs_exp_create_mr(struct uverbs_attr_bundle *attrs)
 {
 	struct ib_uverbs_exp_create_mr          cmd_exp;
 	struct ib_uverbs_exp_create_mr_resp     resp_exp;
 	struct ib_device *ib_dev;
+	struct ib_mr_init_attr			attr = {0};
 	struct ib_pd                            *pd = NULL;
 	struct ib_mr                            *mr = NULL;
 	struct ib_uobject                       *uobj = NULL;
@@ -706,7 +721,10 @@ int ib_uverbs_exp_create_mr(struct uverbs_attr_bundle *attrs)
 		goto err_free;
 	}
 
-	mr = ib_alloc_mr(pd, cmd_exp.create_flags, cmd_exp.max_reg_descriptors);
+
+	attr.mr_type = mr_create_flag_to_mr_type(cmd_exp.create_flags);
+	attr.max_num_sg = cmd_exp.max_reg_descriptors;
+	mr = ib_exp_alloc_mr(pd, &attr);
 	if (IS_ERR(mr)) {
 		ret = PTR_ERR(mr);
 		goto err_put;
