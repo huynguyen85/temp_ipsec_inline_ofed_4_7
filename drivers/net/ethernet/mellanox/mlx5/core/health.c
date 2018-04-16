@@ -212,6 +212,7 @@ void mlx5_enter_error_state(struct mlx5_core_dev *dev, bool force)
 		mlx5_cmd_flush(dev);
 	}
 
+	mlx5_notifier_call_chain(dev->priv.events, MLX5_DEV_EVENT_SYS_ERROR, (void *)1);
 	if (force)
 		goto err_state_done;
 
@@ -250,7 +251,6 @@ void mlx5_enter_error_state(struct mlx5_core_dev *dev, bool force)
 
 err_state_done:
 
-	mlx5_notifier_call_chain(dev->priv.events, MLX5_DEV_EVENT_SYS_ERROR, (void *)1);
 	mlx5_core_err(dev, "end\n");
 
 unlock:
