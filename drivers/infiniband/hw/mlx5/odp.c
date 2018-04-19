@@ -1777,7 +1777,7 @@ enum {
 };
 
 static int
-mlx5_ib_create_pf_eq(struct mlx5_ib_dev *dev, struct mlx5_ib_pf_eq *eq)
+mlx5_ib_create_pf_eq(struct mlx5_ib_dev *dev, struct mlx5_ib_pf_eq *eq, bool capi_enabled)   
 {
 	struct mlx5_eq_param param = {};
 	int err;
@@ -1791,9 +1791,15 @@ mlx5_ib_create_pf_eq(struct mlx5_ib_dev *dev, struct mlx5_ib_pf_eq *eq)
 	if (!eq->pool)
 		return -ENOMEM;
 
-	eq->wq = alloc_workqueue("mlx5_ib_page_fault",
+	if (capi_enabled)
+		eq->wq = alloc_workqueue("mlx5_ib_page_fault",
+					     WQ_HIGHPRI | WQ_CPU_INTENSIVE,
+					     16);
+	else
+		eq->wq = alloc_workqueue("mlx5_ib_page_fault",
 				 WQ_HIGHPRI | WQ_UNBOUND | WQ_MEM_RECLAIM,
 				 MLX5_NUM_CMD_EQE);
+
 	if (!eq->wq) {
 		err = -ENOMEM;
 		goto err_mempool;
@@ -1885,7 +1891,7 @@ int mlx5_ib_odp_init_one(struct mlx5_ib_dev *dev)
 	if (!MLX5_CAP_GEN(dev->mdev, pg))
 		return ret;
 
-	ret = mlx5_ib_create_pf_eq(dev, &dev->odp_pf_eq);
+	ret = mlx5_ib_create_pf_eq(dev, &dev->odp_pf_eq, dev->capi.enabled);
 
 	init_completion(&dev->comp_prefetch);
 	atomic_set(&dev->num_prefetch, 1);

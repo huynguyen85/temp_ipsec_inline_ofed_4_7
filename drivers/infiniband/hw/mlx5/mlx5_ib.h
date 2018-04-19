@@ -1055,6 +1055,7 @@ struct mlx5_ib_dev {
 	struct mlx5_ib_dbg_ooo	ooo;
 	struct mlx5_srq_table   srq_table;
 	struct mlx5_async_ctx   async_ctx;
+	struct mlx5_core_capi   capi;
 	int			free_port;
 };
 
