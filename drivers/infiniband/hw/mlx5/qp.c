@@ -3230,13 +3230,17 @@ static int mlx5_set_path(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
 	}
 
 	if (ah_flags & IB_AH_GRH) {
+		u8 tmp_hop_limit = 0;
+
 		path->mgid_index = grh->sgid_index;
 		if ((ah->type == RDMA_AH_ATTR_TYPE_ROCE) &&
 		    (gid_type != IB_GID_TYPE_IB) &&
 		    (ah->grh.hop_limit < 2))
-			path->hop_limit  = IPV6_DEFAULT_HOPLIMIT;
+			tmp_hop_limit  = IPV6_DEFAULT_HOPLIMIT;
 		else
-			path->hop_limit  = ah->grh.hop_limit;
+			tmp_hop_limit  = ah->grh.hop_limit;
+		path->hop_limit = (dev->ttld[port - 1].val) ?
+			dev->ttld[port - 1].val : tmp_hop_limit;
 		path->tclass_flowlabel =
 			cpu_to_be32((tclass << 20) |
 				    (grh->flow_label));
@@ -4205,6 +4209,8 @@ int mlx5_ib_modify_dct(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 			tmp_hop_limit = IPV6_DEFAULT_HOPLIMIT;
 		else
 			tmp_hop_limit  = attr->ah_attr.grh.hop_limit;
+		tmp_hop_limit = (dev->ttld[port - 1].val) ?
+			dev->ttld[port - 1].val : tmp_hop_limit;
 		MLX5_SET(dctc, dctc, hop_limit, tmp_hop_limit);
 
 		err = mlx5_core_create_dct(dev->mdev, &qp->dct.mdct, qp->dct.in,
