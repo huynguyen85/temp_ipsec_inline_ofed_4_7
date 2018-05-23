@@ -84,8 +84,14 @@ static int poll_queues = 0;
 module_param_cb(poll_queues, &queue_count_ops, &poll_queues, 0644);
 MODULE_PARM_DESC(poll_queues, "Number of queues to use for polled IO.");
 
-static int num_p2p_queues = 0;
-module_param(num_p2p_queues, int, S_IRUGO);
+static int num_p2p_queues_set(const char *val, const struct kernel_param *kp);
+static const struct kernel_param_ops num_p2p_queues_ops = {
+	.set = num_p2p_queues_set,
+	.get = param_get_int,
+};
+
+static unsigned int num_p2p_queues = 0;
+module_param_cb(num_p2p_queues, &num_p2p_queues_ops, &num_p2p_queues, S_IRUGO);
 MODULE_PARM_DESC(num_p2p_queues,
 		 "number of I/O queues to create for peer-to-peer data transfer per pci function (Default: 0)");
 
@@ -126,7 +132,7 @@ struct nvme_dev {
 	u32 cmbsz;
 	u32 cmbloc;
 	struct nvme_ctrl ctrl;
-	int num_p2p_queues;
+	unsigned num_p2p_queues;
 
 	mempool_t *iod_mempool;
 
@@ -166,6 +172,18 @@ static int queue_count_set(const char *val, const struct kernel_param *kp)
 		n = num_possible_cpus();
 
 	return param_set_int(val, kp);
+}
+
+static int num_p2p_queues_set(const char *val, const struct kernel_param *kp)
+{
+	unsigned n = 0;
+	int ret;
+
+	ret = kstrtouint(val, 0, &n);
+	if (ret != 0 || n > 65534)
+		return -EINVAL;
+
+	return param_set_uint(val, kp);
 }
 
 static inline unsigned int sq_idx(unsigned int qid, u32 stride)
@@ -1892,10 +1910,10 @@ static ssize_t nvme_num_p2p_queues_show(struct device *dev,
 					char *buf)
 {
 	struct nvme_dev *ndev = to_nvme_dev(dev_get_drvdata(dev));
-	int num_p2p_queues = ndev->online_queues > 1 ? ndev->num_p2p_queues : 0;
+	unsigned num_p2p_queues = ndev->online_queues > 1 ?
+			ndev->num_p2p_queues : 0;
 
-	return scnprintf(buf, PAGE_SIZE, "num_p2p_queues: %d\n",
-			 num_p2p_queues);
+	return scnprintf(buf, PAGE_SIZE, "%u\n", num_p2p_queues);
 }
 static DEVICE_ATTR(num_p2p_queues, S_IRUGO, nvme_num_p2p_queues_show, NULL);
 
@@ -2296,7 +2314,7 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 		return -EIO;
 
 	dev->num_vecs = result;
-	result = max((unsigned)result - 1 + dev->num_p2p_queues, 1u);
+	result = max(result - 1 + dev->num_p2p_queues, 1u);
 	dev->max_qid = result + dev->io_queues[HCTX_TYPE_POLL];
 
 	/*
