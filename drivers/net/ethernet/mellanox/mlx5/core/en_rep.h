@@ -117,6 +117,8 @@ struct mlx5e_neigh_hash_entry {
 	 */
 	struct list_head neigh_list;
 
+	/* protects encap list */
+	spinlock_t encap_list_lock;
 	/* encap list sharing the same neigh */
 	struct list_head encap_list;
 
@@ -172,6 +174,7 @@ struct mlx5e_encap_entry {
 	int encap_size;
 	refcount_t refcnt;
 	struct completion hw_res_created;
+	struct rcu_head rcu;
 };
 
 struct mlx5e_rep_sq {
