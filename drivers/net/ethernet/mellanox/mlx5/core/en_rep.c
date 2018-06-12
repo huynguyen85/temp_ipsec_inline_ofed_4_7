@@ -1065,7 +1065,7 @@ static int mlx5e_rep_neigh_entry_create(struct mlx5e_priv *priv,
 {
 	int err;
 
-	*nhe = kzalloc(sizeof(**nhe), GFP_KERNEL);
+	*nhe = kzalloc(sizeof(**nhe), GFP_ATOMIC);
 	if (!*nhe)
 		return -ENOMEM;
 
@@ -1097,17 +1097,23 @@ int mlx5e_rep_encap_entry_attach(struct mlx5e_priv *priv,
 	err = mlx5_tun_entropy_refcount_inc(tun_entropy, e->reformat_type);
 	if (err)
 		return err;
+
+	spin_lock_bh(&rpriv->neigh_update.encap_lock);
 	nhe = mlx5e_rep_neigh_entry_lookup(priv, &e->m_neigh);
 	if (!nhe) {
 		err = mlx5e_rep_neigh_entry_create(priv, e, &nhe);
 		if (err) {
+			spin_unlock_bh(&rpriv->neigh_update.encap_lock);
 			mlx5_tun_entropy_refcount_dec(tun_entropy,
 						      e->reformat_type);
 			return err;
 		}
 	}
+
 	e->nhe = nhe;
 	list_add(&e->encap_list, &nhe->encap_list);
+	spin_unlock_bh(&rpriv->neigh_update.encap_lock);
+
 	return 0;
 }
 
