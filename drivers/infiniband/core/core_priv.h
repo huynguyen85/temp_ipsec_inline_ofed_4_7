@@ -352,4 +352,5 @@ void ib_port_unregister_module_stat(struct kobject *kobj);
 
 int ib_device_set_netns_put(struct sk_buff *skb,
 			    struct ib_device *dev, u32 ns_fd);
+bool rdma_check_gid_user_access(const struct ib_gid_attr *attr);
 #endif /* _CORE_PRIV_H */
