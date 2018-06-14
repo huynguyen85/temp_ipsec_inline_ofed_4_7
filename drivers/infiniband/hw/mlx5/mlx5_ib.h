@@ -129,6 +129,50 @@ enum {
 	MLX5_IB_MAX_CTX_DYNAMIC_UARS = 256,
 };
 
+/* Contains the details of a pagefault. */
+struct mlx5_pagefault {
+	u32			bytes_committed;
+	u32			token;
+	u8			event_subtype;
+	u8			type;
+	union {
+		/* Initiator or send message responder pagefault details. */
+		struct {
+			/* Received packet size, only valid for responders. */
+			u32	packet_size;
+			/*
+			 * Number of resource holding WQE, depends on type.
+			 */
+			u32	wq_num;
+			/*
+			 * WQE index. Refers to either the send queue or
+			 * receive queue, according to event_subtype.
+			 */
+			u16	wqe_index;
+			struct mlx5_core_rsc_common *common;
+			/* Ignore this page fault flag. Set to false until something
+			 * happens that requires us to drop it. For example, QP moved
+			 * to RESET state
+			 */
+			bool ignore;
+		} wqe;
+		/* RDMA responder pagefault details */
+		struct {
+			u32	r_key;
+			/*
+			 * Received packet size, minimal size page fault
+			 * resolution required for forward progress.
+			 */
+			u32	packet_size;
+			u32	rdma_op_len;
+			u64	rdma_va;
+		} rdma;
+	};
+
+	struct mlx5_ib_pf_eq	*eq;
+	struct work_struct	work;
+};
+
 struct mlx5_capi_context {
 	u32			pasid;
 	struct mm_struct       *mm;

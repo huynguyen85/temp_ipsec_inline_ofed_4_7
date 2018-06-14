@@ -42,43 +42,6 @@
 
 #include <linux/mlx5/eq.h>
 
-/* Contains the details of a pagefault. */
-struct mlx5_pagefault {
-	u32			bytes_committed;
-	u32			token;
-	u8			event_subtype;
-	u8			type;
-	union {
-		/* Initiator or send message responder pagefault details. */
-		struct {
-			/* Received packet size, only valid for responders. */
-			u32	packet_size;
-			/*
-			 * Number of resource holding WQE, depends on type.
-			 */
-			u32	wq_num;
-			/*
-			 * WQE index. Refers to either the send queue or
-			 * receive queue, according to event_subtype.
-			 */
-			u16	wqe_index;
-		} wqe;
-		/* RDMA responder pagefault details */
-		struct {
-			u32	r_key;
-			/*
-			 * Received packet size, minimal size page fault
-			 * resolution required for forward progress.
-			 */
-			u32	packet_size;
-			u32	rdma_op_len;
-			u64	rdma_va;
-		} rdma;
-	};
-
-	struct mlx5_ib_pf_eq	*eq;
-	struct work_struct	work;
-};
 
 #define MAX_PREFETCH_LEN (4*1024*1024U)
 
@@ -1464,10 +1427,14 @@ static void mlx5_ib_mr_wqe_pfault_handler(struct mlx5_ib_dev *dev,
 	void *wqe = NULL, *wqe_end = NULL;
 	u32 bytes_mapped, total_wqe_bytes;
 	struct mlx5_core_rsc_common *res;
+	int requestor = pfault->type & MLX5_PFAULT_REQUESTOR;
 	int resume_with_error = 1;
 	struct mlx5_ib_qp *qp;
+	struct mlx5_core_qp *mqp = (struct mlx5_core_qp *)pfault->wqe.common;
 	size_t bytes_copied;
 	int ret = 0;
+	bool drop = false;
+	unsigned long flags;
 
 	res = odp_get_rsc(dev, pfault->wqe.wq_num, pfault->type);
 	if (!res) {
@@ -1487,6 +1454,14 @@ static void mlx5_ib_mr_wqe_pfault_handler(struct mlx5_ib_dev *dev,
 		return;
 
 	qp = (res->res == MLX5_RES_QP) ? res_to_qp(res) : NULL;
+	if (qp) {
+		mutex_lock(&qp->mutex);
+		if (pfault->wqe.ignore) {
+			drop = true;
+			goto resolve_page_fault;
+		}
+
+	}
  	if (!qp)
 		goto out_err;
 
@@ -1538,10 +1513,29 @@ read_user:
 			ret, wqe_index, pfault->token);
 
 resolve_page_fault:
-	mlx5_ib_page_fault_resume(dev, pfault, resume_with_error);
-	mlx5_ib_dbg(dev, "PAGE FAULT completed. QP 0x%x resume_with_error=%d, type: 0x%x\n",
-		    pfault->wqe.wq_num, resume_with_error,
-		    pfault->type);
+	if (!drop) {
+		mlx5_ib_page_fault_resume(dev, pfault, resume_with_error);
+		mlx5_ib_dbg(dev, "PAGE FAULT completed. QP 0x%x resume_with_error=%d, type: 0x%x\n",
+			    pfault->wqe.wq_num, resume_with_error,
+			    pfault->type);
+	} else {
+		mlx5_ib_dbg(dev, "PAGE FAULT dropped. QP 0x%x type: 0x%x\n",
+			    pfault->wqe.wq_num, pfault->type);
+	}
+	spin_lock_irqsave(&mqp->common.lock, flags);
+	/* check if current pagefault event is also the last for the QP.
+	 * If yes, clear from QP
+	 */
+	if (requestor) {
+		if (pfault == mqp->pfault_req)
+			mqp->pfault_req = NULL;
+	} else {
+		if (pfault == mqp->pfault_res)
+			mqp->pfault_res = NULL;
+	}
+	spin_unlock_irqrestore(&mqp->common.lock, flags);
+	if (qp)
+		mutex_unlock(&qp->mutex);
 	mlx5_core_res_put(res);
 out_err:
 	free_page((unsigned long)wqe);
@@ -1719,6 +1713,28 @@ static void mlx5_ib_eq_pf_process(struct mlx5_ib_pf_eq *eq)
 				    pfault->type, pfault->token,
 				    pfault->wqe.wq_num,
 				    pfault->wqe.wqe_index);
+			if (pfault->wqe.common  &&
+			    pfault->wqe.common->res == MLX5_RES_QP) {
+				int requestor = pfault->type & MLX5_PFAULT_REQUESTOR;
+				struct mlx5_core_qp *mqp = (struct mlx5_core_qp *)pfault->wqe.common;
+				unsigned long flags;
+
+				/* after QP is modified to RESET it is possible that new
+				 * pagefault event arrives. This implies that the pending pagefault
+				 * is no long relevant
+				 */
+				spin_lock_irqsave(&mqp->common.lock, flags);
+				if (requestor) {
+					if (mqp->pfault_req)
+						mqp->pfault_req->wqe.ignore = true;
+					mqp->pfault_req = pfault;
+				} else {
+					if (mqp->pfault_res)
+						mqp->pfault_res->wqe.ignore = true;
+					mqp->pfault_res = pfault;
+				}
+				spin_unlock_irqrestore(&mqp->common.lock, flags);
+			}
 			break;
 
 		default:

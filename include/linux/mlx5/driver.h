@@ -429,6 +429,8 @@ struct mlx5_core_rsc_common {
 	atomic_t		refcount;
 	struct completion	free;
 	u64			async_events_mask;
+	/* lock parallel access to QP */
+	spinlock_t		lock;
 };
 
 struct mlx5_uars_page {
