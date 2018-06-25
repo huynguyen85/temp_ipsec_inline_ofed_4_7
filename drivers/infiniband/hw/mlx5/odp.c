@@ -1714,6 +1714,7 @@ static void mlx5_ib_eq_pf_process(struct mlx5_ib_pf_eq *eq)
 				    pfault->type, pfault->token,
 				    pfault->wqe.wq_num,
 				    pfault->wqe.wqe_index);
+			pfault->wqe.ignore = false;
 			if (pfault->wqe.common  &&
 			    pfault->wqe.common->res == MLX5_RES_QP) {
 				int requestor = pfault->type & MLX5_PFAULT_REQUESTOR;
