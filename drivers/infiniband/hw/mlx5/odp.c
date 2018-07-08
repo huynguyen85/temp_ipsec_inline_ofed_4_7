@@ -1813,14 +1813,9 @@ mlx5_ib_create_pf_eq(struct mlx5_ib_dev *dev, struct mlx5_ib_pf_eq *eq, bool cap
 	if (!eq->pool)
 		return -ENOMEM;
 
-	if (capi_enabled)
-		eq->wq = alloc_workqueue("mlx5_ib_page_fault",
-					     WQ_HIGHPRI | WQ_CPU_INTENSIVE,
-					     16);
-	else
-		eq->wq = alloc_workqueue("mlx5_ib_page_fault",
-				 WQ_HIGHPRI | WQ_UNBOUND | WQ_MEM_RECLAIM,
-				 MLX5_NUM_CMD_EQE);
+	eq->wq = alloc_workqueue("mlx5_ib_page_fault",
+				     WQ_HIGHPRI | WQ_CPU_INTENSIVE,
+				     MLX5_NUM_CMD_EQE);
 
 	if (!eq->wq) {
 		err = -ENOMEM;
