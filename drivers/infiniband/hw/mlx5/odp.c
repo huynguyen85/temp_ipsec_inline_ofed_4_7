@@ -390,6 +390,8 @@ static void mlx5_ib_page_fault_resume(struct mlx5_ib_dev *dev,
 	u32 out[MLX5_ST_SZ_DW(page_fault_resume_out)] = { };
 	u32 in[MLX5_ST_SZ_DW(page_fault_resume_in)]   = { };
 	int err;
+	unsigned int duration;
+	int index;
 
 	MLX5_SET(page_fault_resume_in, in, opcode, MLX5_CMD_OP_PAGE_FAULT_RESUME);
 	MLX5_SET(page_fault_resume_in, in, page_fault_type, pfault->type);
@@ -401,6 +403,11 @@ static void mlx5_ib_page_fault_resume(struct mlx5_ib_dev *dev,
 	if (err)
 		mlx5_ib_err(dev, "Failed to resolve the page fault on WQ 0x%x err %d\n",
 			    wq_num, err);
+
+	duration = jiffies_to_msecs(jiffies - pfault->start);
+	index =	convert_duration_to_hist(duration);
+	dev->pf_int_total_hist[index]++;
+
 	if (likely(!error))
 		ib_umem_odp_account_fault_handled(&dev->ib_dev);
 	else
@@ -412,15 +419,22 @@ static void mlx5_ib_page_fault_resume(struct mlx5_ib_dev *dev,
 static int handle_capi_pg_fault(struct mlx5_ib_dev *dev, struct mm_struct *mm,
 				u64 va, size_t sz, struct mlx5_pagefault *pfault)
 {
-	int err;
+	int err, index;
+	unsigned long start;
+	unsigned int duration;
 
 	if (!mmget_not_zero(mm))
 		return -EPERM;
 
+	start = jiffies;
 	if (pfault->type & MLX5_PAGE_FAULT_RESUME_WRITE)
 		err = cxllib_handle_fault(mm, va, sz, DSISR_ISSTORE);
 	else
 		err = cxllib_handle_fault(mm, va, sz, 0);
+
+	duration = jiffies_to_msecs(jiffies - start);
+	index =	convert_duration_to_hist(duration);
+	dev->pf_cxl_hist[index]++;
 
 	mmput(mm);
 	return err;
@@ -1622,6 +1636,12 @@ static void mlx5_ib_mr_rdma_pfault_handler(struct mlx5_ib_dev *dev,
 static void mlx5_ib_pfault(struct mlx5_ib_dev *dev, struct mlx5_pagefault *pfault)
 {
 	u8 event_subtype = pfault->event_subtype;
+	unsigned int duration;
+	int index;
+
+	duration = jiffies_to_msecs(jiffies - pfault->start);
+	index =	convert_duration_to_hist(duration);
+	dev->pf_int_wq_hist[index]++;
 
 	switch (event_subtype) {
 	case MLX5_PFAULT_SUBTYPE_WQE:
@@ -1665,7 +1685,7 @@ static void mlx5_ib_eq_pf_process(struct mlx5_ib_pf_eq *eq)
 		pf_eqe = &eqe->data.page_fault;
 		pfault->event_subtype = eqe->sub_type;
 		pfault->bytes_committed = be32_to_cpu(pf_eqe->bytes_committed);
-
+		pfault->start = jiffies;
 		mlx5_ib_dbg(eq->dev,
 			    "PAGE_FAULT: subtype: 0x%02x, bytes_committed: 0x%06x\n",
 			    eqe->sub_type, pfault->bytes_committed);
