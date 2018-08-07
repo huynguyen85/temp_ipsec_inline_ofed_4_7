@@ -371,7 +371,8 @@ struct ib_dm *mlx5_ib_exp_alloc_dm(struct ib_device *ibdev,
 				   u64 length, u64 uaddr,
 				   struct ib_udata *uhw);
 
-int mlx5_ib_exp_free_dm(struct ib_dm *dm);
+int mlx5_ib_exp_free_dm(struct ib_dm *dm,
+			struct uverbs_attr_bundle *attrs);
 
 int mlx5_ib_exp_memcpy_dm(struct ib_dm *dm,
 			  struct ib_exp_memcpy_dm_attr *attr);

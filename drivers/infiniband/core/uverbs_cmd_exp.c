@@ -1595,7 +1595,7 @@ int ib_uverbs_exp_alloc_dm(struct uverbs_attr_bundle *attrs)
 		goto err_copy;
 	return uobj_alloc_commit(uobj, attrs);
 err_copy:
-	ib_exp_free_dm(dm);
+	ib_exp_free_dm(dm, attrs);
 
 err_alloc:
 	uobj_alloc_abort(uobj, attrs);

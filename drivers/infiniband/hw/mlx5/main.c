@@ -2527,12 +2527,15 @@ err_free:
 
 int mlx5_ib_dealloc_dm(struct ib_dm *ibdm, struct uverbs_attr_bundle *attrs)
 {
-	struct mlx5_ib_ucontext *ctx = rdma_udata_to_drv_context(
-		&attrs->driver_udata, struct mlx5_ib_ucontext, ibucontext);
+	struct mlx5_ib_ucontext *ctx = rdma_udata_to_drv_context(                 
+				       &attrs->driver_udata, struct mlx5_ib_ucontext, ibucontext);
 	struct mlx5_dm *dm_db = &to_mdev(ibdm->device)->dm;
 	struct mlx5_ib_dm *dm = to_mdm(ibdm);
 	u32 page_idx;
 	int ret;
+
+	if (dm->dm_base_addr)
+		iounmap(dm->dm_base_addr);
 
 	switch (dm->type) {
 	case MLX5_IB_UAPI_DM_TYPE_MEMIC:
@@ -6342,12 +6345,6 @@ static const struct ib_device_ops mlx5_ib_dev_frontend_ns_context_ops = {
 	.query_nvmf_ns = mlx5_ib_query_nvmf_ns,
 };
 
-static const struct ib_device_ops mlx5_ib_dev_exp_dm_ops = {
-	.exp_alloc_dm = mlx5_ib_exp_alloc_dm,
-	.exp_free_dm = mlx5_ib_exp_free_dm,
-	.exp_memcpy_dm = mlx5_ib_exp_memcpy_dm,
-};
-
 static const struct ib_device_ops mlx5_ib_dev_sriov_ops = {
 	.get_vf_config = mlx5_ib_get_vf_config,
 	.get_vf_stats = mlx5_ib_get_vf_stats,
@@ -6369,6 +6366,9 @@ static const struct ib_device_ops mlx5_ib_dev_dm_ops = {
 	.alloc_dm = mlx5_ib_alloc_dm,
 	.dealloc_dm = mlx5_ib_dealloc_dm,
 	.reg_dm_mr = mlx5_ib_reg_dm_mr,
+	.exp_alloc_dm = mlx5_ib_exp_alloc_dm,
+	.exp_free_dm = mlx5_ib_exp_free_dm,
+	.exp_memcpy_dm = mlx5_ib_exp_memcpy_dm,
 };
 
 static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
@@ -6438,13 +6438,6 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 	}
 	dev->ib_dev.uverbs_exp_cmd_mask |= (1ull << IB_USER_VERBS_EXP_CMD_CREATE_MR);
 	dev->ib_dev.uverbs_exp_cmd_mask	|= (1ull << IB_USER_VERBS_EXP_CMD_SET_CTX_ATTR);
-
-	if (MLX5_CAP_DEVICE_MEM(mdev, memic)) {
-		ib_set_device_ops(&dev->ib_dev, &mlx5_ib_dev_exp_dm_ops);
-		dev->ib_dev.uverbs_exp_cmd_mask |=
-			(1ull << IB_USER_VERBS_EXP_CMD_ALLOC_DM)	|
-			(1ull << IB_USER_VERBS_EXP_CMD_FREE_DM);
-	}
 
 	if (MLX5_CAP_GEN(mdev, ipoib_enhanced_offloads) &&
 	    IS_ENABLED(CONFIG_MLX5_CORE_IPOIB))

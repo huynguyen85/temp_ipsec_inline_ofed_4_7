@@ -254,7 +254,7 @@ struct ib_dm *ib_exp_alloc_dm(struct ib_device *device, u64 length)
 }
 EXPORT_SYMBOL_GPL(ib_exp_alloc_dm);
 
-int ib_exp_free_dm(struct ib_dm *dm)
+int ib_exp_free_dm(struct ib_dm *dm, struct uverbs_attr_bundle *attrs)
 {
 	int err;
 
@@ -263,7 +263,7 @@ int ib_exp_free_dm(struct ib_dm *dm)
 
 	WARN_ON(atomic_read(&dm->usecnt));
 
-	err = dm->device->ops.exp_free_dm(dm);
+	err = dm->device->ops.exp_free_dm(dm, attrs);
 
 	return err;
 }

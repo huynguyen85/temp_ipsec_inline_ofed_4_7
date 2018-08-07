@@ -2671,7 +2671,8 @@ struct ib_device_ops {
 						   struct ib_ucontext *context,
 						   u64 length, u64 uaddr,
 						   struct ib_udata *udata);
-	int                        (*exp_free_dm)(struct ib_dm *dm);
+	int                        (*exp_free_dm)(struct ib_dm *dm,
+						  struct uverbs_attr_bundle *attrs);
 	int                        (*exp_memcpy_dm)(struct ib_dm *dm,
 						    struct ib_exp_memcpy_dm_attr *attr);
 	struct ib_mr *             (*exp_alloc_mr)(struct ib_pd *pd,
