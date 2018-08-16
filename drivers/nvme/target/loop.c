@@ -391,10 +391,12 @@ static int nvme_loop_configure_admin_queue(struct nvme_loop_ctrl *ctrl)
 
 	error = nvme_init_identify(&ctrl->ctrl);
 	if (error)
-		goto out_cleanup_queue;
+		goto out_disable_ctrl;
 
 	return 0;
 
+out_disable_ctrl:
+	nvme_disable_ctrl(&ctrl->ctrl, ctrl->ctrl.cap);
 out_cleanup_queue:
 	blk_cleanup_queue(ctrl->ctrl.admin_q);
 out_free_tagset:
@@ -404,7 +406,7 @@ out_free_sq:
 	return error;
 }
 
-static void nvme_loop_shutdown_ctrl(struct nvme_loop_ctrl *ctrl)
+static void nvme_loop_shutdown_ctrl(struct nvme_loop_ctrl *ctrl, bool shutdown)
 {
 	if (ctrl->ctrl.queue_count > 1) {
 		nvme_stop_queues(&ctrl->ctrl);
@@ -413,8 +415,10 @@ static void nvme_loop_shutdown_ctrl(struct nvme_loop_ctrl *ctrl)
 		nvme_loop_destroy_io_queues(ctrl);
 	}
 
-	if (ctrl->ctrl.state == NVME_CTRL_LIVE)
+	if (shutdown)
 		nvme_shutdown_ctrl(&ctrl->ctrl);
+	else
+		nvme_disable_ctrl(&ctrl->ctrl, ctrl->ctrl.cap);
 
 	blk_mq_quiesce_queue(ctrl->ctrl.admin_q);
 	blk_mq_tagset_busy_iter(&ctrl->admin_tag_set,
@@ -425,7 +429,7 @@ static void nvme_loop_shutdown_ctrl(struct nvme_loop_ctrl *ctrl)
 
 static void nvme_loop_delete_ctrl_host(struct nvme_ctrl *ctrl)
 {
-	nvme_loop_shutdown_ctrl(to_loop_ctrl(ctrl));
+	nvme_loop_shutdown_ctrl(to_loop_ctrl(ctrl), true);
 }
 
 static void nvme_loop_delete_ctrl(struct nvmet_ctrl *nctrl)
@@ -448,7 +452,7 @@ static void nvme_loop_reset_ctrl_work(struct work_struct *work)
 	int ret;
 
 	nvme_stop_ctrl(&ctrl->ctrl);
-	nvme_loop_shutdown_ctrl(ctrl);
+	nvme_loop_shutdown_ctrl(ctrl, false);
 
 	if (!nvme_change_ctrl_state(&ctrl->ctrl, NVME_CTRL_CONNECTING)) {
 		/* state change failure should never happen */
@@ -481,6 +485,7 @@ static void nvme_loop_reset_ctrl_work(struct work_struct *work)
 out_destroy_io:
 	nvme_loop_destroy_io_queues(ctrl);
 out_destroy_admin:
+	nvme_disable_ctrl(&ctrl->ctrl, ctrl->ctrl.cap);
 	nvme_loop_destroy_admin_queue(ctrl);
 out_disable:
 	dev_warn(ctrl->ctrl.device, "Removing after reset failure\n");
@@ -632,6 +637,7 @@ static struct nvme_ctrl *nvme_loop_create_ctrl(struct device *dev,
 	return &ctrl->ctrl;
 
 out_remove_admin_queue:
+	nvme_disable_ctrl(&ctrl->ctrl, ctrl->ctrl.cap);
 	nvme_loop_destroy_admin_queue(ctrl);
 out_free_queues:
 	kfree(ctrl->queues);
