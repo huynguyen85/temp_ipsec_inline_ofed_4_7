@@ -1421,7 +1421,7 @@ static int create_qp(struct uverbs_attr_bundle *attrs,
 	}
 
 	if (attr.create_flags & IB_QP_CREATE_SOURCE_QPN) {
-		if (!capable(CAP_NET_RAW)) {
+		if (!capable(CAP_NET_RAW) && !disable_raw_qp_enforcement) {
 			ret = -EPERM;
 			goto err_put;
 		}
