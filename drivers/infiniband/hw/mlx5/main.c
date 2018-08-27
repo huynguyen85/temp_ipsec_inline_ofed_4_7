@@ -6347,9 +6347,6 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
 	INIT_RDMA_OBJ_SIZE(ib_ucontext, mlx5_ib_ucontext, ibucontext),
 };
 
-static const struct ib_device_ops mlx5_ib_dev_exp_invalidate_range = {
-	.exp_invalidate_range = mlx5_ib_exp_invalidate_range,
-};
 static const struct ib_device_ops mlx5_ib_dev_flow_ipsec_ops = {
 	.create_flow_action_esp = mlx5_ib_create_flow_action_esp,
 	.modify_flow_action_esp = mlx5_ib_modify_flow_action_esp,
@@ -6480,10 +6477,6 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 	if (mlx5_core_is_pf(mdev))
 		ib_set_device_ops(&dev->ib_dev, &mlx5_ib_dev_sriov_ops);
 
-#ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
-	if (mlx5_ib_capi_enabled(dev))
-		ib_set_device_ops(&dev->ib_dev, &mlx5_ib_dev_exp_invalidate_range);
-#endif
 	dev->umr_fence = mlx5_get_umr_fence(MLX5_CAP_GEN(mdev, umr_fence));
 
 	if (MLX5_CAP_GEN(mdev, imaicl)) {
