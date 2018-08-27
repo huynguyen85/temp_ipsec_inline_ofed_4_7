@@ -1583,6 +1583,7 @@ int ib_uverbs_exp_alloc_dm(struct uverbs_attr_bundle *attrs)
 	dm->device  = ib_dev;
 	dm->length  = cmd.length;
 	dm->uobject = uobj;
+	atomic_set(&dm->usecnt, 0);
 
 	uobj->object = dm;
 
