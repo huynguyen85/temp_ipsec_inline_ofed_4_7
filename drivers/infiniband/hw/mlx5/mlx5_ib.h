@@ -909,10 +909,12 @@ enum mlx5_ib_stages {
 	MLX5_IB_STAGE_CONG_DEBUGFS,
 	MLX5_IB_STAGE_UAR,
 	MLX5_IB_STAGE_BFREG,
+	MLX5_IB_STAGE_PRE_ODP_ASYNC_PREFETCH,
 	MLX5_IB_STAGE_PRE_IB_REG_UMR,
 	MLX5_IB_STAGE_WHITELIST_UID,
 	MLX5_IB_STAGE_IB_REG,
 	MLX5_IB_STAGE_POST_IB_REG_UMR,
+	MLX5_IB_STAGE_POST_ODP_ASYNC_PREFETCH,
 	MLX5_IB_STAGE_DELAY_DROP,
 	MLX5_IB_STAGE_DC_TRACER,
 	MLX5_IB_STAGE_TC_SYSFS,
@@ -1359,8 +1361,9 @@ struct ib_mr *mlx5_ib_reg_dm_mr(struct ib_pd *pd, struct ib_dm *dm,
 #ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
 void mlx5_ib_internal_fill_odp_caps(struct mlx5_ib_dev *dev);
 int mlx5_ib_odp_init_one(struct mlx5_ib_dev *ibdev);
-void mlx5_ib_odp_shutdown_one(struct mlx5_ib_dev *ibdev);
 void mlx5_ib_odp_cleanup_one(struct mlx5_ib_dev *ibdev);
+int mlx5_ib_odp_async_prefetch_init(struct mlx5_ib_dev *dev);
+void mlx5_ib_odp_async_prefetch_cleanup(struct mlx5_ib_dev *dev);
 int __init mlx5_ib_odp_init(void);
 void mlx5_ib_odp_cleanup(void);
 void mlx5_ib_invalidate_range(struct ib_umem_odp *umem_odp, unsigned long start,
@@ -1379,7 +1382,8 @@ static inline void mlx5_ib_internal_fill_odp_caps(struct mlx5_ib_dev *dev)
 }
 
 static inline int mlx5_ib_odp_init_one(struct mlx5_ib_dev *ibdev) { return 0; }
-static inline void mlx5_ib_odp_shutdown_one(struct mlx5_ib_dev *ibdev)	    {}
+static inline int mlx5_ib_odp_async_prefetch_init(struct mlx5_ib_dev *dev) { return 0; }
+static inline void mlx5_ib_odp_async_prefetch_cleanup(struct mlx5_ib_dev *dev) {}
 static inline void mlx5_ib_odp_cleanup_one(struct mlx5_ib_dev *ibdev) {}
 static inline int mlx5_ib_odp_init(void) { return 0; }
 static inline void mlx5_ib_odp_cleanup(void)				    {}

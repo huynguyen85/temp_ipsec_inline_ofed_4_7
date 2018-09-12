@@ -1912,21 +1912,11 @@ int mlx5_ib_odp_init_one(struct mlx5_ib_dev *dev)
 
 	ret = mlx5_ib_create_pf_eq(dev, &dev->odp_pf_eq, dev->capi.enabled);
 
-	init_completion(&dev->comp_prefetch);
-	atomic_set(&dev->num_prefetch, 1);
-
 	return ret;
 out_srcu:
 	cleanup_srcu_struct(&dev->mr_srcu);
 	return ret;
 }
-
-void mlx5_ib_odp_shutdown_one(struct mlx5_ib_dev *dev)
-{
-	if (!atomic_dec_and_test(&dev->num_prefetch))
-		wait_for_completion(&dev->comp_prefetch);
-}
-
 
 void mlx5_ib_odp_cleanup_one(struct mlx5_ib_dev *dev)
 {
