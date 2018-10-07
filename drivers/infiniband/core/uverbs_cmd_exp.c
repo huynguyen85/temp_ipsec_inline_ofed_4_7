@@ -208,6 +208,15 @@ int ib_uverbs_exp_create_qp(struct uverbs_attr_bundle *attrs)
 			attr->create_flags &= ~IB_QP_EXP_USER_CREATE_TUNNEL_OFFLOADS;
 			attr->create_flags |= IB_QP_EXP_CREATE_TUNNEL_OFFLOADS;
 		}
+
+		if (attr->create_flags &
+		    IB_QP_EXP_USER_CREATE_PACKET_BASED_CREDIT_MODE) {
+			attr->create_flags &=
+				~IB_QP_EXP_USER_CREATE_PACKET_BASED_CREDIT_MODE;
+			attr->create_flags |=
+				IB_QP_EXP_CREATE_PACKET_BASED_CREDIT_MODE;
+		}
+
 	}
 
 	if (cmd_exp->comp_mask & IB_UVERBS_EXP_CREATE_QP_QPG) {
