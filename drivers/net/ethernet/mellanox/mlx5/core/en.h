@@ -36,6 +36,7 @@
 #include <linux/etherdevice.h>
 #include <linux/timecounter.h>
 #include <linux/net_tstamp.h>
+#include <linux/hashtable.h>
 #include <linux/ptp_clock_kernel.h>
 #include <linux/crash_dump.h>
 #include <linux/mlx5/driver.h>
@@ -143,6 +144,12 @@ struct page_pool;
 #define MLX5E_MIN_NUM_CHANNELS         0x1
 #define MLX5E_MAX_NUM_CHANNELS         (MLX5E_INDIR_RQT_SIZE >> 1)
 #define MLX5E_MAX_NUM_SQS              (MLX5E_MAX_NUM_CHANNELS * MLX5E_MAX_NUM_TC)
+
+#ifdef CONFIG_MLX5_EN_SPECIAL_SQ
+#define MLX5E_MAX_RL_QUEUES            512
+#else
+#define MLX5E_MAX_RL_QUEUES            0
+#endif
 
 #define MLX5E_TX_CQ_POLL_BUDGET        128
 #define MLX5E_SQ_RECOVER_MIN_INTERVAL  500 /* msecs */
@@ -256,6 +263,9 @@ struct mlx5e_params {
 	u8  log_rq_mtu_frames;
 	u16 num_channels;
 	u8  num_tc;
+#ifdef CONFIG_MLX5_EN_SPECIAL_SQ
+	u16 num_rl_txqs;
+#endif
 	bool rx_cqe_compress_def;
 	struct net_dim_cq_moder rx_cq_moderation;
 	struct net_dim_cq_moder tx_cq_moderation;
@@ -374,6 +384,15 @@ struct mlx5e_sq_wqe_info {
 	u8  opcode;
 };
 
+#ifdef CONFIG_MLX5_EN_SPECIAL_SQ
+struct mlx5e_sq_flow_map {
+	struct hlist_node hlist;
+	u32               dst_ip;
+	u16               dst_port;
+	u16               queue_index;
+};
+#endif
+
 struct mlx5e_dim {
 	struct net_dim dim;
 	struct net_dim_sample sample;
@@ -417,6 +436,9 @@ struct mlx5e_txqsq {
 	int                        txq_ix;
 	u32                        rate_limit;
 	struct work_struct         recover_work;
+#ifdef CONFIG_MLX5_EN_SPECIAL_SQ
+	struct mlx5e_sq_flow_map   flow_map;
+#endif
 } ____cacheline_aligned_in_smp;
 
 struct mlx5e_dma_info {
@@ -800,6 +822,9 @@ struct mlx5e_priv {
 	/* priv data path fields - start */
 	struct mlx5e_txqsq *txq2sq[MLX5E_MAX_NUM_CHANNELS * MLX5E_MAX_NUM_TC];
 	int channel_tc2txq[MLX5E_MAX_NUM_CHANNELS][MLX5E_MAX_NUM_TC];
+#ifdef CONFIG_MLX5_EN_SPECIAL_SQ
+	DECLARE_HASHTABLE(flow_map_hash, ilog2(MLX5E_MAX_RL_QUEUES));
+#endif
 #ifdef CONFIG_MLX5_CORE_EN_DCB
 	struct mlx5e_dcbx_dp       dcbx_dp;
 #endif
@@ -933,6 +958,11 @@ mlx5e_skb_from_cqe_nonlinear(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe,
 void mlx5e_update_stats(struct mlx5e_priv *priv);
 int mlx5e_sysfs_create(struct net_device *dev);
 void mlx5e_sysfs_remove(struct net_device *dev);
+
+#ifdef CONFIG_MLX5_EN_SPECIAL_SQ
+int mlx5e_rl_init_sysfs(struct net_device *netdev, struct mlx5e_params params);
+void mlx5e_rl_remove_sysfs(struct mlx5e_priv *priv);
+#endif
 
 int mlx5e_setup_tc_mqprio(struct net_device *netdev,
 			  struct tc_mqprio_qopt *mqprio);
