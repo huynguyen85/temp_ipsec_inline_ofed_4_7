@@ -964,7 +964,7 @@ err_query_regs:
 	return err;
 }
 
-static int mlx5e_get_link_ksettings(struct net_device *netdev,
+int mlx5e_get_link_ksettings(struct net_device *netdev,
 				    struct ethtool_link_ksettings *link_ksettings)
 {
 	struct mlx5e_priv *priv = netdev_priv(netdev);
@@ -1072,7 +1072,7 @@ out:
 	return err;
 }
 
-static int mlx5e_set_link_ksettings(struct net_device *netdev,
+int mlx5e_set_link_ksettings(struct net_device *netdev,
 				    const struct ethtool_link_ksettings *link_ksettings)
 {
 	struct mlx5e_priv *priv = netdev_priv(netdev);
