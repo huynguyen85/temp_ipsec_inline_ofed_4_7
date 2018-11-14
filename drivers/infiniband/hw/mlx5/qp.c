@@ -2925,6 +2925,7 @@ struct ib_qp *mlx5_ib_create_dct(struct ib_pd *pd,
 					struct mlx5_ib_create_qp *ucmd,
 					struct ib_udata *udata)
 {
+	struct mlx5_ib_dev *dev;
 	struct mlx5_ib_ucontext *ucontext = rdma_udata_to_drv_context(
 		udata, struct mlx5_ib_ucontext, ibucontext);
 	struct mlx5_ib_qp *qp;
@@ -2932,8 +2933,12 @@ struct ib_qp *mlx5_ib_create_dct(struct ib_pd *pd,
 	u32 uidx = MLX5_IB_DEFAULT_UIDX;
 	void *dctc;
 
+	dev = to_mdev(pd->device);
 	if (!attr->srq || !attr->recv_cq)
 		return ERR_PTR(-EINVAL);
+
+	if (mlx5_lag_is_active(dev->mdev) && !MLX5_CAP_GEN(dev->mdev, lag_dct))
+		return ERR_PTR(-EOPNOTSUPP);
 
 	if (ucmd) {
 		err = get_qp_user_index(ucontext,
