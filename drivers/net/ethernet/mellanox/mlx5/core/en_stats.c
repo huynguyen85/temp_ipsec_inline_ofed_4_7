@@ -1305,7 +1305,7 @@ static int mlx5e_grp_channels_get_num_stats(struct mlx5e_priv *priv)
 static int mlx5e_grp_channels_fill_strings(struct mlx5e_priv *priv, u8 *data,
 					   int idx)
 {
-	int max_nch = mlx5e_get_netdev_max_channels(priv->netdev);
+	int max_nch = MLX5E_PER_CHANNEL_STATS(priv);
 	int i, j, tc;
 
 	for (i = 0; i < max_nch; i++)
@@ -1340,7 +1340,7 @@ static int mlx5e_grp_channels_fill_strings(struct mlx5e_priv *priv, u8 *data,
 static int mlx5e_grp_channels_fill_stats(struct mlx5e_priv *priv, u64 *data,
 					 int idx)
 {
-	int max_nch = mlx5e_get_netdev_max_channels(priv->netdev);
+	int max_nch = MLX5E_PER_CHANNEL_STATS(priv);
 	int i, j, tc;
 
 	for (i = 0; i < max_nch; i++)
