@@ -68,15 +68,16 @@ static int ipoib_changelink(struct net_device *dev, struct nlattr *tb[],
 			    struct nlattr *data[],
 			    struct netlink_ext_ack *extack)
 {
+	struct ipoib_dev_priv *priv = ipoib_priv(dev);
 	u16 mode, umcast;
 	int ret = 0;
 
 	if (data[IFLA_IPOIB_MODE]) {
 		mode  = nla_get_u16(data[IFLA_IPOIB_MODE]);
 		if (mode == IPOIB_MODE_DATAGRAM)
-			ret = ipoib_set_mode(dev, "datagram\n");
+			ret = priv->fp.ipoib_set_mode(dev, "datagram\n");
 		else if (mode == IPOIB_MODE_CONNECTED)
-			ret = ipoib_set_mode(dev, "connected\n");
+			ret = priv->fp.ipoib_set_mode(dev, "connected\n");
 		else
 			ret = -EINVAL;
 
@@ -99,6 +100,7 @@ static int ipoib_new_child_link(struct net *src_net, struct net_device *dev,
 {
 	struct net_device *pdev;
 	struct ipoib_dev_priv *ppriv;
+	struct ipoib_dev_priv *priv;
 	u16 child_pkey;
 	int err;
 
@@ -125,16 +127,26 @@ static int ipoib_new_child_link(struct net *src_net, struct net_device *dev,
 	} else
 		child_pkey  = nla_get_u16(data[IFLA_IPOIB_PKEY]);
 
-	err = ipoib_intf_init(ppriv->ca, ppriv->port, dev->name, dev);
+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
+
+	err = ipoib_set_fp_rss(priv, ppriv->ca);
+	if (err) {
+		ipoib_warn(ppriv, "failed to set pkey function pointers\n");
+		goto out;
+	}
+
+	err = ipoib_intf_init(ppriv->ca, ppriv->port, dev->name, dev, priv);
 	if (err) {
 		ipoib_warn(ppriv, "failed to initialize pkey device\n");
-		return err;
+		goto out;
 	}
 
 	err = __ipoib_vlan_add(ppriv, ipoib_priv(dev),
 			       child_pkey, IPOIB_RTNL_CHILD);
 	if (err)
-		return err;
+		goto out;
 
 	if (data) {
 		err = ipoib_changelink(dev, tb, data, extack);
@@ -145,6 +157,9 @@ static int ipoib_new_child_link(struct net *src_net, struct net_device *dev,
 	}
 
 	return 0;
+out:
+	kfree(priv);
+	return err;
 }
 
 static size_t ipoib_get_size(const struct net_device *dev)
