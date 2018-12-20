@@ -1936,6 +1936,15 @@ static const struct pflag_desc mlx5e_priv_flags[MLX5E_NUM_PFLAGS] = {
         { "tx_xdp_hw_checksum",  set_pflag_tx_xdp_hw_checksum},
 };
 
+int mlx5e_priv_flags_num(void)
+{
+	return ARRAY_SIZE(mlx5e_priv_flags);
+}
+
+const char *mlx5e_priv_flags_name(int flag)
+{
+	return mlx5e_priv_flags[flag].name;
+}
 
 static int mlx5e_handle_pflag(struct net_device *netdev,
 			      u32 wanted_flags,
@@ -1960,7 +1969,7 @@ static int mlx5e_handle_pflag(struct net_device *netdev,
 	return 0;
 }
 
-static int mlx5e_set_priv_flags(struct net_device *netdev, u32 pflags)
+int mlx5e_set_priv_flags(struct net_device *netdev, u32 pflags)
 {
 	struct mlx5e_priv *priv = netdev_priv(netdev);
 	enum mlx5e_priv_flag pflag;
@@ -1982,7 +1991,7 @@ static int mlx5e_set_priv_flags(struct net_device *netdev, u32 pflags)
 	return err;
 }
 
-static u32 mlx5e_get_priv_flags(struct net_device *netdev)
+u32 mlx5e_get_priv_flags(struct net_device *netdev)
 {
 	struct mlx5e_priv *priv = netdev_priv(netdev);
 
