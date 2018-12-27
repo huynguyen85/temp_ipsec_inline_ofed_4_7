@@ -2529,6 +2529,14 @@ static int parse_tc_nic_actions(struct mlx5e_priv *priv,
 		}
 	}
 
+#ifdef CONFIG_MLX5_MINIFLOW
+	if ((action & MLX5_FLOW_CONTEXT_ACTION_CT) &&
+	    !(action & MLX5_FLOW_CONTEXT_ACTION_GOTO)) {
+		netdev_warn(priv->netdev, "CT action is not supported without goto");
+		return -EOPNOTSUPP;
+	}
+#endif
+
 	attr->action = action;
 	if (!actions_match_supported(priv, flow_action, parse_attr, flow, extack))
 		return -EOPNOTSUPP;
