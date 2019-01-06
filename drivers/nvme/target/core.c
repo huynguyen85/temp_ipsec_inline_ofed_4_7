@@ -394,6 +394,7 @@ int nvmet_enable_port(struct nvmet_port *port, bool offloadble)
 		ret = -EINVAL;
 		goto out_remove_port;
 	}
+
 	/* If the transport didn't set inline_data_size, then disable it. */
 	if (port->inline_data_size < 0)
 		port->inline_data_size = 0;
@@ -615,7 +616,7 @@ int nvmet_ns_enable(struct nvmet_ns *ns)
 		ret = nvmet_file_ns_enable(ns);
 	if (ret)
 		goto out_unlock;
-	
+
 	if (subsys->offloadble) {
 		ns->pdev = nvme_find_pdev_from_bdev(ns->bdev);
 		if (!ns->pdev) {
@@ -743,9 +744,10 @@ void nvmet_ns_disable(struct nvmet_ns *ns)
 	subsys->nr_namespaces--;
 	nvmet_ns_changed(subsys, ns->nsid);
 	nvmet_ns_dev_disable(ns);
-
-	if (ns->pdev)
+	if (ns->pdev) {
+		pci_dev_put(ns->pdev);
 		ns->pdev = NULL;
+	}
 out_unlock:
 	mutex_unlock(&subsys->lock);
 }
