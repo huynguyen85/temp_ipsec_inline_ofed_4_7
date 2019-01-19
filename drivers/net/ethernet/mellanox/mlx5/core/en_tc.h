@@ -129,6 +129,7 @@ struct mlx5e_tc_flow {
 	struct rcu_head		rcu_head;
 	struct completion	init_done;
 
+	u64			version;
 	struct mlx5e_miniflow   *miniflow;
 	struct mlx5_fc          *dummy_counter;
 	struct list_head        miniflow_list;

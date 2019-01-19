@@ -3798,6 +3798,9 @@ int mlx5e_configure_flower(struct net_device *dev, struct mlx5e_priv *priv,
 	if (err)
 		goto out;
 
+#ifdef HAVE_MINIFLOW
+	flow->version = miniflow_version_inc();
+#endif
 	err = rhashtable_lookup_insert_fast(tc_ht, &flow->node, tc_ht_params);
 	if (err)
 		goto err_free;

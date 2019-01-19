@@ -37,6 +37,7 @@ struct mlx5e_miniflow {
 
 	struct nf_conntrack_tuple tuple;
 
+	u64 version;
 	int nr_flows;
 	struct {
 		unsigned long        cookies[MINIFLOW_MAX_FLOWS];
@@ -49,6 +50,7 @@ struct mlx5e_miniflow {
 	struct mlx5e_miniflow_node mnodes[MINIFLOW_MAX_FLOWS];
 };
 
+u64 miniflow_version_inc(void);
 
 void mlx5e_del_miniflow_list(struct mlx5e_tc_flow *flow);
 

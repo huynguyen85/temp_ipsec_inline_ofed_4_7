@@ -9,6 +9,8 @@
 #include "en_tc.h"
 #include "en.h"
 
+static atomic64_t global_version = ATOMIC64_INIT(0);
+
 #define CT_DEBUG_COUNTERS 1
 
 #if CT_DEBUG_COUNTERS
@@ -32,6 +34,7 @@ static atomic64_t nr_of_total_mf_err_attach_dummy_counter = ATOMIC64_INIT(0);
 static atomic64_t nr_of_total_mf_err_fdb_add = ATOMIC64_INIT(0);
 static atomic64_t nr_of_total_mf_err_verify_path = ATOMIC64_INIT(0);
 static atomic64_t nr_of_total_mf_err_register = ATOMIC64_INIT(0);
+static atomic64_t nr_of_total_mf_err_version = ATOMIC64_INIT(0);
 
 static atomic64_t nr_of_merge_mfe_in_queue = ATOMIC64_INIT(0);
 static atomic64_t nr_of_del_mfe_in_queue = ATOMIC64_INIT(0);
@@ -110,6 +113,7 @@ ssize_t mlx5_show_counters_ct(char *buf)
 	p += _sprintf(p, buf, "nr_of_total_mf_err_fdb_add              : %ld\n", atomic64_read(&nr_of_total_mf_err_fdb_add));
 	p += _sprintf(p, buf, "nr_of_total_mf_err_verify_path          : %ld\n", atomic64_read(&nr_of_total_mf_err_verify_path));
 	p += _sprintf(p, buf, "nr_of_total_mf_err_register             : %ld\n", atomic64_read(&nr_of_total_mf_err_register));
+	p += _sprintf(p, buf, "nr_of_total_mf_err_version              : %ld\n", atomic64_read(&nr_of_total_mf_err_version));
 	p += _sprintf(p, buf, "\n");
 	p += _sprintf(p, buf, "enable_ct_ageing                        : %d\n", enable_ct_ageing);
 	p += _sprintf(p, buf, "max_nr_mf                               : %d\n", max_nr_mf);
@@ -123,6 +127,11 @@ ssize_t mlx5_show_counters_ct(char *buf)
 #endif /*CT_DEBUG_COUNTERS*/
 
 	return (ssize_t)(p - buf);
+}
+
+u64 miniflow_version_inc(void)
+{
+	return atomic64_inc_return(&global_version);
 }
 
 /* TODO: have a second look */
@@ -610,6 +619,11 @@ static int miniflow_resolve_path_flows(struct mlx5e_miniflow *miniflow)
 		if (!flow)
 			return -1;
 
+		if (miniflow->version < flow->version) {
+			inc_debug_counter(&nr_of_total_mf_err_version);
+			return -1;
+		}
+
 		miniflow->path.flows[i] = flow;
 	}
 
@@ -631,6 +645,11 @@ static int miniflow_verify_path_flows(struct mlx5e_miniflow *miniflow)
 		flow = mlx5e_lookup_tc_ht(priv, &cookie, MLX5E_TC_ESW_OFFLOAD);
 		if (!flow)
 			return -1;
+
+		if (miniflow->version < flow->version) {
+			inc_debug_counter(&nr_of_total_mf_err_version);
+			return -1;
+		}
 	}
 
 	return 0;
@@ -862,6 +881,7 @@ static int miniflow_merge(struct mlx5e_miniflow *miniflow)
 	inc_debug_counter(&nr_of_total_mf_work_requests);
 	inc_debug_counter(&nr_of_total_merge_mf_work_requests);
 
+	miniflow->version = miniflow_version_inc();
 	INIT_WORK(&miniflow->work, miniflow_merge_work);
 	if (queue_work(miniflow_wq, &miniflow->work))
 		return 0;
