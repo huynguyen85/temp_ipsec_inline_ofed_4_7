@@ -763,7 +763,7 @@ static int mlx5_fw_tracer_start(struct mlx5_fw_tracer *tracer)
 		goto release_ownership;
 	}
 
-	mlx5_core_dbg(dev, "FWTracer: Ownership granted and active\n");
+	mlx5_core_warn(dev, "FWTracer: Ownership granted and active\n");
 	return 0;
 
 release_ownership:
