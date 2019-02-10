@@ -1244,6 +1244,7 @@ static int mlx5_function_teardown(struct mlx5_core_dev *dev, bool boot)
 	mlx5_reclaim_startup_pages(dev);
 	mlx5_core_disable_hca(dev, 0);
 	mlx5_cmd_cleanup(dev);
+	unregister_pcie_dev_attr_group(dev->pdev);
 
 	return 0;
 }
@@ -1410,6 +1411,8 @@ static int mlx5_load_one(struct mlx5_core_dev *dev, bool boot)
 			goto err_reg_dev;
 		}
 	}
+
+	register_pcie_dev_attr_group(dev->pdev);
 
 	set_bit(MLX5_INTERFACE_STATE_UP, &dev->intf_state);
 out:
