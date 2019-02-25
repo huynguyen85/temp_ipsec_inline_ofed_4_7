@@ -568,12 +568,18 @@ miniflow_ct_flow_alloc(struct mlx5e_priv *priv,
 {
 	struct mlx5e_tc_flow_parse_attr *parse_attr;
 	struct mlx5e_tc_flow *flow;
+	int flow_flag;
 	int attr_size;
 	int err;
 
+	flow_flag = MLX5E_TC_FLOW_ESWITCH | MLX5E_TC_FLOW_CT;
+
+	if (ct_tuple->tuple.dst.dir == IP_CT_DIR_ORIGINAL)
+		flow_flag |= MLX5E_TC_FLOW_CT_ORIG;
+
 	attr_size = sizeof(struct mlx5_esw_flow_attr);
 	err = mlx5e_alloc_flow(priv, attr_size, 0 /* cookie */,
-			       MLX5E_TC_FLOW_ESWITCH | MLX5E_TC_FLOW_CT,
+			       flow_flag,
 			       GFP_ATOMIC, &parse_attr, &flow);
 	if (err)
 		return NULL;
