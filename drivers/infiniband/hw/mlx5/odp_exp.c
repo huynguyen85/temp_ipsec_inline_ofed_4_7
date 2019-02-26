@@ -81,6 +81,7 @@ int mlx5_ib_prefetch_mr(struct ib_mr *ibmr, u64 start, u64 length, u32 flags)
 		return -ENOMEM;
 
 	pwork->dev = dev;
+	pwork->pd = ibmr->pd;
 	pwork->key = ibmr->lkey;
 	pwork->start = start;
 	pwork->length = length;
