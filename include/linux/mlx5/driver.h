@@ -764,6 +764,11 @@ struct mlx5_local_lb {
 	bool driver_state;
 };
 
+enum mlx5_roce_ib_state {
+	MLX5_ROCE_IB_DISABLED = 0,
+	MLX5_ROCE_IB_ENABLED = 1,
+};
+
 struct mlx5_core_dev {
 	struct device *device;
 	struct pci_dev	       *pdev;
@@ -802,6 +807,7 @@ struct mlx5_core_dev {
 	struct {
 		struct mlx5_rsvd_gids	reserved_gids;
 		u32			roce_en;
+		bool			enabled;
 	} roce;
 #ifdef CONFIG_MLX5_FPGA
 	struct mlx5_fpga_device *fpga;

@@ -7158,10 +7158,16 @@ static void *mlx5_ib_add_slave_port(struct mlx5_core_dev *mdev)
 
 static void *mlx5_ib_add(struct mlx5_core_dev *mdev)
 {
+	const struct mlx5_ib_profile *profile;
 	enum rdma_link_layer ll;
 	struct mlx5_ib_dev *dev;
 	int port_type_cap;
 	int num_ports;
+
+	if (mdev->roce.enabled)
+		profile = &pf_profile;
+	else
+		profile = &ib_profile;
 
 	printk_once(KERN_INFO "%s", mlx5_version);
 
@@ -7193,7 +7199,7 @@ static void *mlx5_ib_add(struct mlx5_core_dev *mdev)
 	dev->mdev = mdev;
 	dev->num_ports = num_ports;
 
-	return __mlx5_ib_add(dev, &pf_profile);
+	return __mlx5_ib_add(dev, profile);
 }
 
 static void mlx5_ib_remove(struct mlx5_core_dev *mdev, void *context)

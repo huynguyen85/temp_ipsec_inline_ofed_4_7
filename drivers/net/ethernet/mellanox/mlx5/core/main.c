@@ -1792,6 +1792,7 @@ static int mlx5_mdev_init(struct mlx5_core_dev *dev, int profile_idx)
 	mutex_init(&priv->bfregs.wc_head.lock);
 	INIT_LIST_HEAD(&priv->bfregs.reg_head.list);
 	INIT_LIST_HEAD(&priv->bfregs.wc_head.list);
+	dev->roce.enabled = true;
 
 	mutex_init(&priv->alloc_mutex);
 	mutex_init(&priv->pgdir_mutex);
