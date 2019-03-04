@@ -185,6 +185,7 @@ struct fs_fte {
 	struct rhash_head		hash;
 	struct fs_debugfs_fte		debugfs;
 	int				modify_mask;
+	u32				handle;
 };
 
 /* Type of children is mlx5_flow_table/namespace */
