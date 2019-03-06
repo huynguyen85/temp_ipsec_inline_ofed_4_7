@@ -1809,6 +1809,9 @@ mlx5e_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 		goto err_neigh_cleanup;
 	}
 
+	if (rep->vport == MLX5_VPORT_UPLINK)
+		mlx5_eswitch_compat_sysfs_init(netdev);
+
 	return 0;
 
 err_neigh_cleanup:
@@ -1834,6 +1837,9 @@ mlx5e_vport_rep_unload(struct mlx5_eswitch_rep *rep)
 	struct net_device *netdev = rpriv->netdev;
 	struct mlx5e_priv *priv = netdev_priv(netdev);
 	void *ppriv = priv->ppriv;
+
+	if (rep->vport == MLX5_VPORT_UPLINK)
+		mlx5_eswitch_compat_sysfs_cleanup(netdev);
 
 	unregister_netdev(netdev);
 	mlx5e_rep_neigh_cleanup(rpriv);

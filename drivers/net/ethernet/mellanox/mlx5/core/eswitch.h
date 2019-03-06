@@ -218,6 +218,12 @@ struct mlx5_host_info {
 	u16			num_vfs;
 };
 
+struct mlx5_esw_handler {
+	struct work_struct      start_handler;
+	struct work_struct      stop_handler;
+	struct netlink_ext_ack	*extack;
+};
+
 struct mlx5_eswitch {
 	struct mlx5_core_dev    *dev;
 	struct mlx5_nb          nb;
@@ -243,6 +249,7 @@ struct mlx5_eswitch {
 	int                     nvports;
 	u16                     manager_vport;
 	struct mlx5_host_info	host_info;
+	struct mlx5_esw_handler	handler;
 };
 
 void esw_offloads_cleanup(struct mlx5_eswitch *esw);
@@ -262,6 +269,9 @@ void esw_vport_disable_egress_acl(struct mlx5_eswitch *esw,
 				  struct mlx5_vport *vport);
 void esw_vport_disable_ingress_acl(struct mlx5_eswitch *esw,
 				   struct mlx5_vport *vport);
+
+void esw_offloads_start_handler(struct work_struct *work);
+void esw_offloads_stop_handler(struct work_struct *work);
 
 /* E-Switch API */
 int mlx5_eswitch_init(struct mlx5_core_dev *dev);
@@ -396,7 +406,8 @@ int mlx5_devlink_eswitch_inline_mode_set(struct devlink *devlink, u8 mode,
 					 struct netlink_ext_ack *extack);
 int mlx5_devlink_eswitch_inline_mode_get(struct devlink *devlink, u8 *mode);
 int mlx5_eswitch_inline_mode_get(struct mlx5_eswitch *esw, int nvfs, u8 *mode);
-
+int mlx5_eswitch_compat_sysfs_init(struct net_device *netdev);
+void mlx5_eswitch_compat_sysfs_cleanup(struct net_device *netdev);
 int mlx5_eswitch_vport_modify_other_hca_cap_roce(struct mlx5_eswitch *esw,
 						 int vport_num, bool value);
 int mlx5_eswitch_vport_get_other_hca_cap_roce(struct mlx5_eswitch *esw,
