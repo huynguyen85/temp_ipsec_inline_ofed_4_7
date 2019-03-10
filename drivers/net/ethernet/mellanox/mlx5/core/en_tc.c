@@ -45,6 +45,7 @@
 #include <net/tc_act/tc_tunnel_key.h>
 #include <net/tc_act/tc_pedit.h>
 #include <net/tc_act/tc_csum.h>
+#include <net/tc_act/tc_ct.h>
 #include <net/arp.h>
 #include <net/ipv6_stubs.h>
 #include "en.h"
@@ -3302,6 +3303,9 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 		case FLOW_ACTION_TUNNEL_DECAP:
 			action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
 			break;
+		case FLOW_ACTION_CT:
+			action |= MLX5_FLOW_CONTEXT_ACTION_CT;
+			continue;
 		case FLOW_ACTION_GOTO: {
 			u32 dest_chain = act->chain_index;
 			u32 max_chain = mlx5_eswitch_get_chain_range(esw);
