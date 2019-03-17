@@ -3325,6 +3325,10 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 				return -EOPNOTSUPP;
 			}
 			attr->dest_chain = dest_chain;
+#else
+			if (atomic_read(&flow->flags) & MLX5E_TC_FLOW_EGRESS) {
+				action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
+			}
 #endif
 			action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
 			continue;
