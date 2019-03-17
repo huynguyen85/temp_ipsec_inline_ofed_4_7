@@ -1935,13 +1935,21 @@ mlx5e_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 		err = mlx5e_create_mdev_resources(dev);
 		if (err)
 			goto err_destroy_netdev;
+
+#ifdef CONFIG_MLX5_MINIFLOW
+		err = tc_setup_cb_egdev_all_register(rpriv->netdev,
+				mlx5e_rep_setup_tc_cb_egdev,
+				upriv);
+		if (err)
+			goto err_destroy_mdev_resources;
+#endif
 	}
 
 	err = mlx5e_attach_netdev(netdev_priv(netdev));
 	if (err) {
 		pr_warn("Failed to attach representor netdev for vport %d\n",
 			rep->vport);
-		goto err_destroy_mdev_resources;
+		goto err_unregister_egdev_all;
 	}
 
 	err = mlx5e_rep_neigh_init(rpriv);
@@ -1971,7 +1979,15 @@ err_neigh_cleanup:
 err_detach_netdev:
 	mlx5e_detach_netdev(netdev_priv(netdev));
 
+err_unregister_egdev_all:
+#ifdef CONFIG_MLX5_MINIFLOW
+	if (rep->vport == MLX5_VPORT_UPLINK)
+		tc_setup_cb_egdev_all_unregister(rpriv->netdev,
+				mlx5e_rep_setup_tc_cb_egdev,
+				upriv);
+
 err_destroy_mdev_resources:
+#endif
 	if (rep->vport == MLX5_VPORT_UPLINK)
 		mlx5e_destroy_mdev_resources(dev);
 
@@ -1997,8 +2013,14 @@ mlx5e_vport_rep_unload(struct mlx5_eswitch_rep *rep)
 	unregister_netdev(netdev);
 	mlx5e_rep_neigh_cleanup(rpriv);
 	mlx5e_detach_netdev(priv);
-	if (rep->vport == MLX5_VPORT_UPLINK)
+	if (rep->vport == MLX5_VPORT_UPLINK) {
+#ifdef CONFIG_MLX5_MINIFLOW
+		tc_setup_cb_egdev_all_unregister(rpriv->netdev,
+				mlx5e_rep_setup_tc_cb_egdev,
+				upriv);
+#endif
 		mlx5e_destroy_mdev_resources(priv->mdev);
+	}
 	mlx5e_destroy_netdev(priv);
 	kfree(ppriv); /* mlx5e_rep_priv */
 }
