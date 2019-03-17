@@ -3312,6 +3312,7 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 			action |= MLX5_FLOW_CONTEXT_ACTION_CT;
 			continue;
 		case FLOW_ACTION_GOTO: {
+#ifndef CONFIG_MLX5_MINIFLOW
 			u32 dest_chain = act->chain_index;
 			u32 max_chain = mlx5_eswitch_get_chain_range(esw);
 
@@ -3323,10 +3324,11 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 				NL_SET_ERR_MSG(extack, "Requested destination chain is out of supported range");
 				return -EOPNOTSUPP;
 			}
-			action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
 			attr->dest_chain = dest_chain;
-			break;
-			}
+#endif
+			action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
+			continue;
+		}
 		default:
 			NL_SET_ERR_MSG_MOD(extack, "The offload action is not supported");
 			return -EOPNOTSUPP;
