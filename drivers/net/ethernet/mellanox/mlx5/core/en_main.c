@@ -3651,6 +3651,8 @@ static int mlx5e_setup_tc_block_cb(enum tc_setup_type type, void *type_data,
 #ifdef CONFIG_MLX5_MINIFLOW
 	case TC_SETUP_MINIFLOW:
 		return miniflow_configure(priv, type_data);
+	case TC_SETUP_CT:
+		return miniflow_configure_ct(priv, type_data);
 #endif
 	default:
 		return -EOPNOTSUPP;
