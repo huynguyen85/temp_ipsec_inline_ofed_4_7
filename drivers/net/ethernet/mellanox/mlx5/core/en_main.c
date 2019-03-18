@@ -52,6 +52,8 @@
 #include "lib/clock.h"
 #include "en/port.h"
 #include "en/xdp.h"
+//TODO VALENTINE require miniflow commit
+//#include "miniflow.h"
 #include "lib/eq.h"
 #include "en/monitor_stats.h"
 #include "en/reporter.h"
@@ -3634,6 +3636,10 @@ static int mlx5e_setup_tc_block_cb(enum tc_setup_type type, void *type_data,
 	case TC_SETUP_CLSFLOWER:
 		return mlx5e_setup_tc_cls_flower(priv, type_data, MLX5E_TC_INGRESS |
 						 MLX5E_TC_NIC_OFFLOAD);
+#ifdef CONFIG_MLX5_MINIFLOW
+	case TC_SETUP_MINIFLOW:
+		return miniflow_configure(priv, type_data);
+#endif
 	default:
 		return -EOPNOTSUPP;
 	}
