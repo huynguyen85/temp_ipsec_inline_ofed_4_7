@@ -2266,13 +2266,6 @@ static int mlx5_try_fast_unload(struct mlx5_core_dev *dev)
 succeed:
 	mlx5_enter_error_state(dev, true);
 
-	/* Some platforms requiring freeing the IRQ's in the shutdown
-	 * flow. If they aren't freed they can't be allocated after
-	 * kexec. There is no need to cleanup the mlx5_core software
-	 * contexts.
-	 */
-	mlx5_core_eq_free_irqs(dev);
-
 	return 0;
 }
 
@@ -2283,8 +2276,18 @@ static void shutdown(struct pci_dev *pdev)
 
 	mlx5_core_info(dev, "Shutdown was called\n");
 	err = mlx5_try_fast_unload(dev);
-	if (err)
+	if (err) {
 		mlx5_unload_one(dev, false);
+	} else {
+		/* Some platforms requiring freeing the IRQ's in the shutdown
+		 * flow. If they aren't freed they can't be allocated after
+		 * kexec. There is no need to cleanup the mlx5_core software
+		 * contexts.
+		 */
+		clear_comp_irqs_affinity_hints(dev);
+		mlx5_core_eq_free_irqs(dev);
+	}
+
 	mlx5_pci_disable_device(dev);
 }
 
