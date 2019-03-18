@@ -54,33 +54,6 @@
 #include "en/tc_tun.h"
 #include "lib/devcom.h"
 
-struct mlx5_nic_flow_attr {
-	u32 action;
-	u32 flow_tag;
-	u32 mod_hdr_id;
-	u32 hairpin_tirn;
-	u8 match_level;
-	struct mlx5_flow_table	*hairpin_ft;
-	struct mlx5_fc		*counter;
-};
-
-#define MLX5E_TC_FLOW_BASE (MLX5E_TC_LAST_EXPORTED_BIT + 1)
-
-enum {
-	MLX5E_TC_FLOW_INGRESS	= MLX5E_TC_INGRESS,
-	MLX5E_TC_FLOW_EGRESS	= MLX5E_TC_EGRESS,
-	MLX5E_TC_FLOW_ESWITCH	= MLX5E_TC_ESW_OFFLOAD,
-	MLX5E_TC_FLOW_NIC	= MLX5E_TC_NIC_OFFLOAD,
-	MLX5E_TC_FLOW_OFFLOADED	= BIT(MLX5E_TC_FLOW_BASE),
-	MLX5E_TC_FLOW_HAIRPIN	= BIT(MLX5E_TC_FLOW_BASE + 1),
-	MLX5E_TC_FLOW_HAIRPIN_RSS = BIT(MLX5E_TC_FLOW_BASE + 2),
-	MLX5E_TC_FLOW_SLOW	  = BIT(MLX5E_TC_FLOW_BASE + 3),
-	MLX5E_TC_FLOW_DUP         = BIT(MLX5E_TC_FLOW_BASE + 4),
-	MLX5E_TC_FLOW_NOT_READY   = BIT(MLX5E_TC_FLOW_BASE + 5),
-};
-
-#define MLX5E_TC_MAX_SPLITS 1
-
 /* Helper struct for accessing a struct containing list_head array.
  * Containing struct
  *   |- Helper array
@@ -98,42 +71,6 @@ enum {
  *    containing struct =
  *        container_of(helper item, containing struct type, helper field[index])
  */
-struct encap_flow_item {
-	struct list_head list;
-	int index;
-};
-
-struct mlx5e_tc_flow {
-	struct rhash_head	node;
-	struct mlx5e_priv	*priv;
-	u64			cookie;
-	u16			flags;
-	struct mlx5_flow_handle *rule[MLX5E_TC_MAX_SPLITS + 1];
-	/* Flow can be associated with multiple encap IDs.
-	 * The number of encaps is bounded by the number of supported
-	 * destinations.
-	 */
-	struct encap_flow_item encaps[MLX5_MAX_FLOW_FWD_VPORTS];
-	struct mlx5e_tc_flow    *peer_flow;
-	struct list_head	mod_hdr; /* flows sharing the same mod hdr ID */
-	struct list_head	hairpin; /* flows sharing the same hairpin */
-	struct list_head	peer;    /* flows with peer flow */
-	struct list_head	unready; /* flows not ready to be offloaded (e.g due to missing route) */
-	union {
-		struct mlx5_esw_flow_attr esw_attr[0];
-		struct mlx5_nic_flow_attr nic_attr[0];
-	};
-};
-
-struct mlx5e_tc_flow_parse_attr {
-	struct ip_tunnel_info tun_info[MLX5_MAX_FLOW_FWD_VPORTS];
-	struct net_device *filter_dev;
-	struct mlx5_flow_spec spec;
-	int num_mod_hdr_actions;
-	int max_mod_hdr_actions;
-	void *mod_hdr_actions;
-	int mirred_ifindex[MLX5_MAX_FLOW_FWD_VPORTS];
-};
 
 #define MLX5E_TC_TABLE_NUM_GROUPS 4
 #define MLX5E_TC_TABLE_MAX_GROUP_SIZE BIT(16)
