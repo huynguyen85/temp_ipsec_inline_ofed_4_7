@@ -2687,7 +2687,9 @@ out_err:
 static int parse_tc_vlan_action(struct mlx5e_priv *priv,
 				const struct flow_action_entry *act,
 				struct mlx5_esw_flow_attr *attr,
-				u32 *action)
+				u32 *action,
+				struct mlx5e_tc_flow_parse_attr *parse_attr,
+				struct netlink_ext_ack *extack)
 {
 	u8 vlan_idx = attr->total_vlan;
 
@@ -2740,7 +2742,9 @@ static int parse_tc_vlan_action(struct mlx5e_priv *priv,
 static int add_vlan_push_action(struct mlx5e_priv *priv,
 				struct mlx5_esw_flow_attr *attr,
 				struct net_device **out_dev,
-				u32 *action)
+				u32 *action,
+                                struct mlx5e_tc_flow_parse_attr *parse_attr,
+				struct netlink_ext_ack *extack)
 {
 	struct net_device *vlan_dev = *out_dev;
 	struct flow_action_entry vlan_act = {
@@ -2751,21 +2755,27 @@ static int add_vlan_push_action(struct mlx5e_priv *priv,
 	};
 	int err;
 
-	err = parse_tc_vlan_action(priv, &vlan_act, attr, action);
+	err = parse_tc_vlan_action(priv, &vlan_act, attr, action, parse_attr, extack);
 	if (err)
 		return err;
 
 	*out_dev = dev_get_by_index_rcu(dev_net(vlan_dev),
 					dev_get_iflink(vlan_dev));
 	if (is_vlan_dev(*out_dev))
-		err = add_vlan_push_action(priv, attr, out_dev, action);
+		err = add_vlan_push_action(priv, attr,
+				out_dev,
+				action,
+				parse_attr,
+				extack);
 
 	return err;
 }
 
 static int add_vlan_pop_action(struct mlx5e_priv *priv,
 			       struct mlx5_esw_flow_attr *attr,
-			       u32 *action)
+			       u32 *action,
+			       struct mlx5e_tc_flow_parse_attr *parse_attr,
+			       struct netlink_ext_ack *extack)
 {
 	int nest_level = vlan_get_encap_level(attr->parse_attr->filter_dev);
 	struct flow_action_entry vlan_act = {
@@ -2774,7 +2784,7 @@ static int add_vlan_pop_action(struct mlx5e_priv *priv,
 	int err = 0;
 
 	while (nest_level--) {
-		err = parse_tc_vlan_action(priv, &vlan_act, attr, action);
+		err = parse_tc_vlan_action(priv, &vlan_act, attr, action, parse_attr, extack);
 		if (err)
 			return err;
 	}
@@ -2865,13 +2875,17 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 				if (is_vlan_dev(out_dev)) {
 					err = add_vlan_push_action(priv, attr,
 								   &out_dev,
-								   &action);
+								   &action,
+								   parse_attr,
+								   extack);
 					if (err)
 						return err;
 				}
 				if (is_vlan_dev(parse_attr->filter_dev)) {
 					err = add_vlan_pop_action(priv, attr,
-								  &action);
+								  &action,
+							          parse_attr,
+								  extack);
 					if (err)
 						return err;
 				}
@@ -2930,7 +2944,8 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 							      act, parse_attr, hdrs,
 							      &action, extack);
 			} else {
-				err = parse_tc_vlan_action(priv, act, attr, &action);
+				err = parse_tc_vlan_action(priv, act, attr, &action,
+							   parse_attr, extack);
 			}
 			if (err)
 				return err;
