@@ -1091,10 +1091,15 @@ mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
 	int err = 0;
 	int out_index;
 
+#ifdef CONFIG_MLX5_MINIFLOW
+	if (!mlx5_eswitch_prios_supported(esw))
+		attr->prio = 1;
+#else
 	if (!mlx5_eswitch_prios_supported(esw) && attr->prio != 1) {
 		NL_SET_ERR_MSG(extack, "E-switch priorities unsupported, upgrade FW");
 		return -EOPNOTSUPP;
 	}
+#endif
 
 	if (attr->chain > max_chain) {
 		NL_SET_ERR_MSG(extack, "Requested chain is out of supported range");
