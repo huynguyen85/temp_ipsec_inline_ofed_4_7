@@ -3145,6 +3145,10 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 			break;
 		case FLOW_ACTION_MANGLE:
 		case FLOW_ACTION_ADD:
+			if (action & MLX5_FLOW_CONTEXT_ACTION_CT) {
+				pr_err("CT action before HDR is not allowed");
+				return -EOPNOTSUPP;
+			}
 			err = parse_tc_pedit_action(priv, act, MLX5_FLOW_NAMESPACE_FDB,
 						    parse_attr, hdrs, extack);
 			if (err)
