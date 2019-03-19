@@ -51,6 +51,7 @@
 #include "en_rep.h"
 #include "en_tc.h"
 #include "eswitch.h"
+#include "miniflow.h"
 #include "fs_core.h"
 #include "en/port.h"
 #include "en/tc_tun.h"
@@ -1213,6 +1214,11 @@ static void mlx5e_tc_del_fdb_flow(struct mlx5e_priv *priv,
 
 	if (mlx5e_is_simple_flow(flow)) {
 		mlx5e_tc_del_fdb_flow_simple(priv, flow);
+	} else {
+		mlx5e_del_miniflow_list(flow);
+
+		if (attr->action & MLX5_FLOW_CONTEXT_ACTION_COUNT)
+			mlx5_fc_destroy(priv->mdev, flow->dummy_counter);
 	}
 
 	if (attr->parse_attr) {
@@ -3435,6 +3441,7 @@ mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
 	INIT_LIST_HEAD(&flow->hairpin);
 	refcount_set(&flow->refcnt, 1);
 	init_completion(&flow->init_done);
+	INIT_LIST_HEAD(&flow->miniflow_list);
 
 	*__flow = flow;
 	*__parse_attr = parse_attr;
@@ -3745,6 +3752,13 @@ static bool same_flow_direction(struct mlx5e_tc_flow *flow, int flags)
 		flow_flag_test(flow, EGRESS) == dir_egress;
 }
 
+static void mlx5e_flow_defered_put(struct rcu_head *head)
+{
+	struct mlx5e_tc_flow *flow = container_of(head, struct mlx5e_tc_flow, rcu);
+
+	mlx5e_flow_put(flow->priv, flow);
+}
+
 int mlx5e_delete_flower(struct net_device *dev, struct mlx5e_priv *priv,
 			struct tc_cls_flower_offload *f, unsigned long flags)
 {
@@ -3768,6 +3782,12 @@ int mlx5e_delete_flower(struct net_device *dev, struct mlx5e_priv *priv,
 	}
 	rhashtable_remove_fast(tc_ht, &flow->node, tc_ht_params);
 	rcu_read_unlock();
+
+	/* Protect __miniflow_merge() */
+	if (!mlx5e_is_simple_flow(flow)) {
+		call_rcu(&flow->rcu, mlx5e_flow_defered_put);
+		return 0;
+	}
 
 	mlx5e_tc_del_flow(priv, flow);
 
@@ -3805,13 +3825,15 @@ int mlx5e_stats_flower(struct net_device *dev, struct mlx5e_priv *priv,
 		goto errout;
 	}
 
-	if (mlx5e_is_offloaded_flow(flow)) {
+	if (mlx5e_is_offloaded_flow(flow))
 		counter = mlx5e_tc_get_counter(flow);
-		if (!counter)
-			goto errout;
+	else
+		counter = flow->dummy_counter;
 
-		mlx5_fc_query_cached(counter, &bytes, &packets, &lastuse);
-	}
+	if (!counter)
+		goto errout;
+
+	mlx5_fc_query_cached(counter, &bytes, &packets, &lastuse);
 
 	/* Under multipath it's possible for one rule to be currently
 	 * un-offloaded while the other rule is offloaded.

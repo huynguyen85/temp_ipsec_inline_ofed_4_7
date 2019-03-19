@@ -77,6 +77,10 @@ config MLX5_ESWITCH
                 Legacy SRIOV mode (L2 mac vlan steering based).
                 Switchdev mode (eswitch offloads).
 
+config MLX5_MINIFLOW
+	bool "E-Switch Single Table Conntrack support"
+	depends on MLX5_ESWITCH
+
 config MLX5_CORE_EN_DCB
 	bool "Data Center Bridging (DCB) Support"
 	default y

@@ -79,6 +79,8 @@ struct mlx5_rep_uplink_priv {
 	struct mutex                unready_flows_lock;
 	struct list_head            unready_flows;
 	struct work_struct          reoffload_flows_work;
+
+	struct rhashtable mf_ht;
 };
 
 struct mlx5e_rep_priv {

@@ -66,6 +66,7 @@ enum {
 	MLX5E_TC_FLOW_FLAG_NOT_READY	= MLX5E_TC_FLOW_BASE + 5,
 	MLX5E_TC_FLOW_FLAG_DELETED	= MLX5E_TC_FLOW_BASE + 6,
 	MLX5E_TC_FLOW_FLAG_SIMPLE       = MLX5E_TC_FLOW_BASE + 7,
+	MLX5E_TC_FLOW_FLAG_CT           = MLX5E_TC_FLOW_BASE + 8,
 };
 
 #define MLX5E_TC_MAX_SPLITS 1
@@ -126,6 +127,12 @@ struct mlx5e_tc_flow {
 	refcount_t		refcnt;
 	struct rcu_head		rcu_head;
 	struct completion	init_done;
+
+	struct mlx5e_miniflow   *miniflow;
+	struct mlx5_fc          *dummy_counter;
+	struct list_head        miniflow_list;
+	struct rcu_head		rcu;
+
 	union {
 		struct mlx5_esw_flow_attr esw_attr[0];
 		struct mlx5_nic_flow_attr nic_attr[0];
