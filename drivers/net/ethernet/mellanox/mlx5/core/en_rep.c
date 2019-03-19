@@ -1607,7 +1607,7 @@ static int mlx5e_init_rep_tx(struct mlx5e_priv *priv)
 		INIT_LIST_HEAD(&uplink_priv->unready_flows);
 
 		/* init shared tc flow table */
-		err = mlx5e_tc_esw_init(&uplink_priv->tc_ht);
+		err = mlx5e_tc_esw_init(priv);
 		if (err)
 			goto destroy_tises;
 
@@ -1647,7 +1647,7 @@ static void mlx5e_cleanup_rep_tx(struct mlx5e_priv *priv)
 		mlx5e_rep_indr_clean_block_privs(rpriv);
 
 		/* delete shared tc flow table */
-		mlx5e_tc_esw_cleanup(&rpriv->uplink_priv.tc_ht);
+		mlx5e_tc_esw_cleanup(priv);
 	}
 }
 
