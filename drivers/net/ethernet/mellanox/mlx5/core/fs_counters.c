@@ -49,6 +49,8 @@ struct mlx5_fc_cache {
 	u64 lastuse;
 };
 
+#define MINIFLOW_MAX_FLOWS 8
+
 struct mlx5_fc {
 	struct list_head list;
 	struct llist_node addlist;
@@ -63,6 +65,10 @@ struct mlx5_fc {
 	struct mlx5_fc_bulk *bulk;
 	u32 id;
 	bool aging;
+	bool dummy;
+
+	atomic_t nr_dummies;
+	struct mlx5_fc *dummies[MINIFLOW_MAX_FLOWS];
 
 	struct mlx5_fc_cache cache ____cacheline_aligned_in_smp;
 };
@@ -142,6 +148,25 @@ static void mlx5_fc_stats_remove(struct mlx5_core_dev *dev,
 	spin_unlock(&fc_stats->counters_idr_lock);
 }
 
+static void fc_dummies_update(struct mlx5_fc *counter,
+			      u64 dfpackets, u64 dfbytes, u64 jiffies)
+{
+	int nr_dummies = atomic_read(&counter->nr_dummies);
+	struct mlx5_fc_cache *c;
+	int i;
+
+	for (i = 0; i < nr_dummies; i++) {
+		struct mlx5_fc *dummy = counter->dummies[i];
+		if (!dummy)
+			continue;
+
+		c = &dummy->cache;
+		c->packets += dfpackets;
+		c->bytes += dfbytes;
+		c->lastuse = jiffies;
+	}
+}
+
 static int get_max_bulk_query_len(struct mlx5_core_dev *dev)
 {
 	return min_t(int, MLX5_SW_MAX_COUNTERS_BULK,
@@ -149,20 +174,27 @@ static int get_max_bulk_query_len(struct mlx5_core_dev *dev)
 }
 
 
-static void update_counter_cache(int index, u32 *bulk_raw_data,
+static void update_counter_cache(struct mlx5_fc *counter,
+				 int index, u32 *bulk_raw_data,
 				 struct mlx5_fc_cache *cache)
 {
 	void *stats = MLX5_ADDR_OF(query_flow_counter_out, bulk_raw_data,
 			     flow_statistics[index]);
 	u64 packets = MLX5_GET64(traffic_counter, stats, packets);
 	u64 bytes = MLX5_GET64(traffic_counter, stats, octets);
+	u64 dfpackets, dfbytes;
 
 	if (cache->packets == packets)
 		return;
 
+	dfpackets = packets - cache->packets;
+	dfbytes = bytes - cache->bytes;
+
 	cache->packets = packets;
 	cache->bytes = bytes;
 	cache->lastuse = jiffies;
+
+	fc_dummies_update(counter, dfpackets, dfbytes, jiffies);
 }
 
 static void mlx5_fc_stats_query_counter_range(struct mlx5_core_dev *dev,
@@ -203,7 +235,7 @@ static void mlx5_fc_stats_query_counter_range(struct mlx5_core_dev *dev,
 				break;
 			}
 
-			update_counter_cache(counter_index, data, cache);
+			update_counter_cache(counter, counter_index, data, cache);
 		}
 	}
 }
@@ -245,8 +277,12 @@ static void mlx5_fc_stats_work(struct work_struct *work)
 		mlx5_fc_stats_insert(dev, counter);
 
 	llist_for_each_entry_safe(counter, tmp, dellist, dellist) {
-		mlx5_fc_stats_remove(dev, counter);
+		if (counter->dummy) {
+			kfree(counter);
+			continue;
+		}
 
+		mlx5_fc_stats_remove(dev, counter);
 		mlx5_fc_release(dev, counter);
 	}
 
@@ -343,6 +379,18 @@ u32 mlx5_fc_id(struct mlx5_fc *counter)
 	return counter->id;
 }
 EXPORT_SYMBOL(mlx5_fc_id);
+
+void mlx5_fc_link_dummies(struct mlx5_fc *counter, struct mlx5_fc **dummies, int nr_dummies)
+{
+	BUG_ON(nr_dummies > MINIFLOW_MAX_FLOWS);
+	memcpy(counter->dummies, dummies, sizeof(*dummies) * nr_dummies);
+	atomic_set(&counter->nr_dummies, nr_dummies);
+}
+
+void mlx5_fc_unlink_dummies(struct mlx5_fc *counter)
+{
+	atomic_set(&counter->nr_dummies, 0);
+}
 
 void mlx5_fc_destroy(struct mlx5_core_dev *dev, struct mlx5_fc *counter)
 {
