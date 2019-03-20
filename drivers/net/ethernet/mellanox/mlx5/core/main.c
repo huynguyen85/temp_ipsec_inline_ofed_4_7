@@ -996,7 +996,7 @@ static int mlx5_init_once(struct mlx5_core_dev *dev)
 	int err;
 
 	dev->priv.devcom = mlx5_devcom_register_device(dev);
-	if (IS_ERR(dev->priv.devcom))
+	if (dev->priv.devcom && IS_ERR(dev->priv.devcom))
 		mlx5_core_err(dev, "failed to register with devcom (0x%p)\n",
 			      dev->priv.devcom);
 
