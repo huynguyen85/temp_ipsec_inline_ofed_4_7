@@ -1624,7 +1624,6 @@ err_alloc:
 int ib_uverbs_exp_free_dm(struct uverbs_attr_bundle *attrs)
 {
 	struct ib_uverbs_exp_free_dm  cmd;
-	struct ib_uobject	 *uobj;
 	int    ret;
 
 	if (attrs->ucore.inlen < sizeof(cmd))
@@ -1634,9 +1633,5 @@ int ib_uverbs_exp_free_dm(struct uverbs_attr_bundle *attrs)
 	if (ret)
 		return ret;
 
-	uobj = uobj_get_write(UVERBS_OBJECT_DM, cmd.dm_handle, attrs);
-	if (IS_ERR(uobj))
-		return PTR_ERR(uobj);
-
-	return ret;
+	return uobj_perform_destroy(UVERBS_OBJECT_DM, cmd.dm_handle, attrs);
 }
