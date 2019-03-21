@@ -4671,13 +4671,13 @@ static void mlx5_ib_handle_event(struct work_struct *_work)
 	struct ib_event ibev;
 	bool fatal = false;
 
-	if (work->is_slave) {
+	if (work->is_slave) 
 		ibdev = mlx5_ib_get_ibdev_from_mpi(work->mpi);
-		if (!ibdev)
-			goto out;
-	} else {
+	else 
 		ibdev = work->dev;
-	}
+	
+	if (!ibdev)
+		goto out;
 
 	switch (work->event) {
 	case MLX5_DEV_EVENT_SYS_ERROR:
