@@ -44,6 +44,7 @@
 #include "en_tc.h"
 #include "en/tc_tun.h"
 #include "fs_core.h"
+#include "ecpf.h"
 #include "lib/port_tun.h"
 
 #define MLX5E_REP_PARAMS_DEF_LOG_SQ_SIZE \
@@ -1809,8 +1810,10 @@ mlx5e_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 		goto err_neigh_cleanup;
 	}
 
-	if (rep->vport == MLX5_VPORT_UPLINK)
+	if (rep->vport == MLX5_VPORT_UPLINK) {
+		mlx5_smartnic_sysfs_init(netdev);
 		mlx5_eswitch_compat_sysfs_init(netdev);
+	}
 
 	return 0;
 
@@ -1838,8 +1841,10 @@ mlx5e_vport_rep_unload(struct mlx5_eswitch_rep *rep)
 	struct mlx5e_priv *priv = netdev_priv(netdev);
 	void *ppriv = priv->ppriv;
 
-	if (rep->vport == MLX5_VPORT_UPLINK)
+	if (rep->vport == MLX5_VPORT_UPLINK) {
 		mlx5_eswitch_compat_sysfs_cleanup(netdev);
+		mlx5_smartnic_sysfs_cleanup(netdev);
+	}
 
 	unregister_netdev(netdev);
 	mlx5e_rep_neigh_cleanup(rpriv);
