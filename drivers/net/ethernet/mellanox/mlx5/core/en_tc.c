@@ -3035,6 +3035,15 @@ static bool is_peer_flow_needed(struct mlx5e_tc_flow *flow)
 	return false;
 }
 
+void *mlx5e_lookup_tc_ht(struct mlx5e_priv *priv,
+			 unsigned long *cookie,
+			 int flags)
+{
+	struct rhashtable *tc_ht = get_tc_ht(priv, flags);
+
+	return rhashtable_lookup_fast(tc_ht, cookie, tc_ht_params);
+}
+
 int mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
 		 struct tc_cls_flower_offload *f, int flow_flags, gfp_t flags,
 		 struct mlx5e_tc_flow_parse_attr **__parse_attr,
