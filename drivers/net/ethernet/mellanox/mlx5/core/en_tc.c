@@ -126,8 +126,8 @@ static struct mlx5e_tc_flow *mlx5e_flow_get(struct mlx5e_tc_flow *flow)
 	return flow;
 }
 
-static void mlx5e_flow_put(struct mlx5e_priv *priv,
-			   struct mlx5e_tc_flow *flow)
+void mlx5e_flow_put(struct mlx5e_priv *priv,
+		    struct mlx5e_tc_flow *flow)
 {
 	if (refcount_dec_and_test(&flow->refcnt)) {
 		mlx5e_tc_del_flow(priv, flow);
@@ -1066,7 +1066,7 @@ static void remove_unready_flow(struct mlx5e_tc_flow *flow)
 	mutex_unlock(&uplink_priv->unready_flows_lock);
 }
 
-static int
+int
 mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
 		      struct mlx5e_tc_flow *flow,
 		      struct netlink_ext_ack *extack)
@@ -2349,10 +2349,10 @@ static int mlx5e_flow_namespace_max_modify_action(struct mlx5_core_dev *mdev,
 		return MLX5_CAP_FLOWTABLE_NIC_RX(mdev, max_modify_header_actions);
 }
 
-static int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
-				 struct pedit_headers_action *hdrs,
-				 int namespace,
-				 struct mlx5e_tc_flow_parse_attr *parse_attr)
+int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
+			  struct pedit_headers_action *hdrs,
+			  int namespace,
+			  struct mlx5e_tc_flow_parse_attr *parse_attr)
 {
 	int nkeys, action_size, max_actions;
 
@@ -3366,7 +3366,7 @@ static bool is_peer_flow_needed(struct mlx5e_tc_flow *flow)
 	return false;
 }
 
-static int
+int
 mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
 		 struct tc_cls_flower_offload *f, unsigned long flow_flags,
 		 struct mlx5e_tc_flow_parse_attr **__parse_attr,
