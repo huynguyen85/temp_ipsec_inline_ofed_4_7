@@ -2234,7 +2234,7 @@ static int offload_pedit_fields(struct pedit_headers_action *hdrs,
 	set_vals = &hdrs[0].vals;
 	add_vals = &hdrs[1].vals;
 
-	action_size = MLX5_UN_SZ_BYTES(set_action_in_add_action_in_auto);
+	action_size = MLX5_MH_ACT_SZ;
 	action = parse_attr->mod_hdr_actions +
 		 parse_attr->num_mod_hdr_actions * action_size;
 
@@ -2365,7 +2365,7 @@ int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
 
 	nkeys = hdrs[TCA_PEDIT_KEY_EX_CMD_SET].pedits +
 		hdrs[TCA_PEDIT_KEY_EX_CMD_ADD].pedits;
-	action_size = MLX5_UN_SZ_BYTES(set_action_in_add_action_in_auto);
+	action_size = MLX5_MH_ACT_SZ;
 
 	max_actions = mlx5e_flow_namespace_max_modify_action(priv->mdev, namespace);
 	/* can get up to crazingly 16 HW actions in 32 bits pedit SW key */
