@@ -3036,7 +3036,7 @@ static bool is_peer_flow_needed(struct mlx5e_tc_flow *flow)
 }
 
 int mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
-		 struct tc_cls_flower_offload *f, u16 flow_flags,
+		 struct tc_cls_flower_offload *f, int flow_flags, gfp_t flags,
 		 struct mlx5e_tc_flow_parse_attr **__parse_attr,
 		 struct mlx5e_tc_flow **__flow)
 {
@@ -3044,8 +3044,8 @@ int mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
 	struct mlx5e_tc_flow *flow;
 	int err;
 
-	flow = kzalloc(sizeof(*flow) + attr_size, GFP_KERNEL);
-	parse_attr = kvzalloc(sizeof(*parse_attr), GFP_KERNEL);
+	flow = kzalloc(sizeof(*flow) + attr_size, flags);
+	parse_attr = kvzalloc(sizeof(*parse_attr), flags);
 	if (!parse_attr || !flow) {
 		err = -ENOMEM;
 		goto err_free;
@@ -3119,7 +3119,7 @@ __mlx5e_add_fdb_flow(struct mlx5e_priv *priv,
 
 	flow_flags |= MLX5E_TC_FLOW_SIMPLE | MLX5E_TC_FLOW_ESWITCH;
 	attr_size  = sizeof(struct mlx5_esw_flow_attr);
-	err = mlx5e_alloc_flow(priv, attr_size, f, flow_flags,
+	err = mlx5e_alloc_flow(priv, attr_size, f, flow_flags, GFP_KERNEL,
 			       &parse_attr, &flow);
 	if (err)
 		goto out;
@@ -3261,7 +3261,7 @@ mlx5e_add_nic_flow(struct mlx5e_priv *priv,
 
 	flow_flags |= MLX5E_TC_FLOW_SIMPLE | MLX5E_TC_FLOW_NIC;
 	attr_size  = sizeof(struct mlx5_nic_flow_attr);
-	err = mlx5e_alloc_flow(priv, attr_size, f, flow_flags,
+	err = mlx5e_alloc_flow(priv, attr_size, f, flow_flags, GFP_KERNEL,
 			       &parse_attr, &flow);
 	if (err)
 		goto out;
