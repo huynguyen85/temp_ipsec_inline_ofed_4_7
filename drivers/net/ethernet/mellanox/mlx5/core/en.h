@@ -588,12 +588,6 @@ struct mlx5e_page_cache {
 	struct mlx5e_page_cache_reduce reduce;
 };
 
-static inline void mlx5e_put_page(struct mlx5e_dma_info *dma_info)
-{
-	page_ref_sub(dma_info->page, dma_info->refcnt_bias);
-	put_page(dma_info->page);
-}
-
 struct mlx5e_rq;
 typedef void (*mlx5e_fp_handle_rx_cqe)(struct mlx5e_rq*, struct mlx5_cqe64*);
 typedef struct sk_buff *
