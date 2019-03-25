@@ -1339,7 +1339,6 @@ enum ib_qp_attr_mask {
 	IB_QP_FLOW_ENTROPY	= (1<<29),
 	IB_EXP_QP_OOO_RW_DATA_PLACEMENT	= (1 << 30),
 	IB_EXP_QP_RATE_LIMIT    = (1<<31),
-	IB_EXP_QP_SQ_WQE_COUNT		= (1ULL << 32),
 
 };
 
@@ -2640,11 +2639,6 @@ struct ib_device_ops {
 			     struct ib_counters_read_attr *counters_read_attr,
 			     struct uverbs_attr_bundle *attrs);
 	/* EXP APIs will be added below to minimize conflicts via upstream rebase */
-	int			(*exp_query_qp)(struct ib_qp *qp,
-						struct ib_qp_attr *qp_attr,
-						u64 qp_attr_mask,
-						struct ib_qp_init_attr *qp_init_attr,
-						struct ib_udata *udata);
 	int                     (*query_nvmf_ns)(struct ib_nvmf_ns *ns,
 						 struct ib_nvmf_ns_attr *ns_attr);
 	struct ib_nvmf_ctrl *   (*create_nvmf_backend_ctrl)(struct ib_srq *srq,
