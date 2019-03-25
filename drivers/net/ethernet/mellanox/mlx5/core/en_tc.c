@@ -3660,9 +3660,7 @@ int mlx5e_configure_flower(struct net_device *dev, struct mlx5e_priv *priv,
 	struct mlx5e_tc_flow *flow;
 	int err = 0;
 
-	rcu_read_lock();
-	flow = rhashtable_lookup(tc_ht, &f->cookie, tc_ht_params);
-	rcu_read_unlock();
+	flow = rhashtable_lookup_fast(tc_ht, &f->cookie, tc_ht_params);
 	if (flow) {
 		NL_SET_ERR_MSG_MOD(extack,
 				   "flow cookie already exists, ignoring");
