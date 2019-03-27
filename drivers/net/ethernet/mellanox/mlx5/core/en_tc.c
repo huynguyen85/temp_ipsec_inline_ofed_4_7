@@ -1156,6 +1156,12 @@ mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
 	else
 		flow_flag_set(flow, OFFLOADED);
 
+	if (!(flow->esw_attr->action &
+	      MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT)) {
+		kvfree(parse_attr);
+		flow->esw_attr->parse_attr = NULL;
+	}
+
 	return 0;
 }
 
