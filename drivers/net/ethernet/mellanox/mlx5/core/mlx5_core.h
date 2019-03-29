@@ -391,4 +391,19 @@ int set_tunneled_operation(struct mlx5_core_dev *mdev,
 			   u16 asn_match_mask, u16 asn_match_value,
 			   u32 *log_response_bar_size,
 			   u64 *response_bar_address);
+
+#ifdef CONFIG_MLX5_MDEV
+u16 mlx5_core_max_sfs(const struct mlx5_core_dev *dev);
+u16 mlx5_get_free_sfs(struct mlx5_core_dev *dev);
+#else
+static inline u16 mlx5_core_max_sfs(const struct mlx5_core_dev *dev)
+{
+	        return 0;
+}
+
+static inline u16 mlx5_get_free_sfs(struct mlx5_core_dev *dev)
+{
+	        return 0;
+}
+#endif
 #endif /* __MLX5_CORE_H__ */
