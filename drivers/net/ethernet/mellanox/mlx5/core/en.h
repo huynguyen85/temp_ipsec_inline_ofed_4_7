@@ -191,13 +191,6 @@ static inline int mlx5e_get_max_num_channels(struct mlx5_core_dev *mdev)
 		min_t(int, mlx5_comp_vectors_count(mdev), MLX5E_MAX_NUM_CHANNELS);
 }
 
-/* Use this function to get max num channels after netdev was created */
-static inline int mlx5e_get_netdev_max_channels(struct net_device *netdev)
-{
-	return min_t(unsigned int, netdev->num_rx_queues,
-		     netdev->num_tx_queues);
-}
-
 enum {
 	MLX5E_CON_PROTOCOL_802_1_RP,
 	MLX5E_CON_PROTOCOL_R_ROCE_RP,
@@ -902,6 +895,14 @@ struct mlx5e_priv {
 	struct mlx5e_ecn_enable_ctx ecn_enable_ctx[MLX5E_CONG_PROTOCOL_NUM][8];
 	struct mlx5e_delay_drop delay_drop;
 };
+/* Use this function to get max num channels after netdev was created */
+static inline int mlx5e_get_netdev_max_channels(struct mlx5e_priv *priv)
+{
+	struct net_device *netdev = priv->netdev;
+
+	return min_t(unsigned int, netdev->num_rx_queues,
+		     netdev->num_tx_queues);
+}
 
 struct mlx5e_profile {
 	int	(*init)(struct mlx5_core_dev *mdev,
