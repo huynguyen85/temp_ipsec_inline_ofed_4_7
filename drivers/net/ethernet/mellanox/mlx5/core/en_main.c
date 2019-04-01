@@ -3985,6 +3985,18 @@ static netdev_features_t mlx5e_fix_features(struct net_device *netdev,
 			netdev_warn(netdev, "Disabling rxhash, not supported when CQE compress is active\n");
 	}
 
+	/* LRO/HW-GRO features cannot be combined with RX-FCS */
+	if (features & NETIF_F_RXFCS) {
+		if (features & NETIF_F_LRO) {
+			netdev_warn(netdev, "Dropping LRO feature since RX-FCS is requested\n");
+			features &= ~NETIF_F_LRO;
+		}
+		if (features & NETIF_F_GRO_HW) {
+			netdev_warn(netdev, "Dropping HW-GRO feature since RX-FCS is requested\n");
+			features &= ~NETIF_F_GRO_HW;
+		}
+	}
+
 	mutex_unlock(&priv->state_lock);
 
 	return features;
