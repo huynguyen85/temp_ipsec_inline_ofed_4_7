@@ -503,6 +503,17 @@ static inline int mlx5_eswitch_ecpf_idx(struct mlx5_eswitch *esw)
 	return esw->total_vports - 2;
 }
 
+static inline bool
+mlx5_eswitch_is_sf_vport(const struct mlx5_eswitch *esw, u16 vport_num)
+{
+	//TODO VALENTINE require : Introduce SF table framework' commit
+//	return mlx5_core_is_sf_supported(esw->dev) &&
+//		vport_num >= mlx5_eswitch_sf_base_id(esw->dev) &&
+//		vport_num < (mlx5_eswitch_sf_base_id(esw->dev) +
+//				mlx5_eswitch_max_sfs(esw->dev));
+//				
+}
+
 static inline int mlx5_eswitch_vport_num_to_index(struct mlx5_eswitch *esw,
 						  u16 vport_num)
 {
