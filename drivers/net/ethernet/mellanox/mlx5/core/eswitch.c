@@ -954,7 +954,7 @@ static void esw_vport_change_handle_locked(struct mlx5_vport *vport)
 	struct mlx5_eswitch *esw = dev->priv.eswitch;
 	u8 mac[ETH_ALEN];
 
-	mlx5_query_nic_vport_mac_address(dev, vport->vport, mac);
+	mlx5_query_other_nic_vport_mac_address(dev, vport->vport, mac);
 	esw_debug(dev, "vport[%d] Context Changed: perm mac: %pM\n",
 		  vport->vport, mac);
 
@@ -2213,7 +2213,7 @@ int mlx5_eswitch_enable_sriov(struct mlx5_eswitch *esw, int nvfs, int mode)
 	 * 1. L2 table (MPFS) is programmed by PF/VF representors netdevs set_rx_mode
 	 * 2. FDB/Eswitch is programmed by user space tools
 	 */
-	enabled_events = (mode == SRIOV_LEGACY) ? SRIOV_VPORT_EVENTS : 0;
+	enabled_events = (mode == SRIOV_LEGACY) ? SRIOV_VPORT_EVENTS : UC_ADDR_CHANGE;
 
 	/* Enable PF vport */
 	vport = mlx5_eswitch_get_vport(esw, MLX5_VPORT_PF);
