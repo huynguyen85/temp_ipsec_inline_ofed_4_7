@@ -2783,6 +2783,7 @@ enum {
 	 * and being removed from flow before offloading it.
 	 */
 	MLX5_FLOW_CONTEXT_ACTION_CT	   = 0x1000,
+	MLX5_FLOW_CONTEXT_ACTION_GOTO	   = 0x2000,
 };
 
 enum {
