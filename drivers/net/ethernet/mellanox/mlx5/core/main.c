@@ -2022,7 +2022,6 @@ static void remove_one(struct pci_dev *pdev)
 	if (pdev->is_virtfn && !priv->sriov.probe_vf)
 		goto out;
 
-	device_remove_file(&pdev->dev, mlx5_roce_enable_dev_attrs);
 	devlink_unregister(devlink);
 	mlx5_unregister_device(dev);
 
@@ -2042,6 +2041,7 @@ static void remove_one(struct pci_dev *pdev)
 	mlx5_pci_close(dev);
 	mlx5_mdev_uninit(dev);
 out:
+	device_remove_file(&pdev->dev, mlx5_roce_enable_dev_attrs);
 	devlink_free(devlink);
 }
 
