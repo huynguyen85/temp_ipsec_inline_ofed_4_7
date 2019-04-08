@@ -3543,12 +3543,14 @@ mlx5e_flow_esw_attr_init(struct mlx5_esw_flow_attr *esw_attr,
 
 static bool is_flow_simple(struct mlx5e_tc_flow *flow)
 {
+#ifdef CONFIG_MLX5_MINIFLOW
 	if (flow->esw_attr->chain)
 		return false;
 
 	if (flow->esw_attr->action & MLX5_FLOW_CONTEXT_ACTION_GOTO)
 		return false;
 
+#endif
 	return true;
 }
 
