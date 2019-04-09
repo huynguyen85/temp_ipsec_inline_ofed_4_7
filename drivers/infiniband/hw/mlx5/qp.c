@@ -4368,7 +4368,7 @@ int mlx5_ib_modify_dct(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 		}
 		MLX5_SET(dctc, dctc, pkey_index, attr->pkey_index);
 		if (mlx5_lag_is_active(dev->mdev)){
-			u8 p = mlx5_core_native_port_num(dev->mdev);
+			u8 p = mlx5_core_native_port_num(dev->mdev) - 1;
 			MLX5_SET(dctc, dctc, port, get_tx_affinity(dev, pd, base, p, udata));
 		}
 		else
