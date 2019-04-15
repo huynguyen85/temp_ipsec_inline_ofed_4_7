@@ -42,7 +42,7 @@
 #include "lib/mlx5.h"
 
 enum {
-	MLX5_HEALTH_POLL_INTERVAL	= 2 * HZ,
+	MLX5_HEALTH_POLL_INTERVAL	= HZ/2,
 	MAX_MISSES			= 3,
 };
 
@@ -426,13 +426,7 @@ static void print_health_info(struct mlx5_core_dev *dev)
 
 static unsigned long get_next_poll_jiffies(void)
 {
-	unsigned long next;
-
-	get_random_bytes(&next, sizeof(next));
-	next %= HZ;
-	next += jiffies + MLX5_HEALTH_POLL_INTERVAL;
-
-	return next;
+	return jiffies + MLX5_HEALTH_POLL_INTERVAL;
 }
 
 void mlx5_trigger_health_work(struct mlx5_core_dev *dev)
