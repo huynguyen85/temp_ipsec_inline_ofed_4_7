@@ -72,6 +72,8 @@ struct vport_ingress {
 	struct mlx5_flow_group *allow_untagged_spoofchk_grp;
 	struct mlx5_flow_group *allow_tagged_spoofchk_grp;
 	struct mlx5_flow_group *drop_grp;
+	int                      modify_metadata_id;
+	struct mlx5_flow_handle  *modify_metadata_rule;
 	struct mlx5_flow_handle  *allow_rule;
 	struct mlx5_flow_handle  *allow_untagged_rule;
 	struct list_head         allow_vlans_rules;
@@ -248,6 +250,10 @@ struct mlx5_smart_nic_sysfs {
 	struct mlx5_smart_nic_vport *vport;
 };
 
+enum {
+	MLX5_ESWITCH_VPORT_MATCH_METADATA = BIT(0),
+};
+
 struct mlx5_eswitch {
 	struct mlx5_core_dev    *dev;
 	struct mlx5_nb          nb;
@@ -255,6 +261,7 @@ struct mlx5_eswitch {
 	struct hlist_head       mc_table[MLX5_L2_ADDR_HASH_SIZE];
 	struct workqueue_struct *work_queue;
 	struct mlx5_vport       *vports;
+	u32                     flags;
 	int                     total_vports;
 	int                     enabled_vports;
 	/* Synchronize between vport change events
@@ -300,6 +307,8 @@ void esw_vport_disable_ingress_acl(struct mlx5_eswitch *esw,
 void esw_offloads_start_handler(struct work_struct *work);
 void esw_offloads_stop_handler(struct work_struct *work);
 
+void esw_vport_del_ingress_acl_modify_metadata(struct mlx5_eswitch *esw,
+					       struct mlx5_vport *vport);
 /* E-Switch API */
 int mlx5_eswitch_init(struct mlx5_core_dev *dev);
 void mlx5_eswitch_cleanup(struct mlx5_eswitch *esw);
