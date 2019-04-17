@@ -380,8 +380,10 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
 	/* For known peer context move directly to peer registration handling */
 	if (context->peer_mem_private_data &&
 	    (peer_mem_flags & IB_PEER_MEM_ALLOW)) {
-		ret = -EINVAL;
-		goto peer_out;
+		ret = ib_client_umem_get(context, addr, size,
+					 peer_mem_flags, umem, dmasync);
+		if (!ret)
+			return umem;
 	}
 
 	if (access & IB_ACCESS_ON_DEMAND) {
@@ -485,14 +487,14 @@ vma:
 	atomic64_sub(ib_umem_num_pages(umem), &mm->pinned_vm);
 out:
 	free_page((unsigned long) page_list);
-peer_out:
 	/*
  	 * If the address belongs to peer memory client, then the first
  	 * call to get_user_pages will fail. In this case, try to get
  	 * these pages from the peers.
  	 */
 	if (ret < 0) {
-		if (peer_mem_flags & IB_PEER_MEM_ALLOW) {
+		if ((peer_mem_flags & IB_PEER_MEM_ALLOW) && 
+		    !context->peer_mem_private_data) {
 			ret = ib_client_umem_get(context, addr, size, peer_mem_flags,
 						 umem, dmasync);
 			if (!ret)
