@@ -347,14 +347,37 @@ static void miniflow_merge_tuple(struct mlx5e_tc_flow *mflow,
 	}
 }
 
+static int miniflow_register_ct_tuple(struct mlx5e_ct_tuple *ct_tuple)
+{
+	struct nf_conntrack_tuple *tuple;
+	struct nf_conntrack_zone *zone;
+	struct net *net;
+
+	net = (struct net *)ct_tuple->net;
+	zone = &ct_tuple->zone;
+	tuple = &ct_tuple->tuple;
+
+	return mlx5_ct_flow_offload_add(net, zone, tuple, ct_tuple->flow);
+}
+
 static int miniflow_register_ct_flow(struct mlx5e_miniflow *miniflow)
 {
+	struct mlx5e_ct_tuple *ct_tuple;
+	int err = 0;
+	int i;
+
 	if (!enable_ct_ageing)
 		return 0;
 
-	/* TODO */
+	for (i = 0; i < miniflow->nr_ct_tuples; i++) {
+		ct_tuple = &miniflow->ct_tuples[i];
 
-	return 0;
+		err = miniflow_register_ct_tuple(ct_tuple);
+		if (err)
+			break;
+	}
+
+	return err;
 }
 
 static struct mlx5e_ct_tuple *
@@ -706,8 +729,13 @@ static int miniflow_cache_get(void)
 	if (!miniflow_wq)
 		goto err_wq;
 
+	if (mlx5_ct_flow_offload_table_init())
+		goto err_offload_table;
+
 	return 0;
 
+err_offload_table:
+	destroy_workqueue(miniflow_wq);
 err_wq:
 	kmem_cache_destroy(miniflow_cache);
 	atomic_dec(&miniflow_cache_ref);
@@ -717,6 +745,7 @@ err_wq:
 static void miniflow_cache_put(void)
 {
 	if (atomic_dec_and_test(&miniflow_cache_ref)) {
+		mlx5_ct_flow_offload_table_destroy();
 		destroy_workqueue(miniflow_wq);
 		kmem_cache_destroy(miniflow_cache);
 	}
@@ -941,4 +970,45 @@ err_work:
 err:
 	miniflow_abort(miniflow);
 	return -1;
+}
+
+int ct_flow_offload_add(void *arg, struct list_head *head)
+{
+	struct mlx5e_tc_flow *flow = arg;
+
+	list_add(&flow->nft_node, head);
+	return 0;
+}
+
+void ct_flow_offload_get_stats(struct list_head *head, u64 *lastuse)
+{
+	struct mlx5e_tc_flow *flow, *tmp;
+
+	list_for_each_entry_safe(flow, tmp, head, nft_node) {
+		struct mlx5_fc *counter = flow->dummy_counter;
+		u64 bytes, packets, lastuse1;
+
+		if (counter) {
+			mlx5_fc_query_cached(counter, &bytes, &packets,
+					     &lastuse1);
+			*lastuse = max(*lastuse, lastuse1);
+		}
+	}
+}
+
+static void ct_flow_offload_del(struct mlx5e_tc_flow *flow)
+{
+	mlx5e_flow_put(flow->priv, flow);
+}
+
+int ct_flow_offload_destroy(struct list_head *head)
+{
+	struct mlx5e_tc_flow *flow, *n;
+
+	list_for_each_entry_safe(flow, n, head, nft_node) {
+		list_del_init(&flow->nft_node);
+		ct_flow_offload_del(flow);
+	}
+
+	return 0;
 }
