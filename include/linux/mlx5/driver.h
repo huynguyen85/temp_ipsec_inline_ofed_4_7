@@ -789,6 +789,7 @@ struct mlx5_core_dev {
 		u32 fpga[MLX5_ST_SZ_DW(fpga_cap)];
 		u32 qcam[MLX5_ST_SZ_DW(qcam_reg)];
 		u8  embedded_cpu;
+		u16 max_vfs;
 	} caps;
 	u64			sys_image_guid;
 	phys_addr_t		iseg_base;

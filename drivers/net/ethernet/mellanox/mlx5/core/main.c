@@ -1217,6 +1217,8 @@ static int mlx5_function_setup(struct mlx5_core_dev *dev, bool boot)
 		goto stop_health;
 	}
 
+	dev->caps.max_vfs = mlx5_get_max_vfs(dev);
+
 	return 0;
 
 stop_health:
@@ -1369,6 +1371,22 @@ static void mlx5_unload(struct mlx5_core_dev *dev)
 	mlx5_pagealloc_stop(dev);
 	mlx5_events_stop(dev);
 	mlx5_put_uars_page(dev, dev->priv.uar);
+}
+
+static u16 mlx5_get_max_vfs(struct mlx5_core_dev *dev)
+{
+	int total_vfs = 0;
+
+	if (mlx5_core_is_ecpf_esw_manager(dev)) {
+		mlx5_query_host_params_total_vfs(dev, &total_vfs);
+		return total_vfs;
+	}
+
+	/* In RH6.8 and lower pci_sriov_get_totalvfs might return -EINVAL
+	 * return in that case 1
+	 */
+	return (pci_sriov_get_totalvfs(dev->pdev) < 0) ? 0 :
+		pci_sriov_get_totalvfs(dev->pdev);
 }
 
 static int mlx5_load_one(struct mlx5_core_dev *dev, bool boot)
