@@ -435,6 +435,11 @@ int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 	struct ib_uverbs_exp_query_device cmd;
 	struct ib_exp_device_attr              *exp_attr;
 	int                                    ret;
+	struct ib_ucontext *ucontext;
+
+	ucontext = ib_uverbs_get_ucontext(attrs->ufile);
+	if (IS_ERR(ucontext))
+		return PTR_ERR(ucontext);
 
 	ret = ib_copy_from_udata(&cmd,  &attrs->ucore, sizeof(cmd));
 	if (ret)
@@ -447,12 +452,12 @@ int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 		goto out;
 	}
 
-	ret = ib_exp_query_device(attrs->ufile->device->ib_dev, exp_attr, &attrs->driver_udata);
+	ret = ib_exp_query_device(ucontext->device, exp_attr, &attrs->driver_udata);
 	if (ret)
 		goto out;
 
 	memset(resp, 0, sizeof(*resp));
-	copy_query_dev_fields(attrs->ufile->ucontext, &resp->base, &exp_attr->base);
+	copy_query_dev_fields(ucontext, &resp->base, &exp_attr->base);
 
 	resp->comp_mask = 0;
 	resp->device_cap_flags2 = 0;
