@@ -2407,6 +2407,13 @@ struct uverbs_attr_bundle;
 struct iw_cm_id;
 struct iw_cm_conn_param;
 
+struct ib_device_immutable {
+	/*
+	 * Provider driver indicates if this is rdma bond device or not.
+	 */
+	bool bond_device;
+};
+
 #define INIT_RDMA_OBJ_SIZE(ib_struct, drv_struct, member)                      \
 	.size_##ib_struct =                                                    \
 		(sizeof(struct drv_struct) +                                   \
@@ -2836,6 +2843,7 @@ struct ib_device {
 	 */
 	refcount_t refcount;
 	struct completion unreg_completion;
+	struct ib_device_immutable dev_immutable;
 	struct work_struct unregistration_work;
 
 	const struct rdma_link_ops *link_ops;
