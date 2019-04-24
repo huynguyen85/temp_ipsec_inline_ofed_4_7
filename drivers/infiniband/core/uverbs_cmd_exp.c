@@ -1278,7 +1278,7 @@ int ib_uverbs_exp_create_dct(struct uverbs_attr_bundle *attrs)
 		goto err_put;
 	}
 
-	dct->device        = attrs->ufile->device->ib_dev;
+	dct->device        = ib_dev;
 	dct->uobject       = &obj->uevent.uobject;
 	dct->event_handler = attr->event_handler;
 	dct->dct_context   = attr->dct_context;
@@ -1476,9 +1476,14 @@ int ib_uverbs_exp_set_context_attr(struct uverbs_attr_bundle *attrs)
 	struct ib_device *device;
 	struct ib_exp_context_attr attr = {};
 	size_t required_cmd_sz;
+	struct ib_ucontext *ucontext;
 	int ret;
 
-	device = attrs->ufile->device->ib_dev;
+	ucontext = ib_uverbs_get_ucontext(attrs->ufile);
+	if (IS_ERR(ucontext))
+		return PTR_ERR(ucontext);
+
+	device = ucontext->device;
 	required_cmd_sz = offsetof(typeof(cmd), peer_name) + sizeof(cmd.peer_name);
 
 	if (attrs->ucore.inlen < required_cmd_sz)
@@ -1505,7 +1510,7 @@ int ib_uverbs_exp_set_context_attr(struct uverbs_attr_bundle *attrs)
 		attr.peer_name = cmd.peer_name;
 	}
 
-	ret = device->ops.exp_set_context_attr(device, attrs->ufile->ucontext, &attr);
+	ret = device->ops.exp_set_context_attr(device, ucontext, &attr);
 
 	return ret;
 }
@@ -1594,7 +1599,7 @@ int ib_uverbs_exp_alloc_dm(struct uverbs_attr_bundle *attrs)
 	if (IS_ERR(uobj))
 		return PTR_ERR(uobj);
 
-	dm = ib_dev->ops.exp_alloc_dm(ib_dev, attrs->ufile->ucontext,
+	dm = ib_dev->ops.exp_alloc_dm(ib_dev, uobj->context,
 				  cmd.length, cmd.uaddr, &attrs->driver_udata);
 	if (IS_ERR(dm)) {
 		ret = PTR_ERR(dm);
