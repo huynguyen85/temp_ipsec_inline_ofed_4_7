@@ -2884,6 +2884,7 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 						1 : ibdev->num_ports;
 	ibdev->ib_dev.num_comp_vectors	= dev->caps.num_comp_vectors;
 	ibdev->ib_dev.dev.parent	= &dev->persist->pdev->dev;
+	ibdev->ib_dev.dev_immutable.bond_device = mlx4_is_bonded(dev);
 
 	if (dev->caps.userspace_caps)
 		ibdev->ib_dev.uverbs_abi_ver = MLX4_IB_UVERBS_ABI_VERSION;
