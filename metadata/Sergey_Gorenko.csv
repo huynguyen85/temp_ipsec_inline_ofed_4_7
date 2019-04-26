@@ -21,3 +21,4 @@ Change-Id=I4364764a4819ab7062ac9d5e181429928ac7258e; subject=IB/isert: Fix the p
 Change-Id=I0e618c92e8e1e36536af906d2a05a852c920443d; subject=BACKPORTS: Add iSERT backports; feature=backports; upstream_status=ignore; general=;
 Change-Id=I4ec98c2916ba572d146ab562a82870da98d96aa4; subject=BACKPORTS: Remove unused HAVE_SCSI_TCQ_SCSI_CHANGE_QUEUE_TYPE; feature=backports; upstream_status=ignore; general=;
 Change-Id=I9c148a1858608649d63b39066fe1f210dddd7b1c; subject=BACKPORTS: Fix iser compilation on RHEL 7.2; feature=backports; upstream_status=ignore; general=;
+Change-Id=I0c65c42925fb409bdfa2a4ebbb9173eacc206212; subject=BACKPORTS: Fix location of the epoll event masks; feature=backports; upstream_status=ignore; general=;

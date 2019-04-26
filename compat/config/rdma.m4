@@ -13681,6 +13681,20 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	],[
 		AC_MSG_RESULT(no)
 	])
+
+	AC_MSG_CHECKING([if uapi/linux/eventpoll.h exists])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/capability.h>
+		#include <uapi/linux/eventpoll.h>
+	],[
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_UAPI_LINUX_EVENTPOLL_H, 1,
+			  [uapi/linux/eventpoll.h exists])
+	],[
+		AC_MSG_RESULT(no)
+	])
 ])
 #
 # COMPAT_CONFIG_HEADERS
