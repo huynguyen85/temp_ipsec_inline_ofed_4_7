@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/nvme/host/fc.c
 
 Change-Id: Id5a3d60331a15a46ea4e47b0da00b14a03e2135c
 ---
- drivers/nvme/host/fc.c | 107 ++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 105 insertions(+), 2 deletions(-)
+ drivers/nvme/host/fc.c | 117 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 115 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
 index xxxxxxx..xxxxxxx 100644
@@ -110,23 +110,50 @@ index xxxxxxx..xxxxxxx 100644
  	blk_cleanup_queue(ctrl->ctrl.admin_q);
  	blk_mq_free_tag_set(&ctrl->admin_tag_set);
  
-@@ -2114,8 +2171,15 @@ nvme_fc_map_data(struct nvme_fc_ctrl *ctrl, struct request *rq,
+@@ -2114,9 +2171,18 @@ nvme_fc_map_data(struct nvme_fc_ctrl *ctrl, struct request *rq,
  		return 0;
  
  	freq->sg_table.sgl = freq->first_sgl;
-+#ifdef HAVE_SG_ALLOC_TABLE_CHAINED_4_PARAMS
-+	ret = sg_alloc_table_chained(&freq->sg_table,
-+				blk_rq_nr_phys_segments(rq),
-+				GFP_ATOMIC,
-+				freq->sg_table.sgl);
-+#else
++#ifdef HAVE_SG_ALLOC_TABLE_CHAINED_NENTS_FIRST_CHUNK_PARAM
  	ret = sg_alloc_table_chained(&freq->sg_table,
- 			blk_rq_nr_phys_segments(rq), freq->sg_table.sgl);
+ 			blk_rq_nr_phys_segments(rq), freq->sg_table.sgl,
+ 			SG_CHUNK_SIZE);
++#else
++	ret = sg_alloc_table_chained(&freq->sg_table,
++			blk_rq_nr_phys_segments(rq),
++#ifdef HAVE_SG_ALLOC_TABLE_CHAINED_4_PARAMS
++			GFP_ATOMIC,
++#endif
++			freq->sg_table.sgl);
 +#endif
  	if (ret)
  		return -ENOMEM;
  
-@@ -2326,7 +2390,11 @@ nvme_fc_queue_rq(struct blk_mq_hw_ctx *hctx,
+@@ -2126,7 +2192,11 @@ nvme_fc_map_data(struct nvme_fc_ctrl *ctrl, struct request *rq,
+ 	freq->sg_cnt = fc_dma_map_sg(ctrl->lport->dev, freq->sg_table.sgl,
+ 				op->nents, dir);
+ 	if (unlikely(freq->sg_cnt <= 0)) {
++#ifdef HAVE_SG_ALLOC_TABLE_CHAINED_NENTS_FIRST_CHUNK_PARAM
+ 		sg_free_table_chained(&freq->sg_table, SG_CHUNK_SIZE);
++#else
++		sg_free_table_chained(&freq->sg_table, true);
++#endif
+ 		freq->sg_cnt = 0;
+ 		return -EFAULT;
+ 	}
+@@ -2152,7 +2222,11 @@ nvme_fc_unmap_data(struct nvme_fc_ctrl *ctrl, struct request *rq,
+ 
+ 	nvme_cleanup_cmd(rq);
+ 
++#ifdef HAVE_SG_ALLOC_TABLE_CHAINED_NENTS_FIRST_CHUNK_PARAM
+ 	sg_free_table_chained(&freq->sg_table, SG_CHUNK_SIZE);
++#else
++	sg_free_table_chained(&freq->sg_table, true);
++#endif
+ 
+ 	freq->sg_cnt = 0;
+ }
+@@ -2327,7 +2401,11 @@ nvme_fc_queue_rq(struct blk_mq_hw_ctx *hctx,
  	 * physical segments, there is no payload.
  	 */
  	if (blk_rq_nr_phys_segments(rq)) {
@@ -138,7 +165,7 @@ index xxxxxxx..xxxxxxx 100644
  		io_dir = ((rq_data_dir(rq) == WRITE) ?
  					NVMEFC_FCP_WRITE : NVMEFC_FCP_READ);
  	} else {
-@@ -2390,7 +2458,11 @@ nvme_fc_complete_rq(struct request *rq)
+@@ -2391,7 +2469,11 @@ nvme_fc_complete_rq(struct request *rq)
   * status. The done path will return the io request back to the block
   * layer with an error status.
   */
@@ -150,7 +177,7 @@ index xxxxxxx..xxxxxxx 100644
  nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
  {
  	struct nvme_ctrl *nctrl = data;
-@@ -2398,11 +2470,16 @@ nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
+@@ -2399,11 +2481,16 @@ nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
  	struct nvme_fc_fcp_op *op = blk_mq_rq_to_pdu(req);
  
  	__nvme_fc_abort_op(ctrl, op);
@@ -168,7 +195,7 @@ index xxxxxxx..xxxxxxx 100644
  	.queue_rq	= nvme_fc_queue_rq,
  	.complete	= nvme_fc_complete_rq,
  	.init_request	= nvme_fc_init_request,
-@@ -2624,7 +2701,11 @@ nvme_fc_create_association(struct nvme_fc_ctrl *ctrl)
+@@ -2625,7 +2712,11 @@ nvme_fc_create_association(struct nvme_fc_ctrl *ctrl)
  	if (ret)
  		goto out_delete_hw_queue;
  
@@ -180,7 +207,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	ret = nvmf_connect_admin_queue(&ctrl->ctrl);
  	if (ret)
-@@ -2787,7 +2868,11 @@ nvme_fc_delete_association(struct nvme_fc_ctrl *ctrl)
+@@ -2788,7 +2879,11 @@ nvme_fc_delete_association(struct nvme_fc_ctrl *ctrl)
  	 * terminate the exchanges.
  	 */
  	nvme_stop_keep_alive(&ctrl->ctrl);
@@ -192,7 +219,7 @@ index xxxxxxx..xxxxxxx 100644
  	blk_mq_tagset_busy_iter(&ctrl->admin_tag_set,
  				nvme_fc_terminate_exchange, &ctrl->ctrl);
  
-@@ -2820,7 +2905,11 @@ nvme_fc_delete_association(struct nvme_fc_ctrl *ctrl)
+@@ -2821,7 +2916,11 @@ nvme_fc_delete_association(struct nvme_fc_ctrl *ctrl)
  	nvme_fc_free_queue(&ctrl->queues[0]);
  
  	/* re-enable the admin_q so anything new can fast fail */
@@ -204,7 +231,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	/* resume the io queues so that things will fast fail */
  	nvme_start_queues(&ctrl->ctrl);
-@@ -2973,11 +3062,18 @@ nvme_fc_connect_ctrl_work(struct work_struct *work)
+@@ -2974,11 +3073,18 @@ nvme_fc_connect_ctrl_work(struct work_struct *work)
  			ctrl->cnum);
  }
  
@@ -224,7 +251,7 @@ index xxxxxxx..xxxxxxx 100644
  	.exit_request	= nvme_fc_exit_request,
  	.init_hctx	= nvme_fc_init_admin_hctx,
  	.timeout	= nvme_fc_timeout,
-@@ -3096,7 +3192,9 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
+@@ -3097,7 +3203,9 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
  	ctrl->admin_tag_set.driver_data = ctrl;
  	ctrl->admin_tag_set.nr_hw_queues = 1;
  	ctrl->admin_tag_set.timeout = ADMIN_TIMEOUT;
@@ -234,7 +261,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	ret = blk_mq_alloc_tag_set(&ctrl->admin_tag_set);
  	if (ret)
-@@ -3476,3 +3574,8 @@ module_init(nvme_fc_init_module);
+@@ -3477,3 +3585,8 @@ module_init(nvme_fc_init_module);
  module_exit(nvme_fc_exit_module);
  
  MODULE_LICENSE("GPL v2");

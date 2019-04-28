@@ -3,25 +3,39 @@ Subject: [PATCH] BACKPORT: drivers/nvme/target/loop.c
 
 Change-Id: If8b0c6a0985942e15579e581ffa4691bcac9b46f
 ---
- drivers/nvme/target/loop.c | 62 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 62 insertions(+)
+ drivers/nvme/target/loop.c | 68 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 68 insertions(+)
 
 diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/nvme/target/loop.c
 +++ b/drivers/nvme/target/loop.c
-@@ -158,14 +158,25 @@ static blk_status_t nvme_loop_queue_rq(struct blk_mq_hw_ctx *hctx,
+@@ -80,7 +80,11 @@ static void nvme_loop_complete_rq(struct request *req)
+ 	struct nvme_loop_iod *iod = blk_mq_rq_to_pdu(req);
+ 
+ 	nvme_cleanup_cmd(req);
++#ifdef HAVE_SG_ALLOC_TABLE_CHAINED_NENTS_FIRST_CHUNK_PARAM
+ 	sg_free_table_chained(&iod->sg_table, SG_CHUNK_SIZE);
++#else
++	sg_free_table_chained(&iod->sg_table, true);
++#endif
+ 	nvme_complete_rq(req);
+ }
+ 
+@@ -158,14 +162,27 @@ static blk_status_t nvme_loop_queue_rq(struct blk_mq_hw_ctx *hctx,
  
  	if (blk_rq_nr_phys_segments(req)) {
  		iod->sg_table.sgl = iod->first_sgl;
-+#ifdef HAVE_SG_ALLOC_TABLE_CHAINED_4_PARAMS
++#ifdef HAVE_SG_ALLOC_TABLE_CHAINED_NENTS_FIRST_CHUNK_PARAM
  		if (sg_alloc_table_chained(&iod->sg_table,
  				blk_rq_nr_phys_segments(req),
-+				GFP_ATOMIC,
- 				iod->sg_table.sgl))
+ 				iod->sg_table.sgl, SG_CHUNK_SIZE))
 +#else
 +		if (sg_alloc_table_chained(&iod->sg_table,
 +				blk_rq_nr_phys_segments(req),
++#ifdef HAVE_SG_ALLOC_TABLE_CHAINED_4_PARAMS
++				GFP_ATOMIC,
++#endif
 +				iod->sg_table.sgl))
 +#endif
  			return BLK_STS_RESOURCE;
@@ -36,7 +50,7 @@ index xxxxxxx..xxxxxxx 100644
  	}
  
  	schedule_work(&iod->work);
-@@ -202,6 +213,7 @@ static int nvme_loop_init_iod(struct nvme_loop_ctrl *ctrl,
+@@ -202,6 +219,7 @@ static int nvme_loop_init_iod(struct nvme_loop_ctrl *ctrl,
  	return 0;
  }
  
@@ -44,7 +58,7 @@ index xxxxxxx..xxxxxxx 100644
  static int nvme_loop_init_request(struct blk_mq_tag_set *set,
  		struct request *req, unsigned int hctx_idx,
  		unsigned int numa_node)
-@@ -212,6 +224,27 @@ static int nvme_loop_init_request(struct blk_mq_tag_set *set,
+@@ -212,6 +230,27 @@ static int nvme_loop_init_request(struct blk_mq_tag_set *set,
  	return nvme_loop_init_iod(ctrl, blk_mq_rq_to_pdu(req),
  			(set == &ctrl->tag_set) ? hctx_idx + 1 : 0);
  }
@@ -72,7 +86,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static int nvme_loop_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
  		unsigned int hctx_idx)
-@@ -237,17 +270,35 @@ static int nvme_loop_init_admin_hctx(struct blk_mq_hw_ctx *hctx, void *data,
+@@ -237,17 +276,35 @@ static int nvme_loop_init_admin_hctx(struct blk_mq_hw_ctx *hctx, void *data,
  	return 0;
  }
  
@@ -108,7 +122,7 @@ index xxxxxxx..xxxxxxx 100644
  	.init_hctx	= nvme_loop_init_admin_hctx,
  };
  
-@@ -347,7 +398,9 @@ static int nvme_loop_configure_admin_queue(struct nvme_loop_ctrl *ctrl)
+@@ -347,7 +404,9 @@ static int nvme_loop_configure_admin_queue(struct nvme_loop_ctrl *ctrl)
  	ctrl->admin_tag_set.driver_data = ctrl;
  	ctrl->admin_tag_set.nr_hw_queues = 1;
  	ctrl->admin_tag_set.timeout = ADMIN_TIMEOUT;
@@ -118,7 +132,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	ctrl->queues[0].ctrl = ctrl;
  	error = nvmet_sq_init(&ctrl->queues[0].nvme_sq);
-@@ -420,10 +473,16 @@ static void nvme_loop_shutdown_ctrl(struct nvme_loop_ctrl *ctrl, bool shutdown)
+@@ -420,10 +479,16 @@ static void nvme_loop_shutdown_ctrl(struct nvme_loop_ctrl *ctrl, bool shutdown)
  	else
  		nvme_disable_ctrl(&ctrl->ctrl, ctrl->ctrl.cap);
  
@@ -135,7 +149,7 @@ index xxxxxxx..xxxxxxx 100644
  	nvme_loop_destroy_admin_queue(ctrl);
  }
  
-@@ -715,4 +774,7 @@ module_init(nvme_loop_init_module);
+@@ -715,4 +780,7 @@ module_init(nvme_loop_init_module);
  module_exit(nvme_loop_cleanup_module);
  
  MODULE_LICENSE("GPL v2");

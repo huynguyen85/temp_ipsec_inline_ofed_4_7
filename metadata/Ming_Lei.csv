@@ -1,0 +1,2 @@
+sep=;
+Change-Id=Iec3f4b4d922c4cc88a3ef1b8aff6d2b6dbc1aee9; subject=scsi: lib/sg_pool.c: improve APIs for allocating sg pool; feature=rebase; upstream_status=in_progress; general=;
