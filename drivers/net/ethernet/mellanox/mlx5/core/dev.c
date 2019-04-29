@@ -146,6 +146,17 @@ void mlx5_attach_device(struct mlx5_core_dev *dev)
 	mutex_unlock(&mlx5_intf_mutex);
 }
 
+void mlx5_attach_device_by_protocol(struct mlx5_core_dev *dev, int protocol)
+{
+	struct mlx5_priv *priv = &dev->priv;
+	struct mlx5_interface *intf;
+
+	mutex_lock(&mlx5_intf_mutex);
+	list_for_each_entry(intf, &intf_list, list)
+		if (intf->protocol == protocol)
+			mlx5_attach_interface(intf, priv);
+	mutex_unlock(&mlx5_intf_mutex);
+}
 static void mlx5_detach_interface(struct mlx5_interface *intf, struct mlx5_priv *priv)
 {
 	struct mlx5_device_context *dev_ctx;

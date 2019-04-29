@@ -1423,7 +1423,10 @@ static int mlx5_load_one(struct mlx5_core_dev *dev, bool boot)
 	mlx5_diag_cnt_init(dev);
 
 	if (mlx5_device_registered(dev)) {
-		mlx5_attach_device(dev);
+		if (dev->priv.sw_reset_lag)
+			mlx5_attach_device_by_protocol(dev, MLX5_INTERFACE_PROTOCOL_ETH);
+		else
+			mlx5_attach_device(dev);
 	} else {
 		err = mlx5_register_device(dev);
 		if (err) {
@@ -2039,6 +2042,7 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto clean_crdump;
 	}
 
+	dev->priv.sw_reset_lag = false;
 	err = mlx5_load_one(dev, true);
 	if (err) {
 		mlx5_core_err(dev, "mlx5_load_one failed with error code %d\n",
@@ -2178,6 +2182,7 @@ static int resume(struct device *device)
 	}
 	pci_set_master(pdev);
 
+	dev->priv.sw_reset_lag = false;
 	err = mlx5_load_one(dev, false);
 	if (err) {
 		dev_err(&pdev->dev, "mlx5_load_one failed with error code: %d\n", err);
@@ -2281,6 +2286,7 @@ static void mlx5_pci_resume(struct pci_dev *pdev)
 
 	mlx5_core_info(dev, "%s was called\n", __func__);
 
+	dev->priv.sw_reset_lag = dev->priv.lag_enabled;
 	err = mlx5_load_one(dev, false);
 	if (err)
 		mlx5_core_err(dev, "%s: mlx5_load_one failed with error code: %d\n",

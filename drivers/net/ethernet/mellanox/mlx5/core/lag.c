@@ -361,7 +361,7 @@ static void mlx5_do_bond_work(struct work_struct *work)
 	status = mlx5_dev_list_trylock();
 	if (!status) {
 		/* 1 sec delay. */
-		mlx5_queue_bond_work(ldev, HZ);
+		mlx5_queue_bond_work(ldev, HZ/2);
 		return;
 	}
 
