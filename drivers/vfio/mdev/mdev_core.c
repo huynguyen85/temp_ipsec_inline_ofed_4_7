@@ -78,34 +78,41 @@ static struct mdev_parent *__find_parent_device(struct device *dev)
 	return NULL;
 }
 
-static void mdev_release_parent(struct kref *kref)
-{
-	struct mdev_parent *parent = container_of(kref, struct mdev_parent,
-						  ref);
-	struct device *dev = parent->dev;
-
-	kfree(parent);
-	put_device(dev);
-}
-
-static struct mdev_parent *mdev_get_parent(struct mdev_parent *parent)
+static bool mdev_try_get_parent(struct mdev_parent *parent)
 {
 	if (parent)
-		kref_get(&parent->ref);
-
-	return parent;
+		return refcount_inc_not_zero(&parent->refcount);
+	return false;
 }
 
 static void mdev_put_parent(struct mdev_parent *parent)
 {
-	if (parent)
-		kref_put(&parent->ref, mdev_release_parent);
+	if (parent && refcount_dec_and_test(&parent->refcount))
+		complete(&parent->unreg_completion);
+}
+
+static void mdev_device_remove_common(struct mdev_device *mdev)
+{
+	struct mdev_parent *parent;
+	struct mdev_type *type;
+	int ret;
+
+	type = to_mdev_type(mdev->type_kobj);
+	mdev_remove_sysfs_files(&mdev->dev, type);
+	device_del(&mdev->dev);
+	parent = mdev->parent;
+	ret = parent->ops->remove(mdev);
+	if (ret)
+		dev_err(&mdev->dev, "Remove failed: err=%d\n", ret);
+
+	/* Balances with device_initialize() */
+	put_device(&mdev->dev);
 }
 
 static int mdev_device_remove_cb(struct device *dev, void *data)
 {
 	if (dev_is_mdev(dev))
-		mdev_device_remove(dev);
+		mdev_device_remove_common(to_mdev_device(dev));
 
 	return 0;
 }
@@ -147,7 +154,8 @@ int mdev_register_device(struct device *dev, const struct mdev_parent_ops *ops)
 		goto add_dev_err;
 	}
 
-	kref_init(&parent->ref);
+	refcount_set(&parent->refcount, 1);
+	init_completion(&parent->unreg_completion);
 
 	parent->dev = dev;
 	parent->ops = ops;
@@ -206,14 +214,27 @@ void mdev_unregister_device(struct device *dev)
 	dev_info(dev, "MDEV: Unregistering\n");
 
 	list_del(&parent->next);
+	mutex_unlock(&parent_list_lock);
+
+	/* Release the initial reference so that new create cannot start */
+	mdev_put_parent(parent);
+
+	/*
+	 * Wait for all the create and remove references to drop.
+	 */
+	wait_for_completion(&parent->unreg_completion);
+
+	/*
+	 * New references cannot be taken and all users are done
+	 * using the parent. So it is safe to unregister parent.
+	 */
 	class_compat_remove_link(mdev_bus_compat_class, dev, NULL);
 
 	device_for_each_child(dev, NULL, mdev_device_remove_cb);
 
 	parent_remove_sysfs_files(parent);
-
-	mutex_unlock(&parent_list_lock);
-	mdev_put_parent(parent);
+	kfree(parent);
+	put_device(dev);
 }
 EXPORT_SYMBOL(mdev_unregister_device);
 
@@ -237,9 +258,10 @@ int mdev_device_create(struct kobject *kobj,
 	struct mdev_parent *parent;
 	struct mdev_type *type = to_mdev_type(kobj);
 
-	parent = mdev_get_parent(type->parent);
-	if (!parent)
+	if (!mdev_try_get_parent(type->parent))
 		return -EINVAL;
+
+	parent = type->parent;
 
 	mutex_lock(&mdev_list_lock);
 
@@ -287,6 +309,7 @@ int mdev_device_create(struct kobject *kobj,
 
 	mdev->active = true;
 	dev_dbg(&mdev->dev, "MDEV: created\n");
+	mdev_put_parent(parent);
 
 	return 0;
 
@@ -306,7 +329,6 @@ int mdev_device_remove(struct device *dev)
 	struct mdev_device *mdev, *tmp;
 	struct mdev_parent *parent;
 	struct mdev_type *type;
-	int ret;
 
 	mdev = to_mdev_device(dev);
 
@@ -330,15 +352,16 @@ int mdev_device_remove(struct device *dev)
 	mutex_unlock(&mdev_list_lock);
 
 	type = to_mdev_type(mdev->type_kobj);
-	mdev_remove_sysfs_files(dev, type);
-	device_del(&mdev->dev);
-	parent = mdev->parent;
-	ret = parent->ops->remove(mdev);
-	if (ret)
-		dev_err(&mdev->dev, "Remove failed: err=%d\n", ret);
+	if (!mdev_try_get_parent(type->parent)) {
+		/*
+		 * Parent unregistration have started.
+		 * No need to remove here.
+		 */
+		return -ENODEV;
+	}
 
-	/* Balances with device_initialize() */
-	put_device(&mdev->dev);
+	parent = mdev->parent;
+	mdev_device_remove_common(mdev);
 	mdev_put_parent(parent);
 
 	return 0;
