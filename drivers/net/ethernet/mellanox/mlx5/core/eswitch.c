@@ -2189,6 +2189,13 @@ int mlx5_eswitch_enable_sriov(struct mlx5_eswitch *esw, int nvfs, int mode)
 		}
 	}
 
+	if (vf_nvports && mode == SRIOV_OFFLOADS &&
+	    mlx5_core_is_ecpf_esw_manager(esw->dev)) {
+		esw_warn(esw->dev,
+			 "Failed to enable switchdev mode. Must destroy VFs from host PF.\n");
+			return -EOPNOTSUPP;
+	}
+
 	esw->mode = mode;
 
 	mlx5_lag_update(esw->dev);
