@@ -1884,7 +1884,8 @@ static void esw_vport_disable_qos(struct mlx5_eswitch *esw,
 			 vport->vport, err);
 
 	if (group) {
-		group->num_vports--;
+		if (vport->vport != MLX5_VPORT_PF)
+			group->num_vports--;
 		if (group->group_id && !group->num_vports)
 			esw_destroy_vgroup(esw, group);
 	}
