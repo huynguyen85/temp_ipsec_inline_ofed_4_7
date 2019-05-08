@@ -90,12 +90,13 @@ static void mlx5e_uplink_rep_get_drvinfo(struct net_device *dev,
 		sizeof(drvinfo->bus_info));
 }
 
-static void mlx5e_rep_get_strings(struct net_device *dev,
-				  u32 stringset, uint8_t *data)
+static void _mlx5e_get_strings(struct net_device *dev, u32 stringset,
+			       uint8_t *data,
+			       const struct mlx5e_stats_grp stats_grps[],
+			       int num_stats_grps)
 {
 	struct mlx5e_priv *priv = netdev_priv(dev);
-	int idx = 0;
-	int i;
+	int i, idx = 0;
 
 	switch (stringset) {
 	case ETH_SS_PRIV_FLAGS:
@@ -103,53 +104,124 @@ static void mlx5e_rep_get_strings(struct net_device *dev,
 			strcpy(data + i * ETH_GSTRING_LEN, mlx5e_priv_flags_name(i));
 		break;
 	case ETH_SS_STATS:
-		for (i = 0; i < mlx5e_rep_num_stats_grps; i++)
-			idx = mlx5e_rep_stats_grps[i].fill_strings(priv, data, idx);
+		for (i = 0; i < num_stats_grps; i++)
+			idx = stats_grps[i].fill_strings(priv, data, idx);
 		break;
 	}
 }
 
-static void mlx5e_rep_update_stats(struct mlx5e_priv *priv) {
-	int i;
+static void mlx5e_rep_get_strings(struct net_device *dev,
+				  u32 stringset, uint8_t *data)
+{
+	_mlx5e_get_strings(dev, stringset, data, mlx5e_rep_stats_grps,
+			   mlx5e_rep_num_stats_grps);
+}
+ 
+static void mlx5e_ul_rep_get_strings(struct net_device *dev,
+				     u32 stringset, uint8_t *data)
+{
+	_mlx5e_get_strings(dev, stringset, data, mlx5e_ul_rep_stats_grps,
+			   mlx5e_ul_rep_num_stats_grps);
+}
 
-	for (i = mlx5e_rep_num_stats_grps - 1; i >= 0; i--)
-		if (mlx5e_rep_stats_grps[i].update_stats)
-			mlx5e_rep_stats_grps[i].update_stats(priv);
+static void _mlx5e_update_stats(struct mlx5e_priv *priv,
+				const struct mlx5e_stats_grp stats_grps[],
+				int num_stats_grps)
+ {
+ 	int i;
+ 
+	for (i = num_stats_grps - 1; i >= 0; i--)
+		if (stats_grps[i].update_stats)
+			stats_grps[i].update_stats(priv);
+}
+
+static void mlx5e_rep_update_stats(struct mlx5e_priv *priv)
+{
+	_mlx5e_update_stats(priv, mlx5e_rep_stats_grps,
+			    mlx5e_rep_num_stats_grps);
+}
+
+static void mlx5e_ul_rep_update_stats(struct mlx5e_priv *priv)
+{
+	_mlx5e_update_stats(priv, mlx5e_ul_rep_stats_grps,
+			    mlx5e_ul_rep_num_stats_grps);
+}
+
+static void _mlx5e_fill_stats(struct mlx5e_priv *priv, u64 *data,
+			      const struct mlx5e_stats_grp stats_grps[],
+			      int num_stats_grps)
+{
+	int i, idx = 0;
+ 
+	for (i = 0; i < num_stats_grps; i++)
+		idx = stats_grps[i].fill_stats(priv, data, idx);
 }
 
 static void mlx5e_rep_get_ethtool_stats(struct net_device *dev,
 					struct ethtool_stats *stats, u64 *data)
 {
 	struct mlx5e_priv *priv = netdev_priv(dev);
-	int i, idx = 0;
 
 	if (!data)
 		return;
 
 	mutex_lock(&priv->state_lock);
-	mlx5e_update_stats(priv);
+	mlx5e_rep_update_stats(priv);
+	priv->profile->update_stats(priv);
 	mutex_unlock(&priv->state_lock);
 
-	for (i = 0; i < mlx5e_rep_num_stats_grps; i++)
-		idx = mlx5e_rep_stats_grps[i].fill_stats(priv, data, idx);
+	_mlx5e_fill_stats(priv, data, mlx5e_rep_stats_grps,
+			  mlx5e_rep_num_stats_grps);
 }
 
-static int mlx5e_rep_get_sset_count(struct net_device *dev, int sset)
+static void mlx5e_ul_rep_get_ethtool_stats(struct net_device *dev,
+					   struct ethtool_stats *stats,
+					   u64 *data)
 {
 	struct mlx5e_priv *priv = netdev_priv(dev);
-	int num_stats = 0;
-	int i;
 
+
+	if (!data)
+		return;
+
+	mutex_lock(&priv->state_lock);
+	mlx5e_ul_rep_update_stats(priv);
+	priv->profile->update_stats(priv);
+	mutex_unlock(&priv->state_lock);
+
+	_mlx5e_fill_stats(priv, data, mlx5e_ul_rep_stats_grps,
+			  mlx5e_ul_rep_num_stats_grps);
+}
+
+static int _mlx5e_get_sset_count(struct net_device *dev, int sset,
+				 const struct mlx5e_stats_grp stats_grps[],
+				 int num_stats_grps)
+{
+	struct mlx5e_priv *priv = netdev_priv(dev);
+	int i, num_stats = 0;
+	
 	switch (sset) {
 	case ETH_SS_STATS:
-		for (i = 0; i < mlx5e_rep_num_stats_grps; i++)
-			num_stats += mlx5e_rep_stats_grps[i].get_num_stats(priv);
+		for (i = 0; i < num_stats_grps; i++)
+			num_stats += stats_grps[i].get_num_stats(priv);
 		return num_stats;
 	case ETH_SS_PRIV_FLAGS:
 		return mlx5e_priv_flags_num();
 	default:
 		return -EOPNOTSUPP;
 	}
+}
+
+static int mlx5e_rep_get_sset_count(struct net_device *dev, int sset)
+{
+	return _mlx5e_get_sset_count(dev, sset, mlx5e_rep_stats_grps,
+				     mlx5e_rep_num_stats_grps);
+}
+
+static int mlx5e_ul_rep_get_sset_count(struct net_device *dev, int sset)
+{
+	return _mlx5e_get_sset_count(dev, sset, mlx5e_ul_rep_stats_grps,
+				     mlx5e_ul_rep_num_stats_grps);
 }
 
 static void mlx5e_rep_get_ringparam(struct net_device *dev,
@@ -269,9 +341,9 @@ static const struct ethtool_ops mlx5e_vf_rep_ethtool_ops = {
 static const struct ethtool_ops mlx5e_uplink_rep_ethtool_ops = {
 	.get_drvinfo	   = mlx5e_uplink_rep_get_drvinfo,
 	.get_link	   = ethtool_op_get_link,
-	.get_strings       = mlx5e_rep_get_strings,
-	.get_sset_count    = mlx5e_rep_get_sset_count,
-	.get_ethtool_stats = mlx5e_rep_get_ethtool_stats,
+	.get_strings       = mlx5e_ul_rep_get_strings,
+	.get_sset_count    = mlx5e_ul_rep_get_sset_count,
+	.get_ethtool_stats = mlx5e_ul_rep_get_ethtool_stats,
 	.get_ringparam     = mlx5e_rep_get_ringparam,
 	.set_ringparam     = mlx5e_rep_set_ringparam,
 	.get_channels      = mlx5e_rep_get_channels,
@@ -1195,6 +1267,8 @@ mlx5e_get_sw_stats64(const struct net_device *dev,
 {
 	struct mlx5e_priv *priv = netdev_priv(dev);
 
+	mlx5e_grp_rep_sw_update_stats(priv);
+
 	mlx5e_fold_sw_stats64(priv, stats);
 	return 0;
 }
@@ -1734,7 +1808,7 @@ static const struct mlx5e_profile mlx5e_uplink_rep_profile = {
 	.cleanup_tx		= mlx5e_cleanup_rep_tx,
 	.enable		        = mlx5e_uplink_rep_enable,
 	.disable	        = mlx5e_uplink_rep_disable,
-	.update_stats           = mlx5e_rep_update_stats,
+	.update_stats           = mlx5e_ul_rep_update_stats,
 	.update_carrier	        = mlx5e_update_carrier,
 	.rx_handlers.handle_rx_cqe       = mlx5e_handle_rx_cqe_rep,
 	.rx_handlers.handle_rx_cqe_mpwqe = mlx5e_handle_rx_cqe_mpwrq,

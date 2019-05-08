@@ -452,6 +452,68 @@ static void mlx5e_grp_rep_vport_update_stats(struct mlx5e_priv *priv)
 		mlx5e_vf_rep_update_hw_counters(priv);
 }
 
+static const struct counter_desc sw_rep_stats_desc[] = {
+	{ MLX5E_DECLARE_STAT(struct mlx5e_sw_stats, rx_packets) },
+	{ MLX5E_DECLARE_STAT(struct mlx5e_sw_stats, rx_bytes) },
+	{ MLX5E_DECLARE_STAT(struct mlx5e_sw_stats, tx_packets) },
+	{ MLX5E_DECLARE_STAT(struct mlx5e_sw_stats, tx_bytes) },
+};
+
+#define NUM_VPORT_REP_SW_COUNTERS ARRAY_SIZE(sw_rep_stats_desc)
+
+static int mlx5e_grp_rep_sw_get_num_stats(struct mlx5e_priv *priv)
+{
+	return NUM_VPORT_REP_SW_COUNTERS;
+}
+
+static int mlx5e_grp_rep_sw_fill_strings(struct mlx5e_priv *priv, u8 *data,
+					 int idx)
+{
+	int i;
+
+	for (i = 0; i < NUM_VPORT_REP_SW_COUNTERS; i++)
+		strcpy(data + (idx++) * ETH_GSTRING_LEN,
+		       sw_rep_stats_desc[i].format);
+	return idx;
+}
+
+static int mlx5e_grp_rep_sw_fill_stats(struct mlx5e_priv *priv, u64 *data,
+				       int idx)
+{
+	int i;
+
+	for (i = 0; i < NUM_VPORT_REP_SW_COUNTERS; i++)
+		data[idx++] = MLX5E_READ_CTR64_CPU(&priv->stats.sw,
+						   sw_rep_stats_desc, i);
+	return idx;
+}
+
+void mlx5e_grp_rep_sw_update_stats(struct mlx5e_priv *priv)
+{
+	struct mlx5e_sw_stats *s = &priv->stats.sw;
+	struct mlx5e_rq_stats *rq_stats;
+	struct mlx5e_sq_stats *sq_stats;
+	int i, j;
+
+	memset(s, 0, sizeof(*s));
+	for (i = 0; i < priv->channels.num; i++) {
+		struct mlx5e_channel *c = priv->channels.c[i];
+
+		rq_stats = c->rq.stats;
+
+		s->rx_packets   += rq_stats->packets;
+		s->rx_bytes     += rq_stats->bytes;
+
+		for (j = 0; j < priv->channels.params.num_tc; j++) {
+			sq_stats = c->sq[j].stats;
+
+			s->tx_packets           += sq_stats->packets;
+			s->tx_bytes             += sq_stats->bytes;
+			s->tx_queue_dropped     += sq_stats->dropped;
+		}
+	}
+}
+
 #define VPORT_COUNTER_OFF(c) MLX5_BYTE_OFF(query_vport_counter_out, c)
 static const struct counter_desc vport_stats_desc[] = {
 	{ "rx_vport_unicast_packets",
@@ -1600,11 +1662,11 @@ const int mlx5e_num_stats_grps = ARRAY_SIZE(mlx5e_stats_grps);
 
 const struct mlx5e_stats_grp mlx5e_rep_stats_grps[] = {
 	{
-		.get_num_stats = mlx5e_grp_sw_get_num_stats,
-		.fill_strings = mlx5e_grp_sw_fill_strings,
-		.fill_stats = mlx5e_grp_sw_fill_stats,
+		.get_num_stats = mlx5e_grp_rep_sw_get_num_stats,
+		.fill_strings = mlx5e_grp_rep_sw_fill_strings,
+		.fill_stats = mlx5e_grp_rep_sw_fill_stats,
 		.update_stats_mask = MLX5E_NDO_UPDATE_STATS,
-		.update_stats = mlx5e_grp_sw_update_stats,
+		.update_stats = mlx5e_grp_rep_sw_update_stats,
 	},
 	{
 		.get_num_stats = mlx5e_grp_rep_vport_get_num_stats,
@@ -1621,3 +1683,22 @@ const struct mlx5e_stats_grp mlx5e_rep_stats_grps[] = {
 };
 
 const int mlx5e_rep_num_stats_grps = ARRAY_SIZE(mlx5e_rep_stats_grps);
+
+const struct mlx5e_stats_grp mlx5e_ul_rep_stats_grps[] = {
+	{
+		.get_num_stats = mlx5e_grp_sw_get_num_stats,
+		.fill_strings = mlx5e_grp_sw_fill_strings,
+		.fill_stats = mlx5e_grp_sw_fill_stats,
+		.update_stats_mask = MLX5E_NDO_UPDATE_STATS,
+		.update_stats = mlx5e_grp_sw_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_rep_vport_get_num_stats,
+		.fill_strings = mlx5e_grp_rep_vport_fill_strings,
+		.fill_stats = mlx5e_grp_rep_vport_fill_stats,
+		.update_stats_mask = MLX5E_NDO_UPDATE_STATS,
+		.update_stats = mlx5e_grp_rep_vport_update_stats,
+	},
+};
+
+const int mlx5e_ul_rep_num_stats_grps = ARRAY_SIZE(mlx5e_ul_rep_stats_grps);
