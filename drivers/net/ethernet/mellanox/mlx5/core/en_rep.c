@@ -1150,6 +1150,13 @@ static int mlx5e_vf_rep_close(struct net_device *dev)
 	return ret;
 }
 
+static bool mlx5e_is_rep_vf_vport(struct mlx5_core_dev *dev,
+				  const struct mlx5_eswitch_rep *rep)
+{
+	return rep->vport >= MLX5_VPORT_FIRST_VF &&
+		rep->vport <= mlx5_core_max_vfs(dev);
+}
+
 static int mlx5e_rep_get_phys_port_name(struct net_device *dev,
 					char *buf, size_t len)
 {
@@ -1165,8 +1172,12 @@ static int mlx5e_rep_get_phys_port_name(struct net_device *dev,
 
 	if (rep->vport == MLX5_VPORT_UPLINK)
 		ret = snprintf(buf, len, "p%d", fn);
-	else
+	else if (rep->vport == MLX5_VPORT_PF)
+		ret = snprintf(buf, len, "pf%d", fn);
+	else if (mlx5e_is_rep_vf_vport(priv->mdev, rep))
 		ret = snprintf(buf, len, "pf%dvf%d", fn, rep->vport - 1);
+	else
+		ret = snprintf(buf, len, "p%d", rep->vport);
 
 	if (ret >= len)
 		return -EOPNOTSUPP;
