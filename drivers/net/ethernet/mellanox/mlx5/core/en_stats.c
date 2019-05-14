@@ -1699,6 +1699,90 @@ const struct mlx5e_stats_grp mlx5e_ul_rep_stats_grps[] = {
 		.update_stats_mask = MLX5E_NDO_UPDATE_STATS,
 		.update_stats = mlx5e_grp_rep_vport_update_stats,
 	},
+	{
+		.get_num_stats = mlx5e_grp_q_get_num_stats,
+		.fill_strings = mlx5e_grp_q_fill_strings,
+		.fill_stats = mlx5e_grp_q_fill_stats,
+		.update_stats_mask = MLX5E_NDO_UPDATE_STATS,
+		.update_stats = mlx5e_grp_q_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_vnic_env_get_num_stats,
+		.fill_strings = mlx5e_grp_vnic_env_fill_strings,
+		.fill_stats = mlx5e_grp_vnic_env_fill_stats,
+		.update_stats = mlx5e_grp_vnic_env_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_vport_get_num_stats,
+		.fill_strings = mlx5e_grp_vport_fill_strings,
+		.fill_stats = mlx5e_grp_vport_fill_stats,
+		.update_stats_mask = MLX5E_NDO_UPDATE_STATS,
+		.update_stats = mlx5e_grp_vport_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_802_3_get_num_stats,
+		.fill_strings = mlx5e_grp_802_3_fill_strings,
+		.fill_stats = mlx5e_grp_802_3_fill_stats,
+		.update_stats_mask = MLX5E_NDO_UPDATE_STATS,
+		.update_stats = mlx5e_grp_802_3_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_2863_get_num_stats,
+		.fill_strings = mlx5e_grp_2863_fill_strings,
+		.fill_stats = mlx5e_grp_2863_fill_stats,
+		.update_stats = mlx5e_grp_2863_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_2819_get_num_stats,
+		.fill_strings = mlx5e_grp_2819_fill_strings,
+		.fill_stats = mlx5e_grp_2819_fill_stats,
+		.update_stats = mlx5e_grp_2819_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_phy_get_num_stats,
+		.fill_strings = mlx5e_grp_phy_fill_strings,
+		.fill_stats = mlx5e_grp_phy_fill_stats,
+		.update_stats = mlx5e_grp_phy_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_eth_ext_get_num_stats,
+		.fill_strings = mlx5e_grp_eth_ext_fill_strings,
+		.fill_stats = mlx5e_grp_eth_ext_fill_stats,
+		.update_stats = mlx5e_grp_eth_ext_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_pcie_get_num_stats,
+		.fill_strings = mlx5e_grp_pcie_fill_strings,
+		.fill_stats = mlx5e_grp_pcie_fill_stats,
+		.update_stats = mlx5e_grp_pcie_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_per_prio_get_num_stats,
+		.fill_strings = mlx5e_grp_per_prio_fill_strings,
+		.fill_stats = mlx5e_grp_per_prio_fill_stats,
+		.update_stats = mlx5e_grp_per_prio_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_pme_get_num_stats,
+		.fill_strings = mlx5e_grp_pme_fill_strings,
+		.fill_stats = mlx5e_grp_pme_fill_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_ipsec_get_num_stats,
+		.fill_strings = mlx5e_grp_ipsec_fill_strings,
+		.fill_stats = mlx5e_grp_ipsec_fill_stats,
+		.update_stats = mlx5e_grp_ipsec_update_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_tls_get_num_stats,
+		.fill_strings = mlx5e_grp_tls_fill_strings,
+		.fill_stats = mlx5e_grp_tls_fill_stats,
+	},
+	{
+		.get_num_stats = mlx5e_grp_channels_get_num_stats,
+		.fill_strings = mlx5e_grp_channels_fill_strings,
+		.fill_stats = mlx5e_grp_channels_fill_stats,
+	},
 };
 
 const int mlx5e_ul_rep_num_stats_grps = ARRAY_SIZE(mlx5e_ul_rep_stats_grps);
