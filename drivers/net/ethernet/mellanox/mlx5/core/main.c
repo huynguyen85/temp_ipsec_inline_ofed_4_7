@@ -1848,7 +1848,6 @@ static int mlx5_mdev_init(struct mlx5_core_dev *dev, int profile_idx)
 
 	INIT_LIST_HEAD(&priv->ctx_list);
 	spin_lock_init(&priv->ctx_lock);
-	mutex_init(&dev->pci_status_mutex);
 	mutex_init(&dev->intf_state_mutex);
 
 	mutex_init(&priv->bfregs.reg_head.lock);
@@ -2003,6 +2002,7 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	dev->device = &pdev->dev;
 	priv->sriov.probe_vf = probe_vf;
 
+	mutex_init(&dev->pci_status_mutex);
 	if (pdev->is_virtfn && !probe_vf) {
 		dev_info(&pdev->dev, "VFs are not binded to mlx5_core\n");
 		return 0;
