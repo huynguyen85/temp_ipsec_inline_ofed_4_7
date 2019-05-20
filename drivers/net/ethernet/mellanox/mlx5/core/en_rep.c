@@ -1575,17 +1575,19 @@ static int mlx5e_create_rep_vport_rx_rule(struct mlx5e_priv *priv)
 	return 0;
 }
 
-static int mlx5e_init_rep_rx(struct mlx5e_priv *priv)
+static int _mlx5e_init_rep_rx(struct mlx5e_priv *priv, bool q_counters)
 {
 	struct mlx5_core_dev *mdev = priv->mdev;
 	int err;
 
 	mlx5e_init_l2_addr(priv);
+	if (q_counters)
+		mlx5e_create_q_counters(priv);
 
 	err = mlx5e_open_drop_rq(priv, &priv->drop_rq);
 	if (err) {
 		mlx5_core_err(mdev, "open drop rq failed, %d\n", err);
-		return err;
+		goto err_del_q_counters;
 	}
 
 	err = mlx5e_create_indirect_rqt(priv);
@@ -1634,10 +1636,23 @@ err_destroy_indirect_rqts:
 	mlx5e_destroy_rqt(priv, &priv->indir_rqt);
 err_close_drop_rq:
 	mlx5e_close_drop_rq(&priv->drop_rq);
+err_del_q_counters:
+	if (q_counters)
+		mlx5e_destroy_q_counters(priv);
 	return err;
 }
 
-static void mlx5e_cleanup_rep_rx(struct mlx5e_priv *priv)
+static int mlx5e_init_rep_rx(struct mlx5e_priv *priv)
+{
+	return _mlx5e_init_rep_rx(priv, false);
+}
+
+static int mlx5e_init_ul_rep_rx(struct mlx5e_priv *priv)
+{
+	return _mlx5e_init_rep_rx(priv, true);
+}
+
+static void _mlx5e_cleanup_rep_rx(struct mlx5e_priv *priv, bool q_counters)
 {
 	struct mlx5e_rep_priv *rpriv = priv->ppriv;
 
@@ -1649,6 +1664,18 @@ static void mlx5e_cleanup_rep_rx(struct mlx5e_priv *priv)
 	mlx5e_destroy_direct_rqts(priv);
 	mlx5e_destroy_rqt(priv, &priv->indir_rqt);
 	mlx5e_close_drop_rq(&priv->drop_rq);
+	if (q_counters)
+		mlx5e_destroy_q_counters(priv);
+}
+
+static void mlx5e_cleanup_rep_rx(struct mlx5e_priv *priv)
+{
+	_mlx5e_cleanup_rep_rx(priv, false);
+}
+
+static void mlx5e_cleanup_ul_rep_rx(struct mlx5e_priv *priv)
+{
+	_mlx5e_cleanup_rep_rx(priv, true);
 }
 
 static int mlx5e_init_rep_tx(struct mlx5e_priv *priv)
@@ -1802,8 +1829,8 @@ static const struct mlx5e_profile mlx5e_vf_rep_profile = {
 static const struct mlx5e_profile mlx5e_uplink_rep_profile = {
 	.init			= mlx5e_init_rep,
 	.cleanup		= mlx5e_cleanup_rep,
-	.init_rx		= mlx5e_init_rep_rx,
-	.cleanup_rx		= mlx5e_cleanup_rep_rx,
+	.init_rx		= mlx5e_init_ul_rep_rx,
+	.cleanup_rx		= mlx5e_cleanup_ul_rep_rx,
 	.init_tx		= mlx5e_init_rep_tx,
 	.cleanup_tx		= mlx5e_cleanup_rep_tx,
 	.enable		        = mlx5e_uplink_rep_enable,
