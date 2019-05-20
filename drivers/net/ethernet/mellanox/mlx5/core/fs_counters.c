@@ -393,9 +393,11 @@ void mlx5_fc_destroy(struct mlx5_core_dev *dev, struct mlx5_fc *counter)
 }
 EXPORT_SYMBOL(mlx5_fc_destroy);
 
+#define CACHE_SIZE_NAME 30
 int mlx5_init_fc_stats(struct mlx5_core_dev *dev)
 {
 	struct mlx5_fc_stats *fc_stats = &dev->priv.fc_stats;
+	char *cache_name;
 
 	spin_lock_init(&fc_stats->counters_idr_lock);
 	idr_init(&fc_stats->counters_idr);
@@ -403,11 +405,18 @@ int mlx5_init_fc_stats(struct mlx5_core_dev *dev)
 	init_llist_head(&fc_stats->addlist);
 	init_llist_head(&fc_stats->dellist);
 
-	fc_stats->fc_cache = kmem_cache_create("mlx5_fc_cache",
+	cache_name = kzalloc(sizeof(char) * CACHE_SIZE_NAME, GFP_KERNEL);
+	if (!cache_name)
+		return -ENOMEM;
+
+	snprintf(cache_name, CACHE_SIZE_NAME, "mlx5_fc_cache_%s",
+		 dev_name(dev->device));
+
+	fc_stats->fc_cache = kmem_cache_create(cache_name,
 					       sizeof(struct mlx5_fc),
 					       0, SLAB_HWCACHE_ALIGN, NULL);
 	if (!fc_stats->fc_cache)
-		return -ENOMEM;
+		goto err_free_cache_name;
 
 	fc_stats->wq = create_singlethread_workqueue("mlx5_fc");
 	if (!fc_stats->wq)
@@ -416,11 +425,15 @@ int mlx5_init_fc_stats(struct mlx5_core_dev *dev)
 	fc_stats->sampling_interval = MLX5_FC_STATS_PERIOD;
 	INIT_DELAYED_WORK(&fc_stats->work, mlx5_fc_stats_work);
 
+	kfree(cache_name);
+
 	return 0;
 
 err_free:
 	kmem_cache_destroy(fc_stats->fc_cache);
 	fc_stats->fc_cache = NULL;
+err_free_cache_name:
+	kfree(cache_name);
 	return -ENOMEM;
 }
 
