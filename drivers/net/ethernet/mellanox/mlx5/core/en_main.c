@@ -3648,12 +3648,6 @@ static int mlx5e_setup_tc_block_cb(enum tc_setup_type type, void *type_data,
 	switch (type) {
 	case TC_SETUP_CLSFLOWER:
 		return mlx5e_setup_tc_cls_flower(priv, type_data, flags);
-#ifdef CONFIG_MLX5_MINIFLOW
-	case TC_SETUP_MINIFLOW:
-		return miniflow_configure(priv, type_data);
-	case TC_SETUP_CT:
-		return miniflow_configure_ct(priv, type_data);
-#endif
 	default:
 		return -EOPNOTSUPP;
 	}
