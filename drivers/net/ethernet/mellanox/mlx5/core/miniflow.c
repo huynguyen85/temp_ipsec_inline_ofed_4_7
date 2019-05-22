@@ -31,16 +31,12 @@ module_param(max_nr_mf, int, 0644);
 /* Derived from current insertion rate (flows/s) */
 #define MINIFLOW_WORKQUEUE_MAX_SIZE 40 * 1000
 
-struct workqueue_struct *miniflow_wq;
+static struct workqueue_struct *miniflow_wq;
 static atomic_t miniflow_wq_size = ATOMIC_INIT(0);
 
-/* TOOD: we should init this variable only once, rather than per PF? */
-/* we should have a miniflow init/cleanup functions */
-static int miniflow_cache_allocated;
-static struct kmem_cache *miniflow_cache; // __ro_after_init; crashes??
+static atomic_t miniflow_cache_ref = ATOMIC_INIT(0);
+static struct kmem_cache *miniflow_cache;
 
-/* TODO: current_miniflow is global and probelmatic when we'll support
- * multiple HCAs. move it into mdev? */
 DEFINE_PER_CPU(struct mlx5e_miniflow *, current_miniflow) = NULL;
 
 static DEFINE_SPINLOCK(miniflow_lock);
@@ -96,12 +92,7 @@ static void miniflow_cleanup(struct mlx5e_miniflow *miniflow)
 
 static struct mlx5e_miniflow *miniflow_alloc(void)
 {
-	struct mlx5e_miniflow *miniflow;
-	miniflow = kmem_cache_alloc(miniflow_cache, GFP_ATOMIC);
-	if (!miniflow)
-		return NULL;
-
-	return miniflow;
+	return kmem_cache_alloc(miniflow_cache, GFP_ATOMIC);
 }
 
 static void miniflow_free(struct mlx5e_miniflow *miniflow)
@@ -694,13 +685,12 @@ void mlx5e_del_miniflow_list(struct mlx5e_tc_flow *flow)
 	spin_unlock_bh(&miniflow_lock);
 }
 
-int miniflow_cache_init(struct mlx5e_priv *priv)
+static int miniflow_cache_get(void)
 {
-	struct rhashtable *mf_ht = get_mf_ht(priv);
-	int err;
+	atomic_inc(&miniflow_cache_ref);
 
-	if (miniflow_cache_allocated)
-		return -EINVAL;
+	if (atomic_read(&miniflow_cache_ref) > 1)
+		return 0;
 
 	miniflow_cache = kmem_cache_create("mlx5_miniflow_cache",
 					    sizeof(struct mlx5e_miniflow),
@@ -709,24 +699,45 @@ int miniflow_cache_init(struct mlx5e_priv *priv)
 	if (!miniflow_cache)
 		return -ENOMEM;
 
-	miniflow_cache_allocated = 1;
-
-	err = rhashtable_init(mf_ht, &mf_ht_params);
-	if (err)
-		goto err_mf_ht;
-
-	miniflow_wq = alloc_workqueue("miniflow", __WQ_LEGACY | WQ_MEM_RECLAIM |
-						  WQ_UNBOUND | WQ_HIGHPRI | WQ_SYSFS, 16);
+	miniflow_wq = alloc_workqueue("miniflow",
+				      __WQ_LEGACY | WQ_MEM_RECLAIM |
+				      WQ_UNBOUND | WQ_HIGHPRI | WQ_SYSFS, 16);
 	if (!miniflow_wq)
 		goto err_wq;
 
 	return 0;
 
 err_wq:
-	rhashtable_free_and_destroy(mf_ht, NULL, NULL);
-err_mf_ht:
 	kmem_cache_destroy(miniflow_cache);
-	miniflow_cache_allocated = 0;
+	atomic_dec(&miniflow_cache_ref);
+	return -ENOMEM;
+}
+
+static void miniflow_cache_put(void)
+{
+	if (atomic_dec_and_test(&miniflow_cache_ref)) {
+		destroy_workqueue(miniflow_wq);
+		kmem_cache_destroy(miniflow_cache);
+	}
+}
+
+int miniflow_cache_init(struct mlx5e_priv *priv)
+{
+	struct rhashtable *mf_ht = get_mf_ht(priv);
+	int err;
+
+	err = miniflow_cache_get();
+	if (err)
+		return -ENOMEM;
+
+	err = rhashtable_init(mf_ht, &mf_ht_params);
+	if (err)
+		goto err_mf_ht;
+
+	return 0;
+
+err_mf_ht:
+	miniflow_cache_put();
 	return -ENOMEM;
 }
 
@@ -736,11 +747,9 @@ void miniflow_cache_destroy(struct mlx5e_priv *priv)
 
 	/* TODO: it does not make sense to process the remaining miniflows? */
 	flush_workqueue(miniflow_wq);
-	destroy_workqueue(miniflow_wq);
-	rhashtable_free_and_destroy(mf_ht, NULL, NULL);
+	rhashtable_destroy(mf_ht);
 	miniflow_free_current_miniflow();
-	kmem_cache_destroy(miniflow_cache);
-	miniflow_cache_allocated = 0;
+	miniflow_cache_put();
 }
 
 static int miniflow_extract_tuple(struct mlx5e_miniflow *miniflow,
@@ -819,6 +828,9 @@ int miniflow_configure_ct(struct mlx5e_priv *priv,
 
 	miniflow = miniflow_read();
 	if (!miniflow)
+		return -1;
+
+	if (miniflow->priv != priv)
 		return -1;
 
 	if (miniflow->nr_flows == -1)
