@@ -460,5 +460,6 @@ int set_tunneled_operation(struct mlx5_core_dev *mdev,
 struct mlx5_sf;
 
 int mlx5_sf_get_mac(struct mlx5_sf *sf, u8 *mac);
+int mlx5_sf_set_mac(struct mlx5_sf *sf, u8 *mac);
 #endif
 #endif /* __MLX5_CORE_H__ */
