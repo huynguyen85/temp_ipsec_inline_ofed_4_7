@@ -535,6 +535,7 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 	mflow->miniflow = miniflow;
 	mflow->esw_attr->in_rep = rpriv->rep;
 	mflow->esw_attr->in_mdev = priv->mdev;
+	mflow->esw_attr->counter_dev = priv->mdev;
 
 	/* Main merge loop */
 	for (i=0; i < miniflow->nr_flows; i++) {
