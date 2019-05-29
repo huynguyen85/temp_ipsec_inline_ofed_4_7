@@ -3465,6 +3465,11 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 		return -EOPNOTSUPP;
 	}
 
+	if (attr->out_count > 1) {
+		netdev_warn_once(priv->netdev, "Mirroring is not supported\n");
+		return -EOPNOTSUPP;
+	}
+
 	return 0;
 }
 
