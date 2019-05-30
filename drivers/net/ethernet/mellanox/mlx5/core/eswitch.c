@@ -1090,7 +1090,11 @@ int esw_vport_enable_egress_acl(struct mlx5_eswitch *esw,
 
 	/* Create flow group for allowed tagged flow rules */
 	MLX5_SET_TO_ONES(fte_match_param, match_criteria, outer_headers.cvlan_tag);
-	MLX5_SET_TO_ONES(fte_match_param, match_criteria, outer_headers.svlan_tag);
+
+	if (esw->mode != SRIOV_OFFLOADS)
+		MLX5_SET_TO_ONES(fte_match_param, match_criteria,
+				 outer_headers.svlan_tag);
+
 	MLX5_SET_TO_ONES(fte_match_param, match_criteria, outer_headers.first_vid);
 	MLX5_SET(create_flow_group_in, flow_group_in, start_flow_index, 1);
 	MLX5_SET(create_flow_group_in, flow_group_in, end_flow_index, VLAN_N_VID);
@@ -1156,6 +1160,9 @@ void esw_vport_cleanup_egress_rules(struct mlx5_eswitch *esw,
 	if (!IS_ERR_OR_NULL(vport->egress.allow_untagged_rule))
 		mlx5_del_flow_rules(vport->egress.allow_untagged_rule);
 
+	if (!IS_ERR_OR_NULL(vport->egress.allowed_vlan))
+		mlx5_del_flow_rules(vport->egress.allowed_vlan);
+
 	if (!IS_ERR_OR_NULL(vport->egress.bounce_rule))
 		mlx5_del_flow_rules(vport->egress.bounce_rule);
 
@@ -1163,6 +1170,7 @@ void esw_vport_cleanup_egress_rules(struct mlx5_eswitch *esw,
 	vport->egress.allow_vst_vlan = NULL;
 	vport->egress.drop_rule = NULL;
 	vport->egress.bounce_rule = NULL;
+	vport->egress.allowed_vlan = NULL;
 }
 
 void esw_vport_disable_egress_acl(struct mlx5_eswitch *esw,
@@ -1233,7 +1241,7 @@ int esw_vport_enable_ingress_acl(struct mlx5_eswitch *esw,
 	 * 4)Drop all other traffic.
 	 */
 	int table_size = need_vlan_filter ? 8192 : 4;
-	bool push_on_any_pkt;
+	bool push_on_any_pkt = false;
 	int allow_grp_sz = 1;
 	int err = 0;
 
@@ -1268,18 +1276,30 @@ int esw_vport_enable_ingress_acl(struct mlx5_eswitch *esw,
 
 	match_criteria = MLX5_ADDR_OF(create_flow_group_in, flow_group_in, match_criteria);
 
-	push_on_any_pkt = (vst_mode != ESW_VST_MODE_BASIC) &&
-			  !vport->info.spoofchk && !need_vlan_filter;
-	if (!push_on_any_pkt)
-		MLX5_SET(create_flow_group_in, flow_group_in, match_criteria_enable, MLX5_MATCH_OUTER_HEADERS);
+	if (esw->mode == SRIOV_OFFLOADS) {
+		MLX5_SET(create_flow_group_in, flow_group_in,
+			 match_criteria_enable, MLX5_MATCH_OUTER_HEADERS);
 
-	if (need_vlan_filter || (vst_mode == ESW_VST_MODE_BASIC &&
-				 (vport->info.vlan || vport->info.qos)))
-		MLX5_SET_TO_ONES(fte_match_param, match_criteria, outer_headers.cvlan_tag);
+		MLX5_SET_TO_ONES(fte_match_param, match_criteria,
+				 outer_headers.cvlan_tag);
+	} else {
+		push_on_any_pkt = (vst_mode != ESW_VST_MODE_BASIC) &&
+				  !vport->info.spoofchk && !need_vlan_filter;
+		if (!push_on_any_pkt)
+			MLX5_SET(create_flow_group_in, flow_group_in,
+				 match_criteria_enable, MLX5_MATCH_OUTER_HEADERS);
 
-	if (vport->info.spoofchk) {
-		MLX5_SET_TO_ONES(fte_match_param, match_criteria, outer_headers.smac_47_16);
-		MLX5_SET_TO_ONES(fte_match_param, match_criteria, outer_headers.smac_15_0);
+		if (need_vlan_filter || (vst_mode == ESW_VST_MODE_BASIC &&
+					 (vport->info.vlan || vport->info.qos)))
+			MLX5_SET_TO_ONES(fte_match_param, match_criteria,
+					 outer_headers.cvlan_tag);
+
+		if (vport->info.spoofchk) {
+			MLX5_SET_TO_ONES(fte_match_param, match_criteria,
+					 outer_headers.smac_47_16);
+			MLX5_SET_TO_ONES(fte_match_param, match_criteria,
+					 outer_headers.smac_15_0);
+		}
 	}
 
 	MLX5_SET(create_flow_group_in, flow_group_in, start_flow_index, 0);
@@ -1292,6 +1312,9 @@ int esw_vport_enable_ingress_acl(struct mlx5_eswitch *esw,
 			 vport->vport, err);
 		goto out;
 	}
+
+	if (esw->mode == SRIOV_OFFLOADS)
+		goto drop_grp;
 
 	if (push_on_any_pkt)
 		goto set_grp;
@@ -1368,6 +1391,10 @@ void esw_vport_cleanup_ingress_rules(struct mlx5_eswitch *esw,
 	if (!IS_ERR_OR_NULL(vport->ingress.allow_untagged_rule))
 		mlx5_del_flow_rules(vport->ingress.allow_untagged_rule);
 
+	if (!IS_ERR_OR_NULL(vport->ingress.allow_rule))
+		mlx5_del_flow_rules(vport->ingress.allow_rule);
+
+	vport->ingress.allow_rule = NULL;
 	vport->ingress.drop_rule = NULL;
 	vport->ingress.allow_untagged_rule = NULL;
 
@@ -2102,8 +2129,6 @@ static void esw_enable_vport(struct mlx5_eswitch *esw, struct mlx5_vport *vport,
 	bitmap_zero(vport->req_vlan_bitmap, VLAN_N_VID);
 	bitmap_zero(vport->acl_vlan_8021q_bitmap, VLAN_N_VID);
 	bitmap_zero(vport->info.vlan_trunk_8021q_bitmap, VLAN_N_VID);
-	INIT_LIST_HEAD(&vport->egress.allow_vlans_rules);
-	INIT_LIST_HEAD(&vport->ingress.allow_vlans_rules);
 	/* Create steering drop counters for ingress and egress ACLs */
 	if (vport_num && esw->mode == SRIOV_LEGACY)
 		esw_vport_create_drop_counters(vport);
@@ -2399,6 +2424,8 @@ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
 		vport->dev = dev;
 		INIT_WORK(&vport->vport_change_handler,
 			  esw_vport_change_handler);
+		INIT_LIST_HEAD(&vport->egress.allow_vlans_rules);
+		INIT_LIST_HEAD(&vport->ingress.allow_vlans_rules);
 	}
 
 	esw->enabled_vports = 0;
