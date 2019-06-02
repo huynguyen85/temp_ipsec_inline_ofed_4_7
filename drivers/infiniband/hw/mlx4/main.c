@@ -3085,7 +3085,7 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 
 	rdma_set_device_sysfs_group(&ibdev->ib_dev, &mlx4_attr_group);
 	ibdev->ib_dev.driver_id = RDMA_DRIVER_MLX4;
-	if (ib_register_device(&ibdev->ib_dev, "mlx4_%d"))
+	if (ib_register_device(&ibdev->ib_dev, ibdev->ib_dev.name))
 		goto err_diag_counters;
 
 	for (j = 0; j < ibdev->ib_dev.num_comp_vectors; j++)
