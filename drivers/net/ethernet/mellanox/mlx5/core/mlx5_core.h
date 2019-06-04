@@ -461,5 +461,6 @@ struct mlx5_sf;
 
 int mlx5_sf_get_mac(struct mlx5_sf *sf, u8 *mac);
 int mlx5_sf_set_mac(struct mlx5_sf *sf, u8 *mac);
+struct net_device *mlx5_sf_get_netdev(struct mlx5_sf *sf);
 #endif
 #endif /* __MLX5_CORE_H__ */
