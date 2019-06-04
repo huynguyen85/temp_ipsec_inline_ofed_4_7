@@ -324,6 +324,8 @@ int mlx5_eswitch_get_vport_config(struct mlx5_eswitch *esw,
 int mlx5_eswitch_get_vport_stats(struct mlx5_eswitch *esw,
 				 u16 vport,
 				 struct ifla_vf_stats *vf_stats);
+int mlx5_eswitch_get_vport_mac(struct mlx5_eswitch *esw,
+			       u16 vport, u8 *mac);
 int mlx5_eswitch_vport_update_group(struct mlx5_eswitch *esw, int vport_num,
 				    u32 group_id);
 int mlx5_eswitch_set_vgroup_rate(struct mlx5_eswitch *esw, int group_id,

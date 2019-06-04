@@ -395,6 +395,7 @@ int set_tunneled_operation(struct mlx5_core_dev *mdev,
 #ifdef CONFIG_MLX5_MDEV
 u16 mlx5_core_max_sfs(const struct mlx5_core_dev *dev);
 u16 mlx5_get_free_sfs(struct mlx5_core_dev *dev);
+int mlx5_sf_get_mac(struct mlx5_sf *sf, u8 *mac);
 #else
 static inline u16 mlx5_core_max_sfs(const struct mlx5_core_dev *dev)
 {
