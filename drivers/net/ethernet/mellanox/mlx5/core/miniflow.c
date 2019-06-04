@@ -1131,9 +1131,6 @@ int miniflow_configure_ct(struct mlx5e_priv *priv,
 	if (!miniflow)
 		return -1;
 
-	if (miniflow->priv != priv)
-		return -1;
-
 	if (miniflow->nr_flows == -1)
 		goto err;
 
