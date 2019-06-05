@@ -1327,7 +1327,8 @@ static int mlx5_function_teardown(struct mlx5_core_dev *dev, bool boot)
 	mlx5_reclaim_startup_pages(dev);
 	mlx5_core_disable_hca(dev, 0);
 	mlx5_cmd_cleanup(dev);
-	unregister_pcie_dev_attr_group(dev->pdev);
+	if (!mlx5_core_is_sf(dev))
+		unregister_pcie_dev_attr_group(dev->pdev);
 
 	return 0;
 }
