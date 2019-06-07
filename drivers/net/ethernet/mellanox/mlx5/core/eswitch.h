@@ -235,6 +235,8 @@ struct mlx5_vgroup {
 	u32		     num_vports;
 	u32		     tsar_ix;
 	u32		     max_rate;
+	u32		     min_rate;
+	u32		     bw_share;
 	struct		     kobject kobj;
 	struct		     list_head list;
 };
@@ -339,6 +341,10 @@ int mlx5_eswitch_vport_update_group(struct mlx5_eswitch *esw, int vport_num,
 				    u32 group_id);
 int mlx5_eswitch_set_vgroup_rate(struct mlx5_eswitch *esw, int group_id,
 				 u32 max_rate);
+int mlx5_eswitch_set_vgroup_max_rate(struct mlx5_eswitch *esw, int group_id,
+				     u32 max_rate);
+int mlx5_eswitch_set_vgroup_min_rate(struct mlx5_eswitch *esw, int group_id,
+				     u32 min_rate);
 #ifndef HAVE_STRUCT_IFLA_VF_STATS_TX_BROADCAST
 struct ifla_vf_stats_backport {
 	__u64 tx_broadcast;
