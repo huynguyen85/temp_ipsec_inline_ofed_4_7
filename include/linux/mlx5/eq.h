@@ -6,17 +6,7 @@
 
 #include <linux/interrupt.h>
 
-enum {
-	MLX5_EQ_PAGEREQ_IDX        = 0,
-	MLX5_EQ_CMD_IDX            = 1,
-	MLX5_EQ_ASYNC_IDX          = 2,
-	/* reserved to be used by mlx5_core ulps (mlx5e/mlx5_ib) */
-	MLX5_EQ_PFAULT_IDX         = 3,
-	MLX5_EQ_MAX_ASYNC_EQS,
-	/* completion eqs vector indices start here */
-	MLX5_EQ_VEC_COMP_BASE = MLX5_EQ_MAX_ASYNC_EQS,
-};
-
+#define MLX5_IRQ_VEC_COMP_BASE 1
 #define MLX5_NUM_CMD_EQE   (32)
 #define MLX5_NUM_ASYNC_EQE (0x1000)
 #define MLX5_NUM_SPARE_EQE (0x80)
@@ -25,7 +15,7 @@ struct mlx5_eq;
 struct mlx5_core_dev;
 
 struct mlx5_eq_param {
-	u8             index;
+	u8             irq_index;
 	int            nent;
 	u64            mask;
 	struct notifier_block *nb;
