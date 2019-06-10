@@ -1080,18 +1080,10 @@ struct mlx5_eq_comp *mlx5_eqn2comp_eq(struct mlx5_core_dev *dev, int eqn)
 void mlx5_core_eq_free_irqs(struct mlx5_core_dev *dev)
 {
 	struct mlx5_eq_table *table = dev->priv.eq_table;
-	int i, max_eqs;
 
-	clear_comp_irqs_affinity_hints(dev);
-	irq_clear_rmap(dev);
 	mutex_lock(&table->lock); /* sync with create/destroy_async_eq */
-	max_eqs = table->num_comp_eqs + MLX5_EQ_VEC_COMP_BASE;
-	for (i = max_eqs - 1; i >= 0; i--) {
-		free_irq(pci_irq_vector(dev->pdev, i),
-			 &mlx5_irq_get(dev, i)->nh);
-	}
+	mlx5_irq_table_destroy(dev);
 	mutex_unlock(&table->lock);
-	pci_free_irq_vectors(dev->pdev);
 }
 
 static void unrequest_irqs(struct mlx5_core_dev *dev)
@@ -1104,7 +1096,7 @@ static void unrequest_irqs(struct mlx5_core_dev *dev)
 			 &mlx5_irq_get(dev, i)->nh);
 }
 
-static int alloc_irq_vectors(struct mlx5_core_dev *dev)
+int mlx5_irq_table_create(struct mlx5_core_dev *dev)
 {
 	struct mlx5_priv *priv = &dev->priv;
 	struct mlx5_irq_table *table = priv->irq_table;
@@ -1166,7 +1158,7 @@ err_free_irq_info:
 	return err;
 }
 
-static void free_irq_vectors(struct mlx5_core_dev *dev)
+void mlx5_irq_table_destroy(struct mlx5_core_dev *dev)
 {
 	struct mlx5_irq_table *table = dev->priv.irq_table;
 	int i;
@@ -1189,12 +1181,6 @@ int mlx5_eq_table_create(struct mlx5_core_dev *dev)
 	struct mlx5_eq_table *eq_table = dev->priv.eq_table;
 	int err;
 
-	err = alloc_irq_vectors(dev);
-	if (err) {
-		mlx5_core_err(dev, "Failed to create IRQ vectors\n");
-		return err;
-	}
-
 	eq_table->num_comp_eqs =
 		mlx5_irq_get_num_comp(eq_table->irq_table);
 
@@ -1214,7 +1200,6 @@ int mlx5_eq_table_create(struct mlx5_core_dev *dev)
 err_comp_eqs:
 	destroy_async_eqs(dev);
 err_async_eqs:
-	free_irq_vectors(dev);
 	return err;
 }
 
@@ -1222,7 +1207,6 @@ void mlx5_eq_table_destroy(struct mlx5_core_dev *dev)
 {
 	destroy_comp_eqs(dev);
 	destroy_async_eqs(dev);
-	free_irq_vectors(dev);
 }
 
 int mlx5_eq_notifier_register(struct mlx5_core_dev *dev, struct mlx5_nb *nb)

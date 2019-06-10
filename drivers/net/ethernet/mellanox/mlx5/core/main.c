@@ -1278,6 +1278,12 @@ static int mlx5_load(struct mlx5_core_dev *dev)
 
 	mlx5_pagealloc_start(dev);
 
+	err = mlx5_irq_table_create(dev);
+	if (err) {
+		mlx5_core_err(dev, "Failed to alloc IRQs\n");
+		goto err_irq_table;
+	}
+
 	err = mlx5_eq_table_create(dev);
 	if (err) {
 		mlx5_core_err(dev, "Failed to create EQs\n");
