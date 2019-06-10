@@ -1219,7 +1219,7 @@ static int create_user_qp(struct mlx5_ib_dev *dev, struct ib_pd *pd,
 		set_exp_qp_resp_data(ucmd, &resp, dev, qp, attr);
 		err = ib_copy_to_udata(udata, &resp, min(udata->outlen, sizeof(resp)));
 	} else {
-		err = ib_copy_to_udata(udata, &resp, sizeof(struct mlx5_ib_create_qp_resp));
+		err = ib_copy_to_udata(udata, &resp, min(udata->outlen, sizeof(struct mlx5_ib_create_qp_resp)));
 	}
 	if (err) {
 		mlx5_ib_dbg(dev, "copy failed\n");
