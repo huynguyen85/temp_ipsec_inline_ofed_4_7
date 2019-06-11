@@ -704,6 +704,8 @@ out:
 static u32 mr_create_flag_to_mr_type(u32 create_flags)
 {
 	switch (create_flags) {
+	case IB_EXP_MR_SIGNATURE_EN:
+		return IB_MR_TYPE_INTEGRITY;
 	case IB_EXP_MR_INDIRECT_KLMS:
 		return IB_MR_INDIRECT_REG;
 	case IB_EXP_MR_FIXED_BUFFER_SIZE:
