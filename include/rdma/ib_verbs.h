@@ -1817,6 +1817,7 @@ struct ib_qp {
 	struct ib_rwq_ind_table *rwq_ind_tbl;
 	struct ib_qp_security  *qp_sec;
 	u8			port;
+	bool			integrity_en;
 	enum ib_qpg_type        qpg_type;
 
 	/*
