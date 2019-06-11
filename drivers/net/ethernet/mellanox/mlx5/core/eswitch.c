@@ -2434,7 +2434,9 @@ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
 		vport->info.link_state = MLX5_VPORT_ADMIN_STATE_AUTO;
 		vport->info.vlan_proto = htons(ETH_P_8021Q);
 		vport->info.roce = true;
-		if (access_other_hca_roce && vport->vport != MLX5_VPORT_UPLINK)
+		if (access_other_hca_roce &&
+		    vport->vport != MLX5_VPORT_UPLINK &&
+		    !mlx5_eswitch_is_sf_vport(esw, vport->vport))
 			mlx5_get_other_hca_cap_roce(dev, vport->vport,
 					&vport->info.roce);
 		vport->dev = dev;
