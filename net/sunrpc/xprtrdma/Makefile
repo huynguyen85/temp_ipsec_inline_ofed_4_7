@@ -31,7 +31,7 @@ ifeq ($(CONFIG_SUNRPC_XPRT_RDMA_DUMMY),m)
 rpcrdma-y := rpcrdma_dummy.o
 else
 rpcrdma-y := transport.o rpc_rdma.o verbs.o \
-	fmr_ops.o frwr_ops.o \
+	frwr_ops.o \
 	svc_rdma.o svc_rdma_backchannel.o svc_rdma_transport.o \
 	svc_rdma_sendto.o svc_rdma_recvfrom.o svc_rdma_rw.o \
 	module.o
