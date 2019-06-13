@@ -3136,14 +3136,6 @@ int mlx5_eswitch_vport_update_group(struct mlx5_eswitch *esw, int vport_num,
 		return err;
 	}
 
-	if (!vport->info.max_rate && new_group->max_rate) {
-		err = esw_vport_qos_config(esw, vport,
-					   new_group->max_rate,
-					   vport->qos.bw_share);
-		if (!err)
-			vport->info.max_rate = new_group->max_rate;
-	}
-
 	vport->info.group = group_id;
 	curr_group->num_vports--;
 
@@ -3161,7 +3153,8 @@ int mlx5_eswitch_set_vgroup_rate(struct mlx5_eswitch *esw, int group_id,
 	struct mlx5_core_dev *dev = esw->dev;
 	int i, err = 0;
 
-	if (!MLX5_CAP_QOS(dev, log_esw_max_sched_depth))
+	if (!MLX5_CAP_QOS(esw->dev, esw_rate_limit) ||
+	    !MLX5_CAP_QOS(dev, log_esw_max_sched_depth))
 		return -EOPNOTSUPP;
 
 	if (!esw->qos.enabled || !MLX5_CAP_GEN(dev, qos) ||
