@@ -544,7 +544,9 @@ out:
 }
 
 struct mlx5_flow_handle *
-mlx5_eswitch_add_send_to_vport_rule(struct mlx5_eswitch *esw, u16 vport,
+mlx5_eswitch_add_send_to_vport_rule(struct mlx5_eswitch *on_esw,
+				    struct mlx5_eswitch *from_esw,
+				    struct mlx5_eswitch_rep *rep,
 				    u32 sqn)
 {
 	struct mlx5_flow_act flow_act = {0};
@@ -567,16 +569,19 @@ mlx5_eswitch_add_send_to_vport_rule(struct mlx5_eswitch *esw, u16 vport,
 	spec->match_criteria_enable = MLX5_MATCH_MISC_PARAMETERS;
 
 	/* source vport is the esw manager */
-	mlx5_eswitch_set_rule_source_port(esw, spec, esw, esw->manager_vport);
+	mlx5_eswitch_set_rule_source_port(on_esw, spec, from_esw,
+					  from_esw->manager_vport);
 
 	dest.type = MLX5_FLOW_DESTINATION_TYPE_VPORT;
-	dest.vport.num = vport;
+	dest.vport.num = rep->vport;
 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
+	dest.vport.vhca_id = MLX5_CAP_GEN(rep->esw->dev, vhca_id);
+	dest.vport.vhca_id_valid = 1;
 
-	flow_rule = mlx5_add_flow_rules(esw->fdb_table.offloads.slow_fdb, spec,
-					&flow_act, &dest, 1);
+	flow_rule = mlx5_add_flow_rules(on_esw->fdb_table.offloads.slow_fdb,
+					spec, &flow_act, &dest, 1);
 	if (IS_ERR(flow_rule))
-		esw_warn(esw->dev, "FDB: Failed to add send to vport rule err %ld\n", PTR_ERR(flow_rule));
+		esw_warn(on_esw->dev, "FDB: Failed to add send to vport rule err %ld\n", PTR_ERR(flow_rule));
 out:
 	kvfree(spec);
 	return flow_rule;
