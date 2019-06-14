@@ -44,6 +44,7 @@ struct mlx5_eswitch_rep {
 	u8		       hw_id[ETH_ALEN];
 	u16		       vlan;
 	u32		       vlan_refcount;
+	struct		       mlx5_eswitch *esw;
 };
 
 void mlx5_eswitch_register_vport_reps(struct mlx5_eswitch *esw,

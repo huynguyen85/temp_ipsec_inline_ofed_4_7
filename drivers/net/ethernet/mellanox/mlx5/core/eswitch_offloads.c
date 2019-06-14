@@ -2560,6 +2560,7 @@ void mlx5_eswitch_register_vport_reps(struct mlx5_eswitch *esw,
 		rep_if->unload = __rep_if->unload;
 		rep_if->get_proto_dev = __rep_if->get_proto_dev;
 		rep_if->priv = __rep_if->priv;
+		rep->esw = esw;
 
 		atomic_set(&rep_if->state, REP_REGISTERED);
 	}
