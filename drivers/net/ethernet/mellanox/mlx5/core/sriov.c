@@ -137,9 +137,12 @@ static void mlx5_device_disable_sriov(struct mlx5_core_dev *dev)
 		sriov->vfs_ctx[vf].enabled = 0;
 	}
 
-	if (MLX5_ESWITCH_MANAGER(dev))
+	if (MLX5_ESWITCH_MANAGER(dev)) {
+		mlx5_lag_disable(dev);
 		mlx5_eswitch_disable(dev->priv.eswitch);
-		
+		mlx5_lag_enable(dev);
+	}
+
 	mlx5_destroy_vfs_sysfs(dev);
 
 	if (mlx5_wait_for_pages(dev, &dev->priv.vfs_pages))

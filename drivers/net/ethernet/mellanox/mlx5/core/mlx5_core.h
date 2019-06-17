@@ -284,6 +284,13 @@ void mlx5_events_stop(struct mlx5_core_dev *dev);
 
 void mlx5_lag_enable(struct mlx5_core_dev *dev);
 void mlx5_lag_disable(struct mlx5_core_dev *dev);
+
+int esw_offloads_load_all_reps(struct mlx5_eswitch *esw);
+int esw_offloads_reload_reps(struct mlx5_eswitch *esw);
+int esw_offloads_config_single_fdb(struct mlx5_eswitch *master_esw,
+				   struct mlx5_eswitch *slave_esw);
+void esw_offloads_destroy_single_fdb(struct mlx5_eswitch *master_esw,
+				     struct mlx5_eswitch *slave_esw);
 struct mlx5_vport *mlx5_eswitch_get_vport(struct mlx5_eswitch *esw,
 					  u16 vport_num);
 struct mlx5_flow_root_namespace *find_root(struct fs_node *node);

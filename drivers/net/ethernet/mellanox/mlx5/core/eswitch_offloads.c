@@ -1684,7 +1684,7 @@ err_reps:
 	return err;
 }
 
-static int esw_offloads_load_all_reps(struct mlx5_eswitch *esw)
+int esw_offloads_load_all_reps(struct mlx5_eswitch *esw)
 {
 	u8 rep_type = 0;
 	int err;
@@ -2567,6 +2567,19 @@ static void esw_destroy_offloads_acl_tables(struct mlx5_eswitch *esw)
 	}
 
 	esw->flags &= ~MLX5_ESWITCH_VPORT_MATCH_METADATA;
+}
+
+int esw_offloads_reload_reps(struct mlx5_eswitch *esw)
+{
+	int err;
+
+	if (!esw || esw->mode != SRIOV_OFFLOADS)
+		return 0;
+
+	err = esw_offloads_load_all_reps(esw);
+	if (err)
+		return err;
+	return esw_offloads_load_vf_reps(esw, esw->esw_funcs.num_vfs);
 }
 
 static int esw_offloads_steering_init(struct mlx5_eswitch *esw)

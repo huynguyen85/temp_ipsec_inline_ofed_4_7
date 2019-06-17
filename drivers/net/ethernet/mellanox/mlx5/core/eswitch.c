@@ -2367,8 +2367,6 @@ int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int mode)
 
 	esw->mode = mode;
 
-	mlx5_lag_update(esw->dev);
-
 	if (mode == MLX5_ESWITCH_LEGACY) {
 		err = esw_legacy_enable(esw);
 	} else {
@@ -2422,8 +2420,6 @@ void mlx5_eswitch_disable(struct mlx5_eswitch *esw)
 
 	old_mode = esw->mode;
 	esw->mode = MLX5_ESWITCH_NONE;
-
-	mlx5_lag_update(esw->dev);
 
 	if (old_mode == MLX5_ESWITCH_OFFLOADS) {
 		mlx5_reload_interface(esw->dev, MLX5_INTERFACE_PROTOCOL_IB);
