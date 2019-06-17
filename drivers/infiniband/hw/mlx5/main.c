@@ -164,7 +164,6 @@ static struct mlx5_roce *mlx5_get_rep_roce(struct mlx5_ib_dev *dev,
 					   struct net_device *ndev,
 					   u8 *port_num)
 {
-	struct mlx5_eswitch *esw = dev->mdev->priv.eswitch;
 	struct net_device *rep_ndev;
 	struct mlx5_ib_port *port;
 	int i;
@@ -175,7 +174,7 @@ static struct mlx5_roce *mlx5_get_rep_roce(struct mlx5_ib_dev *dev,
 			continue;
 
 		read_lock(&port->roce.netdev_lock);
-		rep_ndev = mlx5_ib_get_rep_netdev(esw,
+		rep_ndev = mlx5_ib_get_rep_netdev(port->rep->esw,
 						  port->rep->vport);
 		if (rep_ndev == ndev) {
 			read_unlock(&port->roce.netdev_lock);
@@ -3603,7 +3602,7 @@ static void mlx5_ib_set_rule_source_port(struct mlx5_ib_dev *dev,
 				    misc_parameters_2);
 
 		MLX5_SET(fte_match_set_misc2, misc, metadata_reg_c_0,
-			 mlx5_ib_eswitch_get_vport_metadata_for_match(esw,
+			 mlx5_ib_eswitch_get_vport_metadata_for_match(rep->esw,
 								      rep->vport));
 		misc = MLX5_ADDR_OF(fte_match_param, spec->match_criteria,
 				    misc_parameters_2);
