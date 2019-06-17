@@ -1263,6 +1263,10 @@ enum mlx5_qcam_feature_groups {
 	MLX5_GET(flow_table_eswitch_cap, \
 		 mdev->caps.hca_cur[MLX5_CAP_ESWITCH_FLOW_TABLE], cap)
 
+#define MLX5_CAP_ESW_FLOWTABLE_64(mdev, cap) \
+       MLX5_GET64(flow_table_eswitch_cap, \
+                  mdev->caps.hca_cur[MLX5_CAP_ESWITCH_FLOW_TABLE], cap)
+
 #define MLX5_CAP_ESW_FLOWTABLE_MAX(mdev, cap) \
 	MLX5_GET(flow_table_eswitch_cap, \
 		 mdev->caps.hca_max[MLX5_CAP_ESWITCH_FLOW_TABLE], cap)

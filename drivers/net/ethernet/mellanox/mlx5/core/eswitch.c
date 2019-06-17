@@ -165,6 +165,7 @@ int mlx5_eswitch_query_esw_vport_context(struct mlx5_eswitch *esw, u16 vport,
 	return query_esw_vport_context_cmd(esw->dev, vport, other_vport,
 					   out, outlen);
 }
+EXPORT_SYMBOL_GPL(mlx5_eswitch_query_esw_vport_context);
 
 static int modify_esw_vport_cvlan(struct mlx5_core_dev *dev, u16 vport,
 				  u16 vlan, u8 qos, u8 set_flags,

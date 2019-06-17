@@ -80,6 +80,9 @@ mlx5_eswitch_add_send_to_vport_rule(struct mlx5_eswitch *on_esw,
 u16 mlx5_eswitch_get_total_vports(const struct mlx5_core_dev *dev);
 u32 mlx5_eswitch_vport_match_metadata_enabled(struct mlx5_eswitch *esw);
 u32 mlx5_eswitch_get_vport_metadata_for_match(struct mlx5_eswitch *esw, u16 vport);
+int mlx5_eswitch_query_esw_vport_context(struct mlx5_eswitch *esw, u16 vport,
+					 bool other_vport,
+					 void *out, int outlen);
 
 struct mlx5_core_dev *mlx5_eswitch_get_core_dev(struct mlx5_eswitch *esw);
 #ifdef CONFIG_MLX5_ESWITCH

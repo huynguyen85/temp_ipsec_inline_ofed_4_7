@@ -2573,7 +2573,7 @@ int esw_offloads_reload_reps(struct mlx5_eswitch *esw)
 {
 	int err;
 
-	if (!esw || esw->mode != SRIOV_OFFLOADS)
+	if (!esw || esw->mode != MLX5_ESWITCH_OFFLOADS)
 		return 0;
 
 	err = esw_offloads_load_all_reps(esw);

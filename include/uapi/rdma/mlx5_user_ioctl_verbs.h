@@ -72,5 +72,19 @@ struct mlx5_ib_uapi_devx_async_event_hdr {
 	__u8		out_data[];
 };
 
+enum mlx5_ib_uapi_devx_query_port_comp_mask {
+       MLX5_IB_UAPI_QUERY_PORT_VPORT = BIT(0),
+       MLX5_IB_UAPI_QUERY_PORT_VPORT_VHCA_ID = BIT(1),
+       MLX5_IB_UAPI_QUERY_PORT_ESW_OWNER_VHCA_ID = BIT(2),
+       MLX5_IB_UAPI_QUERY_PORT_VPORT_ICM_RX = BIT(3),
+       MLX5_IB_UAPI_QUERY_PORT_VPORT_ICM_TX = BIT(4),
+       MLX5_IB_UAPI_QUERY_PORT_MATCH_REG_C_0 = BIT(5),
+};
+
+struct mlx5_ib_uapi_devx_reg_32 {
+       __u32 value;
+       __u32 mask;
+};
+
 #endif
 
