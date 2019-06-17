@@ -33,12 +33,12 @@
 #include <generated/utsrelease.h>
 #include <linux/mlx5/fs.h>
 #include <net/switchdev.h>
-#include <linux/mlx5/devcom.h>
 #include <net/pkt_cls.h>
 #include <net/act_api.h>
 #include <net/netevent.h>
 #include <net/arp.h>
 
+#include "lib/devcom.h"
 #include "eswitch.h"
 #include "en.h"
 #include "en_rep.h"

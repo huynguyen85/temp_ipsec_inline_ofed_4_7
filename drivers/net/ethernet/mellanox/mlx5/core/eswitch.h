@@ -86,10 +86,12 @@ struct vport_egress {
 	struct mlx5_flow_group *allow_untagged_grp;
 	struct mlx5_flow_group *allowed_vlans_grp;
 	struct mlx5_flow_group *drop_grp;
+	struct mlx5_flow_group *bounce_grp;
 	struct mlx5_flow_handle  *allowed_vlan;
 	struct mlx5_flow_handle  *allow_vst_vlan;
 	struct mlx5_flow_handle  *drop_rule;
 	struct mlx5_flow_handle  *allow_untagged_rule;
+	struct mlx5_flow_handle *bounce_rule;
 	struct list_head        allow_vlans_rules;
 	struct mlx5_fc           *drop_counter;
 };

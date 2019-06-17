@@ -43,6 +43,8 @@
 #include <linux/mlx5/fs.h>
 #include <linux/mlx5/driver.h>
 
+#include "fs_core.h"
+
 #define DRIVER_NAME "mlx5_core"
 #define DRIVER_VERSION "5.0-0"
 
@@ -278,6 +280,10 @@ void mlx5_events_stop(struct mlx5_core_dev *dev);
 
 void mlx5_lag_enable(struct mlx5_core_dev *dev);
 void mlx5_lag_disable(struct mlx5_core_dev *dev);
+struct mlx5_vport *mlx5_eswitch_get_vport(struct mlx5_eswitch *esw,
+					  u16 vport_num);
+struct mlx5_flow_root_namespace *find_root(struct fs_node *node);
+
 void mlx5_add_device(struct mlx5_interface *intf, struct mlx5_priv *priv);
 void mlx5_remove_device(struct mlx5_interface *intf, struct mlx5_priv *priv);
 void mlx5_attach_device(struct mlx5_core_dev *dev);

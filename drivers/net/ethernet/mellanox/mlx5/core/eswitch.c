@@ -1156,9 +1156,13 @@ void esw_vport_cleanup_egress_rules(struct mlx5_eswitch *esw,
 	if (!IS_ERR_OR_NULL(vport->egress.allow_untagged_rule))
 		mlx5_del_flow_rules(vport->egress.allow_untagged_rule);
 
+	if (!IS_ERR_OR_NULL(vport->egress.bounce_rule))
+		mlx5_del_flow_rules(vport->egress.bounce_rule);
+
 	vport->egress.allow_untagged_rule = NULL;
 	vport->egress.allow_vst_vlan = NULL;
 	vport->egress.drop_rule = NULL;
+	vport->egress.bounce_rule = NULL;
 }
 
 void esw_vport_disable_egress_acl(struct mlx5_eswitch *esw,
@@ -1170,14 +1174,21 @@ void esw_vport_disable_egress_acl(struct mlx5_eswitch *esw,
 	esw_debug(esw->dev, "Destroy vport[%d] E-Switch egress ACL\n", vport->vport);
 
 	esw_vport_cleanup_egress_rules(esw, vport);
-	mlx5_destroy_flow_group(vport->egress.allow_untagged_grp);
-	mlx5_destroy_flow_group(vport->egress.allowed_vlans_grp);
-	mlx5_destroy_flow_group(vport->egress.drop_grp);
-	mlx5_destroy_flow_table(vport->egress.acl);
+	if (!IS_ERR_OR_NULL(vport->egress.allow_untagged_grp))
+		mlx5_destroy_flow_group(vport->egress.allow_untagged_grp);
+	if (!IS_ERR_OR_NULL(vport->egress.allowed_vlans_grp))
+		mlx5_destroy_flow_group(vport->egress.allowed_vlans_grp);
+	if (!IS_ERR_OR_NULL(vport->egress.drop_grp))
+		mlx5_destroy_flow_group(vport->egress.drop_grp);
+	if (!IS_ERR_OR_NULL(vport->egress.bounce_grp))
+		mlx5_destroy_flow_group(vport->egress.bounce_grp);
+	if (!IS_ERR_OR_NULL(vport->egress.acl))
+		mlx5_destroy_flow_table(vport->egress.acl);
 
 	vport->egress.allow_untagged_grp = NULL;
 	vport->egress.allowed_vlans_grp = NULL;
 	vport->egress.drop_grp = NULL;
+	vport->egress.bounce_grp = NULL;
 	vport->egress.acl = NULL;
 }
 
