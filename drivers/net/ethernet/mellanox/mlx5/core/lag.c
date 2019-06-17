@@ -774,6 +774,25 @@ bool mlx5_lag_is_active(struct mlx5_core_dev *dev)
 }
 EXPORT_SYMBOL(mlx5_lag_is_active);
 
+bool mlx5_lag_is_master(struct mlx5_core_dev *dev)
+{
+#ifndef MLX_LAG_SUPPORTED
+	return false;
+#else
+	struct mlx5_lag *ldev;
+	bool res;
+
+	mutex_lock(&lag_mutex);
+	ldev = mlx5_lag_dev_get(dev);
+	res  = ldev && __mlx5_lag_is_active(ldev) &&
+		dev == ldev->pf[0].dev;
+	mutex_unlock(&lag_mutex);
+
+	return res;
+#endif
+}
+EXPORT_SYMBOL(mlx5_lag_is_master);
+
 bool mlx5_lag_is_sriov(struct mlx5_core_dev *dev)
 {
 	struct mlx5_lag *ldev;
