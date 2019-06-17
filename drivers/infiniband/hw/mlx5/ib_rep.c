@@ -14,6 +14,9 @@ mlx5_ib_set_vport_rep(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 	int vport_index;
 
 	ibdev = mlx5_ib_get_uplink_ibdev(dev->priv.eswitch);
+	if (!ibdev)
+		return -EINVAL;
+
 	vport_index = rep->vport_index;
 
 	ibdev->port[vport_index].rep = rep;
@@ -26,14 +29,29 @@ mlx5_ib_set_vport_rep(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 	return 0;
 }
 
+static void mlx5_ib_register_peer_vport_reps(struct mlx5_core_dev *mdev);
+
 static int
 mlx5_ib_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 {
 	int num_ports = mlx5_eswitch_get_total_vports(dev);
 	const struct mlx5_ib_profile *profile;
+	struct mlx5_core_dev *peer_dev;
 	struct mlx5_ib_dev *ibdev;
 	int vport_index;
 
+	if (mlx5_lag_is_shared_fdb(dev)) {
+		peer_dev = mlx5_lag_get_peer_mdev(dev);
+		if (mlx5_lag_is_master(dev)) {
+			num_ports += mlx5_eswitch_get_total_vports(peer_dev) - 1;
+			if (num_ports > 255)
+				return -EINVAL;
+		} else {
+			if (rep->vport == MLX5_VPORT_UPLINK)
+				return 0;
+			dev = peer_dev;
+		}
+	}
 	if (rep->vport == MLX5_VPORT_UPLINK)
 		profile = &ib_profile;
 	else
@@ -62,6 +80,9 @@ mlx5_ib_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 		return -EINVAL;
 
 	rep->rep_data[REP_IB].priv = ibdev;
+	/* Only master can reach this point */
+	if (mlx5_lag_is_shared_fdb(dev))
+		mlx5_ib_register_peer_vport_reps(dev);
 
 	return 0;
 }
@@ -69,9 +90,18 @@ mlx5_ib_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 static void
 mlx5_ib_vport_rep_unload(struct mlx5_eswitch_rep *rep)
 {
+	struct mlx5_core_dev *mdev = mlx5_eswitch_get_core_dev(rep->esw);
 	struct mlx5_ib_dev *dev = mlx5_ib_rep_to_dev(rep);
 	struct mlx5_ib_port *port;
 	int i;
+
+	if (mlx5_lag_is_shared_fdb(mdev) &&
+	    !mlx5_lag_is_master(mdev) &&
+	    rep->vport == MLX5_VPORT_UPLINK)
+		return;
+
+	if (!dev)
+		return;
 
 	for (i = 0; i < dev->num_ports; i++) {
 		port = &dev->port[i];
@@ -100,6 +130,18 @@ static const struct mlx5_eswitch_rep_ops rep_ops = {
 	.get_proto_dev = mlx5_ib_vport_get_proto_dev,
 };
 
+static void mlx5_ib_register_peer_vport_reps(struct mlx5_core_dev *mdev)
+{
+	struct mlx5_core_dev *peer_mdev = mlx5_lag_get_peer_mdev(mdev);
+	struct mlx5_eswitch *esw;
+
+	if (!peer_mdev)
+		return;
+
+	esw = peer_mdev->priv.eswitch;
+	mlx5_eswitch_register_vport_reps(esw, &rep_ops, REP_IB);
+}
+
 void mlx5_ib_register_vport_reps(struct mlx5_core_dev *mdev)
 {
 	struct mlx5_eswitch *esw = mdev->priv.eswitch;
@@ -110,6 +152,14 @@ void mlx5_ib_register_vport_reps(struct mlx5_core_dev *mdev)
 void mlx5_ib_unregister_vport_reps(struct mlx5_core_dev *mdev)
 {
 	struct mlx5_eswitch *esw = mdev->priv.eswitch;
+
+	if (mlx5_lag_is_shared_fdb(mdev)) {
+		struct mlx5_core_dev *peer_dev;
+
+		peer_dev = mlx5_lag_get_peer_mdev(mdev);
+		mlx5_eswitch_unregister_vport_reps(peer_dev->priv.eswitch,
+						   REP_IB);
+	}
 
 	mlx5_eswitch_unregister_vport_reps(esw, REP_IB);
 }

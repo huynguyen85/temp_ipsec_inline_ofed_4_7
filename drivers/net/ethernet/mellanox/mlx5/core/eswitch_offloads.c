@@ -3182,3 +3182,9 @@ u32 mlx5_eswitch_get_vport_metadata_for_match(struct mlx5_eswitch *esw,
 	return ((MLX5_CAP_GEN(esw->dev, vhca_id) & 0xffff) << 16) | vport;
 }
 EXPORT_SYMBOL(mlx5_eswitch_get_vport_metadata_for_match);
+
+struct mlx5_core_dev *mlx5_eswitch_get_core_dev(struct mlx5_eswitch *esw)
+{
+       return esw->dev;
+}
+EXPORT_SYMBOL(mlx5_eswitch_get_core_dev);

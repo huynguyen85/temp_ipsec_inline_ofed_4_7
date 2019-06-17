@@ -81,6 +81,7 @@ u16 mlx5_eswitch_get_total_vports(const struct mlx5_core_dev *dev);
 u32 mlx5_eswitch_vport_match_metadata_enabled(struct mlx5_eswitch *esw);
 u32 mlx5_eswitch_get_vport_metadata_for_match(struct mlx5_eswitch *esw, u16 vport);
 
+struct mlx5_core_dev *mlx5_eswitch_get_core_dev(struct mlx5_eswitch *esw);
 #ifdef CONFIG_MLX5_ESWITCH
 u16 mlx5_eswitch_get_encap_mode(struct mlx5_eswitch *esw);
 #else  /* CONFIG_MLX5_ESWITCH */

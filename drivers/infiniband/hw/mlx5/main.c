@@ -280,11 +280,14 @@ static struct net_device *mlx5_ib_get_netdev(struct ib_device *device,
 	mdev = mlx5_ib_get_native_port_mdev(ibdev, port_num, NULL);
 	if (!mdev)
 		return NULL;
+	if (ibdev->is_rep && port_num != 1)
+		goto reg;
 
 	ndev = mlx5_lag_get_roce_netdev(mdev);
 	if (ndev)
 		goto out;
 
+reg:
 	/* Ensure ndev does not disappear before we invoke dev_hold()
 	 */
 	read_lock(&ibdev->port[port_num - 1].roce.netdev_lock);
@@ -5302,7 +5305,7 @@ static int mlx5_eth_lag_init(struct mlx5_ib_dev *dev)
 	struct mlx5_flow_table *ft;
 	int err;
 
-	if (!ns || !mlx5_lag_is_roce(mdev))
+	if (!ns || !mlx5_lag_is_active(mdev))
 		return 0;
 
 	err = mlx5_cmd_create_vport_lag(mdev);
@@ -6297,7 +6300,7 @@ static int mlx5_ib_stage_init_init(struct mlx5_ib_dev *dev)
 	dev->ib_dev.phys_port_cnt	= dev->num_ports;
 	dev->ib_dev.num_comp_vectors    = mlx5_comp_vectors_count(mdev);
 	dev->ib_dev.dev.parent		= mdev->device;
-	if (mlx5_lag_is_roce(dev->mdev))
+	if (mlx5_lag_is_active(dev->mdev))
 		dev->ib_dev.dev_immutable.bond_device = true;
 
 	mutex_init(&dev->cap_mask_mutex);
@@ -6695,14 +6698,21 @@ static int mlx5_ib_stage_ib_roce_init(struct mlx5_ib_dev *dev)
 	port_type_cap = MLX5_CAP_GEN(mdev, port_type);
 	ll = mlx5_port_type_cap_to_rdma_ll(port_type_cap);
 
-	if (ll == IB_LINK_LAYER_ETHERNET)
+	if (ll == IB_LINK_LAYER_ETHERNET) {
 		err = mlx5_ib_stage_common_roce_init(dev);
+		if (err)
+			return err;
+		err = mlx5_eth_lag_init(dev);
+		if (err)
+			mlx5_ib_stage_common_roce_cleanup(dev);
+	}
 
 	return err;
 }
 
 static void mlx5_ib_stage_ib_roce_cleanup(struct mlx5_ib_dev *dev)
 {
+	mlx5_eth_lag_cleanup(dev);
 	mlx5_ib_stage_common_roce_cleanup(dev);
 }
 
@@ -6847,7 +6857,7 @@ static int mlx5_ib_stage_ib_reg_init(struct mlx5_ib_dev *dev)
 	const char *name;
 
 	rdma_set_device_sysfs_group(&dev->ib_dev, &mlx5_attr_group);
-	if (!mlx5_lag_is_roce(dev->mdev))
+	if (!mlx5_lag_is_active(dev->mdev))
 		name = "mlx5_%d";
 	else
 		name = "mlx5_bond_%d";
