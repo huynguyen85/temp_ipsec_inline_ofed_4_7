@@ -1130,7 +1130,7 @@ static int esw_create_offloads_fdb_tables(struct mlx5_eswitch *esw, int nvports)
 		esw->fdb_table.offloads.fdb_left[i] =
 			ESW_POOLS[i] <= fdb_max ? ESW_SIZE / ESW_POOLS[i] : 0;
 
-	table_size = nvports * MAX_SQ_NVPORTS + MAX_PF_SQ +
+	table_size = 2 * nvports * MAX_SQ_NVPORTS + MAX_PF_SQ +
 		MLX5_ESW_MISS_FLOWS + esw->total_vports;
 
 	/* create the slow path fdb with encap set, so further table instances
@@ -1175,7 +1175,7 @@ static int esw_create_offloads_fdb_tables(struct mlx5_eswitch *esw, int nvports)
 
 	esw_set_flow_group_source_port_vhca_id(esw, flow_group_in);
 
-	ix = nvports * MAX_SQ_NVPORTS + MAX_PF_SQ;
+	ix = 2 * nvports * MAX_SQ_NVPORTS + MAX_PF_SQ;
 	MLX5_SET(create_flow_group_in, flow_group_in, start_flow_index, 0);
 	MLX5_SET(create_flow_group_in, flow_group_in, end_flow_index, ix - 1);
 
