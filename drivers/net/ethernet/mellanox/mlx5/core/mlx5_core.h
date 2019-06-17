@@ -276,6 +276,8 @@ void mlx5_events_cleanup(struct mlx5_core_dev *dev);
 void mlx5_events_start(struct mlx5_core_dev *dev);
 void mlx5_events_stop(struct mlx5_core_dev *dev);
 
+void mlx5_lag_enable(struct mlx5_core_dev *dev);
+void mlx5_lag_disable(struct mlx5_core_dev *dev);
 void mlx5_add_device(struct mlx5_interface *intf, struct mlx5_priv *priv);
 void mlx5_remove_device(struct mlx5_interface *intf, struct mlx5_priv *priv);
 void mlx5_attach_device(struct mlx5_core_dev *dev);

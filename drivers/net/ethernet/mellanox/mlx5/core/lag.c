@@ -803,6 +803,36 @@ unlock:
 	mlx5_dev_list_unlock();
 }
 
+void mlx5_lag_disable(struct mlx5_core_dev *dev)
+{
+	struct mlx5_lag *ldev;
+
+	mlx5_dev_list_lock();
+	ldev = mlx5_lag_dev_get(dev);
+	if (!ldev || __mlx5_lag_is_active(ldev))
+		goto unlock;
+
+	mlx5_do_bond(ldev);
+
+unlock:
+	mlx5_dev_list_unlock();
+}
+
+void mlx5_lag_enable(struct mlx5_core_dev *dev)
+{
+	struct mlx5_lag *ldev;
+
+	mlx5_dev_list_lock();
+	ldev = mlx5_lag_dev_get(dev);
+	if (!ldev || !__mlx5_lag_is_active(ldev))
+		goto unlock;
+
+	mlx5_do_bond(ldev);
+
+unlock:
+	mlx5_dev_list_unlock();
+}
+
 struct net_device *mlx5_lag_get_roce_netdev(struct mlx5_core_dev *dev)
 {
 	struct net_device *ndev = NULL;

@@ -1394,6 +1394,7 @@ static int esw_offloads_start_imp(struct mlx5_eswitch *esw,
 		return -EINVAL;
 	}
 
+	mlx5_lag_disable(esw->dev);
 	mlx5_eswitch_disable_sriov(esw);
 	err = mlx5_eswitch_enable_sriov(esw, num_vfs, SRIOV_OFFLOADS);
 	if (err) {
@@ -1413,6 +1414,7 @@ static int esw_offloads_start_imp(struct mlx5_eswitch *esw,
 					   "Inline mode is different between vports");
 		}
 	}
+	mlx5_lag_enable(esw->dev);
 	atomic_set(&esw->handler.in_progress, 0);
 	return err;
 }
@@ -2225,6 +2227,7 @@ static int esw_offloads_stop_imp(struct mlx5_eswitch *esw,
 {
 	int err, err1, num_vfs = esw->dev->priv.sriov.num_vfs;
 
+	mlx5_lag_disable(esw->dev);
 	mlx5_eswitch_disable_sriov(esw);
 	err = mlx5_eswitch_enable_sriov(esw, num_vfs, SRIOV_LEGACY);
 	if (err) {
@@ -2235,6 +2238,7 @@ static int esw_offloads_stop_imp(struct mlx5_eswitch *esw,
 					   "Failed setting eswitch back to offloads");
 	}
 
+	mlx5_lag_enable(esw->dev);
 	atomic_set(&esw->handler.in_progress, 0);
 	return err;
 }
