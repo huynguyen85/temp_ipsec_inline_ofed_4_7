@@ -446,12 +446,13 @@ static int uapi_finalize(struct uverbs_api *uapi)
 	uapi->notsupp_method.handler = ib_uverbs_notsupp;
 	uapi->num_write = max_write + 1;
 	uapi->num_write_ex = max_write_ex + 1;
-	data = kmalloc_array(uapi->num_write + uapi->num_write_ex,
+	data = kmalloc_array(uapi->num_write + uapi->num_write_ex + uapi->num_write_exp,
 			     sizeof(*uapi->write_methods), GFP_KERNEL);
-	for (i = 0; i != uapi->num_write + uapi->num_write_ex; i++)
+	for (i = 0; i != uapi->num_write + uapi->num_write_ex + uapi->num_write_exp; i++)
 		data[i] = &uapi->notsupp_method;
 	uapi->write_methods = data;
 	uapi->write_ex_methods = data + uapi->num_write;
+	uapi->write_exp_methods = data + uapi->num_write + uapi->num_write_ex;
 
 	radix_tree_for_each_slot (slot, &uapi->radix, &iter, 0) {
 		if (uapi_key_is_write_method(iter.index))
@@ -460,6 +461,10 @@ static int uapi_finalize(struct uverbs_api *uapi)
 				rcu_dereference_protected(*slot, true);
 		if (uapi_key_is_write_ex_method(iter.index))
 			uapi->write_ex_methods[iter.index &
+					       UVERBS_API_ATTR_KEY_MASK] =
+				rcu_dereference_protected(*slot, true);
+		if (uapi_key_is_write_exp_method(iter.index))
+			uapi->write_exp_methods[iter.index &
 					       UVERBS_API_ATTR_KEY_MASK] =
 				rcu_dereference_protected(*slot, true);
 	}

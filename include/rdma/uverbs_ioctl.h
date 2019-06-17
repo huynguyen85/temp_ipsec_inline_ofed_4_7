@@ -163,6 +163,7 @@ enum uapi_radix_data {
 	UVERBS_API_METHOD_KEY_NUM_CORE = 22,
 	UVERBS_API_METHOD_IS_WRITE = 30 << UVERBS_API_METHOD_KEY_SHIFT,
 	UVERBS_API_METHOD_IS_WRITE_EX = 31 << UVERBS_API_METHOD_KEY_SHIFT,
+	UVERBS_API_METHOD_IS_WRITE_EXP = 32 << UVERBS_API_METHOD_KEY_SHIFT,
 	UVERBS_API_METHOD_KEY_NUM_DRIVER =
 		(UVERBS_API_METHOD_IS_WRITE >> UVERBS_API_METHOD_KEY_SHIFT) -
 		UVERBS_API_METHOD_KEY_NUM_CORE,
@@ -256,6 +257,12 @@ static inline __attribute_const__ bool uapi_key_is_write_ex_method(u32 key)
 {
 	return (key & UVERBS_API_METHOD_KEY_MASK) ==
 	       UVERBS_API_METHOD_IS_WRITE_EX;
+}
+
+static inline __attribute_const__ bool uapi_key_is_write_exp_method(u32 key)
+{
+	return (key & UVERBS_API_METHOD_KEY_MASK) ==
+	       UVERBS_API_METHOD_IS_WRITE_EXP;
 }
 
 static inline __attribute_const__ u32 uapi_key_attrs_start(u32 ioctl_method_key)
@@ -366,6 +373,7 @@ struct uapi_definition {
 			u8 is_ex:1;
 			u8 has_udata:1;
 			u8 has_resp:1;
+			u8 is_exp:1;
 			u8 req_size;
 			u8 resp_size;
 		} write;
@@ -405,6 +413,17 @@ struct uapi_definition {
 		.kind = UAPI_DEF_WRITE,                                        \
 		.scope = UAPI_SCOPE_OBJECT,                                    \
 		.write = { .is_ex = 1, .command_num = _command_num },          \
+		.func_write = _func,                                           \
+		_cmd_desc,                                                     \
+	},                                                                     \
+		##__VA_ARGS__
+
+/* Use in a var_args of DECLARE_UVERBS_OBJECT */
+#define DECLARE_UVERBS_WRITE_EXP(_command_num, _func, _cmd_desc, ...)           \
+	{                                                                      \
+		.kind = UAPI_DEF_WRITE,                                        \
+		.scope = UAPI_SCOPE_OBJECT,                                    \
+		.write = { .is_exp = 1, .command_num = _command_num },          \
 		.func_write = _func,                                           \
 		_cmd_desc,                                                     \
 	},                                                                     \

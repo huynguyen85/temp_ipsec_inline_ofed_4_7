@@ -47,6 +47,9 @@
 #include "uverbs.h"
 #include "core_priv.h"
 
+#include "uverbs_exp.h"
+#include <rdma/ib_user_verbs_exp.h>
+
 /*
  * Copy a response to userspace. If the provided 'resp' is larger than the
  * user buffer it is silently truncated. If the user provided a larger buffer
@@ -3706,6 +3709,37 @@ static int ib_uverbs_ex_modify_cq(struct uverbs_attr_bundle *attrs)
 	return ret;
 }
 
+
+int ib_uverbs_exp_create_qp(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_modify_qp(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_create_cq(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_modify_cq(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_create_mr(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_create_flow(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_create_wq(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_modify_wq(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_destroy_wq(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_create_rwq_ind_table(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_destroy_rwq_ind_table(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+int ib_uverbs_exp_create_srq(struct uverbs_attr_bundle *attrs)
+{ return 0; }
+
+
 /*
  * Describe the input structs for write(). Some write methods have an input
  * only struct, most have an input and output. If the struct has an output then
@@ -3821,7 +3855,22 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 			IB_USER_VERBS_EX_CMD_MODIFY_CQ,
 			ib_uverbs_ex_modify_cq,
 			UAPI_DEF_WRITE_I(struct ib_uverbs_ex_modify_cq),
-			UAPI_DEF_METHOD_NEEDS_FN(create_cq))),
+			UAPI_DEF_METHOD_NEEDS_FN(create_cq)),
+
+		/* experimental cq*/
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_CREATE_CQ,
+			ib_uverbs_exp_create_cq,
+			UAPI_DEF_WRITE_IO_EX(struct ib_uverbs_ex_create_cq,
+					     reserved,
+					     struct ib_uverbs_ex_create_cq_resp,
+					     response_length)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(create_cq)*/),
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_MODIFY_CQ,
+			ib_uverbs_exp_modify_cq,
+			UAPI_DEF_WRITE_I(struct ib_uverbs_ex_modify_cq)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(create_cq)*/)),
 
 	DECLARE_UVERBS_OBJECT(
 		UVERBS_OBJECT_DEVICE,
@@ -3850,6 +3899,18 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 				struct ib_uverbs_ex_query_device_resp,
 				response_length),
 			UAPI_DEF_METHOD_NEEDS_FN(query_device)),
+
+		/* experimental query_device  */
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_QUERY_DEVICE,
+			ib_uverbs_exp_query_device,
+			UAPI_DEF_WRITE_IO_EX(
+				struct ib_uverbs_ex_query_device,
+				reserved,
+				struct ib_uverbs_ex_query_device_resp,
+				response_length)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(query_device)*/),
+
 		UAPI_DEF_OBJ_NEEDS_FN(alloc_ucontext),
 		UAPI_DEF_OBJ_NEEDS_FN(dealloc_ucontext)),
 
@@ -3866,6 +3927,11 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 		DECLARE_UVERBS_WRITE_EX(
 			IB_USER_VERBS_EX_CMD_DESTROY_FLOW,
 			ib_uverbs_ex_destroy_flow,
+			UAPI_DEF_WRITE_I(struct ib_uverbs_destroy_flow),
+			UAPI_DEF_METHOD_NEEDS_FN(destroy_flow)),
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_CREATE_FLOW,
+			ib_uverbs_exp_create_flow,
 			UAPI_DEF_WRITE_I(struct ib_uverbs_destroy_flow),
 			UAPI_DEF_METHOD_NEEDS_FN(destroy_flow))),
 
@@ -3886,7 +3952,20 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 			ib_uverbs_rereg_mr,
 			UAPI_DEF_WRITE_UDATA_IO(struct ib_uverbs_rereg_mr,
 						struct ib_uverbs_rereg_mr_resp),
-			UAPI_DEF_METHOD_NEEDS_FN(rereg_user_mr))),
+			UAPI_DEF_METHOD_NEEDS_FN(rereg_user_mr)),
+		/* experimental reg_mr */
+		DECLARE_UVERBS_WRITE(
+			IB_USER_VERBS_EXP_CMD_REG_MR,
+			ib_uverbs_exp_reg_mr,
+			UAPI_DEF_WRITE_UDATA_IO(struct ib_uverbs_reg_mr,
+						struct ib_uverbs_reg_mr_resp)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(reg_user_mr)*/),
+		DECLARE_UVERBS_WRITE(
+			IB_USER_VERBS_EXP_CMD_CREATE_MR,
+			ib_uverbs_exp_create_mr,
+			UAPI_DEF_WRITE_UDATA_IO(struct ib_uverbs_reg_mr,
+						struct ib_uverbs_reg_mr_resp)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(reg_user_mr)*/)),
 
 	DECLARE_UVERBS_OBJECT(
 		UVERBS_OBJECT_MW,
@@ -3979,7 +4058,26 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 					     base,
 					     struct ib_uverbs_ex_modify_qp_resp,
 					     response_length),
-			UAPI_DEF_METHOD_NEEDS_FN(modify_qp))),
+			UAPI_DEF_METHOD_NEEDS_FN(modify_qp)),
+
+		/* experimental verbs */
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_CREATE_QP,
+			ib_uverbs_exp_create_qp,
+			UAPI_DEF_WRITE_IO_EX(struct ib_uverbs_ex_create_qp,
+					     comp_mask,
+					     struct ib_uverbs_ex_create_qp_resp,
+					     response_length)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(create_qp)*/),
+
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_MODIFY_QP,
+			ib_uverbs_exp_modify_qp,
+			UAPI_DEF_WRITE_IO_EX(struct ib_uverbs_ex_modify_qp,
+					     base,
+					     struct ib_uverbs_ex_modify_qp_resp,
+					     response_length)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(modify_qp)*/)),
 
 	DECLARE_UVERBS_OBJECT(
 		UVERBS_OBJECT_RWQ_IND_TBL,
@@ -3995,6 +4093,23 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 		DECLARE_UVERBS_WRITE_EX(
 			IB_USER_VERBS_EX_CMD_DESTROY_RWQ_IND_TBL,
 			ib_uverbs_ex_destroy_rwq_ind_table,
+			UAPI_DEF_WRITE_I(
+				struct ib_uverbs_ex_destroy_rwq_ind_table),
+			UAPI_DEF_METHOD_NEEDS_FN(destroy_rwq_ind_table)),
+		/* experimental ind table */
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_CREATE_RWQ_IND_TBL,
+			ib_uverbs_exp_create_rwq_ind_table,
+			UAPI_DEF_WRITE_IO_EX(
+				struct ib_uverbs_ex_create_rwq_ind_table,
+				log_ind_tbl_size,
+				struct ib_uverbs_ex_create_rwq_ind_table_resp,
+				ind_tbl_num),
+			UAPI_DEF_METHOD_NEEDS_FN(create_rwq_ind_table)),
+
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_DESTROY_RWQ_IND_TBL,
+			ib_uverbs_exp_destroy_rwq_ind_table,
 			UAPI_DEF_WRITE_I(
 				struct ib_uverbs_ex_destroy_rwq_ind_table),
 			UAPI_DEF_METHOD_NEEDS_FN(destroy_rwq_ind_table))),
@@ -4022,7 +4137,31 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 			ib_uverbs_ex_modify_wq,
 			UAPI_DEF_WRITE_I_EX(struct ib_uverbs_ex_modify_wq,
 					    curr_wq_state),
-			UAPI_DEF_METHOD_NEEDS_FN(modify_wq))),
+			UAPI_DEF_METHOD_NEEDS_FN(modify_wq)),
+		/* experimental wq */
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_CREATE_WQ,
+			ib_uverbs_exp_create_wq,
+			UAPI_DEF_WRITE_IO_EX(struct ib_uverbs_ex_create_wq,
+					     max_sge,
+					     struct ib_uverbs_ex_create_wq_resp,
+					     wqn)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(modify_wq)*/),
+
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_MODIFY_WQ,
+			ib_uverbs_exp_modify_wq,
+			UAPI_DEF_WRITE_I_EX(struct ib_uverbs_ex_modify_wq,
+					    curr_wq_state)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(modify_wq)*/),
+		DECLARE_UVERBS_WRITE_EX(
+			IB_USER_VERBS_EXP_CMD_DESTROY_WQ,
+			ib_uverbs_exp_destroy_wq,
+			UAPI_DEF_WRITE_IO_EX(struct ib_uverbs_ex_destroy_wq,
+					     wq_handle,
+					     struct ib_uverbs_ex_destroy_wq_resp,
+					     reserved)/*,
+			UAPI_DEF_METHOD_NEEDS_FN(destroy_wq)*/)),
 
 	DECLARE_UVERBS_OBJECT(
 		UVERBS_OBJECT_SRQ,
@@ -4060,7 +4199,14 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 			ib_uverbs_query_srq,
 			UAPI_DEF_WRITE_IO(struct ib_uverbs_query_srq,
 					  struct ib_uverbs_query_srq_resp),
-			UAPI_DEF_METHOD_NEEDS_FN(query_srq))),
+			UAPI_DEF_METHOD_NEEDS_FN(query_srq)),
+
+		DECLARE_UVERBS_WRITE_EX(IB_USER_VERBS_EXP_CMD_CREATE_SRQ,
+			     ib_uverbs_exp_create_srq,
+			     UAPI_DEF_WRITE_UDATA_IO(
+				     struct ib_uverbs_create_srq,
+				     struct ib_uverbs_create_srq_resp),
+			     UAPI_DEF_METHOD_NEEDS_FN(create_srq))),
 
 	DECLARE_UVERBS_OBJECT(
 		UVERBS_OBJECT_XRCD,
@@ -4080,6 +4226,43 @@ const struct uapi_definition uverbs_def_write_intf[] = {
 					     struct ib_uverbs_open_xrcd,
 					     struct ib_uverbs_open_xrcd_resp),
 				     UAPI_DEF_METHOD_NEEDS_FN(alloc_xrcd))),
+
+/*    copied from ofed, and for each verb create corresponding DECLARE_UVERBS_OBJECT
+static int (*uverbs_exp_cmd_table[])(struct ib_uverbs_file *file,
+				     struct ib_udata *ucore,
+				     struct ib_udata *uhw) = {
+	[IB_USER_VERBS_EXP_CMD_CREATE_QP]	= ib_uverbs_exp_create_qp, <--- done
+	[IB_USER_VERBS_EXP_CMD_MODIFY_CQ]	= ib_uverbs_exp_modify_cq, <--- done
+	[IB_USER_VERBS_EXP_CMD_MODIFY_QP]	= ib_uverbs_exp_modify_qp, <--- done
+	[IB_USER_VERBS_EXP_CMD_QUERY_DEVICE]	= ib_uverbs_exp_query_device, <--- done
+	[IB_USER_VERBS_EXP_CMD_CREATE_CQ]	= ib_uverbs_exp_create_cq, <--- done
+	[IB_USER_VERBS_EXP_CMD_REG_MR]		= ib_uverbs_exp_reg_mr,    <--- done
+
+	[IB_USER_VERBS_EXP_CMD_CREATE_DCT]	= ib_uverbs_exp_create_dct,
+	[IB_USER_VERBS_EXP_CMD_DESTROY_DCT]	= ib_uverbs_exp_destroy_dct,
+	[IB_USER_VERBS_EXP_CMD_QUERY_DCT]	= ib_uverbs_exp_query_dct,
+	[IB_USER_VERBS_EXP_CMD_ARM_DCT]		= ib_uverbs_exp_arm_dct,
+	[IB_USER_VERBS_EXP_CMD_CREATE_MR]       = ib_uverbs_exp_create_mr, <--- done
+
+	[IB_USER_VERBS_EXP_CMD_QUERY_MKEY]	= ib_uverbs_exp_query_mkey,
+#ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
+	[IB_USER_VERBS_EXP_CMD_PREFETCH_MR]     = ib_uverbs_exp_prefetch_mr,
+#endif
+	[IB_USER_VERBS_EXP_CMD_CREATE_FLOW]	= ib_uverbs_exp_create_flow, <--- done
+	[IB_USER_VERBS_EXP_CMD_CREATE_WQ]	= ib_uverbs_exp_create_wq,  <--- done
+	[IB_USER_VERBS_EXP_CMD_MODIFY_WQ]	= ib_uverbs_exp_modify_wq,  <--- done
+	[IB_USER_VERBS_EXP_CMD_DESTROY_WQ]	= ib_uverbs_exp_destroy_wq,  <--- done
+
+	[IB_USER_VERBS_EXP_CMD_CREATE_RWQ_IND_TBL] = ib_uverbs_exp_create_rwq_ind_table,  <--- done
+	[IB_USER_VERBS_EXP_CMD_DESTROY_RWQ_IND_TBL] = ib_uverbs_exp_destroy_rwq_ind_table, <--- done
+
+	[IB_USER_VERBS_EXP_CMD_SET_CTX_ATTR]	= ib_uverbs_exp_set_context_attr,
+	[IB_USER_VERBS_EXP_CMD_CREATE_SRQ]	= ib_uverbs_exp_create_srq,  <--- done
+	[IB_USER_VERBS_EXP_CMD_ALLOC_DM]	= ib_uverbs_exp_alloc_dm,
+	[IB_USER_VERBS_EXP_CMD_FREE_DM]		= ib_uverbs_exp_free_dm,
+}; */
+
+
 
 	{},
 };

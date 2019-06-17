@@ -62,6 +62,7 @@
 #include <linux/irqflags.h>
 #include <linux/preempt.h>
 #include <uapi/rdma/ib_user_verbs.h>
+#include <rdma/ib_verbs_exp_def.h>
 #include <rdma/restrack.h>
 #include <uapi/rdma/rdma_user_ioctl.h>
 #include <uapi/rdma/ib_user_ioctl_verbs.h>
@@ -1271,6 +1272,14 @@ enum ib_qp_attr_mask {
 	IB_QP_RESERVED3			= (1<<23),
 	IB_QP_RESERVED4			= (1<<24),
 	IB_QP_RATE_LIMIT		= (1<<25),
+
+	/* EXP stuff with shift of 0x06 to support both user and kernel masks */
+	IB_QP_GROUP_RSS		= (1<<27),
+	IB_QP_DC_KEY		= (1<<28),
+	IB_QP_FLOW_ENTROPY	= (1<<29),
+	IB_EXP_QP_OOO_RW_DATA_PLACEMENT	= (1 << 30),
+	IB_EXP_QP_RATE_LIMIT    = (1<<31),
+
 };
 
 enum ib_qp_state {
