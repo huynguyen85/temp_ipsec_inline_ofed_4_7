@@ -98,6 +98,7 @@ out:
 		ib_peer_destroy_invalidation_ctx(ib_peer_mem, invalidation_ctx);
 end:
 	ib_put_peer_client(ib_peer_mem, umem->peer_mem_client_context);
+	mmdrop(umem->owning_mm);
 	kfree(umem);
 	return ERR_PTR(ret);
 }
@@ -283,9 +284,10 @@ end:
 }
 EXPORT_SYMBOL(ib_umem_activate_invalidation_notifier);
 
-static int ib_client_umem_get(struct ib_ucontext *context, unsigned long addr,
-			      size_t size, unsigned long peer_mem_flags,
-			      struct ib_umem *umem, int dmasync)
+static struct ib_umem *ib_client_umem_get(struct ib_ucontext *context, unsigned long addr,
+					  size_t size, unsigned long peer_mem_flags,
+					  struct ib_umem *umem, int dmasync,
+					  u8 *peer_exists)
 {
 	struct ib_peer_memory_client *peer_mem_client;
 
@@ -293,13 +295,13 @@ static int ib_client_umem_get(struct ib_ucontext *context, unsigned long addr,
 					     peer_mem_flags,
 					     &umem->peer_mem_client_context);
 	if (peer_mem_client) {
+		*peer_exists = 1;
 		umem->hugetlb = 0;
-		peer_umem_get(peer_mem_client, umem, addr,
-			      dmasync, peer_mem_flags);
-		return 0;
+		return peer_umem_get(peer_mem_client, umem, addr,
+				     dmasync, peer_mem_flags);
 	}
 
-	return -ENOMEM;
+	return ERR_PTR(-ENOMEM);
 }
 
 /**
@@ -380,10 +382,14 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
 	/* For known peer context move directly to peer registration handling */
 	if (context->peer_mem_private_data &&
 	    (peer_mem_flags & IB_PEER_MEM_ALLOW)) {
-		ret = ib_client_umem_get(context, addr, size,
-					 peer_mem_flags, umem, dmasync);
-		if (!ret)
-			return umem;
+		struct ib_umem *ret_umem;
+		u8 peer_exists = 0;
+
+		ret_umem = ib_client_umem_get(context, addr, size,
+					      peer_mem_flags, umem,
+					      dmasync, &peer_exists);
+		if (peer_exists)
+			return ret_umem;
 	}
 
 	if (access & IB_ACCESS_ON_DEMAND) {
@@ -495,10 +501,13 @@ out:
 	if (ret < 0) {
 		if ((peer_mem_flags & IB_PEER_MEM_ALLOW) && 
 		    !context->peer_mem_private_data) {
-			ret = ib_client_umem_get(context, addr, size, peer_mem_flags,
-						 umem, dmasync);
-			if (!ret)
-				return umem;
+			struct ib_umem *ret_umem;
+			u8 peer_exists = 0;
+
+			ret_umem = ib_client_umem_get(context, addr, size, peer_mem_flags,
+						      umem, dmasync, &peer_exists);
+			if (peer_exists)
+				return ret_umem;
 		}
 	}
 umem_kfree:
