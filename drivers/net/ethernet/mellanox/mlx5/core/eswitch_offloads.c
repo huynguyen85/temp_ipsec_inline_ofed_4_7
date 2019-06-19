@@ -1667,22 +1667,66 @@ err_reps:
 #define ESW_OFFLOADS_DEVCOM_PAIR	(0)
 #define ESW_OFFLOADS_DEVCOM_UNPAIR	(1)
 
+static void mlx5_esw_offloads_rep_event_unpair(struct mlx5_eswitch *esw)
+{
+	struct mlx5_eswitch_rep *rep;
+	u8 rep_type;
+	int i;
+
+	i = esw->total_vports;
+	mlx5_esw_for_all_reps_reverse(esw, i, rep) {
+		rep_type = NUM_REP_TYPES;
+		while (rep_type--) {
+			if (atomic_read(&rep->rep_if[rep_type].state) == REP_LOADED &&
+			    rep->rep_if[rep_type].event)
+				rep->rep_if[rep_type].event(esw,
+							    rep,
+							    MLX5_SWITCHDEV_EVENT_UNPAIR,
+							    NULL);
+
+		}
+	}
+}
+
+void mlx5e_tc_clean_fdb_peer_flows(struct mlx5_eswitch *esw);
+
+static void mlx5_esw_offloads_unpair(struct mlx5_eswitch *esw)
+{
+	mlx5e_tc_clean_fdb_peer_flows(esw);
+	mlx5_esw_offloads_rep_event_unpair(esw);
+	esw_del_fdb_peer_miss_rules(esw);
+}
+
 static int mlx5_esw_offloads_pair(struct mlx5_eswitch *esw,
 				  struct mlx5_eswitch *peer_esw)
 {
+	struct mlx5_eswitch_rep *rep;
+	u8 rep_type;
 	int err;
+	int i;
 
 	err = esw_add_fdb_peer_miss_rules(esw, peer_esw->dev);
 	if (err)
 		return err;
 
-	return 0;
-}
+	mlx5_esw_for_all_reps(esw, i, rep) {
+		for (rep_type = 0; rep_type < NUM_REP_TYPES; rep_type++) {
+			if (atomic_read(&rep->rep_if[rep_type].state) == REP_LOADED &&
+			    rep->rep_if[rep_type].event) {
+				err = rep->rep_if[rep_type].event(esw,
+								  rep,
+								  MLX5_SWITCHDEV_EVENT_PAIR,
+								  peer_esw);
+				if (err)
+					goto err_out;
+			}
+		}
+	}
 
-static void mlx5_esw_offloads_unpair(struct mlx5_eswitch *esw)
-{
-	mlx5e_tc_clean_fdb_peer_flows(esw);
-	esw_del_fdb_peer_miss_rules(esw);
+	return 0;
+err_out:
+	mlx5_esw_offloads_unpair(esw);
+	return err;
 }
 
 static int mlx5_esw_offloads_devcom_event(int event,
@@ -2559,6 +2603,7 @@ void mlx5_eswitch_register_vport_reps(struct mlx5_eswitch *esw,
 		rep_if->load   = __rep_if->load;
 		rep_if->unload = __rep_if->unload;
 		rep_if->get_proto_dev = __rep_if->get_proto_dev;
+		rep_if->event = __rep_if->event;
 		rep_if->priv = __rep_if->priv;
 		rep->esw = esw;
 

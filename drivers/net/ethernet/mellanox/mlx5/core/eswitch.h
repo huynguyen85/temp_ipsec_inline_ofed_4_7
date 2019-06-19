@@ -592,6 +592,11 @@ void mlx5e_tc_clean_fdb_peer_flows(struct mlx5_eswitch *esw);
 	     (rep) = &(esw)->offloads.vport_reps[i],		\
 	     (i) < (esw)->total_vports; (i)++)
 
+#define mlx5_esw_for_all_reps_reverse(esw, i, rep)              \
+  for (--(i);							\
+       (rep) = &(esw)->offloads.vport_reps[i], (i) >= 0;	\
+       (i)--)
+
 #define mlx5_esw_for_each_vf_rep(esw, i, rep, nvfs)		\
 	for ((i) = MLX5_VPORT_FIRST_VF;				\
 	     (rep) = &(esw)->offloads.vport_reps[i],		\
