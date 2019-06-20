@@ -1064,9 +1064,9 @@ index xxxxxxx..xxxxxxx 100644
  
  	nvme_mpath_add_disk(ns, id);
  	nvme_fault_inject_init(ns);
-@@ -3357,6 +3761,10 @@ static void nvme_ns_remove(struct nvme_ns *ns)
+@@ -3365,6 +3769,10 @@ static void nvme_ns_remove(struct nvme_ns *ns)
+ 	synchronize_srcu(&ns->head->srcu); /* wait for concurrent submissions */
  
- 	nvme_fault_inject_fini(ns);
  	if (ns->disk && ns->disk->flags & GENHD_FL_UP) {
 +#ifndef HAVE_DEVICE_ADD_DISK_3_ARGS
 +		sysfs_remove_group(&disk_to_dev(ns->disk)->kobj,
@@ -1075,7 +1075,7 @@ index xxxxxxx..xxxxxxx 100644
  		del_gendisk(ns->disk);
  		blk_cleanup_queue(ns->queue);
  		if (blk_get_integrity(ns->disk))
-@@ -3710,7 +4118,9 @@ EXPORT_SYMBOL_GPL(nvme_start_ctrl);
+@@ -3712,7 +4120,9 @@ EXPORT_SYMBOL_GPL(nvme_start_ctrl);
  
  void nvme_uninit_ctrl(struct nvme_ctrl *ctrl)
  {
@@ -1085,7 +1085,7 @@ index xxxxxxx..xxxxxxx 100644
  	cdev_device_del(&ctrl->cdev, ctrl->device);
  }
  EXPORT_SYMBOL_GPL(nvme_uninit_ctrl);
-@@ -3801,9 +4211,11 @@ int nvme_init_ctrl(struct nvme_ctrl *ctrl, struct device *dev,
+@@ -3803,9 +4213,11 @@ int nvme_init_ctrl(struct nvme_ctrl *ctrl, struct device *dev,
  	 * Initialize latency tolerance controls.  The sysfs files won't
  	 * be visible to userspace unless the device actually supports APST.
  	 */
@@ -1097,7 +1097,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	return 0;
  out_free_name:
-@@ -3832,7 +4244,11 @@ void nvme_kill_queues(struct nvme_ctrl *ctrl)
+@@ -3834,7 +4246,11 @@ void nvme_kill_queues(struct nvme_ctrl *ctrl)
  
  	/* Forcibly unquiesce queues to avoid blocking dispatch */
  	if (ctrl->admin_q && !blk_queue_dying(ctrl->admin_q))
@@ -1109,7 +1109,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	list_for_each_entry(ns, &ctrl->namespaces, list)
  		nvme_set_queue_dying(ns);
-@@ -3883,7 +4299,11 @@ void nvme_start_freeze(struct nvme_ctrl *ctrl)
+@@ -3885,7 +4301,11 @@ void nvme_start_freeze(struct nvme_ctrl *ctrl)
  
  	down_read(&ctrl->namespaces_rwsem);
  	list_for_each_entry(ns, &ctrl->namespaces, list)
@@ -1121,7 +1121,7 @@ index xxxxxxx..xxxxxxx 100644
  	up_read(&ctrl->namespaces_rwsem);
  }
  EXPORT_SYMBOL_GPL(nvme_start_freeze);
-@@ -3893,8 +4313,15 @@ void nvme_stop_queues(struct nvme_ctrl *ctrl)
+@@ -3895,8 +4315,15 @@ void nvme_stop_queues(struct nvme_ctrl *ctrl)
  	struct nvme_ns *ns;
  
  	down_read(&ctrl->namespaces_rwsem);
@@ -1137,7 +1137,7 @@ index xxxxxxx..xxxxxxx 100644
  	up_read(&ctrl->namespaces_rwsem);
  }
  EXPORT_SYMBOL_GPL(nvme_stop_queues);
-@@ -3905,7 +4332,11 @@ void nvme_start_queues(struct nvme_ctrl *ctrl)
+@@ -3907,7 +4334,11 @@ void nvme_start_queues(struct nvme_ctrl *ctrl)
  
  	down_read(&ctrl->namespaces_rwsem);
  	list_for_each_entry(ns, &ctrl->namespaces, list)
@@ -1149,7 +1149,7 @@ index xxxxxxx..xxxxxxx 100644
  	up_read(&ctrl->namespaces_rwsem);
  }
  EXPORT_SYMBOL_GPL(nvme_start_queues);
-@@ -4037,6 +4468,9 @@ static void __exit nvme_core_exit(void)
+@@ -4039,6 +4470,9 @@ static void __exit nvme_core_exit(void)
  }
  
  MODULE_LICENSE("GPL");
