@@ -101,6 +101,8 @@ static void flow_offload_fixup_tcp(struct ip_ct_tcp *tcp)
 #define NF_FLOWTABLE_TCP_PICKUP_TIMEOUT        (120 * HZ)
 #define NF_FLOWTABLE_UDP_PICKUP_TIMEOUT        (30 * HZ)
 
+#define _nfct_time_stamp ((u32)(jiffies))
+
 static void flow_offload_fixup_ct_state(struct nf_conn *ct)
 {
 	const struct nf_conntrack_l4proto *l4proto;
@@ -122,7 +124,7 @@ static void flow_offload_fixup_ct_state(struct nf_conn *ct)
 	else
 		return;
 
-	ct->timeout = nfct_time_stamp + timeout;
+	ct->timeout = _nfct_time_stamp + timeout;
 }
 
 static void flow_offload_free(struct flow_offload *flow)
