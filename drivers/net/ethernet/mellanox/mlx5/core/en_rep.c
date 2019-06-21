@@ -844,6 +844,52 @@ static void mlx5e_rep_indr_unregister_block(struct mlx5e_rep_priv *rpriv,
 				      rpriv);
 }
 
+static void mlx5e_rep_changelowerstate_event(struct net_device *netdev, void *ptr)
+{
+	struct netdev_notifier_changelowerstate_info *info;
+	struct netdev_lag_lower_state_info *lag_info;
+	struct net_device *lag_dev, *dev;
+	struct mlx5e_rep_priv *rpriv;
+	u16 acl_vport, fwd_vport;
+	struct mlx5e_priv *priv;
+	struct list_head *iter;
+
+	/* A given netdev is not a representor or not a slave of LAG configuration */
+	if (!mlx5e_eswitch_rep(netdev) || !netif_is_lag_port(netdev))
+		return;
+
+	priv = netdev_priv(netdev);
+	rpriv = priv->ppriv;
+	/* Egress acl forward to vport is supported only non-uplink representor */
+	if (rpriv->rep->vport == MLX5_VPORT_UPLINK)
+		return;
+
+	lag_dev = netdev_master_upper_dev_get(netdev);
+	/* New representor start becoming a slave but not yet having a LAG master dev */
+	if (!lag_dev)
+		return;
+
+	info = ptr;
+	lag_info = info->lower_state_info;
+	/* This is not an event of a representor becoming active slave */
+	if (!lag_info->tx_enabled)
+		return;
+
+	fwd_vport = rpriv->rep->vport;
+	/* Delete the egress acl forward-to-vport rule of active representor vport if any */
+	esw_del_egress_fwd2vport(priv->mdev->priv.eswitch, fwd_vport);
+
+	/* Point everyone's egress acl to the vport of the active representor */
+	netdev_for_each_lower_dev(lag_dev, dev, iter) {
+		priv = netdev_priv(dev);
+		rpriv = priv->ppriv;
+		acl_vport = rpriv->rep->vport;
+		if (acl_vport != fwd_vport)
+			esw_set_egress_fwd2vport(priv->mdev->priv.eswitch,
+						 acl_vport, fwd_vport);
+	}
+}
+
 static int mlx5e_nic_rep_netdevice_event(struct notifier_block *nb,
 					 unsigned long event, void *ptr)
 {
@@ -851,6 +897,11 @@ static int mlx5e_nic_rep_netdevice_event(struct notifier_block *nb,
 						     uplink_priv.netdevice_nb);
 	struct mlx5e_priv *priv = netdev_priv(rpriv->netdev);
 	struct net_device *netdev = netdev_notifier_info_to_dev(ptr);
+
+	if (event == NETDEV_CHANGELOWERSTATE) {
+		mlx5e_rep_changelowerstate_event(netdev, ptr);
+		return NOTIFY_OK;
+	}
 
 	if (!mlx5e_tc_tun_device_to_offload(priv, netdev) &&
 	    !(is_vlan_dev(netdev) && vlan_dev_real_dev(netdev) == rpriv->netdev))
