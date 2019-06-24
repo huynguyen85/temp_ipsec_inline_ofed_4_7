@@ -1942,6 +1942,11 @@ esw_offloads_unload_vport_reps(struct mlx5_eswitch *esw, u16 vport_num)
 		__esw_offloads_unload_rep(esw, rep, rep_type);
 }
 
+int esw_vport_ingress_common_config(struct mlx5_eswitch *esw,
+				    struct mlx5_vport *vport);
+int esw_vport_egress_common_config(struct mlx5_eswitch *esw,
+				   struct mlx5_vport *vport);
+
 int mlx5_eswitch_setup_sf_vport(struct mlx5_eswitch *esw, u16 vport_num)
 {
 	struct mlx5_vport *evport = mlx5_eswitch_get_vport(esw, vport_num);
@@ -1952,9 +1957,36 @@ int mlx5_eswitch_setup_sf_vport(struct mlx5_eswitch *esw, u16 vport_num)
 
 	esw_debug(esw->dev, "%s: setup vport=0x%x\n", __func__, vport_num);
 	mlx5_eswitch_enable_vport(esw, evport, 0);
+
+	ret = esw_vport_ingress_common_config(esw, evport);
+	if (ret) {
+		esw_warn(esw->dev, "vport(%d) configure ingress acl err(%d)\n",
+			 vport_num, ret);
+		goto ingress_err;
+	}
+
+	ret = esw_vport_egress_common_config(esw, evport);
+	if (ret) {
+		esw_warn(esw->dev, "vport(%d) configure egress acl err(%d)\n",
+			 vport_num, ret);
+		goto egress_err;
+	}
+
 	ret = esw_offloads_load_vport_reps(esw, vport_num);
-	if (ret)
-		mlx5_eswitch_disable_vport(esw, evport);
+	if (ret) {
+		esw_warn(esw->dev, "vport(%d) load reps err(%d)\n",
+			 vport_num, ret);
+		goto load_reps_err;
+	}
+
+	return 0;
+
+load_reps_err:
+	esw_vport_disable_egress_acl(esw, evport);
+egress_err:
+	esw_vport_disable_ingress_acl(esw, evport);
+ingress_err:
+	mlx5_eswitch_disable_vport(esw, evport);
 	return ret;
 }
 
@@ -1967,6 +1999,8 @@ void mlx5_eswitch_cleanup_sf_vport(struct mlx5_eswitch *esw, u16 vport_num)
 
 	esw_debug(esw->dev, "%s: cleanup vport=0x%x\n", __func__, vport_num);
 	esw_offloads_unload_vport_reps(esw, vport_num);
+	esw_vport_disable_egress_acl(esw, evport);
+	esw_vport_disable_ingress_acl(esw, evport);
 	mlx5_eswitch_disable_vport(esw, evport);
 }
 
@@ -2228,24 +2262,10 @@ static int esw_vport_egress_prio_tag_config(struct mlx5_eswitch *esw,
 	struct mlx5_flow_spec *spec;
 	int err = 0;
 
-	if (!MLX5_CAP_GEN(esw->dev, prio_tag_required))
-		return 0;
-
 	/* For prio tag mode, there is only 1 FTEs:
 	 * 1) prio tag packets - pop the prio tag VLAN, allow
 	 * Unmatched traffic is allowed by default
 	 */
-
-	esw_vport_cleanup_egress_rules(esw, vport);
-
-	err = esw_vport_enable_egress_acl(esw, vport);
-	if (err) {
-		mlx5_core_warn(esw->dev,
-			       "failed to enable egress acl (%d) on vport[%d]\n",
-			       err, vport->vport);
-		return err;
-	}
-
 	esw_debug(esw->dev,
 		  "vport[%d] configure prio tag egress rules\n", vport->vport);
 
@@ -2284,8 +2304,34 @@ out_no_mem:
 	return err;
 }
 
-static int esw_vport_ingress_common_config(struct mlx5_eswitch *esw,
-					   struct mlx5_vport *vport)
+int esw_vport_egress_common_config(struct mlx5_eswitch *esw,
+				   struct mlx5_vport *vport)
+{
+	int err;
+
+	if (!MLX5_CAP_GEN(esw->dev, prio_tag_required))
+		return 0;
+
+	esw_vport_cleanup_egress_rules(esw, vport);
+
+	err = esw_vport_enable_egress_acl(esw, vport);
+	if (err) {
+		esw_warn(esw->dev, "vport(%d) failed to enable egress acl err(%d)\n",
+			 vport->vport, err);
+		return err;
+	}
+
+	esw_debug(esw->dev, "vport(%d) configure egress rules\n", vport->vport);
+
+	err = esw_vport_egress_prio_tag_config(esw, vport);
+	if (err)
+		esw_vport_disable_egress_acl(esw, vport);
+
+	return err;
+}
+
+int esw_vport_ingress_common_config(struct mlx5_eswitch *esw,
+				    struct mlx5_vport *vport)
 {
 	int err;
 
@@ -2313,8 +2359,9 @@ static int esw_vport_ingress_common_config(struct mlx5_eswitch *esw,
 	}
 
 	if (MLX5_CAP_GEN(esw->dev, prio_tag_required) &&
-	    (vport->vport >= MLX5_VPORT_FIRST_VF &&
-	     vport->vport <= esw->dev->priv.sriov.num_vfs)) {
+	    ((vport->vport >= MLX5_VPORT_FIRST_VF &&
+	      vport->vport <= esw->dev->priv.sriov.num_vfs) ||
+	     mlx5_eswitch_is_sf_vport(esw, vport->vport))) {
 		err = esw_vport_ingress_prio_tag_config(esw, vport);
 		if (err)
 			goto out;
@@ -2332,8 +2379,7 @@ static int esw_check_vport_match_metadata_supported(struct mlx5_eswitch *esw)
 		MLX5_FDB_TO_VPORT_REG_C_0) &&
 	       MLX5_CAP_ESW_FLOWTABLE(esw->dev, flow_source) &&
 	       MLX5_CAP_ESW(esw->dev, esw_uplink_ingress_acl) &&
-	       !mlx5_ecpf_vport_exists(esw->dev) &&
-	       !mlx5_eswitch_max_sfs(esw->dev);
+	       !mlx5_ecpf_vport_exists(esw->dev);
 }
 
 static int esw_create_offloads_acl_tables(struct mlx5_eswitch *esw)
@@ -2346,12 +2392,15 @@ static int esw_create_offloads_acl_tables(struct mlx5_eswitch *esw)
 		esw->flags |= MLX5_ESWITCH_VPORT_MATCH_METADATA;
 
 	mlx5_esw_for_all_vports(esw, i, vport) {
+		if (mlx5_eswitch_is_sf_vport(esw, vport->vport))
+			continue;
+
 		err = esw_vport_ingress_common_config(esw, vport);
 		if (err)
 			goto err_ingress;
 
 		if (mlx5_eswitch_is_vf_vport(esw, vport->vport)) {
-			err = esw_vport_egress_prio_tag_config(esw, vport);
+			err = esw_vport_egress_common_config(esw, vport);
 			if (err)
 				goto err_egress;
 		}
@@ -2367,6 +2416,8 @@ err_egress:
 err_ingress:
 	for (j = MLX5_VPORT_PF; j < i; j++) {
 		vport = &esw->vports[j];
+		if (mlx5_eswitch_is_sf_vport(esw, vport->vport))
+			continue;
 		esw_vport_disable_egress_acl(esw, vport);
 		esw_vport_disable_ingress_acl(esw, vport);
 	}
@@ -2380,6 +2431,8 @@ static void esw_destroy_offloads_acl_tables(struct mlx5_eswitch *esw)
 	int i;
 
 	mlx5_esw_for_all_vports(esw, i, vport) {
+		if (mlx5_eswitch_is_sf_vport(esw, vport->vport))
+			continue;
 		esw_vport_disable_egress_acl(esw, vport);
 		esw_vport_disable_ingress_acl(esw, vport);
 	}
