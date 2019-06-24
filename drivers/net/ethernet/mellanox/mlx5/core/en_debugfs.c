@@ -87,10 +87,14 @@ void mlx5e_create_debugfs(struct mlx5e_priv *priv)
 	debugfs_create_u8("num_tc", S_IRUSR, priv->dfs_root,
 			  &priv->channels.params.num_tc);
 
-	for (i = 0; i < priv->channels.params.num_tc; i++) {
-		snprintf(name, MLX5_MAX_DEBUGFS_NAME_LEN, "tisn-%d", i);
-		debugfs_create_u32(name, S_IRUSR, priv->dfs_root,
-				   &priv->tisn[i]);
+	for (i = 0; i < mlx5e_get_num_lag_ports(priv->mdev); i++) {
+		int tc;
+
+		for (tc = 0; tc < priv->channels.params.num_tc; tc++) {
+			snprintf(name, MLX5_MAX_DEBUGFS_NAME_LEN, "tisn-%d_%d", i, tc);
+			debugfs_create_u32(name, S_IRUSR, priv->dfs_root,
+					   &priv->tisn[i][tc]);
+		}
 	}
 
 	for (i = 0; i < MLX5E_NUM_INDIR_TIRS; i++) {
