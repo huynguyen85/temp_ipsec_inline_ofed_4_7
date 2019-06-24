@@ -187,8 +187,6 @@ Usage:  `basename $0` [options]
     --with-bf-power-failure-event make CONFIG_BF_POWER_FAILURE_EVENT=y [no]
     --without-bf-power-failure-event [yes]
 
-    --with-mlx5-miniflow     make CONFIG_MLX5_MINIFLOW=y [no]
-
     --with-mlx5-fs-debugfs    make CONFIG_ENABLE_MLX5_FS_DEBUGFS=y [no]
 
     --help - print out options
@@ -352,8 +350,6 @@ CONFIG_MLNX_BLOCK_REQUEST_MODULE=${CONFIG_MLNX_BLOCK_REQUEST_MODULE:-''}
 
 CONFIG_BF_DEVICE_EMULATION=${CONFIG_BF_DEVICE_EMULATION:-''}
 CONFIG_BF_POWER_FAILURE_EVENT=${CONFIG_BF_POWER_FAILURE_EVENT:-''}
-
-CONFIG_MLX5_MINIFLOW=${CONFIG_MLX5_MINIFLOW:-''}
 
 CONFIG_ENABLE_MLX5_FS_DEBUGFS=${CONFIG_ENABLE_MLX5_FS_DEBUGFS:-''}
 
@@ -1006,9 +1002,6 @@ main()
                         --without-bf-power-failure-event)
                         CONFIG_BF_POWER_FAILURE_EVENT=
                         ;;
-                        --with-mlx5-miniflow)
-                        CONFIG_MLX5_MINIFLOW="y"
-                        ;;
                         --with-mlx5-fs-debugfs)
                         CONFIG_ENABLE_MLX5_FS_DEBUGFS="y"
                         ;;
@@ -1444,7 +1437,6 @@ CONFIG_BF_DEVICE_EMULATION=${CONFIG_BF_DEVICE_EMULATION}
 
 CONFIG_BF_POWER_FAILURE_EVENT=${CONFIG_BF_POWER_FAILURE_EVENT}
 
-CONFIG_MLX5_MINIFLOW=${CONFIG_MLX5_MINIFLOW}
 CONFIG_ENABLE_MLX5_FS_DEBUGFS=${CONFIG_ENABLE_MLX5_FS_DEBUGFS}
 EOFCONFIG
         echo "Created ${CONFIG}:"
@@ -1889,12 +1881,6 @@ else
         DEFINE_CONFIG_BF_POWER_FAILURE_EVENT="#undef CONFIG_BF_POWER_FAILURE_EVENT"
 fi
 
-if [ "X${CONFIG_MLX5_MINIFLOW}" == "Xy" ]; then
-        DEFINE_CONFIG_MLX5_MINIFLOW="#undef CONFIG_MLX5_MINIFLOW\n#define CONFIG_MLX5_MINIFLOW 1"
-else
-        DEFINE_CONFIG_MLX5_MINIFLOW="#undef CONFIG_MLX5_MINIFLOW"
-fi
-
 if [ "X${CONFIG_ENABLE_MLX5_FS_DEBUGFS}" == "Xy" ]; then
         DEFINE_CONFIG_ENABLE_MLX5_FS_DEBUGFS="#undef CONFIG_ENABLE_MLX5_FS_DEBUGFS\n#define CONFIG_ENABLE_MLX5_FS_DEBUGFS 1"
 else
@@ -1990,7 +1976,6 @@ $(echo -e "${DEFINE_INFINIBAND_PA_MR}" | grep -v undef)
 $(echo -e "${DEFINE_CONFIG_MLNX_BLOCK_REQUEST_MODULE}" | grep -v undef)
 $(echo -e "${DEFINE_CONFIG_BF_DEVICE_EMULATION}" | grep -v undef)
 $(echo -e "${DEFINE_CONFIG_BF_POWER_FAILURE_EVENT}" | grep -v undef)
-$(echo -e "${DEFINE_CONFIG_MLX5_MINIFLOW}" | grep -v undef)
 $(echo -e "${DEFINE_CONFIG_ENABLE_MLX5_FS_DEBUGFS}" | grep -v undef)
 
 #else
@@ -2179,7 +2164,6 @@ $(echo -e "${DEFINE_INFINIBAND_PA_MR}")
 $(echo -e "${DEFINE_CONFIG_MLNX_BLOCK_REQUEST_MODULE}")
 $(echo -e "${DEFINE_CONFIG_BF_DEVICE_EMULATION}")
 $(echo -e "${DEFINE_CONFIG_BF_POWER_FAILURE_EVENT}")
-$(echo -e "${DEFINE_CONFIG_MLX5_MINIFLOW}")
 $(echo -e "${DEFINE_CONFIG_ENABLE_MLX5_FS_DEBUGFS}")
 #endif
 
