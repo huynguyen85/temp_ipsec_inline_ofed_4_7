@@ -1253,7 +1253,7 @@ static int mlx5e_rep_setup_tc_cb_egdev(enum tc_setup_type type, void *type_data,
 	struct mlx5e_priv *priv = cb_priv;
 
 	switch (type) {
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 	case TC_SETUP_MINIFLOW:
 		return miniflow_configure(priv, type_data);
 	case TC_SETUP_CT:
@@ -1273,7 +1273,7 @@ static int mlx5e_rep_setup_tc_cb(enum tc_setup_type type, void *type_data,
 	switch (type) {
 	case TC_SETUP_CLSFLOWER:
 		return mlx5e_rep_setup_tc_cls_flower(priv, type_data, flags);
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 	case TC_SETUP_MINIFLOW:
 		return miniflow_configure(priv, type_data);
 	case TC_SETUP_CT:
@@ -1960,7 +1960,7 @@ mlx5e_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 		if (err)
 			goto err_destroy_netdev;
 
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 		err = tc_setup_cb_egdev_all_register(rpriv->netdev,
 				mlx5e_rep_setup_tc_cb_egdev,
 				upriv);
@@ -2004,7 +2004,7 @@ err_detach_netdev:
 	mlx5e_detach_netdev(netdev_priv(netdev));
 
 err_unregister_egdev_all:
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 	if (rep->vport == MLX5_VPORT_UPLINK)
 		tc_setup_cb_egdev_all_unregister(rpriv->netdev,
 				mlx5e_rep_setup_tc_cb_egdev,
@@ -2038,7 +2038,7 @@ mlx5e_vport_rep_unload(struct mlx5_eswitch_rep *rep)
 	mlx5e_rep_neigh_cleanup(rpriv);
 	mlx5e_detach_netdev(priv);
 	if (rep->vport == MLX5_VPORT_UPLINK) {
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 		tc_setup_cb_egdev_all_unregister(rpriv->netdev,
 				mlx5e_rep_setup_tc_cb_egdev,
 				upriv);

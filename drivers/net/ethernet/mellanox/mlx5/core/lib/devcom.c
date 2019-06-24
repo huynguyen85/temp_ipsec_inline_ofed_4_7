@@ -72,7 +72,7 @@ struct mlx5_devcom *mlx5_devcom_register_device(struct mlx5_core_dev *dev)
 	u64 sguid0, sguid1;
 	int idx, i;
 
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
     return NULL;
 #endif
 

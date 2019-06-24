@@ -8,7 +8,7 @@
 #include "fs_core.h"
 #include "en_tc.h"
 
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 
 #define MFC_INFOMASK	7UL
 #define MFC_PTRMASK  	~(MFC_INFOMASK)
@@ -75,11 +75,11 @@ int ct_flow_offload_add(void *arg, struct list_head *head);
 void ct_flow_offload_get_stats(struct list_head *head, u64 *lastuse);
 int ct_flow_offload_destroy(struct list_head *head);
 
-#else /* CONFIG_MLX5_MINIFLOW */
+#else /* HAVE_MINIFLOW */
 
 static inline void mlx5e_del_miniflow_list(struct mlx5e_tc_flow *flow) {}
 static inline int miniflow_cache_init(struct mlx5e_priv *priv) { return 0; }
 static inline void miniflow_cache_destroy(struct mlx5e_priv *priv) {}
 
-#endif /* CONFIG_MLX5_MINIFLOW */
+#endif /* HAVE_MINIFLOW */
 #endif /* __MLX5_MINIFLOW_H__ */

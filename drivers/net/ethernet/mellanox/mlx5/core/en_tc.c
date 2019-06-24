@@ -1093,7 +1093,7 @@ mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
 	int err = 0;
 	int out_index;
 
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 	if (!mlx5_eswitch_prios_supported(esw))
 		attr->prio = 1;
 #else
@@ -2070,7 +2070,7 @@ static int __parse_cls_flower(struct mlx5e_priv *priv,
 	return 0;
 }
 
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 static bool is_valid_ct_state(struct mlx5e_priv *priv,
 			      struct tc_cls_flower_offload *f)
 {
@@ -2105,7 +2105,7 @@ static int parse_cls_flower(struct mlx5e_priv *priv,
 	bool is_eswitch_flow;
 	int err;
 
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 	if (!is_valid_ct_state(priv, f))
 		return -EOPNOTSUPP;
 #endif
@@ -3232,7 +3232,7 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 				if (!mlx5e_eswitch_rep(out_dev))
 					return -EOPNOTSUPP;
 
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 				if (atomic_read(&flow->flags) & MLX5E_TC_FLOW_EGRESS) {
 					action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
 				}
@@ -3314,7 +3314,7 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 			action |= MLX5_FLOW_CONTEXT_ACTION_CT;
 			continue;
 		case FLOW_ACTION_GOTO: {
-#ifndef CONFIG_MLX5_MINIFLOW
+#ifndef HAVE_MINIFLOW
 			u32 dest_chain = act->chain_index;
 			u32 max_chain = mlx5_eswitch_get_chain_range(esw);
 
@@ -3377,7 +3377,7 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 		}
 	}
 
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 	if ((action & MLX5_FLOW_CONTEXT_ACTION_CT) &&
 	    !(action & MLX5_FLOW_CONTEXT_ACTION_GOTO)) {
 		netdev_warn(priv->netdev, "CT action is not supported without goto");
@@ -3546,7 +3546,7 @@ mlx5e_flow_esw_attr_init(struct mlx5_esw_flow_attr *esw_attr,
 
 static bool is_flow_simple(struct mlx5e_tc_flow *flow)
 {
-#ifdef CONFIG_MLX5_MINIFLOW
+#ifdef HAVE_MINIFLOW
 	if (flow->esw_attr->chain)
 		return false;
 
