@@ -72,10 +72,6 @@ struct mlx5_devcom *mlx5_devcom_register_device(struct mlx5_core_dev *dev)
 	u64 sguid0, sguid1;
 	int idx, i;
 
-#ifdef HAVE_MINIFLOW
-    return NULL;
-#endif
-
 	if (!mlx5_core_is_pf(dev))
 		return NULL;
 

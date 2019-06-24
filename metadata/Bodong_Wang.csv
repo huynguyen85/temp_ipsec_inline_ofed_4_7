@@ -44,3 +44,4 @@ Change-Id=Ida7437fd0b6a48225c2f815b6272921777080812; subject=IB/mlx5: Support qu
 Change-Id=I919af3c4620b50cb07490c49ab9c82797c849105; subject=net/mlx5: Miniflow, Reset saved flow pointer to NULL; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=I80780fd53c9db5d19fa79cb72d9c817e9912f0e1; subject=net/mlx5: Don't check priv when configure CT; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=I93ae4fe38c89d75c3e342eab500426d3ff61dcac; subject=net/mlx5: miniflow, fix use-after-free of dummy counters; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I17c8e98a4ccf64db0fb0593508ed0253d393a458; subject=net/mlx5: Enable devcom; feature=mlx5e_st_ct; upstream_status=NA; general=;
