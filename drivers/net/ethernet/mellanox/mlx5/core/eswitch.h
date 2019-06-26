@@ -97,6 +97,7 @@ struct vport_egress {
 	struct list_head        allow_vlans_rules;
 	struct mlx5_fc           *drop_counter;
 	struct mlx5_flow_handle  *allowed_vlan;
+	struct mlx5_flow_handle  *fwd_rule;
 };
 
 struct mlx5_vport_drop_stats {
@@ -338,6 +339,10 @@ int esw_sf_vport_add_fdb_peer_miss_rule(struct mlx5_eswitch *esw,
 					struct mlx5_vport *vport);
 void esw_sf_vport_del_fdb_peer_miss_rule(struct mlx5_eswitch *esw,
 					 struct mlx5_vport *vport);
+int esw_set_egress_fwd2vport(struct mlx5_eswitch *esw, u16 esw_vport_num,
+			     u16 dst_vport_num);
+void esw_del_egress_fwd2vport(struct mlx5_eswitch *esw, u16 esw_vport_num);
+
 /* E-Switch API */
 int mlx5_eswitch_init(struct mlx5_core_dev *dev);
 void mlx5_eswitch_cleanup(struct mlx5_eswitch *esw);

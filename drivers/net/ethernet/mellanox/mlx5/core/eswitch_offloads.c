@@ -2428,12 +2428,66 @@ static int esw_vport_egress_prio_tag_config(struct mlx5_eswitch *esw,
 	return err;
 }
 
+int esw_set_egress_fwd2vport(struct mlx5_eswitch *esw, u16 esw_vport_num,
+			     u16 dst_vport_num)
+{
+	struct mlx5_vport *vport = mlx5_eswitch_get_vport(esw, esw_vport_num);
+	struct mlx5_flow_destination fwd_dest;
+	struct mlx5_flow_act flow_act = {};
+	struct mlx5_flow_spec *spec;
+	int err = 0;
+
+	if (!MLX5_CAP_ESW_FLOWTABLE(esw->dev, egress_acl_forward_to_vport))
+		return -EOPNOTSUPP;
+
+	/* Delete the old egress forward-to-vport rule if any */
+	esw_del_egress_fwd2vport(esw, esw_vport_num);
+
+	esw_debug(esw->dev, "vport(%d) configure egress acl fwd2vport rule\n",
+		  vport->vport);
+
+	spec = kvzalloc(sizeof(*spec), GFP_KERNEL);
+	if (!spec)
+		return -ENOMEM;
+
+	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
+	fwd_dest.type = MLX5_FLOW_DESTINATION_TYPE_VPORT;
+	fwd_dest.vport.num = dst_vport_num;
+
+	vport->egress.fwd_rule =
+		mlx5_add_flow_rules(vport->egress.acl, spec,
+				    &flow_act, &fwd_dest, 1);
+	if (IS_ERR(vport->egress.fwd_rule)) {
+		err = PTR_ERR(vport->egress.fwd_rule);
+		esw_warn(esw->dev,
+			 "vport(%d) failed to add fwd2vport acl rule err(%d)\n",
+			 vport->vport, err);
+		vport->egress.fwd_rule = NULL;
+	}
+
+	kvfree(spec);
+	return err;
+}
+
+void esw_del_egress_fwd2vport(struct mlx5_eswitch *esw, u16 esw_vport_num)
+{
+	struct mlx5_vport *vport = mlx5_eswitch_get_vport(esw, esw_vport_num);
+
+	if (!MLX5_CAP_ESW_FLOWTABLE(esw->dev, egress_acl_forward_to_vport) ||
+	    !vport->egress.fwd_rule)
+		return;
+
+	mlx5_del_flow_rules(vport->egress.fwd_rule);
+	vport->egress.fwd_rule = NULL;
+}
+
 int esw_vport_egress_config(struct mlx5_eswitch *esw,
 			    struct mlx5_vport *vport)
 {
 	int err;
 
-	if (!MLX5_CAP_GEN(esw->dev, prio_tag_required))
+	if (!MLX5_CAP_ESW_FLOWTABLE(esw->dev, egress_acl_forward_to_vport) &&
+	    !MLX5_CAP_GEN(esw->dev, prio_tag_required))
 		return 0;
 
 	esw_vport_cleanup_egress_rules(esw, vport);
@@ -2447,9 +2501,11 @@ int esw_vport_egress_config(struct mlx5_eswitch *esw,
 
 	esw_debug(esw->dev, "vport(%d) configure egress rules\n", vport->vport);
 
-	err = esw_vport_egress_prio_tag_config(esw, vport);
-	if (err)
-		esw_vport_disable_egress_acl(esw, vport);
+	if (MLX5_CAP_GEN(esw->dev, prio_tag_required)) {
+		err = esw_vport_egress_prio_tag_config(esw, vport);
+		if (err)
+			esw_vport_disable_egress_acl(esw, vport);
+	}
 
 	return err;
 }
@@ -2557,6 +2613,10 @@ static void esw_destroy_offloads_acl_tables(struct mlx5_eswitch *esw)
 	mlx5_esw_for_all_vports(esw, i, vport) {
 		if (mlx5_eswitch_is_sf_vport(esw, vport->vport))
 			continue;
+
+		if (mlx5_eswitch_is_vf_vport(esw, vport->vport))
+			esw_del_egress_fwd2vport(esw, vport->vport);
+
 		esw_vport_disable_egress_acl(esw, vport);
 		esw_vport_disable_ingress_acl(esw, vport);
 	}
