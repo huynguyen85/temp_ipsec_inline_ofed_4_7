@@ -1119,6 +1119,11 @@ static bool mlx5e_is_rep_vf_vport(struct mlx5_core_dev *dev,
 		rep->vport <= mlx5_core_max_vfs(dev);
 }
 
+static u32 get_sf_phys_port_num(const struct mlx5_core_dev *dev, u16 vport_num)
+{
+	return (MLX5_CAP_GEN(dev, vhca_id) << 16) | vport_num;
+}
+
 static int mlx5e_rep_get_phys_port_name(struct net_device *dev,
 					char *buf, size_t len)
 {
@@ -1138,7 +1143,8 @@ static int mlx5e_rep_get_phys_port_name(struct net_device *dev,
 		 mlx5e_is_rep_vf_vport(priv->mdev, rep))
 		ret = snprintf(buf, len, "pf%dvf%d", fn, rep->vport - 1);
 	else
-		ret = snprintf(buf, len, "pf%dp%d", fn, rep->vport);
+		ret = snprintf(buf, len, "p%d",
+			       get_sf_phys_port_num(priv->mdev, rep->vport));
 
 	if (ret >= len)
 		return -EOPNOTSUPP;
