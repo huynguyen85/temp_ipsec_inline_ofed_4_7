@@ -1134,9 +1134,8 @@ static int mlx5e_rep_get_phys_port_name(struct net_device *dev,
 
 	if (rep->vport == MLX5_VPORT_UPLINK)
 		ret = snprintf(buf, len, "p%d", fn);
-	else if (rep->vport == MLX5_VPORT_PF)
-		ret = snprintf(buf, len, "pf%d", fn);
-	else if (mlx5e_is_rep_vf_vport(priv->mdev, rep))
+	else if (rep->vport == MLX5_VPORT_PF ||
+		 mlx5e_is_rep_vf_vport(priv->mdev, rep))
 		ret = snprintf(buf, len, "pf%dvf%d", fn, rep->vport - 1);
 	else
 		ret = snprintf(buf, len, "pf%dp%d", fn, rep->vport);
