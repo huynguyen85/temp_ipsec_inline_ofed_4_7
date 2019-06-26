@@ -173,7 +173,9 @@ do {                                                            \
 
 static inline u8 mlx5e_get_num_lag_ports(struct mlx5_core_dev *mdev)
 {
-	return min_t(u8, MLX5_MAX_PORTS, MLX5_CAP_GEN(mdev, num_lag_ports));
+	u8 ret = min_t(u8, MLX5_MAX_PORTS, MLX5_CAP_GEN(mdev, num_lag_ports));
+
+	return ret ? : 1;
 }
 
 static inline u16 mlx5_min_rx_wqes(int wq_type, u32 wq_size)
