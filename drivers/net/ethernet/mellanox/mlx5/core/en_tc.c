@@ -1246,8 +1246,7 @@ static void __mlx5e_tc_del_fdb_peer_flow(struct mlx5e_tc_flow *flow)
 {
 	struct mlx5_eswitch *esw = flow->priv->mdev->priv.eswitch;
 
-	if (!(flow->flags & MLX5E_TC_FLOW_ESWITCH) ||
-	    !(flow->flags & MLX5E_TC_FLOW_DUP))
+	if (!(flow->flags & MLX5E_TC_FLOW_DUP))
 		return;
 
 	mutex_lock(&esw->offloads.peer_mutex);
