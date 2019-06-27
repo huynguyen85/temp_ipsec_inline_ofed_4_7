@@ -1143,7 +1143,7 @@ static int mlx5e_rep_get_phys_port_name(struct net_device *dev,
 		 mlx5e_is_rep_vf_vport(priv->mdev, rep))
 		ret = snprintf(buf, len, "pf%dvf%d", fn, rep->vport - 1);
 	else
-		ret = snprintf(buf, len, "p%d",
+		ret = snprintf(buf, len, "pf%dp%d", fn,
 			       get_sf_phys_port_num(priv->mdev, rep->vport));
 
 	if (ret >= len)
