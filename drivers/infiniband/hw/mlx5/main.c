@@ -2051,7 +2051,7 @@ static int mlx5_ib_alloc_ucontext(struct ib_ucontext *uctx,
 	print_lib_caps(dev, context->lib_caps);
 
 	if (dev->lag_active ||
-	    MLX5_CAP_GEN(dev->mdev, lag_tx_port_affinity)) {
+	    mlx5_lag_tx_port_affinity_support(dev->mdev)) {
 		u8 port = mlx5_core_native_port_num(dev->mdev) - 1;
 
 		atomic_set(&context->tx_port_affinity,

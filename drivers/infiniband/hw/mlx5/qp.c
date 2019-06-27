@@ -3960,7 +3960,7 @@ static int __mlx5_ib_modify_qp(struct ib_qp *ibqp,
 		    (ibqp->qp_type == IB_QPT_XRC_TGT) ||
 		    (ibqp->qp_type == IB_EXP_QPT_DC_INI)) {
 			if (dev->lag_active ||
-			    MLX5_CAP_GEN(dev->mdev, lag_tx_port_affinity)) {
+			    mlx5_lag_tx_port_affinity_support(dev->mdev)) {
 				u8 p = mlx5_core_native_port_num(dev->mdev) - 1;
 				tx_affinity = get_tx_affinity(dev, pd, base, p,
 							      udata);

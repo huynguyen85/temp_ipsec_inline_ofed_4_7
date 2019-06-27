@@ -3351,7 +3351,7 @@ int mlx5e_create_tis(struct mlx5_core_dev *mdev, int tc,
 	if (mlx5_lag_is_lacp_owner(mdev))
 		MLX5_SET(tisc, tisc, strict_lag_tx_port_affinity, 1);
 
-	if (MLX5_CAP_GEN(mdev, lag_tx_port_affinity))
+	if (mlx5_lag_tx_port_affinity_support(mdev))
 		MLX5_SET(tisc, tisc, lag_tx_port_affinity, tx_affinity);
 
 	return mlx5_core_create_tis(mdev, in, sizeof(in), tisn);

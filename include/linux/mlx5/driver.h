@@ -1226,6 +1226,13 @@ void mlx5_put_uars_page(struct mlx5_core_dev *mdev, struct mlx5_uars_page *up);
 
 int mlx5_lag_modify_cong_params(struct mlx5_core_dev *dev,
 				void *in, int in_size);
+
+static inline bool mlx5_lag_tx_port_affinity_support(struct mlx5_core_dev *dev)
+{
+	return (MLX5_CAP_GEN(dev, num_lag_ports) > 1) &&
+		MLX5_CAP_GEN(dev, lag_tx_port_affinity);
+}
+
 #ifdef CONFIG_MLX5_CORE_IPOIB
 struct net_device *mlx5_rdma_netdev_alloc(struct mlx5_core_dev *mdev,
 					  struct ib_device *ibdev,
