@@ -1,0 +1,5 @@
+sep=;
+Change-Id=Ic2bcd5fc0416e863c03c69aa6a7b0bd1433107db; subject=net/mlx5: Refactor and optimize flow counter bulk query; feature=mlx5_asap; upstream_status=accepted; general=;  tag: v5.3-rc1;
+Change-Id=Ide0548668459cb1853aaa4bd4554a5da615ab8a9; subject=net/mlx5: Add flow counter bulk allocation hardware bits and command; feature=mlx5_asap; upstream_status=accepted; general=; tag: v5.3-rc1;
+Change-Id=I8717978f3ab257aa511aaede82e18cd25f76cf8b; subject=net/mlx5: Add flow counter bulk infrastructure; feature=mlx5_asap; upstream_status=accepted; general=;tag: v5.3-rc1;
+Change-Id=Ib45f3c7d51979550245fb66dbb3fd637e4073852; subject=net/mlx5: Add flow counter pool; feature=mlx5_asap; upstream_status=accepted; general=;tag: v5.3-rc1;
