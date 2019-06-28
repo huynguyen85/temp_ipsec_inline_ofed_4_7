@@ -34,3 +34,6 @@ Change-Id=I055e72d62ba8866985872e717c6e8fe5506aa3de; subject=net/mlx5: Move pci 
 Change-Id=I8349182d9f87ff34ad1589d5f4b2157f0f02ae96; subject=net/mlx5: Sync max_vfs initialization with upstream; feature=mlx5_sfs; upstream_status=NA; general=;
 Change-Id=Ic5edcc99f693d7625ecd4dfe8f92e7b0fa92f065; subject=net/mlx5: Introduce a helper API to check VF vport; feature=mlx5_sfs; upstream_status=accepted; general=;
 Change-Id=I102dc85f7d31e614316e05d7399df8afeaf828ab; subject=net/mlx5: Add hardware definitions for sub functions; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I82e8f8b5a633f70552397f90c3f361eea2d10d5a; subject={IB, net}/mlx5: No need to typecast from void* to mlx5_ib_dev*; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I055441a6180c9b775f82069c5b8db53b172e2061; subject={IB,net}/mlx5: Constify rep ops functions pointers; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=If344737379693340ada701a1c54863cf03aa7ba5; subject=net/mlx5e: Set drvinfo in generic manner; feature=mlx5_sfs; upstream_status=accepted; general=;
