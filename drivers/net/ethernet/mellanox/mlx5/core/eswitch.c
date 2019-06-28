@@ -2232,6 +2232,28 @@ int mlx5_esw_query_functions(struct mlx5_core_dev *dev, u32 *out, int outlen)
 	return mlx5_cmd_exec(dev, in, sizeof(in), out, outlen);
 }
 
+static void mlx5_eswitch_event_handlers_register(struct mlx5_eswitch *esw)
+{
+	if (esw->mode == MLX5_ESWITCH_LEGACY) {
+		MLX5_NB_INIT(&esw->nb, eswitch_vport_event, NIC_VPORT_CHANGE);
+		mlx5_eq_notifier_register(esw->dev, &esw->nb);
+	} else if (mlx5_eswitch_is_funcs_handler(esw->dev)) {
+		MLX5_NB_INIT(&esw->esw_funcs.nb, mlx5_esw_funcs_changed_handler,
+			     ESW_FUNCTIONS_CHANGED);
+		mlx5_eq_notifier_register(esw->dev, &esw->esw_funcs.nb);
+	}
+}
+
+static void mlx5_eswitch_event_handlers_unregister(struct mlx5_eswitch *esw)
+{
+	if (esw->mode == MLX5_ESWITCH_LEGACY)
+		mlx5_eq_notifier_unregister(esw->dev, &esw->nb);
+	else if (mlx5_eswitch_is_funcs_handler(esw->dev))
+		mlx5_eq_notifier_unregister(esw->dev, &esw->esw_funcs.nb);
+
+	flush_workqueue(esw->work_queue);
+}
+
 /* Public E-Switch API */
 #define ESW_ALLOWED(esw) ((esw) && MLX5_ESWITCH_MANAGER((esw)->dev))
 
@@ -2294,10 +2316,7 @@ int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int mode)
 	mlx5_esw_for_each_vf_vport(esw, i, vport, esw->esw_funcs.num_vfs)
 		esw_enable_vport(esw, vport, enabled_events);
 
-	if (mode == MLX5_ESWITCH_LEGACY) {
-		MLX5_NB_INIT(&esw->nb, eswitch_vport_event, NIC_VPORT_CHANGE);
-		mlx5_eq_notifier_register(esw->dev, &esw->nb);
-	}
+	mlx5_eswitch_event_handlers_register(esw);
 
 	esw_info(esw->dev, "Enable: mode(%s), nvfs(%d), active vports(%d)\n",
 		 mode == MLX5_ESWITCH_LEGACY ? "LEGACY" : "OFFLOADS",
@@ -2331,9 +2350,7 @@ void mlx5_eswitch_disable(struct mlx5_eswitch *esw)
 		 esw->esw_funcs.num_vfs, esw->enabled_vports);
 
 	mc_promisc = &esw->mc_promisc;
-
-	if (esw->mode == MLX5_ESWITCH_LEGACY)
-		mlx5_eq_notifier_unregister(esw->dev, &esw->nb);
+	mlx5_eswitch_event_handlers_unregister(esw);
 
 	mlx5_esw_for_all_vports(esw, i, vport)
 		esw_disable_vport(esw, vport);
