@@ -91,7 +91,6 @@ struct devx_async_event_file {
 
 #define MLX5_MAX_DESTROY_INBOX_SIZE_DW MLX5_ST_SZ_DW(delete_fte_in)
 struct devx_obj {
-	struct mlx5_core_dev	*mdev;
 	struct mlx5_ib_dev	*ib_dev;
 	u64			obj_id;
 	u32			dinlen; /* destroy inbox length */
@@ -1298,7 +1297,7 @@ static void devx_free_indirect_mkey(struct rcu_head *rcu)
  */
 static void devx_cleanup_mkey(struct devx_obj *obj)
 {
-	struct mlx5_mkey_table *table = &obj->mdev->priv.mkey_table;
+	struct mlx5_mkey_table *table = &obj->ib_dev->mdev->priv.mkey_table;
 	unsigned long flags;
 
 	spin_lock_irqsave(&table->lock, flags);
@@ -1351,12 +1350,12 @@ static int devx_obj_cleanup(struct ib_uobject *uobject,
 		devx_cleanup_mkey(obj);
 
 	if (obj->flags & DEVX_OBJ_FLAGS_DCT)
-		ret = mlx5_core_destroy_dct(obj->mdev, &obj->core_dct);
+		ret = mlx5_core_destroy_dct(obj->ib_dev->mdev, &obj->core_dct);
 	else if (obj->flags & DEVX_OBJ_FLAGS_CQ)
-		ret = mlx5_core_destroy_cq(obj->mdev, &obj->core_cq);
+		ret = mlx5_core_destroy_cq(obj->ib_dev->mdev, &obj->core_cq);
 	else
-		ret = mlx5_cmd_exec(obj->mdev, obj->dinbox, obj->dinlen, out,
-				    sizeof(out));
+		ret = mlx5_cmd_exec(obj->ib_dev->mdev, obj->dinbox,
+				    obj->dinlen, out, sizeof(out));
 	if (ib_is_destroy_retryable(ret, why, uobject))
 		return ret;
 
@@ -1467,7 +1466,6 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_DEVX_OBJ_CREATE)(
 		goto obj_free;
 
 	uobj->object = obj;
-	obj->mdev = dev->mdev;
 	INIT_LIST_HEAD(&obj->event_sub);
 	obj->ib_dev = dev;
 	devx_obj_build_destroy_cmd(cmd_in, cmd_out, obj->dinbox, &obj->dinlen,
@@ -1496,11 +1494,11 @@ err_copy:
 		devx_cleanup_mkey(obj);
 obj_destroy:
 	if (obj->flags & DEVX_OBJ_FLAGS_DCT)
-		mlx5_core_destroy_dct(obj->mdev, &obj->core_dct);
+		mlx5_core_destroy_dct(obj->ib_dev->mdev, &obj->core_dct);
 	else if (obj->flags & DEVX_OBJ_FLAGS_CQ)
-		mlx5_core_destroy_cq(obj->mdev, &obj->core_cq);
+		mlx5_core_destroy_cq(obj->ib_dev->mdev, &obj->core_cq);
 	else
-		mlx5_cmd_exec(obj->mdev, obj->dinbox, obj->dinlen, out,
+		mlx5_cmd_exec(obj->ib_dev->mdev, obj->dinbox, obj->dinlen, out,
 			      sizeof(out));
 obj_free:
 	kfree(obj);
