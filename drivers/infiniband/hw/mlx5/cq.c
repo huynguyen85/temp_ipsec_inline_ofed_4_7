@@ -42,7 +42,7 @@
 #include <asm/pnv-pci.h>
 #endif
 
-static void mlx5_ib_cq_comp(struct mlx5_core_cq *cq)
+static void mlx5_ib_cq_comp(struct mlx5_core_cq *cq, struct mlx5_eqe *eqe)
 {
 	struct mlx5_ib_cq *mlx5ib_cq = to_mibcq(cq);
 	struct ib_cq *ibcq = &mlx5ib_cq->ibcq;
