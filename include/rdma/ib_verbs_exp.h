@@ -286,7 +286,7 @@ struct ib_exp_context_attr {
 
 enum ib_exp_tm_cap_flags {
 	/*  Support tag matching on RC transport */
-	IB_EXP_TM_CAP_RC	    = IB_TM_CAP_RC,
+	IB_EXP_TM_CAP_RC	    = IB_TM_CAP_RNDV_RC,
 	/*  Support tag matching on DC transport */
 	IB_EXP_TM_CAP_DC	    = 1 << 1,
 };
