@@ -35,6 +35,7 @@ struct mlx5_lag {
 	u8                        flags;
 	bool			  shared_fdb;
 	u32			  esw_updating;
+	struct kref		  ref;
 	u8                        v2p_map[MLX5_MAX_PORTS];
 	struct lag_func           pf[MLX5_MAX_PORTS];
 	struct lag_tracker        tracker;

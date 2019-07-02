@@ -581,15 +581,32 @@ static struct mlx5_lag *mlx5_lag_dev_alloc(void)
 		return NULL;
 	}
 
+	kref_init(&ldev->ref);
 	INIT_DELAYED_WORK(&ldev->bond_work, mlx5_do_bond_work);
 
 	return ldev;
 }
 
-static void mlx5_lag_dev_free(struct mlx5_lag *ldev)
+static void mlx5_lag_dev_free(struct kref *ref)
 {
+	struct mlx5_lag *ldev = container_of(ref, struct mlx5_lag, ref);
+
+	if (ldev->nb.notifier_call)
+		unregister_netdevice_notifier(&ldev->nb);
+	mlx5_lag_mp_cleanup(ldev);
+	cancel_delayed_work_sync(&ldev->bond_work);
 	destroy_workqueue(ldev->wq);
 	kfree(ldev);
+}
+
+static void mlx5_lag_dev_put(struct mlx5_lag *ldev)
+{
+	kref_put(&ldev->ref, mlx5_lag_dev_free);
+}
+
+static void mlx5_ldev_get(struct mlx5_lag *ldev)
+{
+	kref_get(&ldev->ref);
 }
 
 static void mlx5_lag_dev_add_pf(struct mlx5_lag *ldev,
@@ -627,7 +644,8 @@ static void mlx5_lag_dev_remove_pf(struct mlx5_lag *ldev,
 	mutex_lock(&lag_mutex);
 	memset(&ldev->pf[i], 0, sizeof(*ldev->pf));
 
-	dev->priv.lag = NULL;
+	if (kref_read(&ldev->ref) <= 2)
+		dev->priv.lag = NULL;
 	mutex_unlock(&lag_mutex);
 }
 
@@ -759,6 +777,8 @@ static void __mlx5_lag_add(struct mlx5_core_dev *dev, struct net_device *netdev)
 			mlx5_core_err(dev, "Failed to alloc lag dev\n");
 			goto remove_file;
 		}
+	} else {
+		mlx5_ldev_get(ldev);
 	}
 
 	mlx5_lag_dev_add_pf(ldev, dev, netdev);
@@ -788,7 +808,6 @@ remove_file:
 static void __mlx5_lag_remove(struct mlx5_core_dev *dev)
 {
 	struct mlx5_lag *ldev;
-	int i;
 
 	ldev = mlx5_lag_dev_get(dev);
 	if (!ldev)
@@ -800,18 +819,7 @@ static void __mlx5_lag_remove(struct mlx5_core_dev *dev)
 		mlx5_deactivate_lag(ldev);
 
 	mlx5_lag_dev_remove_pf(ldev, dev);
-
-	for (i = 0; i < MLX5_MAX_PORTS; i++)
-		if (ldev->pf[i].dev)
-			break;
-
-	if (i == MLX5_MAX_PORTS) {
-		if (ldev->nb.notifier_call)
-			unregister_netdevice_notifier(&ldev->nb);
-		mlx5_lag_mp_cleanup(ldev);
-		cancel_delayed_work_sync(&ldev->bond_work);
-		mlx5_lag_dev_free(ldev);
-	}
+	mlx5_lag_dev_put(ldev);
 }
 
 void mlx5_lag_remove(struct mlx5_core_dev *dev, bool intf_mutex_held)
@@ -933,6 +941,7 @@ void mlx5_lag_disable(struct mlx5_core_dev *dev)
 	if (!ldev)
 		goto unlock;
 
+	mlx5_ldev_get(ldev);
 	ldev->esw_updating++;
 
 	if (!__mlx5_lag_is_active(ldev))
@@ -959,6 +968,7 @@ void mlx5_lag_enable(struct mlx5_core_dev *dev)
 		goto unlock;
 
 	mlx5_do_bond(ldev);
+	mlx5_lag_dev_put(ldev);
 
 unlock:
 	mlx5_dev_list_unlock();
