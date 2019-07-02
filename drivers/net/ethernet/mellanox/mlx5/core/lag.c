@@ -733,7 +733,7 @@ out:
 }
 
 /* Must be called with intf_mutex held */
-void mlx5_lag_add(struct mlx5_core_dev *dev, struct net_device *netdev)
+static void __mlx5_lag_add(struct mlx5_core_dev *dev, struct net_device *netdev)
 {
 	struct mlx5_lag *ldev = NULL;
 	struct mlx5_core_dev *tmp_dev;
@@ -785,7 +785,7 @@ remove_file:
 }
 
 /* Must be called with intf_mutex held */
-void mlx5_lag_remove(struct mlx5_core_dev *dev)
+static void __mlx5_lag_remove(struct mlx5_core_dev *dev)
 {
 	struct mlx5_lag *ldev;
 	int i;
@@ -812,6 +812,26 @@ void mlx5_lag_remove(struct mlx5_core_dev *dev)
 		cancel_delayed_work_sync(&ldev->bond_work);
 		mlx5_lag_dev_free(ldev);
 	}
+}
+
+void mlx5_lag_remove(struct mlx5_core_dev *dev, bool intf_mutex_held)
+{
+	if (!intf_mutex_held)
+		mlx5_dev_list_lock();
+	__mlx5_lag_remove(dev);
+	if (!intf_mutex_held)
+		mlx5_dev_list_unlock();
+}
+
+void mlx5_lag_add(struct mlx5_core_dev *dev,
+		  struct net_device *netdev,
+		  bool intf_mutex_held)
+{
+	if (!intf_mutex_held)
+		mlx5_dev_list_lock();
+	__mlx5_lag_add(dev, netdev);
+	if (!intf_mutex_held)
+		mlx5_dev_list_unlock();
 }
 
 bool mlx5_lag_is_roce(struct mlx5_core_dev *dev)

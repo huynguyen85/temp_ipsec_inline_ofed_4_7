@@ -261,8 +261,11 @@ int mlx5_query_pddr_troubleshooting_info(struct mlx5_core_dev *mdev,
 					 u16 *monitor_opcode,
 					 u8 *status_message);
 
-void mlx5_lag_add(struct mlx5_core_dev *dev, struct net_device *netdev);
-void mlx5_lag_remove(struct mlx5_core_dev *dev);
+void mlx5_lag_add(struct mlx5_core_dev *dev,
+		  struct net_device *netdev,
+		  bool intf_mutex_held);
+void mlx5_lag_remove(struct mlx5_core_dev *dev,
+		     bool intf_mutex_held);
 
 int mlx5_irq_table_init(struct mlx5_core_dev *dev);
 void mlx5_irq_table_cleanup(struct mlx5_core_dev *dev);

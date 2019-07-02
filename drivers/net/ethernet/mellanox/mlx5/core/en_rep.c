@@ -1872,7 +1872,7 @@ static void mlx5e_uplink_rep_enable(struct mlx5e_priv *priv)
 	INIT_WORK(&rpriv->uplink_priv.reoffload_flows_work,
 		  mlx5e_tc_reoffload_flows_work);
 
-	mlx5_lag_add(mdev, netdev);
+	mlx5_lag_add(mdev, netdev, false);
 	priv->events_nb.notifier_call = uplink_rep_async_event;
 	mlx5_notifier_register(mdev, &priv->events_nb);
 #ifdef CONFIG_MLX5_CORE_EN_DCB
@@ -1891,7 +1891,7 @@ static void mlx5e_uplink_rep_disable(struct mlx5e_priv *priv)
 #endif
 	mlx5_notifier_unregister(mdev, &priv->events_nb);
 	cancel_work_sync(&rpriv->uplink_priv.reoffload_flows_work);
-	mlx5_lag_remove(mdev);
+	mlx5_lag_remove(mdev, false);
 }
 
 static const struct mlx5e_profile mlx5e_rep_profile = {
