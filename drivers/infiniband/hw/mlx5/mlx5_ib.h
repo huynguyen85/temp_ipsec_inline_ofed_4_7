@@ -522,6 +522,10 @@ struct mlx5_ib_qp {
 	enum ib_qp_type		qp_sub_type;
 	struct rdma_ah_attr	ah;
 	u8			tclass;
+	/* A flag to indicate if there's a new counter is configured
+	 * but not take effective
+	 */
+	u32                     counter_pending;
 };
 
 struct mlx5_ib_cq_buf {
@@ -1678,4 +1682,6 @@ static inline bool mlx5_valid_roce_udp_sport(u16 sport)
 {
 	return (sport >= 0xC000) && (sport <= 0xffff);
 }
+
+int mlx5_ib_qp_set_counter(struct ib_qp *qp, struct rdma_counter *counter);
 #endif /* MLX5_IB_H */
