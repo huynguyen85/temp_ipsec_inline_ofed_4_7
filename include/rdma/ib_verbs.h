@@ -2979,12 +2979,14 @@ static inline int rdma_user_mmap_io(struct ib_ucontext *ucontext,
 
 static inline int ib_copy_from_udata(void *dest, struct ib_udata *udata, size_t len)
 {
-	return udata->ops->copy_from(dest, udata, len);
+	return copy_from_user(dest, udata->inbuf, len) ? -EFAULT : 0;
+// 	return udata->ops->copy_from(dest, udata, len);
 }
 
 static inline int ib_copy_to_udata(struct ib_udata *udata, void *src, size_t len)
 {
-	return udata->ops->copy_to(udata, src, len);
+	return copy_to_user(udata->outbuf, src, len) ? -EFAULT : 0;
+// 	return udata->ops->copy_to(udata, src, len);
 }
 
 static inline bool ib_is_buffer_cleared(const void __user *p,

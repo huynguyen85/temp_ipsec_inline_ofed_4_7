@@ -350,7 +350,7 @@ int ib_uverbs_exp_create_qp(struct uverbs_attr_bundle *attrs)
 	kfree(attr);
 	kfree(cmd_exp);
 
-	return uobj_alloc_commit(&obj->uevent.uobject, 0);
+	return uobj_alloc_commit(&obj->uevent.uobject, attrs);
 
 err_copy:
 	ib_destroy_qp(qp);
@@ -710,7 +710,7 @@ int ib_uverbs_exp_create_mr(struct uverbs_attr_bundle *attrs)
 
 	uobj_put_obj_read(pd);
 
-	return uobj_alloc_commit(uobj, 0);
+	return uobj_alloc_commit(uobj, attrs);
 
 err_copy:
 	ib_dereg_mr(mr);
@@ -913,7 +913,7 @@ int ib_uverbs_exp_reg_mr(struct uverbs_attr_bundle *attrs)
 
 	uobj_put_obj_read(pd);
 
-	return uobj_alloc_commit(uobj, 0);
+	return uobj_alloc_commit(uobj, attrs);
 
 err_copy:
 	ib_dereg_mr(mr);
@@ -1227,7 +1227,7 @@ int ib_uverbs_exp_create_dct(struct uverbs_attr_bundle *attrs)
 	kfree(attr);
 	kfree(cmd);
 
-	return uobj_alloc_commit(&obj->uevent.uobject, 0);
+	return uobj_alloc_commit(&obj->uevent.uobject, attrs);
 
 err_copy:
 	ib_exp_destroy_dct(dct, &attrs->driver_udata);

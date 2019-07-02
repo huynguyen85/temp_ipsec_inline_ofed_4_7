@@ -656,6 +656,159 @@ static ssize_t verify_hdr(struct ib_uverbs_cmd_hdr *hdr,
 	return 0;
 }
 
+static int (*uverbs_exp_cmd_table[])(struct uverbs_attr_bundle *attrs/*
+				     struct ib_uverbs_file *file,
+				     struct ib_udata *ucore,
+				     struct ib_udata *uhw*/) = {
+	[IB_USER_VERBS_EXP_CMD_CREATE_QP]	= ib_uverbs_exp_create_qp,
+	[IB_USER_VERBS_EXP_CMD_MODIFY_CQ]	= ib_uverbs_exp_modify_cq,
+	[IB_USER_VERBS_EXP_CMD_MODIFY_QP]	= ib_uverbs_exp_modify_qp,
+	[IB_USER_VERBS_EXP_CMD_QUERY_DEVICE]	= ib_uverbs_exp_query_device,
+	[IB_USER_VERBS_EXP_CMD_CREATE_CQ]	= ib_uverbs_exp_create_cq,
+	[IB_USER_VERBS_EXP_CMD_REG_MR]		= ib_uverbs_exp_reg_mr,
+	[IB_USER_VERBS_EXP_CMD_CREATE_DCT]	= ib_uverbs_exp_create_dct,
+	[IB_USER_VERBS_EXP_CMD_DESTROY_DCT]	= ib_uverbs_exp_destroy_dct,
+	[IB_USER_VERBS_EXP_CMD_QUERY_DCT]	= ib_uverbs_exp_query_dct,
+	[IB_USER_VERBS_EXP_CMD_ARM_DCT]		= ib_uverbs_exp_arm_dct,
+	[IB_USER_VERBS_EXP_CMD_CREATE_MR]       = ib_uverbs_exp_create_mr,
+	[IB_USER_VERBS_EXP_CMD_QUERY_MKEY]	= ib_uverbs_exp_query_mkey,
+#ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
+	[IB_USER_VERBS_EXP_CMD_PREFETCH_MR]     = ib_uverbs_exp_prefetch_mr,
+#endif
+	[IB_USER_VERBS_EXP_CMD_CREATE_FLOW]	= ib_uverbs_exp_create_flow,
+	[IB_USER_VERBS_EXP_CMD_CREATE_WQ]	= ib_uverbs_exp_create_wq,
+	[IB_USER_VERBS_EXP_CMD_MODIFY_WQ]	= ib_uverbs_exp_modify_wq,
+	[IB_USER_VERBS_EXP_CMD_DESTROY_WQ]	= ib_uverbs_exp_destroy_wq,
+	[IB_USER_VERBS_EXP_CMD_CREATE_RWQ_IND_TBL] = ib_uverbs_exp_create_rwq_ind_table,
+	[IB_USER_VERBS_EXP_CMD_DESTROY_RWQ_IND_TBL] = ib_uverbs_exp_destroy_rwq_ind_table,
+	[IB_USER_VERBS_EXP_CMD_SET_CTX_ATTR]	= ib_uverbs_exp_set_context_attr,
+	[IB_USER_VERBS_EXP_CMD_CREATE_SRQ]	= ib_uverbs_exp_create_srq,
+// 	[IB_USER_VERBS_EXP_CMD_ALLOC_DM]	= ib_uverbs_exp_alloc_dm,
+// 	[IB_USER_VERBS_EXP_CMD_FREE_DM]		= ib_uverbs_exp_free_dm,
+};
+
+
+static bool verify_exp_command_mask(struct ib_uverbs_file *ufile, u32 command)
+{
+	return ufile->device->ib_dev->uverbs_exp_cmd_mask & BIT_ULL(command);
+}
+static ssize_t verify_exp_hdr(struct ib_uverbs_cmd_hdr *hdr,
+			  struct ib_uverbs_ex_cmd_hdr *ex_hdr,
+			  size_t count)
+{
+	count -= sizeof(*hdr) + sizeof(*ex_hdr);
+
+	if ((hdr->in_words + ex_hdr->provider_in_words) * 8 != count)
+		return -EINVAL;
+
+	if (ex_hdr->cmd_hdr_reserved)
+		return -EINVAL;
+
+	if (ex_hdr->response) {
+		if (!hdr->out_words && !ex_hdr->provider_out_words)
+			return -EINVAL;
+
+// 		if (!access_ok(VERIFY_WRITE,
+// 					u64_to_user_ptr(ex_hdr->response),
+// 					(hdr->out_words + ex_hdr->provider_out_words) * 8))
+// 			return -EFAULT;
+	} else {
+		if (hdr->out_words || ex_hdr->provider_out_words)
+			return -EINVAL;
+	}
+
+	return 0;
+
+}
+
+static bool verify_exp_command_idx(u32 command)
+{
+	return command < ARRAY_SIZE(uverbs_exp_cmd_table) &&
+		uverbs_exp_cmd_table[command];
+}
+
+static ssize_t process_exp_hdr(struct ib_uverbs_cmd_hdr *hdr, u32 *command)
+{
+	if (hdr->command & ~(u32)(IB_USER_VERBS_CMD_FLAG_EXTENDED |
+				   IB_USER_VERBS_CMD_COMMAND_MASK))
+		return -EINVAL;
+
+	*command = hdr->command & IB_USER_VERBS_CMD_COMMAND_MASK;
+	*command = hdr->command - IB_USER_VERBS_EXP_CMD_FIRST;
+
+	if (!verify_exp_command_idx(*command))
+		return -EOPNOTSUPP;
+
+	return 0;
+}
+
+
+static ssize_t ib_uverbs_exp_write(struct file *filp,
+				   const char __user *buf,
+				   size_t count,
+				   loff_t *pos,
+				   struct ib_uverbs_cmd_hdr *hdr)
+{
+	struct ib_uverbs_file *file = filp->private_data;
+	struct ib_uverbs_ex_cmd_hdr ex_hdr;
+	struct uverbs_attr_bundle bundle;
+	int srcu_key;
+	u32 command;
+
+	struct ib_udata ucore;
+	struct ib_udata uhw;
+
+	ssize_t ret;
+
+	ret = process_exp_hdr(hdr, &command);
+	if (ret)
+		return ret;
+
+	if (count < (sizeof(*hdr) + sizeof(ex_hdr)))
+		return -EINVAL;
+	if (copy_from_user(&ex_hdr, buf + sizeof(*hdr), sizeof(ex_hdr)))
+		return -EFAULT;
+
+
+	memset(bundle.attr_present, 0, sizeof(bundle.attr_present));
+	bundle.ufile = file;
+	bundle.context = NULL; /* only valid if bundle has uobject */
+
+	ret = verify_exp_hdr(hdr, &ex_hdr, count);
+	if (ret)
+		return ret;
+
+	srcu_key = srcu_read_lock(&file->device->disassociate_srcu);
+
+	if (!verify_exp_command_mask(file, command)) {
+		ret = -EOPNOTSUPP;
+		goto out;
+	}
+
+	buf += sizeof(*hdr) + sizeof(ex_hdr);
+
+	ib_uverbs_init_udata_buf_or_null(&bundle.ucore,
+					 buf,
+					 u64_to_user_ptr(ex_hdr.response),
+					 hdr->in_words * 8,
+					 hdr->out_words * 8);
+
+	ib_uverbs_init_udata_buf_or_null(&bundle.driver_udata,
+					 buf + bundle.ucore.inlen,
+					 u64_to_user_ptr(ex_hdr.response) + bundle.ucore.outlen,
+					 ex_hdr.provider_in_words * 8,
+					 ex_hdr.provider_out_words * 8);
+
+	bundle.ucore.src = IB_UDATA_EXP_CMD;
+	bundle.driver_udata.src = IB_UDATA_EXP_CMD;
+
+	ret = uverbs_exp_cmd_table[command](&bundle);
+	ret = (ret) ? : count;
+out:
+	srcu_read_unlock(&file->device->disassociate_srcu, srcu_key);
+	return ret;
+}
+
 static ssize_t ib_uverbs_write(struct file *filp, const char __user *buf,
 			     size_t count, loff_t *pos)
 {
@@ -667,6 +820,7 @@ static ssize_t ib_uverbs_write(struct file *filp, const char __user *buf,
 	struct uverbs_attr_bundle bundle;
 	int srcu_key;
 	ssize_t ret;
+	bool exp;
 
 	if (!ib_safe_file_access(filp)) {
 		pr_err_once("uverbs_write: process %d (%s) changed security contexts after opening file descriptor, this is not allowed.\n",
@@ -680,7 +834,10 @@ static ssize_t ib_uverbs_write(struct file *filp, const char __user *buf,
 	if (copy_from_user(&hdr, buf, sizeof(hdr)))
 		return -EFAULT;
 
-	method_elm = uapi_get_method(uapi, hdr.command);
+	method_elm = uapi_get_method(uapi, hdr.command, &exp);
+	if (exp)
+		return ib_uverbs_exp_write(filp, buf, count, pos, &hdr);
+
 	if (IS_ERR(method_elm))
 		return PTR_ERR(method_elm);
 

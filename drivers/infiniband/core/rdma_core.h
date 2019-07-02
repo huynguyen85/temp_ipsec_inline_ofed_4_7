@@ -203,22 +203,18 @@ extern const struct uapi_definition uverbs_def_obj_mr[];
 extern const struct uapi_definition uverbs_def_write_intf[];
 
 static inline const struct uverbs_api_write_method *
-uapi_get_method(const struct uverbs_api *uapi, u32 command)
+uapi_get_method(const struct uverbs_api *uapi, u32 command, bool *exp_cmd)
 {
 	u32 cmd_idx = command & IB_USER_VERBS_CMD_COMMAND_MASK;
 
-	u32 flags = (command & IB_USER_VERBS_CMD_FLAGS_MASK) >> IB_USER_VERBS_CMD_FLAGS_SHIFT;
-	bool exp_cmd = !flags && (command >= IB_USER_VERBS_EXP_CMD_FIRST);
+	if (exp_cmd) {
+		u32 flags = (command & IB_USER_VERBS_CMD_FLAGS_MASK) >> IB_USER_VERBS_CMD_FLAGS_SHIFT;
+		*exp_cmd = !flags && (command >= IB_USER_VERBS_EXP_CMD_FIRST);
+	}
 
 	if (command & ~(u32)(IB_USER_VERBS_CMD_FLAG_EXTENDED |
 			     IB_USER_VERBS_CMD_COMMAND_MASK))
 		return ERR_PTR(-EINVAL);
-
-	if (exp_cmd) {
-		if (cmd_idx >= uapi->num_write_exp)
-			return ERR_PTR(-EOPNOTSUPP);
-		return uapi->write_exp_methods[cmd_idx];
-	}
 
 	if (command & IB_USER_VERBS_CMD_FLAG_EXTENDED) {
 		if (cmd_idx >= uapi->num_write_ex)

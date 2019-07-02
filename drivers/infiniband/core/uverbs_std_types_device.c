@@ -27,7 +27,7 @@ static int UVERBS_HANDLER(UVERBS_METHOD_INVOKE_WRITE)(
 	if (rc)
 		return rc;
 
-	method_elm = uapi_get_method(uapi, cmd);
+	method_elm = uapi_get_method(uapi, cmd, NULL);
 	if (IS_ERR(method_elm))
 		return PTR_ERR(method_elm);
 
