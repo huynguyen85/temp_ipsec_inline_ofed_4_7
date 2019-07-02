@@ -269,6 +269,8 @@ enum rdma_nldev_command {
 
 	RDMA_NLDEV_CMD_STAT_SET,
 
+	RDMA_NLDEV_CMD_STAT_GET, /* can dump */
+
 	RDMA_NLDEV_NUM_OPS
 };
 
@@ -487,6 +489,13 @@ enum rdma_nldev_attr {
 	RDMA_NLDEV_ATTR_STAT_MODE,		/* u32 */
 	RDMA_NLDEV_ATTR_STAT_RES,		/* u32 */
 	RDMA_NLDEV_ATTR_STAT_AUTO_MODE_MASK,	/* u32 */
+	RDMA_NLDEV_ATTR_STAT_COUNTER,		/* nested table */
+	RDMA_NLDEV_ATTR_STAT_COUNTER_ENTRY,	/* nested table */
+	RDMA_NLDEV_ATTR_STAT_COUNTER_ID,	/* u32 */
+	RDMA_NLDEV_ATTR_STAT_HWCOUNTERS,	/* nested table */
+	RDMA_NLDEV_ATTR_STAT_HWCOUNTER_ENTRY,	/* nested table */
+	RDMA_NLDEV_ATTR_STAT_HWCOUNTER_ENTRY_NAME,	/* string */
+	RDMA_NLDEV_ATTR_STAT_HWCOUNTER_ENTRY_VALUE,	/* u64 */
 
 	/*
 	 * Always the end
