@@ -702,15 +702,31 @@ static int srq_event_notifier(struct notifier_block *nb,
 	struct mlx5_core_srq *srq;
 	struct mlx5_eqe *eqe;
 	u32 srqn;
+	struct mlx5_core_nvmf_be_ctrl *ctrl;
+	u32 qpn_id_handle;
+	bool found = false;
 
 	if (type != MLX5_EVENT_TYPE_SRQ_CATAS_ERROR &&
-	    type != MLX5_EVENT_TYPE_SRQ_RQ_LIMIT)
+	    type != MLX5_EVENT_TYPE_SRQ_RQ_LIMIT &&
+	    type != MLX5_XRQ_ERROR_TYPE_QP_ERROR)
 		return NOTIFY_DONE;
 
 	table = container_of(nb, struct mlx5_srq_table, nb);
 
 	eqe = data;
-	srqn = be32_to_cpu(eqe->data.qp_srq.qp_srq_n) & 0xffffff;
+	if (type == MLX5_XRQ_ERROR_TYPE_QP_ERROR) {
+		u8 error_type;
+
+		error_type = be32_to_cpu(eqe->data.xrq.type_xrqn) >> 24;
+		if (error_type != MLX5_XRQ_ERROR_TYPE_BACKEND_CONTROLLER_ERROR)
+			return NOTIFY_DONE;
+		srqn = be32_to_cpu(eqe->data.xrq.type_xrqn) &
+			MLX5_24BIT_MASK;
+		qpn_id_handle = be32_to_cpu(eqe->data.xrq.qpn_id_handle) &
+			MLX5_24BIT_MASK;
+	} else {
+		srqn = be32_to_cpu(eqe->data.qp_srq.qp_srq_n) & 0xffffff;
+	}
 
 	xa_lock(&table->array);
 	srq = xa_load(&table->array, srqn);
@@ -720,6 +736,26 @@ static int srq_event_notifier(struct notifier_block *nb,
 
 	if (!srq)
 		return NOTIFY_OK;
+
+	if (type == MLX5_XRQ_ERROR_TYPE_QP_ERROR) {
+		spin_lock(&srq->lock);
+		list_for_each_entry(ctrl, &srq->ctrl_list, entry) {
+			if (ctrl->id == qpn_id_handle) {
+				found = true;
+				break;
+			}
+		}
+		spin_unlock(&srq->lock);
+
+		if (found)
+			ctrl->event(ctrl, type,
+				    MLX5_XRQ_ERROR_TYPE_BACKEND_CONTROLLER_ERROR);
+
+		if (atomic_dec_and_test(&srq->common.refcount))
+			complete(&srq->common.free);
+
+		return NOTIFY_OK;
+	}
 
 	srq->event(srq, eqe->type);
 
