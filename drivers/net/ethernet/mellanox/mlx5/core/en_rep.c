@@ -1467,13 +1467,17 @@ static int mlx5e_init_rep(struct mlx5_core_dev *mdev,
 			  void *ppriv)
 {
 	struct mlx5e_priv *priv = netdev_priv(netdev);
+	struct mlx5e_rep_priv *rpriv = ppriv;
 	int err;
 
 	err = mlx5e_netdev_init(netdev, priv, mdev, profile, ppriv);
 	if (err)
 		return err;
 
-	priv->channels.params.num_channels = MLX5E_REP_PARAMS_DEF_NUM_CHANNELS;
+	if (rpriv->rep->vport == MLX5_VPORT_UPLINK)
+		priv->channels.params.num_channels = mlx5e_get_max_num_channels(mdev);
+	else
+		priv->channels.params.num_channels = MLX5E_REP_PARAMS_DEF_NUM_CHANNELS;
 
 	mlx5e_build_rep_params(netdev);
 	mlx5e_build_rep_netdev(netdev);
