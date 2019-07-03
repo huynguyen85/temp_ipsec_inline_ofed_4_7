@@ -3011,7 +3011,7 @@ static void mlx5e_netdev_set_tcs(struct mlx5e_priv *priv)
 		netdev_set_tc_queue(priv->netdev, tc, nch, 0);
 }
 
-static void mlx5e_build_tc2txq_maps(struct mlx5e_priv *priv)
+void mlx5e_build_tc2txq_maps(struct mlx5e_priv *priv)
 {
 	int max_nch = mlx5e_get_netdev_max_channels(priv);
 	int i, tc;

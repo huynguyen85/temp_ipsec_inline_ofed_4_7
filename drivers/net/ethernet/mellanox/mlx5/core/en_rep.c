@@ -1555,6 +1555,7 @@ static int mlx5e_init_rep(struct mlx5_core_dev *mdev,
 
 	mlx5e_build_rep_params(netdev);
 	mlx5e_build_rep_netdev(netdev);
+	mlx5e_build_tc2txq_maps(priv);
 
 	mlx5e_timestamp_init(priv);
 
