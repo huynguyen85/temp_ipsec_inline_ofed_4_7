@@ -79,6 +79,7 @@ static u64 qp_allowed_event_types(void)
 	       BIT(MLX5_EVENT_TYPE_PATH_MIG_FAILED) |
 	       BIT(MLX5_EVENT_TYPE_WQ_INVAL_REQ_ERROR) |
 	       BIT(MLX5_EVENT_TYPE_WQ_ACCESS_ERROR) |
+	       BIT(MLX5_EVENT_TYPE_XRQ_ERROR) |
 	       BIT(MLX5_EVENT_TYPE_DCT_DRAINED) |
 	       BIT(MLX5_EVENT_TYPE_DCT_KEY_VIOLATION);
 
@@ -160,6 +161,19 @@ static int rsc_event_notifier(struct notifier_block *nb,
 		eqe = data;
 		rsn = be32_to_cpu(eqe->data.qp_srq.qp_srq_n) & 0xffffff;
 		rsn |= (eqe->data.qp_srq.type << MLX5_USER_INDEX_LEN);
+		break;
+	case MLX5_EVENT_TYPE_XRQ_ERROR:
+		{
+			u8 error_type;
+
+			eqe = data;
+			error_type = be32_to_cpu(eqe->data.xrq.type_xrqn) >> 24;
+			if (error_type != MLX5_XRQ_ERROR_TYPE_QP_ERROR)
+				return NOTIFY_DONE;
+			rsn = be32_to_cpu(eqe->data.xrq.qpn_id_handle) &
+				MLX5_24BIT_MASK;
+			rsn |= (MLX5_EVENT_QUEUE_TYPE_QP << MLX5_USER_INDEX_LEN);
+		}
 		break;
 	default:
 		return NOTIFY_DONE;

@@ -575,6 +575,10 @@ static u64 gather_async_events_mask(struct mlx5_core_dev *dev)
 	if (MLX5_CAP_GEN(dev, fpga))
 		async_event_mask |= (1ull << MLX5_EVENT_TYPE_FPGA_ERROR) |
 				    (1ull << MLX5_EVENT_TYPE_FPGA_QP_ERROR);
+
+	if (MLX5_CAP_GEN(dev, nvmf_target_offload))
+		async_event_mask |= (1ull << MLX5_EVENT_TYPE_XRQ_ERROR);
+
 	if (MLX5_CAP_GEN_MAX(dev, dct))
 		async_event_mask |= (1ull << MLX5_EVENT_TYPE_DCT_DRAINED);
 

@@ -46,6 +46,7 @@ static struct mlx5_nb events_nbs_ref[] = {
 	{.nb.notifier_call = forward_event,   .event_type = MLX5_EVENT_TYPE_PATH_MIG_FAILED },
 	{.nb.notifier_call = forward_event,   .event_type = MLX5_EVENT_TYPE_WQ_INVAL_REQ_ERROR },
 	{.nb.notifier_call = forward_event,   .event_type = MLX5_EVENT_TYPE_WQ_ACCESS_ERROR },
+	{.nb.notifier_call = forward_event,   .event_type = MLX5_EVENT_TYPE_XRQ_ERROR },
 	/* SRQ events */
 	{.nb.notifier_call = forward_event,   .event_type = MLX5_EVENT_TYPE_SRQ_CATAS_ERROR },
 	{.nb.notifier_call = forward_event,   .event_type = MLX5_EVENT_TYPE_SRQ_RQ_LIMIT },
@@ -132,6 +133,8 @@ static const char *eqe_type_str(u8 type)
 		return "MLX5_EVENT_TYPE_DCT_DRAINED";
 	case MLX5_EVENT_TYPE_DCT_KEY_VIOLATION:
 		return "MLX5_EVENT_TYPE_DCT_KEY_VIOLATION";
+	case MLX5_EVENT_TYPE_XRQ_ERROR:
+		return "MLX5_EVENT_TYPE_XRQ_ERROR";
 	default:
 		return "Unrecognized event";
 	}
