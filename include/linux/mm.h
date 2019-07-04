@@ -88,5 +88,17 @@ static inline bool is_pci_p2pdma_page(const struct page *page)
 {
         return false;
 }
+
+#ifndef HAVE_PAGE_IS_PFMEMALLOC
+static inline bool page_is_pfmemalloc(struct page *page)
+{
+#ifdef HAVE_PAGE_PFMEMALLOC
+	return page->pfmemalloc;
+#else
+	return false;
+#endif
+}
+#endif
+
 #endif
 #endif /* _COMPAT_LINUX_MM_H */
