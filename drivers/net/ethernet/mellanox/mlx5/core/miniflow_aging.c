@@ -479,7 +479,9 @@ int mlx5_ct_flow_offload_add(const struct net *net,
 		entry = container_of(flow, struct flow_offload_entry, flow);
 	}
 
+	spin_lock(&entry->dep_lock);
 	ct_flow_offload_add(tc_flow, &entry->deps);
+	spin_unlock(&entry->dep_lock);
 	entry->flow.timeout = jiffies + timeout;
 
 out:
