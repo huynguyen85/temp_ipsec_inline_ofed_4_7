@@ -199,6 +199,7 @@ RHEL7_4_JD=$(echo ${KVERSION} | grep 3.10.0-693.21.3)
 
 if [[ ! -z ${RHEL7_4_JD} ]]; then
 	set_config CONFIG_COMPAT_RHEL_JD y
+	set_config CONFIG_COMPAT_NFT_GEN_FLOW_OFFLOAD y
 fi
 
 if [[ ${RHEL_MAJOR} -eq "7" && ${RHEL_MINOR} -le "4" && ! $RHEL7_4_JD ]]; then
