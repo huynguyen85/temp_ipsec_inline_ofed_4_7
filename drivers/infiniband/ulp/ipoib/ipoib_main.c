@@ -1285,12 +1285,16 @@ static void ipoib_timeout(struct net_device *dev)
 	schedule_work(&priv->tx_timeout_work);
 }
 
+static int timeout_counter;
 void ipoib_ib_tx_timeout_work(struct work_struct *work)
 {
 	struct ipoib_dev_priv *priv = container_of(work,
 						   struct ipoib_dev_priv,
 						   tx_timeout_work);
 	int err;
+
+	timeout_counter++;
+	ipoib_warn(priv, "transmit timeout: recovery will be performed, timeout_counter(%d).\n", timeout_counter);
 
 	rtnl_lock();
 

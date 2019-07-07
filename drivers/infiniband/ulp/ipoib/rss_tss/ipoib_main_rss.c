@@ -140,7 +140,8 @@ static void ipoib_timeout_rss(struct net_device *dev)
 				   send_ring->tx_tail);
 		}
 	}
-	/* XXX reset QP, etc. */
+
+	schedule_work(&priv->tx_timeout_work);
 }
 
 static struct net_device_stats *ipoib_get_stats_rss(struct net_device *dev)
