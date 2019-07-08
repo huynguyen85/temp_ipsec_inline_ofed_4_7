@@ -229,6 +229,7 @@ flow_offload_del(struct flow_offload_table *flow_table,
 	clear_bit(IPS_OFFLOAD_BIT, &e->ct->status);
 	flow_offload_fixup_ct_state(e->ct);
 	ct_flow_offload_destroy(&e->deps);
+	flow_offload_free(flow);
 }
 
 static struct flow_offload_tuple_rhash *
