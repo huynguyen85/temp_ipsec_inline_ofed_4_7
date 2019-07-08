@@ -868,6 +868,7 @@ static bool devx_is_whitelist_cmd(void *in)
 	case MLX5_CMD_OP_QUERY_HCA_CAP:
 	case MLX5_CMD_OP_QUERY_HCA_VPORT_CONTEXT:
 	case MLX5_CMD_OP_QUERY_ESW_VPORT_CONTEXT:
+	case MLX5_CMD_OP_QUERY_ESW_FUNCTIONS:
 		return true;
 	default:
 		return false;
@@ -923,6 +924,7 @@ static bool devx_is_general_cmd(void *in, struct mlx5_ib_dev *dev)
 	case MLX5_CMD_OP_QUERY_CONG_PARAMS:
 	case MLX5_CMD_OP_QUERY_CONG_STATISTICS:
 	case MLX5_CMD_OP_SYNC_STEERING:
+	case MLX5_CMD_OP_QUERY_ESW_FUNCTIONS:
 		return true;
 	default:
 		return false;
