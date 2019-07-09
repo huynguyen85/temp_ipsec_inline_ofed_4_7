@@ -2432,6 +2432,7 @@ int alloc_and_map_wc(struct mlx5_ib_dev *dev,
 	u32 uar_index;
 	size_t map_size = vma->vm_end - vma->vm_start;
 	struct rdma_umap_priv *vma_prv;
+	pgprot_t vm_page_prot;
 	int err;
 
 	if (indx % uars_per_page) {
@@ -2480,11 +2481,10 @@ int alloc_and_map_wc(struct mlx5_ib_dev *dev,
 	}
 	pfn = idx2pfn(dev, uar_index);
 
+	vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+	vm_page_prot = mlx5_ib_pgprot_writecombine(vm_page_prot);
 
-	vma->vm_page_prot = mlx5_ib_pgprot_writecombine(vma->vm_page_prot);
-
-	if (rdma_user_mmap_io(&context->ibucontext, vma, pfn, map_size,
-		pgprot_writecombine(vma->vm_page_prot), vma_prv)) {
+	if (rdma_user_mmap_io(&context->ibucontext, vma, pfn, map_size, vm_page_prot, vma_prv)) {
 
 		mlx5_ib_err(dev, "io remap failed\n");
 		mlx5_cmd_free_uar(dev->mdev, uar_index);
