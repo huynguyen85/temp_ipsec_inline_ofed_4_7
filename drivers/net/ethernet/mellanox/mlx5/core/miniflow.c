@@ -889,6 +889,7 @@ static void mlx5e_del_miniflow_work(struct work_struct *work)
 						       struct mlx5e_miniflow,
 						       work);
 
+	atomic_dec(&nr_of_mfe_in_queue);
 	inc_debug_counter(&nr_of_inflight_mfe);
 	dec_debug_counter(&nr_of_del_mfe_in_queue);
 	inc_debug_counter(&nr_of_inflight_del_mfe);
