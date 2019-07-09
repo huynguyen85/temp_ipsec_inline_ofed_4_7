@@ -550,11 +550,38 @@ int ipoib_send_rss(struct net_device *dev, struct sk_buff *skb,
 	return rc;
 }
 
+/* The function will force napi_schedule */
+void ipoib_napi_schedule_work_tss(struct work_struct *work)
+{
+	struct ipoib_send_ring *send_ring =
+		container_of(work, struct ipoib_send_ring, reschedule_napi_work);
+	struct ipoib_dev_priv *priv;
+	bool ret;
+
+	priv = ipoib_priv(send_ring->dev);
+
+	do {
+		ret = napi_reschedule(&send_ring->napi);
+		if (!ret)
+			msleep(3);
+	} while (!ret && __netif_subqueue_stopped(send_ring->dev, send_ring->index) &&
+		 test_bit(IPOIB_FLAG_INITIALIZED, &priv->flags));
+}
+
 void ipoib_ib_tx_completion_rss(struct ib_cq *cq, void *ctx_ptr)
 {
 	struct ipoib_send_ring *send_ring = (struct ipoib_send_ring *)ctx_ptr;
+	bool ret;
 
-	napi_schedule(&send_ring->napi);
+	ret = napi_reschedule(&send_ring->napi);
+	/*
+	 * if the queue is closed the driver must be able to schedule napi,
+	 * otherwise we can end with closed queue forever, because no new
+	 * packets to send and napi callback might not get new event after
+	 * its re-arm of the napi.
+	 */
+	if (!ret && __netif_subqueue_stopped(send_ring->dev, send_ring->index))
+		schedule_work(&send_ring->reschedule_napi_work);
 }
 
 static void ipoib_napi_enable_rss(struct net_device *dev)
@@ -565,8 +592,11 @@ static void ipoib_napi_enable_rss(struct net_device *dev)
 	for (i = 0; i < priv->num_rx_queues; i++)
 		napi_enable(&priv->recv_ring[i].napi);
 
-	for (i = 0; i < priv->num_tx_queues; i++)
+	for (i = 0; i < priv->num_tx_queues; i++) {
 		napi_enable(&priv->send_ring[i].napi);
+		INIT_WORK(&priv->send_ring[i].reschedule_napi_work,
+			  ipoib_napi_schedule_work_tss);
+	}
 }
 
 static void ipoib_napi_disable_rss(struct net_device *dev)
