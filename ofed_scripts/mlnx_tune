@@ -48,7 +48,7 @@ from threading import Timer
 
 VERSION_MAJOR					= "4"
 VERSION_MINOR					= "6"
-VERSION_BUILD					= "6"
+VERSION_BUILD					= "7"
 
 INDENT						= 1
 NA						= "N/A"
@@ -3025,16 +3025,17 @@ def force_sw_dependencies(profile):
 	""" Force all needed software are installed on the server.
 	"""
 	# Check general purpose tools
-	output = run_command_warn_when_fail(MST_START, "Please install Mellanox Firmware tools ( mft )")
+	(rc, output) = run_command_warn_when_fail(MST_START, "Please install Mellanox Firmware tools ( mft )")
 	output = run_command_exit_when_fail("%s --version"%(ETHTOOL), "Please install ethtool tool.")
 	output = run_command_exit_when_fail(LSPCI, "Please install lspci tool.")
-	output = run_command_warn_when_fail("%s -V"%DMIDECODE, "It is recommended to install dmidecode tool.")
+	(rc, output) = run_command_warn_when_fail("%s -V"%DMIDECODE, "It is recommended to install dmidecode tool.")
 	output = run_command_exit_when_fail(LSMOD, "Please install lsmod tool.")
+	if "mlx" not in output:
+		logging.error( "Driver don't exist/not loaded. Please load Mellanox driver.")
+
 	# Check profile specific tools
 	if profile in Profile.NEED_IFCONFIG:
 		output = run_command_exit_when_fail(IFCONFIG, "Please install %s tool."%IFCONFIG)
-	if "mlx" not in output:
-		logging.error( "Driver don't exist/not loaded. Please load mellanox driver")
 
 def set_logger(options):
 	""" Force dependencies between input arguments
