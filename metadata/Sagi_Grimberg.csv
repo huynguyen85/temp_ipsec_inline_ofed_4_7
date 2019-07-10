@@ -1,2 +1,3 @@
 sep=;
 Change-Id=If62667b74549278416475db318501ea1d8ca2d6f; subject=nvmet-rdma: automatic listening port re-activation; feature=rebase; upstream_status=in_progress; general=;
+Change-Id=Ie9c34704af25f8378c4dcceae9dd74d04ea5368d; subject=nvme: fix regression upon hot device removal and insertion; feature=rebase; upstream_status=accepted; general=;
