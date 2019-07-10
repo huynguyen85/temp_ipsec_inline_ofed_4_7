@@ -644,7 +644,7 @@ static void mlx5_lag_dev_remove_pf(struct mlx5_lag *ldev,
 	mutex_lock(&lag_mutex);
 	memset(&ldev->pf[i], 0, sizeof(*ldev->pf));
 
-	if (kref_read(&ldev->ref) <= 2)
+	if (kref_read(&ldev->ref) <= MLX5_MAX_PORTS)
 		dev->priv.lag = NULL;
 	mutex_unlock(&lag_mutex);
 }
