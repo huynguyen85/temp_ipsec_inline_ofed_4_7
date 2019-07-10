@@ -283,12 +283,13 @@ static void miniflow_merge_match(struct mlx5e_tc_flow *mflow,
 	for (i = 0; i < sizeof(struct mlx5_flow_spec) / sizeof(u32); i++)
 		*dst++ |= (*src++ & (~*mask++));
 
-	mflow->esw_attr->match_level = max(flow->esw_attr->match_level,
-					   mflow->esw_attr->match_level);
+	mflow->esw_attr->inner_match_level =
+		max(flow->esw_attr->inner_match_level,
+		    mflow->esw_attr->inner_match_level);
 
-	mflow->esw_attr->tunnel_match_level =
-		max(flow->esw_attr->tunnel_match_level,
-		    mflow->esw_attr->tunnel_match_level);
+	mflow->esw_attr->outer_match_level =
+		max(flow->esw_attr->outer_match_level,
+		    mflow->esw_attr->outer_match_level);
 }
 
 static void miniflow_merge_action(struct mlx5e_tc_flow *mflow,

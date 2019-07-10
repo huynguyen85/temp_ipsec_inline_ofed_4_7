@@ -214,14 +214,10 @@ mlx5_eswitch_add_offloaded_rule(struct mlx5_eswitch *esw,
 					  attr->in_mdev->priv.eswitch,
 					  attr->in_rep->vport);
 
-	if (flow_act.action & MLX5_FLOW_CONTEXT_ACTION_DECAP) {
-		if (attr->tunnel_match_level != MLX5_MATCH_NONE)
-			spec->match_criteria_enable |= MLX5_MATCH_OUTER_HEADERS;
-		if (attr->match_level != MLX5_MATCH_NONE)
-			spec->match_criteria_enable |= MLX5_MATCH_INNER_HEADERS;
-	} else if (attr->match_level != MLX5_MATCH_NONE) {
+	if (attr->outer_match_level != MLX5_MATCH_NONE)
 		spec->match_criteria_enable |= MLX5_MATCH_OUTER_HEADERS;
-	}
+	if (attr->inner_match_level != MLX5_MATCH_NONE)
+		spec->match_criteria_enable |= MLX5_MATCH_INNER_HEADERS;
 
 	if (flow_act.action & MLX5_FLOW_CONTEXT_ACTION_MOD_HDR)
 		flow_act.modify_id = attr->mod_hdr_id;
@@ -294,7 +290,7 @@ mlx5_eswitch_add_fwd_rule(struct mlx5_eswitch *esw,
 					  attr->in_mdev->priv.eswitch,
 					  attr->in_rep->vport);
 
-	if (attr->match_level != MLX5_MATCH_NONE)
+	if (attr->outer_match_level != MLX5_MATCH_NONE)
 		spec->match_criteria_enable |= MLX5_MATCH_OUTER_HEADERS;
 
 	rule = mlx5_add_flow_rules(fast_fdb, spec, &flow_act, dest, i);
