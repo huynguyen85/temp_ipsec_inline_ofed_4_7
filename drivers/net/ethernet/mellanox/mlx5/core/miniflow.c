@@ -155,13 +155,12 @@ static void miniflow_cleanup(struct mlx5e_miniflow *miniflow)
 {
 	struct mlx5e_tc_flow *flow;
 	int j;
-	int i = 0;
 
 	for (j = 0; j < MINIFLOW_MAX_CT_TUPLES; j++) {
 		flow = miniflow->ct_tuples[j].flow;
 		if (flow) {
-			i++;
 			mlx5e_flow_put(flow->priv, flow);
+			miniflow->ct_tuples[j].flow = NULL;
 		}
 	}
 }
