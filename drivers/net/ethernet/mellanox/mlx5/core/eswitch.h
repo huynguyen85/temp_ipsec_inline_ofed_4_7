@@ -371,8 +371,10 @@ int mlx5_eswitch_add_vport_trunk_range(struct mlx5_eswitch *esw,
 int mlx5_eswitch_del_vport_trunk_range(struct mlx5_eswitch *esw,
 				       int vport, u16 start_vlan, u16 end_vlan);
 int mlx5_eswitch_modify_esw_vport_context(struct mlx5_eswitch *esw, u16 vport,
+					  bool other_vport,
 					  void *in, int inlen);
 int mlx5_eswitch_query_esw_vport_context(struct mlx5_eswitch *esw, u16 vport,
+					 bool other_vport,
 					 void *out, int outlen);
 
 struct mlx5_flow_spec;
