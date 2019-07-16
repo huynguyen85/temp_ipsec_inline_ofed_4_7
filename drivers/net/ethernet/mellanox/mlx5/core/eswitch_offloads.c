@@ -2265,7 +2265,6 @@ static int esw_check_vport_match_metadata_supported(struct mlx5_eswitch *esw)
 		MLX5_FDB_TO_VPORT_REG_C_0) &&
 	       MLX5_CAP_ESW_FLOWTABLE(esw->dev, flow_source) &&
 	       MLX5_CAP_ESW(esw->dev, esw_uplink_ingress_acl) &&
-	       !mlx5_core_is_ecpf_esw_manager(esw->dev) &&
 	       !mlx5_ecpf_vport_exists(esw->dev) &&
 	       !mlx5_eswitch_max_sfs(esw->dev);
 }

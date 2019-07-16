@@ -42,3 +42,4 @@ Change-Id=I117fcd4ec7970ab7b9dd6617e54efe38064213b0; subject=net/mlx5: E-switch,
 Change-Id=I812121093f5ea0bf3e5b5cb86941c43f983fff6a; subject=net/mlx5: E-switch, Initialize TSAR Qos hardware block before its user vports; feature=mlx5_sfs; upstream_status=accepted; general=;
 Change-Id=I83077fbc8494fb895598f04dc525c28cb8a2329e; subject=net/mlx5: E-switch, Disable QoS if enabling eswitch fails; feature=mlx5_sfs; upstream_status=accepted; general=;
 Change-Id=I5d95cc92323f8bd3f93088613bd72c75d5c819a1; subject=net/mlx5: E-switch, Use own vport for metadata setting; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Iead99e53f5e35c2b941ab4ad554f127387118ac2; subject=net/mlx5: E-switch, Enable metadata on ECPF; feature=mlx5_sfs; upstream_status=in_progress; general=;
