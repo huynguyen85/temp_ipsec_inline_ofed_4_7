@@ -191,8 +191,8 @@ struct mlx5_eswitch_fdb {
 				struct mlx5_flow_table *fdb;
 				u32 num_rules;
 			} fdb_prio[FDB_MAX_CHAIN + 1][FDB_MAX_PRIO + 1][PRIO_LEVELS];
-			/* Protects fdb_prio table */
-			struct mutex fdb_prio_lock;
+			/* Protects fdb tables */
+			struct mutex fdb_lock;
 
 			int fdb_left[ARRAY_SIZE(ESW_POOLS)];
 		} offloads;
@@ -275,6 +275,7 @@ struct mlx5_mdev_table;
 
 struct mlx5_eswitch {
 	struct mlx5_core_dev    *dev;
+	struct mlx5_core_dev    *peer_dev;
 	struct mlx5_nb          nb;
 	/* legacy data structures */
 	struct mlx5_eswitch_fdb fdb_table;
@@ -333,6 +334,10 @@ void esw_offloads_stop_handler(struct work_struct *work);
 
 void esw_vport_del_ingress_acl_modify_metadata(struct mlx5_eswitch *esw,
 					       struct mlx5_vport *vport);
+int esw_sf_vport_add_fdb_peer_miss_rule(struct mlx5_eswitch *esw,
+					struct mlx5_vport *vport);
+void esw_sf_vport_del_fdb_peer_miss_rule(struct mlx5_eswitch *esw,
+					 struct mlx5_vport *vport);
 /* E-Switch API */
 int mlx5_eswitch_init(struct mlx5_core_dev *dev);
 void mlx5_eswitch_cleanup(struct mlx5_eswitch *esw);

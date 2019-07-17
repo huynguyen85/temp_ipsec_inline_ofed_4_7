@@ -58,3 +58,7 @@ Change-Id=Ie915e8faa38ded7e71e02f738b1a4413d774971a; subject=net/mlx5: Remove ch
 Change-Id=I43e0ac7eb174e688d76c0bc0535756cd48e237f8; subject=net/mlx5: Add load/unload routines for SF driver binding; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=Ief079707997860b82d582b333737e64caa3118d4; subject=net/mlx5: Implement dma ops and params for mediated device; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=Ief03cfad464c4aa817c55791003c622ff8654058; subject=net/mlx5: Add mdev driver to bind to mdev devices; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Iee35b4d45b07e556301009fa60b76dd4f0824319; subject=net/mlx5: Avoid touching PCI sysfs group for SF; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ie18ad79cd7d6aacf7ceee064f443c5c795d96942; subject=net/mlx5: Implement mac address setting for SF vport; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I6e0df14a3225d69ceaf1ce25829de22ef0312b35; subject=net/mlx5: Correctly add query for mac address; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Iadefd69f9dfd76e4c844779d9a636b36f2cf51e1; subject=net/mlx5: Expose rep netdevice name for the mdev representor; feature=mlx5_sfs; upstream_status=in_progress; general=;

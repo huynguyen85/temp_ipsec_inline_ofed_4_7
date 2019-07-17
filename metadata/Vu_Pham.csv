@@ -11,3 +11,5 @@ Change-Id=Id6b9aaba0924df0a37d393df8feb147985dab565; subject=net/mlx5: E-Switch,
 Change-Id=I1f0b4b4342ed30346407c10b031046471c907d01; subject=net/mlx5: E-Switch, Exclude query_other_hca_cap_roce on SF vports; feature=mlx5_sfs; upstream_status=ignore; general=;
 Change-Id=Iab6168618698ebeba9090d7e1f25e3a63a5f2edc; subject=net/mlx5: E-Switch, Do not enable vports again; feature=mlx5_sfs; upstream_status=ignore; general=;
 Change-Id=I147b7b3befe1f5b2134ab02e2da1754505a75bc4; subject=net/mlx5: Add support for mediated devices in switchdev mode; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ib95ab2ebffbc8b33cf46132f70abdcc2dd35e213; subject=net/mlx5: E-Switch, Enable support match metadata reg_c for SF vports; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I2be517f9dd2012da8b4ec5d31ef2638e6b2e37e9; subject=net/mlx5: E-Switch, Add peer miss rule for SF vports; feature=mlx5_sfs; upstream_status=in_progress; general=;
