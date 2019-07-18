@@ -173,9 +173,10 @@ static u8 miniflow_cookie_flags(u64 cookie)
 	return (cookie & MFC_INFOMASK);
 }
 
+#define MINIFLOW_ABORT -1
 static void miniflow_abort(struct mlx5e_miniflow *miniflow)
 {
-	miniflow->nr_flows = -1;
+	miniflow->nr_flows = MINIFLOW_ABORT;
 }
 
 static void miniflow_cleanup(struct mlx5e_miniflow *miniflow)
@@ -1131,13 +1132,9 @@ int miniflow_configure_ct(struct mlx5e_priv *priv,
 	if (!miniflow)
 		return -1;
 
-	if (miniflow->nr_flows == -1)
-		goto err;
-
-	if (unlikely(miniflow->nr_flows == MINIFLOW_MAX_FLOWS))
-		goto err;
-
-	if (!cookie)
+	if (miniflow->nr_flows == MINIFLOW_ABORT ||
+	    unlikely(miniflow->nr_flows >= MINIFLOW_MAX_FLOWS) ||
+	    !cookie)
 		goto err;
 
 	ct_tuple = miniflow_ct_tuple_alloc(miniflow);
@@ -1173,14 +1170,14 @@ int miniflow_configure(struct mlx5e_priv *priv,
 	if (!miniflow) {
 		miniflow = miniflow_alloc();
 		if (!miniflow)
-			return -1;
+			return -ENOMEM;
 		miniflow_write(miniflow);
 	}
 
 	if (mf->chain_index == 0)
 		miniflow_init(miniflow, priv);
 
-	if (miniflow->nr_flows == -1)
+	if (miniflow->nr_flows == MINIFLOW_ABORT)
 		goto err;
 
 	/**
@@ -1196,7 +1193,7 @@ int miniflow_configure(struct mlx5e_priv *priv,
 	if (miniflow->nr_flows == 0 && mf->last_flow)
 		goto err;
 
-	if (unlikely(miniflow->nr_flows == MINIFLOW_MAX_FLOWS))
+	if (unlikely(miniflow->nr_flows >= MINIFLOW_MAX_FLOWS))
 		goto err;
 
 	if (!mf->cookie)
