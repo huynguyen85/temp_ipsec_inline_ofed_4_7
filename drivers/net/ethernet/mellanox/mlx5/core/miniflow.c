@@ -129,6 +129,23 @@ ssize_t mlx5_show_counters_ct(char *buf)
 	return (ssize_t)(p - buf);
 }
 
+static ssize_t counters_ct_show(struct device *device,
+				struct device_attribute *attr,
+				char *buf)
+{
+	return mlx5_show_counters_ct(buf);
+}
+
+static ssize_t counters_ct_store(struct device *device,
+				 struct device_attribute *attr,
+				 const char *buf, size_t count)
+{
+	return -ENOTSUPP;
+}
+
+static DEVICE_ATTR(counters_tc_ct, 0644, counters_ct_show, counters_ct_store);
+static struct device_attribute *counters_tc_ct_attrs = &dev_attr_counters_tc_ct;
+
 u64 miniflow_version_inc(void)
 {
 	return atomic64_inc_return(&global_version);
@@ -990,9 +1007,15 @@ int miniflow_cache_init(struct mlx5e_priv *priv)
 	struct rhashtable *mf_ht = get_mf_ht(priv);
 	int err;
 
+	err = device_create_file(&priv->mdev->pdev->dev, counters_tc_ct_attrs);
+	if (err) {
+		mlx5_core_err(priv->mdev, "Failed to create miniflow sysfs\n");
+		return err;
+	}
+
 	err = miniflow_cache_get();
 	if (err)
-		return -ENOMEM;
+		goto err_cache;
 
 	err = rhashtable_init(mf_ht, &mf_ht_params);
 	if (err)
@@ -1002,6 +1025,8 @@ int miniflow_cache_init(struct mlx5e_priv *priv)
 
 err_mf_ht:
 	miniflow_cache_put();
+err_cache:
+	device_remove_file(&priv->mdev->pdev->dev, counters_tc_ct_attrs);
 	return -ENOMEM;
 }
 
@@ -1009,6 +1034,7 @@ void miniflow_cache_destroy(struct mlx5e_priv *priv)
 {
 	struct rhashtable *mf_ht = get_mf_ht(priv);
 
+	device_remove_file(&priv->mdev->pdev->dev, counters_tc_ct_attrs);
 	/* TODO: it does not make sense to process the remaining miniflows? */
 	flush_workqueue(miniflow_wq);
 	rhashtable_destroy(mf_ht);

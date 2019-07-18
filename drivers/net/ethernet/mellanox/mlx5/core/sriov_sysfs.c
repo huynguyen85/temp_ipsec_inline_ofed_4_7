@@ -765,21 +765,6 @@ static ssize_t trunk_store(struct mlx5_sriov_vf *g,
 	return err ? err : count;
 }
 
-static ssize_t counters_tc_ct_show(struct mlx5_sriov_vf *g,
-				   struct vf_attributes *oa,
-				   char *buf)
-{
-	return mlx5_show_counters_ct(buf);
-}
-
-static ssize_t counters_tc_ct_store(struct mlx5_sriov_vf *g,
-				    struct vf_attributes *oa,
-				    const char *buf, size_t count)
-{
-	return -ENOTSUPP;
-}
-
-
 static ssize_t config_show(struct mlx5_sriov_vf *g, struct vf_attributes *oa,
 			   char *buf)
 {
@@ -1005,12 +990,8 @@ static struct kobj_type vf_group = {
 static struct vf_attributes pf_attr_min_pf_tx_rate = \
 	__ATTR(min_tx_rate, 0644, min_pf_tx_rate_show, min_pf_tx_rate_store);
 
-static struct vf_attributes pf_attr_counters_tc_ct = \
-	__ATTR(counters_tc_ct, 0644, counters_tc_ct_show, counters_tc_ct_store);
-
 static struct attribute *pf_eth_attrs[] = {
 	&pf_attr_min_pf_tx_rate.attr,
-	&pf_attr_counters_tc_ct.attr,
 	NULL,
 };
 
