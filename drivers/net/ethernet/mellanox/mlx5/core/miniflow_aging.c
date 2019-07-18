@@ -12,6 +12,8 @@
 static unsigned int offloaded_ct_timeout = 30;
 module_param(offloaded_ct_timeout, int, 0644);
 
+static atomic_t offloaded_flow_cnt = ATOMIC_INIT(0);
+
 struct flow_offload_table {
 	struct rhashtable        rhashtable;
 	spinlock_t               lock;
@@ -227,6 +229,7 @@ flow_offload_del(struct flow_offload_table *flow_table,
 
 	e = container_of(flow, struct flow_offload_entry, flow);
 	clear_bit(IPS_OFFLOAD_BIT, &e->ct->status);
+	atomic_dec(&offloaded_flow_cnt);
 	flow_offload_fixup_ct_state(e->ct);
 	ct_flow_offload_destroy(&e->deps);
 	flow_offload_free(flow);
@@ -408,6 +411,9 @@ static int _flowtable_add_entry(const struct net *net, int zone_id,
 		*ret_flow = flow;
 
 	rcu_read_unlock();
+
+	atomic_inc(&offloaded_flow_cnt);
+
 	return ret;
 
 err_flow_add:
@@ -544,4 +550,9 @@ void mlx5_ct_flow_offload_table_destroy(void)
 		flow_offload_table_free(flowtable);
 		kfree(flowtable);
 	}
+}
+
+int mlx5_ct_flow_offloaded_count(void)
+{
+	return atomic_read(&offloaded_flow_cnt);
 }

@@ -99,6 +99,7 @@ ssize_t mlx5_show_counters_ct(char *buf)
 	p += _sprintf(p, buf, "nr_of_total_del_mf_succ                 : %ld\n", atomic64_read(&nr_of_total_del_mf_succ));
 	p += _sprintf(p, buf, "\n");
 	p += _sprintf(p, buf, "currently_in_hw                         : %d\n", atomic_read(&currently_in_hw));
+	p += _sprintf(p, buf, "offloaded_flow_cnt                      : %d\n", mlx5_ct_flow_offloaded_count());
 	p += _sprintf(p, buf, "\n");
 	p += _sprintf(p, buf, "nr_of_total_mf_err                      : %ld\n", atomic64_read(&nr_of_total_mf_err));
 	p += _sprintf(p, buf, "nr_of_total_mf_err_alloc_flow           : %ld\n", atomic64_read(&nr_of_total_mf_err_alloc_flow));
