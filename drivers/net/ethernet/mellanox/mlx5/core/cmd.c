@@ -909,6 +909,7 @@ static void cmd_work_handler(struct work_struct *work)
 				free_cmd(ent);
 			} else {
 				ent->ret = -EAGAIN;
+				mlx5_free_cmd_msg(dev, ent->out);
 				complete(&ent->done);
 			}
 			up(sem);
@@ -1602,6 +1603,10 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
 					free_cmd(ent);
 				callback(err, context);
 			} else {
+				if (!ent->ret)
+					mlx5_copy_from_msg(ent->uout, ent->out,
+							   ent->uout_size);
+				mlx5_free_cmd_msg(dev, ent->out);
 				complete(&ent->done);
 			}
 			up(sem);
@@ -1768,34 +1773,25 @@ static int cmd_exec(struct mlx5_core_dev *dev, void *in, int in_size, void *out,
 	err = mlx5_copy_to_msg(inb, in, in_size, token);
 	if (err) {
 		mlx5_core_warn(dev, "err %d\n", err);
-		goto out_in;
+		goto out;
 	}
 
 	outb = mlx5_alloc_cmd_msg(dev, gfp, out_size, token);
 	if (IS_ERR(outb)) {
 		err = PTR_ERR(outb);
-		goto out_in;
+		goto out;
 	}
 
 	err = mlx5_cmd_invoke(dev, inb, outb, out, out_size, callback, context,
 			      pages_queue, &status, token, force_polling);
 	if (err)
-		goto out_out;
+		goto out;
 
 	mlx5_core_dbg(dev, "err %d, status %d\n", err, status);
-	if (status) {
+	if (status)
 		err = status_to_err(status);
-		goto out_out;
-	}
 
-	if (!callback)
-		err = mlx5_copy_from_msg(out, outb, out_size);
-
-out_out:
-	if (!callback)
-		mlx5_free_cmd_msg(dev, outb);
-
-out_in:
+out:
 	if (!callback)
 		free_msg(dev, inb);
 	return err;
