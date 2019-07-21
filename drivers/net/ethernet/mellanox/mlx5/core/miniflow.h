@@ -34,6 +34,7 @@ struct mlx5e_miniflow {
 	struct work_struct work;
 	struct mlx5e_priv *priv;
 	struct mlx5e_tc_flow *flow;
+	struct rhashtable *mf_ht;
 
 	struct nf_conntrack_tuple tuple;
 

@@ -215,11 +215,13 @@ static void miniflow_write(struct mlx5e_miniflow *miniflow)
 }
 
 static void miniflow_init(struct mlx5e_miniflow *miniflow,
-			  struct mlx5e_priv *priv)
+			  struct mlx5e_priv *priv,
+			  struct rhashtable *mf_ht)
 {
 	memset(miniflow, 0, sizeof(*miniflow));
 
 	miniflow->priv = priv;
+	miniflow->mf_ht = mf_ht;
 }
 
 static void miniflow_free_current_miniflow(void)
@@ -1132,6 +1134,9 @@ int miniflow_configure_ct(struct mlx5e_priv *priv,
 	if (!miniflow)
 		return -1;
 
+	if (miniflow->mf_ht != get_mf_ht(priv))
+		return -1;
+
 	if (miniflow->nr_flows == MINIFLOW_ABORT ||
 	    unlikely(miniflow->nr_flows >= MINIFLOW_MAX_FLOWS) ||
 	    !cookie)
@@ -1175,7 +1180,10 @@ int miniflow_configure(struct mlx5e_priv *priv,
 	}
 
 	if (mf->chain_index == 0)
-		miniflow_init(miniflow, priv);
+		miniflow_init(miniflow, priv, mf_ht);
+
+	if (miniflow->mf_ht != mf_ht)
+		return -1;
 
 	if (miniflow->nr_flows == MINIFLOW_ABORT)
 		goto err;
