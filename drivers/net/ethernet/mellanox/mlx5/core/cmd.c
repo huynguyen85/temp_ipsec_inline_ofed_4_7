@@ -1552,8 +1552,11 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
 			else
 				sem = &cmd->sem;
 			ent->ts2 = ktime_get_ns();
-			memcpy(ent->out->first.data, ent->lay->out, sizeof(ent->lay->out));
-			dump_command(dev, ent, 0);
+			if (!pci_channel_offline(dev->pdev) &&
+			    dev->state != MLX5_DEVICE_STATE_INTERNAL_ERROR) {
+				memcpy(ent->out->first.data, ent->lay->out, sizeof(ent->lay->out));
+				dump_command(dev, ent, 0);
+			}
 			if (!ent->ret) {
 				if (!cmd->checksum_disabled)
 					ent->ret = verify_signature(ent);
