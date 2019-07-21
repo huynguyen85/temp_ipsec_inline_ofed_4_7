@@ -583,8 +583,9 @@ static struct mlx5e_ct_tuple *
 miniflow_ct_tuple_alloc(struct mlx5e_miniflow *miniflow)
 {
 	if (miniflow->nr_ct_tuples >= MINIFLOW_MAX_CT_TUPLES) {
-		pr_err("Failed to allocate ct_tuple, maximum (%d)",
-		       MINIFLOW_MAX_CT_TUPLES);
+		mlx5_core_err(miniflow->priv->mdev,
+			      "Failed to allocate ct_tuple, maximum (%d)",
+			      MINIFLOW_MAX_CT_TUPLES);
 		return NULL;
 	}
 
@@ -1049,6 +1050,7 @@ static int miniflow_extract_tuple(struct mlx5e_miniflow *miniflow,
 				  struct sk_buff *skb)
 {
 	struct nf_conntrack_tuple *nf_tuple = &miniflow->tuple;
+	struct mlx5_core_dev *mdev = miniflow->priv->mdev;
 	struct iphdr *iph, _iph;
 	struct udphdr *udph, _udph;
 	struct tcphdr *tcph, _tcph;
@@ -1059,7 +1061,7 @@ static int miniflow_extract_tuple(struct mlx5e_miniflow *miniflow,
 		goto err;
 
 	if (skb->protocol == htons(ETH_P_IPV6)) {
-		pr_warn_once("IPv6 is not supported\n");
+		mlx5_core_warn_once(mdev, "IPv6 is not supported\n");
 		goto err;
 	}
 
@@ -1069,12 +1071,12 @@ static int miniflow_extract_tuple(struct mlx5e_miniflow *miniflow,
 
 	ihl = ip_hdrlen(skb);
 	if (ihl > sizeof(struct iphdr)) {
-		pr_warn_once("Offload with IPv4 options is not supported\n");
+		mlx5_core_warn_once(mdev, "IPv4 options are not supported\n");
 		goto err;
 	}
 
 	if (iph->frag_off & htons(IP_MF | IP_OFFSET)) {
-		pr_warn_once("IP fragments are not supported\n");
+		mlx5_core_warn_once(mdev, "IP fragments are not supported\n");
 		goto err;
 	}
 
@@ -1105,10 +1107,11 @@ static int miniflow_extract_tuple(struct mlx5e_miniflow *miniflow,
 		nf_tuple->dst.u.all = udph->dest;
 	break;
 	case IPPROTO_ICMP:
-		pr_warn_once("ICMP is not supported\n");
+		mlx5_core_warn_once(mdev, "ICMP is not supported\n");
 		goto err;
 	default:
-		pr_warn("Proto %d is not supported\n", nf_tuple->dst.protonum);
+		mlx5_core_warn_once(mdev, "Proto %d is not supported\n",
+				    nf_tuple->dst.protonum);
 		goto err;
 	}
 
