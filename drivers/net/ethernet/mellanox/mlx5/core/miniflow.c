@@ -1185,6 +1185,13 @@ int miniflow_configure(struct mlx5e_priv *priv,
 	if (mf->chain_index == 0)
 		miniflow_init(miniflow, priv, mf_ht);
 
+	/* Last tunnel unset flow gives the correct priv so reset it */
+	if (mf->last_flow && miniflow->priv != priv) {
+		mf_ht = get_mf_ht(priv);
+		miniflow->priv = priv;
+		miniflow->mf_ht = mf_ht;
+	}
+
 	if (miniflow->mf_ht != mf_ht)
 		return -1;
 
