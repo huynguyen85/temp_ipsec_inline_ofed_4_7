@@ -1652,4 +1652,5 @@ static inline bool mlx5_valid_roce_udp_sport(u16 sport)
 }
 
 int mlx5_ib_qp_set_counter(struct ib_qp *qp, struct rdma_counter *counter);
+u16 mlx5_ib_get_counters_id(struct mlx5_ib_dev *dev, u8 port_num);
 #endif /* MLX5_IB_H */
