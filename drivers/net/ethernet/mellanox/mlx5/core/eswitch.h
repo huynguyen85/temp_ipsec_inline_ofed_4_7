@@ -721,6 +721,12 @@ bool mlx5_eswitch_is_vf_vport(const struct mlx5_eswitch *esw, u16 vport_num);
 void mlx5_eswitch_update_num_of_vfs(struct mlx5_eswitch *esw, const int num_vfs);
 int mlx5_esw_funcs_changed_handler(struct notifier_block *nb, unsigned long type, void *data);
 
+static inline bool
+mlx5_esw_is_manager_vport(struct mlx5_core_dev *dev, u16 vport_num)
+{
+	return dev->priv.eswitch->manager_vport == vport_num;
+}
+
 #else  /* CONFIG_MLX5_ESWITCH */
 /* eswitch API stubs */
 static inline int  mlx5_eswitch_init(struct mlx5_core_dev *dev) { return 0; }
@@ -745,6 +751,12 @@ static inline void mlx5_eswitch_update_num_of_vfs(struct mlx5_eswitch *esw, cons
 #define FDB_MAX_CHAIN 1
 #define FDB_SLOW_PATH_CHAIN (FDB_MAX_CHAIN + 1)
 #define FDB_MAX_PRIO 1
+
+static inline bool
+mlx5_esw_is_manager_vport(struct mlx5_core_dev *dev, u16 vport_num)
+{
+	return vport_num ? true : false;
+}
 
 #endif /* CONFIG_MLX5_ESWITCH */
 

@@ -43,3 +43,4 @@ Change-Id=I812121093f5ea0bf3e5b5cb86941c43f983fff6a; subject=net/mlx5: E-switch,
 Change-Id=I83077fbc8494fb895598f04dc525c28cb8a2329e; subject=net/mlx5: E-switch, Disable QoS if enabling eswitch fails; feature=mlx5_sfs; upstream_status=accepted; general=;
 Change-Id=I5d95cc92323f8bd3f93088613bd72c75d5c819a1; subject=net/mlx5: E-switch, Use own vport for metadata setting; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=Iead99e53f5e35c2b941ab4ad554f127387118ac2; subject=net/mlx5: E-switch, Enable metadata on ECPF; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I837b288c8b2d47e65b198e7cc4dc280f9e5a8f33; subject=net/mlx5: Treat host PF vport as other (non eswitch manager) vport; feature=mlx5_asap; upstream_status=in_progress; general=;
