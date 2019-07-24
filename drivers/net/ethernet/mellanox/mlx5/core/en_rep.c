@@ -1660,7 +1660,7 @@ static int mlx5e_init_rep_tx(struct mlx5e_priv *priv)
 	return 0;
 
 tc_esw_cleanup:
-	mlx5e_tc_esw_cleanup(&uplink_priv->tc_ht);
+	mlx5e_tc_esw_cleanup(priv);
 destroy_tises:
 	for (tc = 0; tc < priv->profile->max_tc; tc++)
 		mlx5e_destroy_tis(priv->mdev, priv->tisn[tc]);

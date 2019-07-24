@@ -437,7 +437,7 @@ int ib_uverbs_exp_query_device(struct uverbs_attr_bundle *attrs)
 	int                                    ret;
 	struct ib_ucontext *ucontext;
 
-	ucontext = ib_uverbs_get_ucontext(attrs->ufile);
+	ucontext = ib_uverbs_get_ucontext(attrs);
 	if (IS_ERR(ucontext))
 		return PTR_ERR(ucontext);
 
@@ -1479,7 +1479,7 @@ int ib_uverbs_exp_set_context_attr(struct uverbs_attr_bundle *attrs)
 	struct ib_ucontext *ucontext;
 	int ret;
 
-	ucontext = ib_uverbs_get_ucontext(attrs->ufile);
+	ucontext = ib_uverbs_get_ucontext(attrs);
 	if (IS_ERR(ucontext))
 		return PTR_ERR(ucontext);
 
