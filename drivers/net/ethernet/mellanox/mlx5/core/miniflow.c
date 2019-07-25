@@ -749,16 +749,18 @@ static int miniflow_add_fdb_flow(struct mlx5e_priv *priv,
 	return 0;
 }
 
-static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
+static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
+			       struct mlx5e_tc_flow **out_flow,
+			       struct mlx5_fc **dummy_counters)
 {
-	struct mlx5_fc *dummy_counters[MINIFLOW_MAX_FLOWS];
+	u32 flags = MLX5E_TC_FLOW_SIMPLE | MLX5E_TC_FLOW_ESWITCH;
+	u32 tmp_mask[MLX5_ST_SZ_DW(fte_match_param)];
 	struct mlx5e_tc_flow_parse_attr *mparse_attr;
 	struct mlx5e_priv *priv = miniflow->priv;
-	struct rhashtable *mf_ht = get_mf_ht(priv);
 	struct mlx5e_rep_priv *rpriv = priv->ppriv;
-	struct mlx5e_tc_flow *mflow, *flow;
 	u32 tmp_mask[MLX5_ST_SZ_DW(fte_match_param)];
 	unsigned long flow_flags;
+	struct mlx5e_tc_flow *mflow;
 	int attr_size, i;
 	int err;
 
@@ -791,7 +793,8 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 	memset(tmp_mask, 0, sizeof(tmp_mask));
 
 	for (i=0; i < miniflow->nr_flows; i++) {
-		flow = miniflow->path.flows[i];
+		struct mlx5e_tc_flow *flow = miniflow->path.flows[i];
+
 		flow_flags |= flow->flags;
 
 		miniflow_merge_match(mflow, flow, tmp_mask);
@@ -823,6 +826,27 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 	/* TODO: Workaround: crashes otherwise, should fix */
 	mflow->esw_attr->action &= ~(MLX5_FLOW_CONTEXT_ACTION_CT |
 				     MLX5_FLOW_CONTEXT_ACTION_GOTO);
+
+	*out_flow = mflow;
+	return 0;
+
+err_rcu:
+	rcu_read_unlock();
+	mlx5e_flow_put(priv, mflow);
+	return err;
+}
+
+static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
+{
+	struct mlx5_fc *dummy_counters[MINIFLOW_MAX_FLOWS];
+	struct mlx5e_priv *priv = miniflow->priv;
+	struct rhashtable *mf_ht = get_mf_ht(priv);
+	struct mlx5e_tc_flow *mflow;
+	int err;
+
+	err = miniflow_alloc_flow(miniflow, &mflow, dummy_counters);
+	if (err)
+		goto err_alloc;
 
 	err = miniflow_add_fdb_flow(priv, mflow);
 	if (err)
@@ -857,10 +881,9 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 	inc_debug_counter(&nr_of_total_merge_mf_succ);
 	return 0;
 
-err_rcu:
-	rcu_read_unlock();
 err_verify:
 	mlx5e_flow_put(priv, mflow);
+err_alloc:
 	rhashtable_remove_fast(mf_ht, &miniflow->node, mf_ht_params);
 	miniflow_cleanup(miniflow);
 	miniflow_free(miniflow);
