@@ -813,7 +813,7 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 	complete_all(&mflow->init_done);
 	if (err) {
 		inc_debug_counter(&nr_of_total_mf_err_fdb_add);
-		goto err;
+		goto err_verify;
 	}
 
 	rcu_read_lock();
@@ -847,7 +847,6 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 
 err_rcu:
 	rcu_read_unlock();
-err:
 err_verify:
 	mlx5e_flow_put(priv, mflow);
 	rhashtable_remove_fast(mf_ht, &miniflow->node, mf_ht_params);
