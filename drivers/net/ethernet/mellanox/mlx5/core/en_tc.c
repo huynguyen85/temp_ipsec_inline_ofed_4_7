@@ -3678,7 +3678,7 @@ mlx5e_add_fdb_flow(struct mlx5e_priv *priv,
 	if (IS_ERR(flow))
 		return PTR_ERR(flow);
 
-	if (is_peer_flow_needed(flow)) {
+	if (is_peer_flow_needed(flow) && mlx5e_is_simple_flow(flow)) {
 		err = mlx5e_tc_add_fdb_peer_flow(f, flow, flow_flags);
 		if (err) {
 			mlx5e_tc_del_fdb_flow(priv, flow);
