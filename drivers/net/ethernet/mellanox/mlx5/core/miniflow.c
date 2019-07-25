@@ -734,6 +734,21 @@ static int miniflow_attach_dummy_counter(struct mlx5e_tc_flow *flow)
 	return 0;
 }
 
+static int miniflow_add_fdb_flow(struct mlx5e_priv *priv,
+				 struct mlx5e_tc_flow *mflow)
+{
+	int err;
+
+	err = mlx5e_tc_add_fdb_flow(priv, mflow, NULL);
+	complete_all(&mflow->init_done);
+	if (err) {
+		inc_debug_counter(&nr_of_total_mf_err_fdb_add);
+		return err;
+	}
+
+	return 0;
+}
+
 static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 {
 	struct mlx5_fc *dummy_counters[MINIFLOW_MAX_FLOWS];
@@ -809,12 +824,9 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 	mflow->esw_attr->action &= ~(MLX5_FLOW_CONTEXT_ACTION_CT |
 				     MLX5_FLOW_CONTEXT_ACTION_GOTO);
 
-	err = mlx5e_tc_add_fdb_flow(priv, mflow, NULL);
-	complete_all(&mflow->init_done);
-	if (err) {
-		inc_debug_counter(&nr_of_total_mf_err_fdb_add);
+	err = miniflow_add_fdb_flow(priv, mflow);
+	if (err)
 		goto err_verify;
-	}
 
 	rcu_read_lock();
 	err = miniflow_verify_path_flows(miniflow);
