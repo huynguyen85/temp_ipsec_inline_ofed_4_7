@@ -3,6 +3,7 @@
 
 #include <linux/atomic.h>
 
+#include "lib/devcom.h"
 #include "miniflow.h"
 #include "eswitch.h"
 #include "en_rep.h"
@@ -750,11 +751,15 @@ static int miniflow_add_fdb_flow(struct mlx5e_priv *priv,
 }
 
 static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
+			       struct mlx5e_priv *priv,
+			       struct mlx5_eswitch_rep *in_rep,
+			       struct mlx5_core_dev *in_mdev,
 			       struct mlx5e_tc_flow **out_flow,
 			       struct mlx5_fc **dummy_counters)
 {
 	u32 flags = MLX5E_TC_FLOW_SIMPLE | MLX5E_TC_FLOW_ESWITCH;
 	u32 tmp_mask[MLX5_ST_SZ_DW(fte_match_param)];
+	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
 	struct mlx5e_tc_flow_parse_attr *mparse_attr;
 	struct mlx5e_priv *priv = miniflow->priv;
 	struct mlx5e_rep_priv *rpriv = priv->ppriv;
@@ -776,10 +781,15 @@ static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
 	mflow->esw_attr->parse_attr = mparse_attr;
 
 	rcu_read_lock();
-	err = miniflow_resolve_path_flows(miniflow);
-	if (err) {
-		inc_debug_counter(&nr_of_total_mf_err_resolve_path_flows);
-		goto err_rcu;
+	if (dummy_counters) {
+		err = miniflow_resolve_path_flows(miniflow);
+		if (err) {
+			inc_debug_counter(&nr_of_total_mf_err_resolve_path_flows);
+			goto err_rcu;
+		}
+
+		miniflow->flow = mflow;
+		mflow->miniflow = miniflow;
 	}
 
 	miniflow->flow = mflow;
@@ -787,7 +797,12 @@ static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
 	mflow->miniflow = miniflow;
 	mflow->esw_attr->in_rep = rpriv->rep;
 	mflow->esw_attr->in_mdev = priv->mdev;
-	mflow->esw_attr->counter_dev = priv->mdev;
+
+	if (MLX5_CAP_ESW(esw->dev, counter_eswitch_affinity) ==
+	    MLX5_COUNTER_SOURCE_ESWITCH)
+		mflow->esw_attr->counter_dev = in_mdev;
+	else
+		mflow->esw_attr->counter_dev = priv->mdev;
 
 	/* Main merge loop */
 	memset(tmp_mask, 0, sizeof(tmp_mask));
@@ -812,12 +827,14 @@ static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
 		miniflow_merge_vxlan(mflow, flow);
 		/* TODO: vlan is not supported yet */
 
-		err = miniflow_attach_dummy_counter(flow);
-		if (err) {
-			inc_debug_counter(&nr_of_total_mf_err_attach_dummy_counter);
-			goto err_rcu;
+		if (dummy_counters) {
+			err = miniflow_attach_dummy_counter(flow);
+			if (err) {
+				inc_debug_counter(&nr_of_total_mf_err_attach_dummy_counter);
+				goto err_rcu;
+			}
+			dummy_counters[i] = flow->dummy_counter;
 		}
-		dummy_counters[i] = flow->dummy_counter;
 	}
 	rcu_read_unlock();
 
@@ -836,21 +853,85 @@ err_rcu:
 	return err;
 }
 
+static bool miniflow_is_peer_flow_needed(struct mlx5e_tc_flow *flow)
+{
+	struct mlx5_esw_flow_attr *attr = flow->esw_attr;
+
+	return mlx5_lag_is_sriov(attr->in_mdev);
+}
+
+static int miniflow_add_peer_flow(struct mlx5e_miniflow *miniflow,
+				  struct mlx5e_tc_flow *flow)
+{
+	struct mlx5e_priv *priv = flow->priv, *peer_priv;
+	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
+	struct mlx5_devcom *devcom = priv->mdev->priv.devcom;
+	struct mlx5e_rep_priv *peer_urpriv;
+	struct mlx5e_tc_flow *peer_flow;
+	struct mlx5_core_dev *in_mdev;
+	struct mlx5_eswitch *peer_esw;
+	int err;
+
+	peer_esw = mlx5_devcom_get_peer_data(devcom, MLX5_DEVCOM_ESW_OFFLOADS);
+	if (!peer_esw)
+		return -ENODEV;
+
+	peer_urpriv = mlx5_eswitch_get_uplink_priv(peer_esw, REP_ETH);
+	peer_priv = netdev_priv(peer_urpriv->netdev);
+
+	if (flow->esw_attr->in_rep->vport == MLX5_VPORT_UPLINK)
+		in_mdev = peer_priv->mdev;
+	else
+		in_mdev = priv->mdev;
+
+	err = miniflow_alloc_flow(miniflow, peer_priv, flow->esw_attr->in_rep,
+				  in_mdev, &peer_flow, NULL);
+	if (err)
+		goto out;
+
+	err = miniflow_add_fdb_flow(peer_priv, peer_flow);
+	if (err)
+		goto err_add;
+
+	flow->peer_flow = peer_flow;
+	flow_flags |= BIT(MLX5E_TC_FLOW_FLAG_DUP);
+	mutex_lock(&esw->offloads.peer_mutex);
+	list_add_tail(&flow->peer, &esw->offloads.peer_flows);
+	mutex_unlock(&esw->offloads.peer_mutex);
+	goto out;
+
+err_add:
+	mlx5e_flow_put(peer_priv, peer_flow);
+out:
+	mlx5_devcom_release_peer_data(devcom, MLX5_DEVCOM_ESW_OFFLOADS);
+	return err;
+}
+
 static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 {
 	struct mlx5_fc *dummy_counters[MINIFLOW_MAX_FLOWS];
 	struct mlx5e_priv *priv = miniflow->priv;
+	struct mlx5e_rep_priv *rpriv = priv->ppriv;
+	struct mlx5_eswitch_rep *in_rep = rpriv->rep;
+	struct mlx5_core_dev *in_mdev = priv->mdev;
 	struct rhashtable *mf_ht = get_mf_ht(priv);
 	struct mlx5e_tc_flow *mflow;
 	int err;
 
-	err = miniflow_alloc_flow(miniflow, &mflow, dummy_counters);
+	err = miniflow_alloc_flow(miniflow, priv, in_rep, in_mdev,
+				  &mflow, dummy_counters);
 	if (err)
 		goto err_alloc;
 
 	err = miniflow_add_fdb_flow(priv, mflow);
 	if (err)
 		goto err_verify;
+
+	if (miniflow_is_peer_flow_needed(mflow)) {
+		err = miniflow_add_peer_flow(miniflow, mflow);
+		if (err)
+			goto err_verify;
+	}
 
 	rcu_read_lock();
 	err = miniflow_verify_path_flows(miniflow);
