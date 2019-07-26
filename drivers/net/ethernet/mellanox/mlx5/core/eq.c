@@ -463,34 +463,6 @@ unlock:
 	return err;
 }
 
-void mlx5_rename_comp_eq(struct mlx5_core_dev *dev, unsigned int eq_ix,
-			 char *name)
-{
-	struct mlx5_eq_table *table = dev->priv.eq_table;
-	char *dst_name;
-	int irq_ix;
-	int err = 0;
-
-	mutex_lock(&table->lock);
-	if (eq_ix >= table->num_comp_vectors) {
-		err = -ENOENT;
-		dev_err(&dev->pdev->dev, "%s: mlx5_rename_comp_eq failed: %d\n",
-			__func__, err);
-		goto unlock;
-	}
-	irq_ix = eq_ix + MLX5_EQ_VEC_COMP_BASE;
-	dst_name = table->irq_info[irq_ix].name;
-	if (!name) {
-		snprintf(dst_name, MLX5_MAX_IRQ_NAME,
-			 MLX5_DEFAULT_COMP_IRQ_NAME, eq_ix);
-		mlx5_add_pci_to_irq_name(dev, dst_name, dst_name);
-	} else {
-		snprintf(dst_name, MLX5_MAX_IRQ_NAME, "%s-%d", name, eq_ix);
-	}
-unlock:
-	mutex_unlock(&table->lock);
-}
-
 int mlx5_vector2eq(struct mlx5_core_dev *dev, int vector, struct mlx5_eq_comp *eqc)
 {
 	struct mlx5_eq_table *table = dev->priv.eq_table;

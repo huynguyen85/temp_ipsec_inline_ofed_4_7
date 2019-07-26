@@ -2129,14 +2129,12 @@ static void mlx5e_activate_channel(struct mlx5e_channel *c)
 #endif
 	mlx5e_activate_rq(&c->rq);
 	netif_set_xps_queue(c->netdev, c->xps_cpumask, c->ix);
-	mlx5_rename_comp_eq(c->priv->mdev, c->ix, c->priv->netdev->name);
 }
 
 static void mlx5e_deactivate_channel(struct mlx5e_channel *c)
 {
 	int tc;
 
-	mlx5_rename_comp_eq(c->priv->mdev, c->ix, NULL);
 	mlx5e_deactivate_rq(&c->rq);
 #ifdef CONFIG_MLX5_EN_SPECIAL_SQ
 	for (tc = 0; tc < c->num_special_sq; tc++)
