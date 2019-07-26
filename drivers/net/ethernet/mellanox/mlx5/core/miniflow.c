@@ -941,9 +941,15 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 		goto err_verify;
 	}
 
-	miniflow_link_dummy_counters(miniflow->flow,
+	miniflow_link_dummy_counters(mflow,
 				     dummy_counters,
 				     miniflow->nr_flows);
+
+	if (&mflow->flags & BIT(MLX5E_TC_FLOW_FLAG_DUP))
+		miniflow_link_dummy_counters(mflow->peer_flow,
+					     dummy_counters,
+					     miniflow->nr_flows);
+
 	miniflow_attach(miniflow);
 
 	atomic_inc((atomic_t *)&currently_in_hw);
