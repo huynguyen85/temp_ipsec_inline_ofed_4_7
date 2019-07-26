@@ -88,7 +88,6 @@ void mlx5_eq_debugfs_cleanup(struct mlx5_core_dev *dev);
 
 /* This function should only be called after mlx5_cmd_force_teardown_hca */
 void mlx5_core_eq_free_irqs(struct mlx5_core_dev *dev);
-void clear_comp_irqs_affinity_hints(struct mlx5_core_dev *dev);
 #ifdef CONFIG_RFS_ACCEL
 struct cpu_rmap *mlx5_eq_table_get_rmap(struct mlx5_core_dev *dev);
 #endif

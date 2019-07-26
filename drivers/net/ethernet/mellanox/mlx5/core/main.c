@@ -2316,7 +2316,6 @@ static void shutdown(struct pci_dev *pdev)
 		 * kexec. There is no need to cleanup the mlx5_core software
 		 * contexts.
 		 */
-		clear_comp_irqs_affinity_hints(dev);
 		mlx5_core_eq_free_irqs(dev);
 	}
 

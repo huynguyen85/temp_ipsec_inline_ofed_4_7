@@ -798,7 +798,7 @@ err_out:
 	return err;
 }
 
-void clear_comp_irqs_affinity_hints(struct mlx5_core_dev *mdev)
+static void clear_comp_irqs_affinity_hints(struct mlx5_core_dev *mdev)
 {
 	int i;
 
