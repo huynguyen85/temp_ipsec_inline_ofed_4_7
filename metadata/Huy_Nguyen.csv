@@ -44,3 +44,4 @@ Change-Id=I05a9efefb643c9bcd7f2cf3f0fde5c63a86e057d; subject=net/mlx5e: VEPA sys
 Change-Id=I59f3f1007b72310bc66345a4866b74129cdcaa7f; subject=IB/mlx5: Remove mmgrab/mmdrop for CAPI umem.; feature=mlx5_ib_bugs; upstream_status=NA; general=;
 Change-Id=Ie7889578273e5109d16874e0e1c2db23bfb9a023; subject=IB/mlx5: Use zero address and length for CAPI umem; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
 Change-Id=I0b4b909dd7987786a47b0af62f30b44691222f38; subject=IB/mlx5: Remove SW invalidation range in CAPI mode; feature=mlx5_ib_bugs; upstream_status=NA; general=;
+Change-Id=Iacb5eb9710ec83597c20225ee9578fd96fc8780e; subject=net/mlx5e: Set dma_info->page to NULL when free page in striding rq; feature=mlx5_en_bugs; upstream_status=NA; general=;

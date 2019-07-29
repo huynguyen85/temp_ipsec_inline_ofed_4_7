@@ -527,6 +527,20 @@ mlx5e_copy_skb_header(struct device *pdev, struct sk_buff *skb,
 	skb_copy_to_linear_data(skb, from, len);
 }
 
+static void mlx5e_mpwqe_page_release(struct mlx5e_rq *rq,
+				     struct mlx5e_dma_info *dma_info,
+				     bool recycle)
+{
+#ifdef CONFIG_PPC
+	if (dma_info->page) {
+		mlx5e_page_release(rq, dma_info, recycle);
+		dma_info->page = NULL;
+	}
+#else
+	mlx5e_page_release(rq, dma_info, recycle);
+#endif
+}
+
 static void
 mlx5e_free_rx_mpwqe(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi, bool recycle)
 {
@@ -537,7 +551,7 @@ mlx5e_free_rx_mpwqe(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi, bool recycle
 
 	for (i = 0; i < MLX5_MPWRQ_PAGES_PER_WQE; i++)
 		if (no_xdp_xmit || !test_bit(i, wi->xdp_xmit_bitmap))
-			mlx5e_page_release(rq, &dma_info[i], recycle);
+			mlx5e_mpwqe_page_release(rq, &dma_info[i], recycle);
 }
 
 static void mlx5e_post_rx_mpwqe(struct mlx5e_rq *rq, u8 n)
@@ -627,7 +641,7 @@ static int mlx5e_alloc_rx_mpwqe(struct mlx5e_rq *rq, u16 ix)
 err_unmap:
 	while (--i >= 0) {
 		dma_info--;
-		mlx5e_page_release(rq, dma_info, true);
+		mlx5e_mpwqe_page_release(rq, dma_info, true);
 	}
 	rq->stats->buff_alloc_err++;
 
