@@ -45,3 +45,4 @@ Change-Id=I5d95cc92323f8bd3f93088613bd72c75d5c819a1; subject=net/mlx5: E-switch,
 Change-Id=Iead99e53f5e35c2b941ab4ad554f127387118ac2; subject=net/mlx5: E-switch, Enable metadata on ECPF; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=I837b288c8b2d47e65b198e7cc4dc280f9e5a8f33; subject=net/mlx5: Treat host PF vport as other (non eswitch manager) vport; feature=mlx5_asap; upstream_status=in_progress; general=;
 Change-Id=I4f5983574fce85cb52092bedbabba94573f58bdf; subject=net/mlx5: Consider non eswitch manager mode; feature=mlx5_asap; upstream_status=in_progress; general=;
+Change-Id=I47fc5eb7e4885db2db39aa8b7b6d0ef576879511; subject=net/mlx5e: Apply DECAP action only if tunnel config is enabled; feature=mlx5_asap; upstream_status=in_progress; general=;
