@@ -185,6 +185,9 @@ static void miniflow_cleanup(struct mlx5e_miniflow *miniflow)
 	struct mlx5e_tc_flow *flow;
 	int j;
 
+	if (miniflow->aged)
+		return;
+
 	for (j = 0; j < MINIFLOW_MAX_CT_TUPLES; j++) {
 		flow = miniflow->ct_tuples[j].flow;
 		if (flow) {
@@ -576,6 +579,7 @@ static int miniflow_register_ct_flow(struct mlx5e_miniflow *miniflow)
 
 	for (i = 0; i < miniflow->nr_ct_tuples; i++) {
 		ct_tuple = &miniflow->ct_tuples[i];
+		ct_tuple->flow->miniflow = miniflow;
 
 		err = miniflow_register_ct_tuple(ct_tuple);
 		if (err)
@@ -762,6 +766,7 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 	}
 
 	miniflow->flow = mflow;
+	miniflow->aged = false;
 	mflow->miniflow = miniflow;
 	mflow->esw_attr->in_rep = rpriv->rep;
 	mflow->esw_attr->in_mdev = priv->mdev;
@@ -1264,6 +1269,7 @@ void ct_flow_offload_get_stats(struct list_head *head, u64 *lastuse)
 
 static void ct_flow_offload_del(struct mlx5e_tc_flow *flow)
 {
+	flow->miniflow->aged = true;
 	mlx5e_flow_put(flow->priv, flow);
 }
 

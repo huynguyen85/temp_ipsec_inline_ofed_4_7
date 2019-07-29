@@ -46,6 +46,7 @@ struct mlx5e_miniflow {
 	} path;
 
 	int nr_ct_tuples;
+	bool aged;
 	struct mlx5e_ct_tuple ct_tuples[MINIFLOW_MAX_CT_TUPLES];
 
 	struct mlx5e_miniflow_node mnodes[MINIFLOW_MAX_FLOWS];
