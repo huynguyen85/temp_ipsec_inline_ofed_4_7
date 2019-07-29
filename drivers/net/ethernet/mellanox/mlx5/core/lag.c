@@ -965,11 +965,12 @@ void mlx5_lag_enable(struct mlx5_core_dev *dev)
 	ldev->esw_updating--;
 
 	if (__mlx5_lag_is_active(ldev))
-		goto unlock;
+		goto ldev_put;
 
 	mlx5_do_bond(ldev);
-	mlx5_lag_dev_put(ldev);
 
+ldev_put:
+	mlx5_lag_dev_put(ldev);
 unlock:
 	mlx5_dev_list_unlock();
 }
