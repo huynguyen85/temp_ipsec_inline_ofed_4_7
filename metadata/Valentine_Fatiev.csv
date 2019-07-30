@@ -1,0 +1,7 @@
+sep=;
+Change-Id=I1885b177bdfe07ffca7d0caf57ec3df90f2cca78; subject=mlx5/core: Check FW page bitmask before reclaiming it; feature=mlx5_core_bugs; upstream_status=NA; general=;
+Change-Id=I64282e30ab2c3f08f71cac180ff83366012a8872; subject=net/mlx5e: IPoIB, Fix RX adaptive mode for IPoIB; feature=mlx5_adaptive_moderation; upstream_status=in_progress; general=;
+Change-Id=I169db05dbcfd67cbb66349913c3daa4f3001fe1e; subject=IB/ipoib: RSS/ULP tx timeout flow fix; feature=ipoib_bugs; upstream_status=NA; general=;
+Change-Id=I2e78255d258edec1cc6b677b138d46dcd806f130; subject=IB/ipoib: RSS timeout flow fix; feature=ipoib_bugs; upstream_status=NA; general=;
+Change-Id=Ibe26dc550d14298a24a66c4b13893b83aafdadd2; subject=IB/ipoib: Add child to parent list only if device initialized ok; feature=ipoib_bugs; upstream_status=in_progress; general=;
+Change-Id=Ia585a2b305e75aaeca0223748e18a76d61f6977c; subject=IB/ipoib: Remove child from parent list before starting ipoib_uninit_dev; feature=ipoib_bugs; upstream_status=NA; general=;

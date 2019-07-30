@@ -1,0 +1,2 @@
+sep=;
+Change-Id=I75dab3449eed77ceddd4e04419a0d6a84dbd573e; subject=net/mlx5e: Replace reciprocal_scale in TX select queue function; feature=rebase; upstream_status=accepted; general=;

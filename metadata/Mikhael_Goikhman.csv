@@ -1,0 +1,6 @@
+sep=;
+Change-Id=I956c9918529924511d82f31abec4398c66f5083d; subject=net/mlx5e: TX, Fix calculation of l2 header len for multiple VLANs; feature=mlx5_en_bugs; upstream_status=in_progress; general=;
+Change-Id=I5cc7f93fda553c34c3603a559e3b6867b2983c68; subject=net/mlx5e: Fix per-channel ethtool counters after changing num of channels; feature=mlx5e_counter_groups; upstream_status=NA; general=;
+Change-Id=If1b2810b5755edd5db6d9b493818093161fbb09d; subject=net/mlx5e: RX, Implement page biased-refcount optimization; feature=mlx5e_perf_improvements; upstream_status=in_progress; general=;
+Change-Id=Ie9f8d843b3e1773ccb841374b2cf1e22992d8eb9; subject=net/mlx5e: Make RX-FCS and LRO / HW GRO mutually exclusive; feature=mlx5e_rxfcs_exclusive; upstream_status=NA; general=;
+Change-Id=I2ffd23af8d6a3052c7e3b67e23aedf71c71ae74d; subject=net/mlx5: Fix enabling spoofchk on VF in VST mode steering; feature=mlx5_qinq_vst; upstream_status=NA; general=;

@@ -1,0 +1,4 @@
+sep=;
+Change-Id=Ibc67a2f0eea5029be6fbc4944f8e218b685220b6; subject=net/sched: Add pedit munged flag for centos 7.2 default kernel; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I28bb3b822a6755ede0a8ca70aa469842272de2c2; subject=net: sched: flower: Fix delete filter scheme; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I71158093aeeffd42a6402a8337c8ad429697dfdf; subject=net/sched: Fix incorrect match on vlan packet in centos 7.2; feature=mlx5_asap; upstream_status=NA; general=;

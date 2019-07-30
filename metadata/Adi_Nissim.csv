@@ -1,0 +1,2 @@
+sep=;
+Change-Id=Ibc334ba595dd76b5fb8f3fc9de94adb91fea07f6; subject=net/mlx5: Disable devcom when configured with miniflow; feature=mlx5e_st_ct; upstream_status=NA; general=;

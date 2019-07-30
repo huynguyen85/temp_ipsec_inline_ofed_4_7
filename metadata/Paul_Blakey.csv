@@ -1,0 +1,4 @@
+sep=;
+Change-Id=I1f515d730a919859458ab2192a97237aa4e275ee; subject=compat: Add new devlink compat; feature=mlx5_devlink_sysfs_interface; upstream_status=NA; general=;
+Change-Id=Ib6449f759fee7141696cf0bde5fb68dda4eb7ba6; subject=compat: Move devlink compat from debugfs to sysfs.; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I95c45eff747fdb28bfe254030fce818c19f4b1fc; subject=net/mlx5: Fix reading of counters if bulk reading isn't supported; feature=mlx5_asap; upstream_status=in_progress; general=;

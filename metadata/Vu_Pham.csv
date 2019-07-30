@@ -1,0 +1,4 @@
+sep=;
+Change-Id=Ib39e40de42ebf316fb01cd5658f5c1ee149f4932; subject=net/mlx5: E-Switch, Do not query stats of disabled vport; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ib94cf728b49e710b6c962977cb8ada1fb13d0fe4; subject=net/mlx5: E-Switch, Disallow modify vport state down on disabled SF vport; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I46002582a3356dea9f2d5076e570b2eef4f49d9e; subject=net/mlx5: E-Switch, Disallow transition to other modes if SF active; feature=mlx5_sfs; upstream_status=in_progress; general=;

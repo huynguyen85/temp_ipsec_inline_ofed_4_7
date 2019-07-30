@@ -1,0 +1,9 @@
+sep=;
+Change-Id=Ic5864bd01f392ed7ee838006a6dff52fa645f826; subject=net/mlx5e: Don't match on vlan non-existence if ethertype is wildcarded; feature=mlx5_asap; upstream_status=in_progress; general=;
+Change-Id=Id4c0a605abb01d31f7c03b8186aa427a466eb7e6; subject=IB/mlx5: Fix kernel panic when changing switchdev mode to legacy; feature=mlx5_ib_bugs; upstream_status=NA; general=;
+Change-Id=Id2fa7e0fe04395e8b803761cbaae809f97b8b4b3; subject=compat: Free devlink compat using delayed work; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Ib87157c5995a165e988df94fe6962927324e835b; subject=net/mlx5e: Add arguments for vlan parsing function; feature=mlx5_asap; upstream_status=in_progress; general=;
+Change-Id=I755c899bf0346139d5de65178691d08fc44d8c12; subject=compat: Forbid changing E-Switch mode in parallel; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I6abaa77ccb76d5abb3c1fa350a59570fe68da68d; subject=IB/mlx5: Fix a panic in mlx5_ib_handle_event; feature=mlx5_ib_bugs; upstream_status=NA; general=;
+Change-Id=I6e7e2564cb26ebf0ddab37cb1847da3740519e79; subject=net/mlx5: Eswitch, Fix a panic when changing to legacy mode; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I52ac9b9f79eaef0502b2b7aae55b2c74f8f743af; subject=net/mlx5e: Add ndo_set_feature for uplink representor; feature=rebase; upstream_status=accepted; general=;
