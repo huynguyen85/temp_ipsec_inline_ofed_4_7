@@ -1179,11 +1179,15 @@ int miniflow_configure(struct mlx5e_priv *priv,
 		miniflow = miniflow_alloc();
 		if (!miniflow)
 			return -ENOMEM;
+		miniflow_init(miniflow, priv, mf_ht);
 		miniflow_write(miniflow);
 	}
 
 	if (mf->chain_index == 0)
 		miniflow_init(miniflow, priv, mf_ht);
+
+	if (miniflow->nr_flows == MINIFLOW_ABORT)
+		goto err;
 
 	/* Last tunnel unset flow gives the correct priv so reset it */
 	if (mf->last_flow && miniflow->priv != priv) {
@@ -1194,9 +1198,6 @@ int miniflow_configure(struct mlx5e_priv *priv,
 
 	if (miniflow->mf_ht != mf_ht)
 		return -1;
-
-	if (miniflow->nr_flows == MINIFLOW_ABORT)
-		goto err;
 
 	/**
 	 * In some conditions merged rule could have another action with drop.
