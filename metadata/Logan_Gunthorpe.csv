@@ -1,3 +1,7 @@
 sep=;
 Change-Id=If133bc37ef952034bb6f2a006b4b228e6b7cdf96; subject=nvme-pci: Cleanup nvme_find_pdev_from_bdev; feature=nvmf_offload; upstream_status=in_progress; general=;
 Change-Id=I7ff13bb45c4332a3315b0a5034fe160fc1278c63; subject=nvme-core: Fix extra device_put() call on error path; feature=rebase; upstream_status=accepted; general=;
+Change-Id=Id2252a268bad5c933548ea96451888e5b903ca63; subject=nvme: fix memory leak caused by incorrect subsystem free; feature=rebase; upstream_status=accepted; general=;
+Change-Id=I40fe65d669067c0a1ca1136ea6ff66c6807e5210; subject=nvmet: Fix use-after-free bug when a port is removed; feature=rebase; upstream_status=accepted; general=;
+Change-Id=I365bb94ebe2bb5d3ace071da4681936e67bb7205; subject=nvmet-loop: Flush nvme_delete_wq when removing the port; feature=rebase; upstream_status=accepted; general=;
+Change-Id=Icf61183669fc5d89c2218ed2a1bd4b35084bc3fd; subject=nvmet-file: fix nvmet_file_flush() always returning an error; feature=rebase; upstream_status=accepted; general=;

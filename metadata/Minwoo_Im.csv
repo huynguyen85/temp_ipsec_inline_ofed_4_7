@@ -1,0 +1,2 @@
+sep=;
+Change-Id=Ia1fc054debc29132d2328e827fcd12ad3577a3cc; subject=nvme-pci: properly report state change failure in nvme_reset_work; feature=rebase; upstream_status=accepted; general=;

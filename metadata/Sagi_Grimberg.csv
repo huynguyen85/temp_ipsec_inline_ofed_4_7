@@ -1,3 +1,6 @@
 sep=;
 Change-Id=If62667b74549278416475db318501ea1d8ca2d6f; subject=nvmet-rdma: automatic listening port re-activation; feature=rebase; upstream_status=in_progress; general=;
 Change-Id=Ie9c34704af25f8378c4dcceae9dd74d04ea5368d; subject=nvme: fix regression upon hot device removal and insertion; feature=rebase; upstream_status=accepted; general=;
+Change-Id=I69fcbe29529f7b7677e549c8494bce0a9654f5b6; subject=nvme-rdma: fix possible use-after-free in connect error flow; feature=rebase; upstream_status=accepted; general=;
+Change-Id=I82246f36c7263bdfdbb73f11ded22195310b2a9b; subject=nvme: fix controller removal race with scan work; feature=rebase; upstream_status=accepted; general=;
+Change-Id=I4faa426203a9b22d86bb81d8147d2e1750e2112c; subject=nvme: fix a possible deadlock when passthru commands sent to a multipath device; feature=rebase; upstream_status=accepted; general=;
