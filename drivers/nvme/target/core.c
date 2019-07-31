@@ -363,6 +363,18 @@ void nvmet_uninit_offload_subsystem_port_attrs(struct nvmet_subsys *subsys)
 	subsys->offload_subsys_unknown_ns_cmds = NULL;
 }
 
+void nvmet_port_del_ctrls(struct nvmet_port *port, struct nvmet_subsys *subsys)
+{
+	struct nvmet_ctrl *ctrl;
+
+	mutex_lock(&subsys->lock);
+	list_for_each_entry(ctrl, &subsys->ctrls, subsys_entry) {
+		if (ctrl->port == port)
+			ctrl->ops->delete_ctrl(ctrl);
+	}
+	mutex_unlock(&subsys->lock);
+}
+
 int nvmet_enable_port(struct nvmet_port *port, bool offloadble)
 {
 	const struct nvmet_fabrics_ops *ops;
