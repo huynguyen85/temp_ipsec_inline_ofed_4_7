@@ -13,3 +13,5 @@ Change-Id=I3db1bbbfe65d7a46bb8a6d6c2ed7fb079180a71e; subject=IB/mlx5: Set udp so
 Change-Id=I981f9eaa493f5041701f828589cdfd36c41548cd; subject=IB/uverb: Set dlid in non-RoCEv2 cases; feature=udp_sport; upstream_status=in_progress; general=;
 Change-Id=If2a6ff789ff853a526d117ebeacc853c1fc4dc58; subject=IB/ucm: Initialize ucm request GID attribute pointer; feature=ib_core_bugs; upstream_status=in_progress; general=;
 Change-Id=Ib6f6c62b6d22e1616c0820b527994a54a0b69f6b; subject=IB/mlx5: For an outstanding wr reuse the soft WC for poll; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
+Change-Id=Ie4332b80df755ea9fc1fefa33be4152a8d2ef374; subject=IB/mlx5: Refine udp source port calculation; feature=udp_sport; upstream_status=in_progress; general=;
+Change-Id=Ic982bf5406e270b9e01f454664365377b4fa0be8; subject=RDMA/mlx5: Support TX port affinity for VF drivers in LAG mode; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;

@@ -46,3 +46,4 @@ Change-Id=I6c1e4c9902db6199d868ba698d22e0a37d38f5bc; subject=mlx5/core: Use fast
 Change-Id=I326a0fad676a2357dc61ab1e8bfd6a1b3547876a; subject=IB/ipoib: RSS/TSS, Fix CM TX queue race between send and handle flow; feature=ipoib_rss_tss; upstream_status=NA; general=;
 Change-Id=I3f19eb80d26bf96ccdd9cfdc71a943920f95b522; subject=net/mlx5: Fix tracer frame size compilation error; feature=mlx5_tracer; upstream_status=in_progress; general=;
 Change-Id=Id0d0e13ffb3d012d794536018af6717fe8ecf5e4; subject=IB/ipoib: Adapt base code to use RSS/TSS; feature=ipoib_rss_tss; upstream_status=NA; general=;
+Change-Id=Ie48913d162c9db3dc170213233a9031b5ba1c635; subject=IB/core: Fix ib_client_umem_get return status; feature=peer_direct; upstream_status=NA; general=;

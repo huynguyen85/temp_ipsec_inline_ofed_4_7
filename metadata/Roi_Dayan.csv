@@ -22,3 +22,5 @@ Change-Id=I7d8b0652b322e8f2cffe8f3d6e7927a7eb47c700; subject=net/mlx5e: Fix test
 Change-Id=Id2417cb663e8470fb24c1f39efdaf3d8ac28ec8e; subject=net/mlx5e: Don't support CT action without goto; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=I32cc65f9cac5da6929cc215cd0e4d7562fb1ac43; subject=net/mlx5e: Check for simple flow only if miniflow is configured; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=I08cc6640a2959bc2406994cef597877e5ed962eb; subject=net/mlx5e: Use unique fc cache name; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=Ia321211e2bac902fcce5f94c65e65bd81cab2b81; subject=net/mlx5e: Remove redundant eswitch flag check; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I044a09f16b2329a5235f7567b666f496839b0ea4; subject=net/mlx5e: Check peer flow exists before taking devcom lock; feature=mlx5e_st_ct; upstream_status=NA; general=;

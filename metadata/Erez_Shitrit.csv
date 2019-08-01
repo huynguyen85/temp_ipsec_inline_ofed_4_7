@@ -25,3 +25,5 @@ Change-Id=Ifb963ccf9ca640f68e40f4d651ef1f36db3b84a5; subject=net/mlx5_core: Coll
 Change-Id=I9f14911fa05698408f2bacec5c36dd1a2a52ea7b; subject=net/mlx5: Send event before collecting cr-dump; feature=mlx5_sw_reset; upstream_status=in_progress; general=;
 Change-Id=I08995a336b4f8f32fe5961a1a9dc1c73309db69a; subject=net/mlx5: Adjust health recovery time; feature=mlx5_sw_reset; upstream_status=in_progress; general=;
 Change-Id=I33c41f92126a49d3fefacddd9eb0f3ad2b699617; subject=IB/mlx5: Change shift operation to use long and MD files; feature=exp_umr; upstream_status=in_progress; general=;
+Change-Id=I7bf33b26c5b2674403eef3ef095c44fb7b956a04; subject=IB/ipoib: Fix possible deadlock over send queue; feature=ipoib_napi_tx; upstream_status=in_progress; general=;
+Change-Id=I96116e1a93c966ce8055bb9293d182aeae5ce754; subject=IB/ipoib: Fix possible deadlock over send queue over rss/tss; feature=ipoib_napi_tx; upstream_status=in_progress; general=;

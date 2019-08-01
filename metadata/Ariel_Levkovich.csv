@@ -20,3 +20,5 @@ Change-Id=Idb6d82dbb412eddb25a45cdeafb472213d3388a8; subject=net/mlx5: expose sy
 Change-Id=I4fdaec70e3c6396f671a7d8e638f1ddaf10ce2c6; subject=IB/mlx5: Resume support for mapping clock info via exp verbs; feature=mlx5_ib_bugs; upstream_status=NA; general=;
 Change-Id=I26a44bdae6af27222b061917aea473269fea45ed; subject=net/mlx5: Prevent ALLOC_MEMIC command error prints; feature=mlx5_ib_bugs; upstream_status=NA; general=;
 Change-Id=I1645fc8307a95cf844a14c7d38b4a3b610c6efe7; subject=net/mlx5: Decrease vgroup vport counter only on VF removal; feature=vf_group_rate_limit; upstream_status=NA; general=;
+Change-Id=I0cb508c96869564054844e9fd0a26c2cf9a01aa7; subject=net/mlx5: VF group code adjustments; feature=vf_group_bw_share; upstream_status=NA; general=;
+Change-Id=I9d892e6672f2012fbe1dd2ae90ea2073e9535be4; subject=net/mlx5: Eswitch: Support VF group minimum tx rate; feature=vf_group_bw_share; upstream_status=NA; general=;

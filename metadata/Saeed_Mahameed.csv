@@ -1,2 +1,3 @@
 sep=;
 Change-Id=I3ff71e74a7d68e68cda45b7332cf384f7f832c30; subject=net/mlx5e: Calc vlan_tag_preset only once on xmit; feature=mlx5e_min_inline; upstream_status=in_progress; general=;
+Change-Id=I7dc7e1095fc76b96d1c945277f887e8bc800b13a; subject=net/mlx5e: Introduce root ft concept for representors netdevs; feature=uplink_ethtool_steering; upstream_status=in_progress; general=;

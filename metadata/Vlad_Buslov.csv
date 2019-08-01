@@ -1,2 +1,8 @@
 sep=;
 Change-Id=Ic6e9f0a5a5cba07b3d35a983d88be01b89cac8de; subject=net/sched/flower: Fix error handling in fl_change; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Ife78c4597e3ebe629ca262d6fa0341022102245b; subject=net/mlx5e: Show/set Rx flow indir table and RSS hash key on ul rep; feature=uplink_ethtool_steering; upstream_status=in_progress; general=;
+Change-Id=I055e6a46fedb99be9ba3b5ee037dff5546e6ea39; subject=net/mlx5e: Init ethtool steering for representors; feature=uplink_ethtool_steering; upstream_status=in_progress; general=;
+Change-Id=Idf5a88ccdf354547c229ab303bf1e950a6fcc241; subject=net/mlx5e: Show/set Rx network flow classification rules on ul rep; feature=uplink_ethtool_steering; upstream_status=in_progress; general=;
+Change-Id=I5aead1df7c1917a4a0276069fa3730679b693222; subject=net/mlx5e: Convert rep stats to mlx5e_stats_grp-based infra; feature=uplink_ethtool_steering; upstream_status=in_progress; general=;
+Change-Id=Ib5f6d32af5824656c5c3a7c60f5594f9cd8a58a2; subject=net/mlx5e: Enable all available stats for uplink reps; feature=uplink_ethtool_steering; upstream_status=in_progress; general=;
+Change-Id=I970696c4a1086ed723282bb0ec104c47c6a06ab1; subject=net/mlx5e: Create q counters on uplink representors; feature=uplink_ethtool_steering; upstream_status=in_progress; general=;

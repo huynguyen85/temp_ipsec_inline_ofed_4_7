@@ -5,3 +5,5 @@ Change-Id=I169db05dbcfd67cbb66349913c3daa4f3001fe1e; subject=IB/ipoib: RSS/ULP t
 Change-Id=I2e78255d258edec1cc6b677b138d46dcd806f130; subject=IB/ipoib: RSS timeout flow fix; feature=ipoib_bugs; upstream_status=NA; general=;
 Change-Id=Ibe26dc550d14298a24a66c4b13893b83aafdadd2; subject=IB/ipoib: Add child to parent list only if device initialized ok; feature=ipoib_bugs; upstream_status=in_progress; general=;
 Change-Id=Ia585a2b305e75aaeca0223748e18a76d61f6977c; subject=IB/ipoib: Remove child from parent list before starting ipoib_uninit_dev; feature=ipoib_bugs; upstream_status=NA; general=;
+Change-Id=I8d28e6a1e7babbff43a481f94032d3228f2f4999; subject=IB/ipoib: Add TX timeout recovery functionality; feature=ipoib_bugs; upstream_status=in_progress; general=;
+Change-Id=Iebd4cafa47a8f488fba52eab31d6905a214c6cbc; subject=IB/ipoib: RSS - Add TX timeout recovery functionality; feature=ipoib_bugs; upstream_status=NA; general=;

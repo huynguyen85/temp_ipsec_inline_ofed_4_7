@@ -37,3 +37,14 @@ Change-Id=I4decdfc2d288e317e14225e9319018a9ab5eb231; subject=IB/mlx5: Add TTL gl
 Change-Id=I7d3c56e82168f3534515202b666e1c37212bea92; subject=IB/uverbs: Remove EXP DM object; feature=flow_actions; upstream_status=in_progress; general=;
 Change-Id=I4a9b0ba8071dc48b0aa3fde5a20fdf75df268937; subject=RDMA/mlx5: Fix TX affinity assignemnt when in RoCE lag; feature=sw_steering; upstream_status=in_progress; general=;
 Change-Id=I0828426f7f73c889ac1ebd2d01357d4a912ad1e9; subject=RDMA/mlx5: ingress_log_flow_table_size should be part of the flow DB; feature=50k_rules; upstream_status=NA; general=;
+Change-Id=I10e03f9ce2fad129a8cbe6582861dc6c3b22a0c3; subject=net/mlx5: E-Switch, Add match on vhca id to default send rules; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I03fcc93227886ce45c8a18fcdaedf9a67331f6d0; subject=net/mlx5: E-Switch, Refactor setting source port; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=Id5d02fb294ada4187ef41042f2a4c9ba4f84c74f; subject=net/mlx5: E-Switch, Use metadata on default send to vport rules; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I3770cb9c6268ec33339f6cc57b298f412066ae3b; subject=net/mlx5: E-Switch, Add eswitch pointer to each rep; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I7ca5f575f38d77acaad771db9306322d73bda414; subject=RDMA/mlx5: Use rep esw when getting netdev and metadata; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=Ib13090446ffca7dfacec6b9f603869f02c21b96b; subject=net/mlx5: E-Switch, Add event callback for representors; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I4acc461dd7a1ec54826f7089ce456b646d1bcc02; subject=net/mlx5: Enable/disable lag in state transition; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I45c75a3afed662f57992c379fd854f49fc590f75; subject=net/mlx5: Export function that tells if device is the lag master; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I05676c57c13fc31855ce92a703542e5d5d011458; subject=RDMA/uverbs: set 64 bit flags; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I96d2222f77ba81ebbccb8a32d8d910efd4452cd2; subject=BACKPORTS; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I5761663db76e254401c1b9defd85a3eda7da9168; subject=net/mlx5e: LACP owner shouldn't remap TISes; feature=mlx5_vf_lag; upstream_status=in_progress; general=;
