@@ -125,6 +125,7 @@ struct mlx5e_tc_flow {
 	struct list_head	unready; /* flows not ready to be offloaded (e.g due to missing route) */
 	int			tmp_efi_index;
 	struct list_head	tmp_list; /* temporary flow list used by neigh update */
+	struct net_device      *added_dev;
 	refcount_t		refcnt;
 	struct rcu_head		rcu_head;
 	struct completion	init_done;
