@@ -310,3 +310,4 @@ name=devx; type=feature; upstream_status=accepted;
 name=mlx5_bf; type=feature; upstream_status=accepted;
 name=mlx5_advise_mr; type=feature; upstream_status=accepted;
 name=mlx5e_xdp_redirect; type=feature; upstream_status=accepted;
+name=cx5_qp_counters; type=feature; upstream_status=accepted;
