@@ -3384,6 +3384,13 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 		netdev_warn(priv->netdev, "CT action is not supported without goto");
 		return -EOPNOTSUPP;
 	}
+
+	if ((action & MLX5_FLOW_CONTEXT_ACTION_CT) &&
+	    (action & MLX5_FLOW_CONTEXT_ACTION_GOTO) &&
+	    (action & MLX5_FLOW_CONTEXT_ACTION_FWD_DEST)) {
+		netdev_warn_once(priv->netdev, "CT mirroring is not supported");
+		return -EOPNOTSUPP;
+	}
 #endif
 
 	attr->action = action;
