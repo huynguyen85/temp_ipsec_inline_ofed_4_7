@@ -23,3 +23,4 @@ Change-Id=I51f8e91747200d1963821aa097aa3cb56dc95837; subject=mlx4: Add missing h
 Change-Id=I1a7fca3e5ab21e227f2db42d744d90e1417d0e05; subject=REBASE_FIX:Fix restart load mlx5 message; feature=mlx5_core_bugs; upstream_status=NA; general=;
 Change-Id=I47c6599075b61b06adc09ebc6a54a15cbb3db145; subject=REBASE: INITIAL METADATA; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Icfec035c78b5a028ab27f1a625da18a2d81b692e; subject=TO SQUASH LATER: Update MD; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I2451a08e86f5f85867c435c59c35945d91ce6bd0; subject=metadata: Update metadata ofed_scripts_4_6_4; feature=ofed_scripts; upstream_status=ignore; general=;
