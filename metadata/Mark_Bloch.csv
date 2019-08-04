@@ -48,3 +48,8 @@ Change-Id=I45c75a3afed662f57992c379fd854f49fc590f75; subject=net/mlx5: Export fu
 Change-Id=I05676c57c13fc31855ce92a703542e5d5d011458; subject=RDMA/uverbs: set 64 bit flags; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
 Change-Id=I96d2222f77ba81ebbccb8a32d8d910efd4452cd2; subject=BACKPORTS; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
 Change-Id=I5761663db76e254401c1b9defd85a3eda7da9168; subject=net/mlx5e: LACP owner shouldn't remap TISes; feature=mlx5_vf_lag; upstream_status=in_progress; general=;
+Change-Id=Iddaa055bc3e5090354763dcab675b6017ed960c8; subject=net/mlx5: Add IFC bits for single FDB mode; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I28890b56d45b9b373ec0a148efe86b623023a93d; subject=net/mlx5: E-Switch, Refactor send to vport to be more generic; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I826fb20ffcdf647c12fa8457be47c0addde1e235; subject=net/mlx5: Add send to vport rules on paired device; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I02e47e0f63e80a8938313ec5a5a394de8e07350b; subject=net/mlx5: E-Switch, base logic for single FDB; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I24cda925be11bf00df7f5be9f21caca61d8b3710; subject=net/mlx5: Update FDB root in single FDB; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
