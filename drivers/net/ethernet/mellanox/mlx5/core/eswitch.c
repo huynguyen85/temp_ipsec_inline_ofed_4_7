@@ -99,6 +99,11 @@ mlx5_eswitch_get_vport(struct mlx5_eswitch *esw, u16 vport_num)
 	return &esw->vports[idx];
 }
 
+static bool is_esw_manager_vport(const struct mlx5_eswitch *esw, u16 vport_num)
+{
+	return esw->manager_vport == vport_num;
+}
+
 static int arm_vport_context_events_cmd(struct mlx5_core_dev *dev, u16 vport,
 					u32 events_mask)
 {
@@ -499,7 +504,7 @@ static int esw_add_uc_addr(struct mlx5_eswitch *esw, struct vport_addr *vaddr)
 	/* Skip mlx5_mpfs_add_mac for eswitch_managers,
 	 * it is already done by its netdev in mlx5e_execute_l2_action
 	 */
-	if (esw->manager_vport == vport)
+	if (is_esw_manager_vport(esw, vport))
 		goto fdb_add;
 
 	err = mlx5_mpfs_add_mac(esw->dev, mac);
@@ -531,7 +536,7 @@ static int esw_del_uc_addr(struct mlx5_eswitch *esw, struct vport_addr *vaddr)
 	/* Skip mlx5_mpfs_del_mac for eswitch managerss,
 	 * it is already done by its netdev in mlx5e_execute_l2_action
 	 */
-	if (!vaddr->mpfs || esw->manager_vport == vport)
+	if (!vaddr->mpfs || is_esw_manager_vport(esw, vport))
 		goto fdb_del;
 
 	err = mlx5_mpfs_del_mac(esw->dev, mac);
@@ -2052,7 +2057,7 @@ static void esw_apply_vport_conf(struct mlx5_eswitch *esw,
 	enum esw_vst_mode vst_mode = esw_get_vst_mode(esw);
 	u16 vport_num = vport->vport;
 
-	if (esw->manager_vport == vport_num)
+	if (is_esw_manager_vport(esw, vport_num))
 		return;
 
 	mlx5_modify_vport_admin_state(esw->dev,
@@ -2130,8 +2135,9 @@ static void esw_enable_vport(struct mlx5_eswitch *esw, struct mlx5_vport *vport,
 	bitmap_zero(vport->acl_vlan_8021q_bitmap, VLAN_N_VID);
 	bitmap_zero(vport->info.vlan_trunk_8021q_bitmap, VLAN_N_VID);
 	/* Create steering drop counters for ingress and egress ACLs */
-	if (vport_num && esw->mode == SRIOV_LEGACY)
-		esw_vport_create_drop_counters(vport);
+	if (!is_esw_manager_vport(esw, vport_num) &&
+	    esw->mode == MLX5_ESWITCH_LEGACY)
+ 		esw_vport_create_drop_counters(vport);
 
 	/* Restore old vport configuration */
 	esw_apply_vport_conf(esw, vport);
@@ -2148,7 +2154,7 @@ static void esw_enable_vport(struct mlx5_eswitch *esw, struct mlx5_vport *vport,
 	/* Esw manager is trusted by default. Host PF (vport 0) is trusted as well
 	 * in smartNIC as it's a vport group manager.
 	 */
-	if (esw->manager_vport == vport_num ||
+	if (is_esw_manager_vport(esw, vport_num) ||
 	    (!vport_num && mlx5_core_is_ecpf(esw->dev)))
 		vport->info.trusted = true;
 
@@ -2183,8 +2189,8 @@ static void esw_disable_vport(struct mlx5_eswitch *esw,
 	esw_vport_change_handle_locked(vport);
 	vport->enabled_events = 0;
 	esw_vport_disable_qos(esw, vport);
-	if (esw->manager_vport != vport_num &&
-	    esw->mode == SRIOV_LEGACY) {
+	if (!is_esw_manager_vport(esw, vport_num) &&
+ 	    esw->mode == MLX5_ESWITCH_LEGACY) {
 		mlx5_modify_vport_admin_state(esw->dev,
 					      MLX5_VPORT_STATE_OP_MOD_ESW_VPORT,
 					      vport_num, 1,
