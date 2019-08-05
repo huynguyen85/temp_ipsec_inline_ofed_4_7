@@ -92,3 +92,5 @@ Change-Id=I6195f979ec06f1a421991520df875d5aad2ac803; subject=nvmet-rdma: fix off
 Change-Id=I52bd10a0b32acb4a47fdc077339113cb39b228b7; subject=net/mlx5: Add XRQ Error event; feature=nvmf_offload; upstream_status=in_progress; general=;
 Change-Id=I7b18b7c70442f6c4b418ad7b77ee41c5882082e7; subject=net/mlx5: Handle BACKEND_CONTROLLER_ERROR type event; feature=nvmf_offload; upstream_status=in_progress; general=;
 Change-Id=I38e853b2dfa51062bc1e4a30e9db1623cc24c443; subject=nvme-rdma: Add association between ctrl and transport dev; feature=nvmf_bugs; upstream_status=in_progress; general=;
+Change-Id=I9f5ebe8b0ef833fa593ec6476b13242e5c4e1276; subject=net/mlx5: Introduce VHCA tunnel device capability; feature=devx; upstream_status=accepted; general=upstream Commit ID: 1dd7382b1bb6, tag: v5.2-rc6;
+Change-Id=Ie30f1cc462fb91e40b40bef0ca20f30fef57481f; subject=IB/mlx5: Implement VHCA tunnel mechanism in DEVX; feature=devx; upstream_status=accepted; general=upstream Commit ID: b6142608e806, tag: v5.2-rc6;
