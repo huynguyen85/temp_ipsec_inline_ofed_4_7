@@ -78,7 +78,7 @@
 		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "kzalloc_node"); \
 	else									\
 		__memtrack_addr = kzalloc_node(size, flags, node);		\
-	if (__memtrack_addr && (size) &&					\
+	if (__memtrack_addr && (size) > 0 &&					\
 	    !is_non_trackable_alloc_func(__func__)) {				\
 		memtrack_alloc(MEMTRACK_KMALLOC, 0UL, (unsigned long)(__memtrack_addr), size, 0UL, 0, __FILE__, __LINE__, flags); \
 	}									\
@@ -105,7 +105,7 @@
 		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "kvmalloc_array"); \
 	else									\
 		__memtrack_addr = kvmalloc_array(n, size, flags);		\
-	if (__memtrack_addr && !is_non_trackable_alloc_func(__func__) && (n)*(size)) {	\
+	if (__memtrack_addr && !is_non_trackable_alloc_func(__func__) && (n) * (size) > 0) {	\
 		memtrack_alloc(MEMTRACK_KVMALLOC, 0UL, (unsigned long)(__memtrack_addr), (n)*size, 0UL, 0, __FILE__, __LINE__, flags); \
 	}									\
 	__memtrack_addr;							\
@@ -129,7 +129,7 @@
 		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "kcalloc_node"); \
 	else									\
 		__memtrack_addr = kcalloc_node(n, size, flags, node);		\
-	if (__memtrack_addr && (size) &&					\
+	if (__memtrack_addr && (size) > 0 &&					\
 	    !is_non_trackable_alloc_func(__func__)) {				\
 		memtrack_alloc(MEMTRACK_KMALLOC, 0UL, (unsigned long)(__memtrack_addr),(n) * (size), 0UL, 0, __FILE__, __LINE__, flags); \
 	}									\
@@ -146,7 +146,7 @@
 		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "kcalloc");\
 	else									\
 		__memtrack_addr = kcalloc(n, size, flags);			\
-	if (!ZERO_OR_NULL_PTR(__memtrack_addr) && (n)*(size)) {			\
+	if (!ZERO_OR_NULL_PTR(__memtrack_addr) && (n) * (size) > 0) {		\
 		memtrack_alloc(MEMTRACK_KMALLOC, 0UL, (unsigned long)(__memtrack_addr), (n)*(size), 0UL, 0, __FILE__, __LINE__, flags); \
 	}									\
 	__memtrack_addr;							\
@@ -159,7 +159,7 @@
 		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "kcalloc");\
 	else									\
 		__memtrack_addr = kcalloc(n, size, flags);			\
-	if (__memtrack_addr && (n)*(size)) {					\
+	if (__memtrack_addr && (n) * (size) > 0) {				\
 		memtrack_alloc(MEMTRACK_KMALLOC, 0UL, (unsigned long)(__memtrack_addr), (n)*(size), 0UL, 0, __FILE__, __LINE__, flags); \
 	}									\
 	__memtrack_addr;							\
@@ -270,7 +270,7 @@
 		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "kmalloc_array"); \
 	else									\
 		__memtrack_addr = kmalloc_array(n, size, flags);		\
-	if (!ZERO_OR_NULL_PTR(__memtrack_addr) && (n)*(size)) {			\
+	if (!ZERO_OR_NULL_PTR(__memtrack_addr) && (n) * (size) > 0) {		\
 		memtrack_alloc(MEMTRACK_KMALLOC, 0UL, (unsigned long)(__memtrack_addr), (n)*(size), 0UL, 0, __FILE__, __LINE__, flags); \
 	}									\
 	__memtrack_addr;							\
@@ -283,7 +283,7 @@
 		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "kmalloc_array"); \
 	else									\
 		__memtrack_addr = kmalloc_array(n, size, flags);			\
-	if (__memtrack_addr && (n)*(size)) {					\
+	if (__memtrack_addr && (n) * (size) > 0) {				\
 		memtrack_alloc(MEMTRACK_KMALLOC, 0UL, (unsigned long)(__memtrack_addr), (n)*(size), 0UL, 0, __FILE__, __LINE__, flags); \
 	}									\
 	__memtrack_addr;							\
