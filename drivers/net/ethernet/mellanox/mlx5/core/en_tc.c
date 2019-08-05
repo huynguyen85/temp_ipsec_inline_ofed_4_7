@@ -2950,8 +2950,8 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 			action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
 			break;
 		case FLOW_ACTION_GOTO: {
-			u32 dest_chain = act->chain_index;
 #ifndef CONFIG_MLX5_MINIFLOW
+			u32 dest_chain = act->chain_index;
 			u32 max_chain = mlx5_eswitch_get_chain_range(esw);
 
 			if (dest_chain <= attr->chain) {
@@ -2964,10 +2964,6 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 			}
 			attr->dest_chain = dest_chain;
 #else
-			if (dest_chain == 0) {
-				netdev_warn(priv->netdev, "Loop to chain 0 is not supported");
-				return -EOPNOTSUPP;
-			}
 			if (flow->flags & MLX5E_TC_FLOW_EGRESS) {
 				action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
 			}
