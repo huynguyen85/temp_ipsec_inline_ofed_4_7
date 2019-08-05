@@ -891,7 +891,8 @@ static void remove_unready_flow(struct mlx5e_tc_flow *flow)
 	flow->flags &= ~MLX5E_TC_FLOW_NOT_READY;
 }
 
-int mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
+static int
+mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
 		      struct mlx5e_tc_flow *flow,
 		      struct netlink_ext_ack *extack)
 {
@@ -1789,6 +1790,21 @@ static int parse_cls_flower(struct mlx5e_priv *priv,
 	return err;
 }
 
+struct pedit_headers {
+	struct ethhdr  eth;
+	struct vlan_hdr vlan;
+	struct iphdr   ip4;
+	struct ipv6hdr ip6;
+	struct tcphdr  tcp;
+	struct udphdr  udp;
+};
+
+struct pedit_headers_action {
+	struct pedit_headers	vals;
+	struct pedit_headers	masks;
+	u32			pedits;
+};
+
 static int pedit_header_offsets[] = {
 	[FLOW_ACT_MANGLE_HDR_TYPE_ETH] = offsetof(struct pedit_headers, eth),
 	[FLOW_ACT_MANGLE_HDR_TYPE_IP4] = offsetof(struct pedit_headers, ip4),
@@ -2052,7 +2068,7 @@ static int mlx5e_flow_namespace_max_modify_action(struct mlx5_core_dev *mdev,
 		return MLX5_CAP_FLOWTABLE_NIC_RX(mdev, max_modify_header_actions);
 }
 
-int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
+static int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
 				 struct pedit_headers_action *hdrs,
 				 int namespace,
 				 struct mlx5e_tc_flow_parse_attr *parse_attr)
@@ -3020,7 +3036,8 @@ static bool is_peer_flow_needed(struct mlx5e_tc_flow *flow)
 	return false;
 }
 
-int mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
+static int
+mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
 		 struct tc_cls_flower_offload *f, u16 flow_flags,
 		 struct mlx5e_tc_flow_parse_attr **__parse_attr,
 		 struct mlx5e_tc_flow **__flow)

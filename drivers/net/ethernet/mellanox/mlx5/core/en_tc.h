@@ -117,21 +117,6 @@ struct mlx5e_tc_flow_parse_attr {
 	int mirred_ifindex[MLX5_MAX_FLOW_FWD_VPORTS];
 };
 
-struct pedit_headers {
-	struct ethhdr  eth;
-	struct vlan_hdr vlan;
-	struct iphdr   ip4;
-	struct ipv6hdr ip6;
-	struct tcphdr  tcp;
-	struct udphdr  udp;
-};
-
-struct pedit_headers_action {
-	struct pedit_headers	vals;
-	struct pedit_headers	masks;
-	u32			pedits;
-};
-
 #define MLX5_MH_ACT_SZ MLX5_UN_SZ_BYTES(set_action_in_add_action_in_auto)
 
 int mlx5e_tc_nic_init(struct mlx5e_priv *priv);
@@ -160,21 +145,6 @@ void mlx5e_tc_update_neigh_used_value(struct mlx5e_neigh_hash_entry *nhe);
 int mlx5e_tc_num_filters(struct mlx5e_priv *priv, int flags);
 
 void mlx5e_tc_reoffload_flows_work(struct work_struct *work);
-
-void mlx5e_flow_put(struct mlx5e_priv *priv,
-		    struct mlx5e_tc_flow *flow);
-int mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
-			  struct mlx5e_tc_flow *flow,
-			  struct netlink_ext_ack *extack);
-int mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
-		     struct tc_cls_flower_offload *f, u16 flow_flags,
-		     struct mlx5e_tc_flow_parse_attr **__parse_attr,
-		     struct mlx5e_tc_flow **__flow);
-int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
-			  struct pedit_headers_action *hdrs, int namespace,
-			  struct mlx5e_tc_flow_parse_attr *parse_attr);
-int mlx5e_tc_update_and_init_done_fdb_flow(struct mlx5e_priv *priv,
-					   struct mlx5e_tc_flow *flow);
 
 #else /* CONFIG_MLX5_ESWITCH */
 static inline int  mlx5e_tc_nic_init(struct mlx5e_priv *priv) { return 0; }
