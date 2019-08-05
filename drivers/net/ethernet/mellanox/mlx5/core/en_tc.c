@@ -2770,8 +2770,8 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 				struct netlink_ext_ack *extack)
 {
 	struct pedit_headers_action hdrs[2] = {};
-	struct mlx5_esw_flow_attr *attr = flow->esw_attr;
 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
+	struct mlx5_esw_flow_attr *attr = flow->esw_attr;
 	struct mlx5e_tc_flow_parse_attr *parse_attr = attr->parse_attr;
 	struct mlx5e_rep_priv *rpriv = priv->ppriv;
 	const struct ip_tunnel_info *info = NULL;
@@ -2942,7 +2942,6 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 			action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
 			break;
 		case FLOW_ACTION_GOTO: {
-#ifndef CONFIG_MLX5_MINIFLOW
 			u32 dest_chain = act->chain_index;
 			u32 max_chain = mlx5_eswitch_get_chain_range(esw);
 
@@ -2954,9 +2953,8 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 				NL_SET_ERR_MSG(extack, "Requested destination chain is out of supported range");
 				return -EOPNOTSUPP;
 			}
-			attr->dest_chain = dest_chain;
-#endif
 			action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
+			attr->dest_chain = dest_chain;
 			break;
 			}
 		default:
