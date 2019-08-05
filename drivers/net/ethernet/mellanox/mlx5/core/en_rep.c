@@ -46,8 +46,6 @@
 #include "en/tc_tun.h"
 #include "fs_core.h"
 #include "ecpf.h"
-//TODO VALENTIEN require add miniflow commit
-//#include "miniflow.h"
 #include "lib/port_tun.h"
 
 #define MLX5E_REP_PARAMS_DEF_LOG_SQ_SIZE \
@@ -1205,33 +1203,10 @@ static int mlx5e_rep_setup_tc_cb(enum tc_setup_type type, void *type_data,
 	case TC_SETUP_CLSFLOWER:
 		return mlx5e_rep_setup_tc_cls_flower(priv, type_data, MLX5E_TC_INGRESS |
 						     MLX5E_TC_ESW_OFFLOAD);
-#ifdef CONFIG_MLX5_MINIFLOW
-	case TC_SETUP_MINIFLOW:
-		return miniflow_configure(priv, type_data);
-#endif
 	default:
 		return -EOPNOTSUPP;
 	}
 }
-
-static int mlx5e_rep_setup_tc_cb_egdev(enum tc_setup_type type, void *type_data,
-		void *cb_priv)
-{
-	struct mlx5e_priv *priv = cb_priv;
-
-	switch (type) {
-		case TC_SETUP_CLSFLOWER:
-			return mlx5e_rep_setup_tc_cls_flower(priv, type_data, MLX5E_TC_EGRESS |
-					MLX5E_TC_ESW_OFFLOAD);
-#ifdef CONFIG_MLX5_MINIFLOW
-		case TC_SETUP_MINIFLOW:
-			return miniflow_configure(priv, type_data);
-#endif
-		default:
-			return -EOPNOTSUPP;
-	}
-}
-
 
 static int mlx5e_rep_setup_tc_block(struct net_device *dev,
 				    struct tc_block_offload *f)
