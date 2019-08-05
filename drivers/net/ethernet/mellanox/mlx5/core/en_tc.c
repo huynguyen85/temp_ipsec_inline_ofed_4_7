@@ -3572,33 +3572,14 @@ void mlx5e_tc_nic_cleanup(struct mlx5e_priv *priv)
 	}
 }
 
-int mlx5e_tc_esw_init(struct mlx5e_priv *priv)
+int mlx5e_tc_esw_init(struct rhashtable *tc_ht)
 {
-	struct rhashtable *tc_ht = get_tc_ht(priv, MLX5E_TC_ESW_OFFLOAD);
-	int err;
-
-//TODO VALENTINE REQUIRED Add miniflow commit
-	//err = miniflow_cache_init(priv);
-	if (err)
-		return err;
-
-	err = rhashtable_init(tc_ht, &tc_ht_params);
-	if (err)
-		goto err_tc_ht;
-
-	return 0;
-
-err_tc_ht:
-//TODO VALENTINE REQUIRED Add miniflow commit
-	//miniflow_cache_destroy(priv);
-	return err;
+	return rhashtable_init(tc_ht, &tc_ht_params);
 }
 
-void mlx5e_tc_esw_cleanup(struct mlx5e_priv *priv)
+void mlx5e_tc_esw_cleanup(struct rhashtable *tc_ht)
 {
-	struct rhashtable *tc_ht = get_tc_ht(priv, MLX5E_TC_ESW_OFFLOAD);
-//TODO VALENTINE REQUIRED Add miniflow commit
-	//miniflow_cache_destroy(priv);
+	rhashtable_free_and_destroy(tc_ht, _mlx5e_tc_del_flow, NULL);
 }
 
 int mlx5e_tc_num_filters(struct mlx5e_priv *priv, int flags)
