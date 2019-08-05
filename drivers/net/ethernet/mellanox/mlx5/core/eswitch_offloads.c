@@ -1523,9 +1523,19 @@ static void esw_offloads_unload_vf_reps(struct mlx5_eswitch *esw, int nvports)
 		__unload_reps_vf_vport(esw, nvports, rep_type);
 }
 
+static void __unload_reps_sf_vport(struct mlx5_eswitch *esw, u8 rep_type)
+{
+	struct mlx5_eswitch_rep *rep;
+	int i;
+
+	mlx5_esw_for_each_sf_rep(esw, i, rep)
+		__esw_offloads_unload_rep(esw, rep, rep_type);
+}
+
 static void __unload_reps_all_vport(struct mlx5_eswitch *esw, int nvports,
 				    u8 rep_type)
 {
+	__unload_reps_sf_vport(esw, rep_type);
 	__unload_reps_vf_vport(esw, nvports, rep_type);
 
 	/* Special vports must be the last to unload. */
@@ -2278,7 +2288,8 @@ static int esw_check_vport_match_metadata_supported(struct mlx5_eswitch *esw)
 	       MLX5_CAP_ESW_FLOWTABLE(esw->dev, flow_source) &&
 	       MLX5_CAP_ESW(esw->dev, esw_uplink_ingress_acl) &&
 	       !mlx5_core_is_ecpf_esw_manager(esw->dev) &&
-	       !mlx5_ecpf_vport_exists(esw->dev);
+	       !mlx5_ecpf_vport_exists(esw->dev) &&
+	       !mlx5_eswitch_max_sfs(esw->dev);
 }
 
 static int esw_create_offloads_acl_tables(struct mlx5_eswitch *esw, int vf_nvports)

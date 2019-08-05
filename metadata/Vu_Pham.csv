@@ -3,3 +3,4 @@ Change-Id=Ib39e40de42ebf316fb01cd5658f5c1ee149f4932; subject=net/mlx5: E-Switch,
 Change-Id=Ib94cf728b49e710b6c962977cb8ada1fb13d0fe4; subject=net/mlx5: E-Switch, Disallow modify vport state down on disabled SF vport; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=I46002582a3356dea9f2d5076e570b2eef4f49d9e; subject=net/mlx5: E-Switch, Disallow transition to other modes if SF active; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=I536d19d27fa54c93d730074bef05b238a8fc3468; subject=vf-net-link-name.sh: Fix the issue of BlueField and SF representor names; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Id91f4ccc7fc67c164196cc2d59032b9d2d070feb; subject=net/mlx5: E-Switch, Add SF vport, vport-rep support; feature=mlx5_sfs; upstream_status=in_progress; general=;

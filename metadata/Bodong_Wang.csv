@@ -31,3 +31,5 @@ Change-Id=Iefd82762126ab97c2b79fdb8851dd854f1962a1a; subject=net/mlx5: Add confi
 Change-Id=I885297be48056f40d531d4fd1cd47eb0058e85d6; subject=net/mlx5: E-Switch, Enable correct number of VFs in legacy mode; feature=mlx5_bf; upstream_status=NA; general=;
 Change-Id=I30b876f09989b9fdc4f43554f11e85acb0f659fc; subject=net/mlx5: E-Switch, Early bail out from switchdev mode if VF is enabled; feature=mlx5_bf; upstream_status=NA; general=;
 Change-Id=Ie3a05234f550c395cb123e2db8c762f2821f3de2; subject=net/mlx5: Use netdev_queue_attribute for tx map sysfs; feature=mlx5_packet_pacing; upstream_status=NA; general=;
+Change-Id=I42a11b98c6be8182c57f5434a6890841b2863539; subject={IB, net}/mlx5: E-Switch, Use index of rep for vport to IB port mapping; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I4876264c7b5ae08e66ed56eb2c7e181b05ce1e0b; subject=net/mlx5: E-Switch, Refactor eswitch SR-IOV interface; feature=mlx5_sfs; upstream_status=accepted; general=;
