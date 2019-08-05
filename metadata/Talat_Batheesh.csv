@@ -25,3 +25,4 @@ Change-Id=I47c6599075b61b06adc09ebc6a54a15cbb3db145; subject=REBASE: INITIAL MET
 Change-Id=Icfec035c78b5a028ab27f1a625da18a2d81b692e; subject=TO SQUASH LATER: Update MD; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I2451a08e86f5f85867c435c59c35945d91ce6bd0; subject=metadata: Update metadata ofed_scripts_4_6_4; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I80dd4d1aa105a1a54b2562b0a35d01847d64fb04; subject=metadata: update metadata Markb; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Ie594ae4dd00c1d7a70268892d17a21948ca1119d; subject=fixes: remove atomic_t call; feature=mlx5e_st_ct; upstream_status=NA; general=;

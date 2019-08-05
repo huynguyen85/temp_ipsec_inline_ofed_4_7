@@ -1,0 +1,3 @@
+sep=;
+Change-Id=I7df03b4aee2985242ff0b9bc1c07dc03521e8df8; subject=ofed_scripts/mlnx_tune: Only disable qdisc tx for zero loss profiles; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Iec815f54ef809a233283308331f26a76fe479ac8; subject=ofed_scripts/mlnx_tune: Fix error when trying to read node information; feature=ofed_scripts; upstream_status=ignore; general=;

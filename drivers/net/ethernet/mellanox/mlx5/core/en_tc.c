@@ -1266,9 +1266,8 @@ static void mlx5e_tc_del_fdb_peer_flow(struct mlx5e_tc_flow *flow)
 	struct mlx5_devcom *devcom = dev->priv.devcom;
 	struct mlx5_eswitch *peer_esw;
 
-//TODO VALENTINE REQUIRED Add miniflow commit
-	//if (!(atomic_read(&flow->flags) & MLX5E_TC_FLOW_DUP))
-	//	return;
+	if (!(flow->flags & MLX5E_TC_FLOW_DUP))
+		return;
 
 	peer_esw = mlx5_devcom_get_peer_data(devcom, MLX5_DEVCOM_ESW_OFFLOADS);
 	if (!peer_esw)
