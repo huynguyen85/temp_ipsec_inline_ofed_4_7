@@ -70,11 +70,7 @@ esw_put_prio_table(struct mlx5_eswitch *esw, u32 chain, u16 prio, int level);
 
 bool mlx5_eswitch_prios_supported(struct mlx5_eswitch *esw)
 {
-#ifdef CONFIG_MLX5_MINIFLOW
-	return false;
-#else
 	return (!!(esw->fdb_table.flags & ESW_FDB_CHAINS_AND_PRIOS_SUPPORTED));
-#endif
 }
 
 u32 mlx5_eswitch_get_chain_range(struct mlx5_eswitch *esw)
