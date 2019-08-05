@@ -2980,9 +2980,9 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 	return 0;
 }
 
-static void get_flags(int flags, u32 *flow_flags)
+static void get_flags(int flags, u16 *flow_flags)
 {
-	u32 __flow_flags = 0;
+	u16 __flow_flags = 0;
 
 	if (flags & MLX5E_TC_INGRESS)
 		__flow_flags |= MLX5E_TC_FLOW_INGRESS;
@@ -3038,7 +3038,7 @@ static bool is_peer_flow_needed(struct mlx5e_tc_flow *flow)
 }
 
 int mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
-		 struct tc_cls_flower_offload *f, u32 flow_flags, gfp_t flags,
+		 struct tc_cls_flower_offload *f, int flow_flags, gfp_t flags,
 		 struct mlx5e_tc_flow_parse_attr **__parse_attr,
 		 struct mlx5e_tc_flow **__flow)
 {
@@ -3113,7 +3113,7 @@ static bool is_flow_simple(struct mlx5e_tc_flow *flow)
 static struct mlx5e_tc_flow *
 __mlx5e_add_fdb_flow(struct mlx5e_priv *priv,
 		     struct tc_cls_flower_offload *f,
-		     u32 flow_flags,
+		     u16 flow_flags,
 		     struct net_device *filter_dev,
 		     struct mlx5_eswitch_rep *in_rep,
 		     struct mlx5_core_dev *in_mdev)
@@ -3167,7 +3167,7 @@ out:
 
 static int mlx5e_tc_add_fdb_peer_flow(struct tc_cls_flower_offload *f,
 				      struct mlx5e_tc_flow *flow,
-				      u32 flow_flags)
+				      u16 flow_flags)
 {
 	struct mlx5e_priv *priv = flow->priv, *peer_priv;
 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch, *peer_esw;
@@ -3218,7 +3218,7 @@ out:
 static int
 mlx5e_add_fdb_flow(struct mlx5e_priv *priv,
 		   struct tc_cls_flower_offload *f,
-		   u32 flow_flags,
+		   u16 flow_flags,
 		   struct net_device *filter_dev,
 		   struct mlx5e_tc_flow **__flow)
 {
@@ -3252,7 +3252,7 @@ out:
 static int
 mlx5e_add_nic_flow(struct mlx5e_priv *priv,
 		   struct tc_cls_flower_offload *f,
-		   u32 flow_flags,
+		   u16 flow_flags,
 		   struct net_device *filter_dev,
 		   struct mlx5e_tc_flow **__flow)
 {
@@ -3308,7 +3308,7 @@ mlx5e_tc_add_flow(struct mlx5e_priv *priv,
 		  struct mlx5e_tc_flow **flow)
 {
 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
-	u32 flow_flags;
+	u16 flow_flags;
 	int err;
 
 	get_flags(flags, &flow_flags);
