@@ -9,3 +9,5 @@ Change-Id=Ie8a940e075a5d85a94a33b8ac47f832c90f4b31d; subject=IB/core: Fix uninit
 Change-Id=I0330d8a10d4a4822650a1a7376d509b003255798; subject=IB/core: Align experimental verbs to new API; feature=ib_core_bugs; upstream_status=NA; general=;
 Change-Id=I431d4e7ad145f6c6055ad98aeafd3d99216dfa7e; subject=IB/{mlx5,core}: Fix broken DEVICE_GRE; feature=mlx5_ib_bugs; upstream_status=NA; general=;
 Change-Id=I47515d9ec1bed0659babf1080a3056add5cfe4a1; subject=metadata: Update yishai hadas MD; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=If1ea95d81fddfbf4233782938f95593af5d9edb5; subject=metadata: update Mark Zang MD; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Ic2702088cc8bbe157e3c57ecc7b18b6f661f0e70; subject=metadata: update Yonatan Cohen MD; feature=ofed_scripts; upstream_status=ignore; general=;
