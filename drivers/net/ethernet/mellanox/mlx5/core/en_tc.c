@@ -2071,8 +2071,7 @@ static int mlx5e_flow_namespace_max_modify_action(struct mlx5_core_dev *mdev,
 int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
 				 struct pedit_headers_action *hdrs,
 				 int namespace,
-				 struct mlx5e_tc_flow_parse_attr *parse_attr,
-				 gfp_t flags)
+				 struct mlx5e_tc_flow_parse_attr *parse_attr)
 {
 	int nkeys, action_size, max_actions;
 
@@ -2084,7 +2083,7 @@ int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
 	/* can get up to crazingly 16 HW actions in 32 bits pedit SW key */
 	max_actions = min(max_actions, nkeys * 16);
 
-	parse_attr->mod_hdr_actions = kcalloc(max_actions, action_size, flags);
+	parse_attr->mod_hdr_actions = kcalloc(max_actions, action_size, GFP_KERNEL);
 	if (!parse_attr->mod_hdr_actions)
 		return -ENOMEM;
 
@@ -2145,7 +2144,7 @@ static int alloc_tc_pedit_action(struct mlx5e_priv *priv, int namespace,
 	u8 cmd;
 
 	if (!parse_attr->mod_hdr_actions) {
-		err = alloc_mod_hdr_actions(priv, hdrs, namespace, parse_attr, GFP_KERNEL);
+		err = alloc_mod_hdr_actions(priv, hdrs, namespace, parse_attr);
 		if (err)
 			goto out_err;
 	}
