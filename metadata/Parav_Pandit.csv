@@ -24,3 +24,5 @@ Change-Id=I5f301887f80211872ab5e2effee94f5cf69617cd; subject=net/mlx5: Prefix PF
 Change-Id=I1ffd28e0aa9a3b5e0069b9507fcf6e5eb3469ef4; subject=net/mlx5e: Revert PF representor name to be old way; feature=mlx5_core_bugs; upstream_status=NA; general=;
 Change-Id=I5a034d378a9d74cd6ee099b2a72858c860063967; subject=net/mlx5: Use vhca_id based phys_port_name; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=I994fdba18b0b6774d69ff2321825345fc866b972; subject=net/mlx5e: Prefix mdev/SF vport number with its PCI function; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ib696ba318d67ea75c8b5ef4cc97c0a5c8197937c; subject=IB/core: Work on the caller socket net namespace in nldev_newlink(); feature=rdma_netns; upstream_status=accepted; general=;
+Change-Id=Ic58804f32abda0d51f1c8847ee130a1bf443c072; subject=Support netlink commands in non init_net net namespaces; feature=rdma_netns; upstream_status=accepted; general=;
