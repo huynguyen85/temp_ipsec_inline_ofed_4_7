@@ -1165,7 +1165,6 @@ struct mlx5_ib_dev {
 	struct mlx5_async_ctx   async_ctx;
 	struct mlx5_devx_event_table devx_event_table;
 	struct mlx5_core_capi   capi;
-	int			free_port;
 
 	u64 pf_count;
 	u64 pf_int_total_hist[MAX_HIST];
