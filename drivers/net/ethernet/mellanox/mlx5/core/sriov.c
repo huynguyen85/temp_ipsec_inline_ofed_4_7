@@ -35,6 +35,7 @@
 #include <linux/mlx5/vport.h>
 #include "mlx5_core.h"
 #include "eswitch.h"
+#include "ecpf.h"
 
 static int sriov_restore_guids(struct mlx5_core_dev *dev, int vf)
 {
@@ -206,6 +207,26 @@ void mlx5_sriov_detach(struct mlx5_core_dev *dev)
 	mlx5_device_disable_sriov(dev);
 }
 
+static u16 mlx5_get_max_vfs(struct mlx5_core_dev *dev)
+{
+	int total_vfs = 0, err;
+
+	if (mlx5_core_is_ecpf_esw_manager(dev)) {
+		err = mlx5_query_host_params_total_vfs(dev, &total_vfs);
+		/* Old FW doesn't support getting total_vfs from host params
+		 * but supports getting from pci_sriov.
+		 */
+		if (!err && total_vfs)
+			return total_vfs;
+	}
+
+	/* In RH6.8 and lower pci_sriov_get_totalvfs might return -EINVAL
+	 * return in that case 1
+	 */
+	return (pci_sriov_get_totalvfs(dev->pdev) < 0) ? 0 :
+		pci_sriov_get_totalvfs(dev->pdev);
+}
+
 int mlx5_sriov_init(struct mlx5_core_dev *dev)
 {
 	struct mlx5_core_sriov *sriov = &dev->priv.sriov;
@@ -217,6 +238,7 @@ int mlx5_sriov_init(struct mlx5_core_dev *dev)
 		return 0;
 
 	total_vfs = pci_sriov_get_totalvfs(pdev);
+	sriov->max_vfs = mlx5_get_max_vfs(dev);
 	sriov->num_vfs = pci_num_vf(pdev);
 	sriov->vfs_ctx = kcalloc(total_vfs, sizeof(*sriov->vfs_ctx), GFP_KERNEL);
 	if (!sriov->vfs_ctx)

@@ -266,7 +266,6 @@ static struct mlx5_profile profile[] = {
 static void mlx5_as_notify_init(struct mlx5_core_dev *dev);
 static void mlx5_as_notify_cleanup(struct mlx5_core_dev *dev);
 #endif
-static u16 mlx5_get_max_vfs(struct mlx5_core_dev *dev);
 
 static int wait_fw_init(struct mlx5_core_dev *dev, u32 max_wait_mili,
 			u32 warn_time_mili)
@@ -1058,32 +1057,32 @@ static int mlx5_init_once(struct mlx5_core_dev *dev)
 		goto err_mst_dump_cleanup;
 	}
 
-	err = mlx5_eswitch_init(dev);
-	if (err) {
-		mlx5_core_err(dev, "Failed to init eswitch %d\n", err);
-		goto err_mpfs_cleanup;
-	}
-
 	err = mlx5_sriov_init(dev);
 	if (err) {
 		mlx5_core_err(dev, "Failed to init sriov %d\n", err);
-		goto err_eswitch_cleanup;
+		goto err_mpfs_cleanup;
+	}
+
+	err = mlx5_eswitch_init(dev);
+	if (err) {
+		mlx5_core_err(dev, "Failed to init eswitch %d\n", err);
+		goto err_sriov_cleanup;
 	}
 
 	err = mlx5_fpga_init(dev);
 	if (err) {
 		mlx5_core_err(dev, "Failed to init fpga device %d\n", err);
-		goto err_sriov_cleanup;
+		goto err_eswitch_cleanup;
 	}
 
 	dev->tracer = mlx5_fw_tracer_create(dev);
 
 	return 0;
 
-err_sriov_cleanup:
-	mlx5_sriov_cleanup(dev);
 err_eswitch_cleanup:
 	mlx5_eswitch_cleanup(dev->priv.eswitch);
+err_sriov_cleanup:
+	mlx5_sriov_cleanup(dev);
 err_mst_dump_cleanup:
 	mlx5_mst_dump_cleanup(dev);
 err_mpfs_cleanup:
@@ -1112,8 +1111,8 @@ static void mlx5_cleanup_once(struct mlx5_core_dev *dev)
 {
 	mlx5_fw_tracer_destroy(dev->tracer);
 	mlx5_fpga_cleanup(dev);
-	mlx5_sriov_cleanup(dev);
 	mlx5_eswitch_cleanup(dev->priv.eswitch);
+	mlx5_sriov_cleanup(dev);
 	mlx5_mst_dump_cleanup(dev);
 	mlx5_mpfs_cleanup(dev);
 	mlx5_cleanup_rl_table(dev);
@@ -1224,8 +1223,6 @@ static int mlx5_function_setup(struct mlx5_core_dev *dev, bool boot)
 		mlx5_core_err(dev, "query hca failed\n");
 		goto stop_health;
 	}
-
-	dev->caps.max_vfs = mlx5_get_max_vfs(dev);
 
 	return 0;
 
@@ -1385,26 +1382,6 @@ static void mlx5_unload(struct mlx5_core_dev *dev)
 	mlx5_pagealloc_stop(dev);
 	mlx5_events_stop(dev);
 	mlx5_put_uars_page(dev, dev->priv.uar);
-}
-
-static u16 mlx5_get_max_vfs(struct mlx5_core_dev *dev)
-{
-	int total_vfs = 0, err;
-
-	if (mlx5_core_is_ecpf_esw_manager(dev)) {
-		err = mlx5_query_host_params_total_vfs(dev, &total_vfs);
-		/* Old FW doesn't support getting total_vfs from host params
-		 * but supports getting from pci_sriov.
-		 */
-		if (!err && total_vfs)
-			return total_vfs;
-	}
-
-	/* In RH6.8 and lower pci_sriov_get_totalvfs might return -EINVAL
-	 * return in that case 1
-	 */
-	return (pci_sriov_get_totalvfs(dev->pdev) < 0) ? 0 :
-		pci_sriov_get_totalvfs(dev->pdev);
 }
 
 static int mlx5_load_one(struct mlx5_core_dev *dev, bool boot)
