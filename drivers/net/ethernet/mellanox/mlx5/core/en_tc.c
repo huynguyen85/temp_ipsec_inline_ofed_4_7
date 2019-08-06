@@ -288,49 +288,45 @@ static inline int cmp_mod_hdr_info(struct mod_hdr_key *a,
 	return memcmp(a->actions, b->actions, a->num_actions * MLX5_MH_ACT_SZ);
 }
 
-static struct mlx5e_mod_hdr_entry *
-mlx5e_mod_hdr_get(struct mlx5e_priv *priv, int namespace,
-		  struct mod_hdr_key *key, u32 hash_key)
+static struct mod_hdr_tbl *
+get_mod_hdr_table(struct mlx5e_priv *priv, int namespace)
 {
 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
-	struct mlx5e_mod_hdr_entry *mh;
-	bool found = false;
 
-	if (namespace == MLX5_FLOW_NAMESPACE_FDB) {
-		hash_for_each_possible(esw->offloads.mod_hdr_tbl, mh,
-				       mod_hdr_hlist, hash_key) {
-			if (!cmp_mod_hdr_info(&mh->key, key)) {
-				found = true;
-				break;
-			}
-		}
-	} else {
-		hash_for_each_possible(priv->fs.tc.mod_hdr_tbl, mh,
-				       mod_hdr_hlist, hash_key) {
-			if (!cmp_mod_hdr_info(&mh->key, key)) {
-				found = true;
-				break;
-			}
+	return namespace == MLX5_FLOW_NAMESPACE_FDB ? &esw->offloads.mod_hdr :
+		&priv->fs.tc.mod_hdr;
+}
+
+static struct mlx5e_mod_hdr_entry *
+mlx5e_mod_hdr_get(struct mod_hdr_tbl *tbl, struct mod_hdr_key *key, u32 hash_key)
+{
+	struct mlx5e_mod_hdr_entry *mh, *found = NULL;
+
+	hash_for_each_possible(tbl->hlist, mh, mod_hdr_hlist, hash_key) {
+		if (!cmp_mod_hdr_info(&mh->key, key)) {
+			refcount_inc(&mh->refcnt);
+			found = mh;
+			break;
 		}
 	}
 
-	if (found) {
-		refcount_inc(&mh->refcnt);
-		return mh;
-	}
-
-	return NULL;
+	return found;
 }
 
 static void mlx5e_mod_hdr_put(struct mlx5e_priv *priv,
-			      struct mlx5e_mod_hdr_entry *mh)
+			      struct mlx5e_mod_hdr_entry *mh,
+			      int namespace)
 {
-	if (!refcount_dec_and_test(&mh->refcnt))
+	struct mod_hdr_tbl *tbl = get_mod_hdr_table(priv, namespace);
+
+	if (!refcount_dec_and_mutex_lock(&mh->refcnt, &tbl->lock))
 		return;
+	hash_del(&mh->mod_hdr_hlist);
+	mutex_unlock(&tbl->lock);
 
 	WARN_ON(!list_empty(&mh->flows));
 	mlx5_modify_header_dealloc(priv->mdev, mh->mod_hdr_id);
-	hash_del(&mh->mod_hdr_hlist);
+
 	kfree(mh);
 }
 
@@ -338,10 +334,10 @@ static int mlx5e_attach_mod_hdr(struct mlx5e_priv *priv,
 				struct mlx5e_tc_flow *flow,
 				struct mlx5e_tc_flow_parse_attr *parse_attr)
 {
-	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
 	bool is_eswitch_flow = mlx5e_is_eswitch_flow(flow);
 	int num_actions, actions_size, namespace, err;
 	struct mlx5e_mod_hdr_entry *mh;
+	struct mod_hdr_tbl *tbl;
 	struct mod_hdr_key key;
 	u32 hash_key;
 
@@ -355,13 +351,18 @@ static int mlx5e_attach_mod_hdr(struct mlx5e_priv *priv,
 
 	namespace = is_eswitch_flow ?
 		MLX5_FLOW_NAMESPACE_FDB : MLX5_FLOW_NAMESPACE_KERNEL;
-	mh = mlx5e_mod_hdr_get(priv, namespace, &key, hash_key);
+	tbl = get_mod_hdr_table(priv, namespace);
+
+	mutex_lock(&tbl->lock);
+	mh = mlx5e_mod_hdr_get(tbl, &key, hash_key);
 	if (mh)
 		goto attach_flow;
 
 	mh = kzalloc(sizeof(*mh) + actions_size, GFP_KERNEL);
-	if (!mh)
-		return -ENOMEM;
+	if (!mh) {
+		err = -ENOMEM;
+		goto out_err;
+	}
 
 	mh->key.actions = (void *)mh + sizeof(*mh);
 	memcpy(mh->key.actions, key.actions, actions_size);
@@ -377,12 +378,10 @@ static int mlx5e_attach_mod_hdr(struct mlx5e_priv *priv,
 	if (err)
 		goto out_err;
 
-	if (is_eswitch_flow)
-		hash_add(esw->offloads.mod_hdr_tbl, &mh->mod_hdr_hlist, hash_key);
-	else
-		hash_add(priv->fs.tc.mod_hdr_tbl, &mh->mod_hdr_hlist, hash_key);
+	hash_add(tbl->hlist, &mh->mod_hdr_hlist, hash_key);
 
 attach_flow:
+	mutex_unlock(&tbl->lock);
 	flow->mh = mh;
 	spin_lock(&mh->flows_lock);
 	list_add(&flow->mod_hdr, &mh->flows);
@@ -395,6 +394,7 @@ attach_flow:
 	return 0;
 
 out_err:
+	mutex_unlock(&tbl->lock);
 	kfree(mh);
 	return err;
 }
@@ -402,6 +402,9 @@ out_err:
 static void mlx5e_detach_mod_hdr(struct mlx5e_priv *priv,
 				 struct mlx5e_tc_flow *flow)
 {
+	int namespace = mlx5e_is_eswitch_flow(flow) ? MLX5_FLOW_NAMESPACE_FDB :
+		MLX5_FLOW_NAMESPACE_KERNEL;
+
 	/* flow wasn't fully initialized */
 	if (!flow->mh)
 		return;
@@ -410,7 +413,7 @@ static void mlx5e_detach_mod_hdr(struct mlx5e_priv *priv,
 	list_del(&flow->mod_hdr);
 	spin_unlock(&flow->mh->flows_lock);
 
-	mlx5e_mod_hdr_put(priv, flow->mh);
+	mlx5e_mod_hdr_put(priv, flow->mh, namespace);
 	flow->mh = NULL;
 }
 
@@ -3780,7 +3783,8 @@ int mlx5e_tc_nic_init(struct mlx5e_priv *priv)
 	int err;
 
 	mutex_init(&tc->t_lock);
-	hash_init(tc->mod_hdr_tbl);
+	mutex_init(&tc->mod_hdr.lock);
+	hash_init(tc->mod_hdr.hlist);
 	mutex_init(&tc->hairpin_tbl_lock);
 	hash_init(tc->hairpin_tbl);
 
@@ -3813,6 +3817,7 @@ void mlx5e_tc_nic_cleanup(struct mlx5e_priv *priv)
 	if (tc->netdevice_nb.notifier_call)
 		unregister_netdevice_notifier(&tc->netdevice_nb);
 
+	mutex_destroy(&tc->mod_hdr.lock);
 	mutex_destroy(&tc->hairpin_tbl_lock);
 
 	rhashtable_destroy(&tc->ht);

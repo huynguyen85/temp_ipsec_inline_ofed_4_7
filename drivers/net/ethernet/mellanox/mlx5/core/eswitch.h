@@ -204,7 +204,7 @@ struct mlx5_esw_offload {
 	struct list_head peer_flows;
 	struct mutex peer_mutex;
 	DECLARE_HASHTABLE(encap_tbl, 8);
-	DECLARE_HASHTABLE(mod_hdr_tbl, 8);
+	struct mod_hdr_tbl mod_hdr;
 	u8 inline_mode;
 	atomic64_t num_flows;
 	u8 encap;
