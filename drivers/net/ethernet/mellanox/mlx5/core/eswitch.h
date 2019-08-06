@@ -35,6 +35,7 @@
 
 #include <linux/if_ether.h>
 #include <linux/if_link.h>
+#include <linux/atomic.h>
 #include <linux/if_vlan.h>
 #include <linux/bitmap.h>
 #include <net/devlink.h>
@@ -205,7 +206,7 @@ struct mlx5_esw_offload {
 	DECLARE_HASHTABLE(encap_tbl, 8);
 	DECLARE_HASHTABLE(mod_hdr_tbl, 8);
 	u8 inline_mode;
-	u64 num_flows;
+	atomic64_t num_flows;
 	u8 encap;
 };
 
