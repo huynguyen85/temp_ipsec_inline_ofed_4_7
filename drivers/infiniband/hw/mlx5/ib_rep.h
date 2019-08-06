@@ -31,7 +31,7 @@ u32 mlx5_ib_eswitch_get_vport_metadata_for_match(struct mlx5_eswitch *esw,
 #else /* CONFIG_MLX5_ESWITCH */
 static inline u8 mlx5_ib_eswitch_mode(struct mlx5_eswitch *esw)
 {
-	return SRIOV_NONE;
+	return MLX5_ESWITCH_NONE;
 }
 
 static inline

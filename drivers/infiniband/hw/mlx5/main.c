@@ -3377,7 +3377,7 @@ static struct mlx5_ib_flow_prio *get_flow_table(struct mlx5_ib_dev *dev,
 	max_table_size = BIT(MLX5_CAP_FLOWTABLE_NIC_RX(dev->mdev,
 						       log_max_ft_size));
 	if (MLX5_ESWITCH_MANAGER(dev->mdev) &&
-	    mlx5_eswitch_mode(dev->mdev->priv.eswitch) == SRIOV_OFFLOADS)
+	    mlx5_eswitch_mode(dev->mdev->priv.eswitch) == MLX5_ESWITCH_OFFLOADS)
 		esw_encap = mlx5_eswitch_get_encap_mode(esw) !=
 			DEVLINK_ESWITCH_ENCAP_MODE_NONE;
 
@@ -4055,7 +4055,7 @@ _get_flow_table(struct mlx5_ib_dev *dev,
 	int priority;
 
 	if (MLX5_ESWITCH_MANAGER(dev->mdev) &&
-	    mlx5_eswitch_mode(dev->mdev->priv.eswitch) == SRIOV_OFFLOADS)
+	    mlx5_eswitch_mode(dev->mdev->priv.eswitch) == MLX5_ESWITCH_OFFLOADS)
 		esw_encap = mlx5_eswitch_get_encap_mode(esw) !=
 			DEVLINK_ESWITCH_ENCAP_MODE_NONE;
 
@@ -7294,7 +7294,7 @@ static void *mlx5_ib_add(struct mlx5_core_dev *mdev)
 	printk_once(KERN_INFO "%s", mlx5_version);
 
 	if (MLX5_ESWITCH_MANAGER(mdev) &&
-	    mlx5_ib_eswitch_mode(mdev->priv.eswitch) == SRIOV_OFFLOADS) {
+	    mlx5_ib_eswitch_mode(mdev->priv.eswitch) == MLX5_ESWITCH_OFFLOADS) {
 		if (!mlx5_core_mp_enabled(mdev))
 			mlx5_ib_register_vport_reps(mdev);
 		return mdev;
