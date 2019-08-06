@@ -250,6 +250,7 @@ int mlx5e_tc_tun_create_header_ipv4(struct mlx5e_priv *priv,
 	char *encap_header;
 	u8 nud_state, ttl;
 	struct iphdr *ip;
+	u32 encap_id = 0;
 	int err;
 
 	/* add the IP fields */
@@ -334,9 +335,10 @@ int mlx5e_tc_tun_create_header_ipv4(struct mlx5e_priv *priv,
 					 e->reformat_type,
 					 ipv4_encap_size, encap_header,
 					 MLX5_FLOW_NAMESPACE_FDB,
-					 &e->encap_id);
+					 &encap_id);
 	if (err)
 		goto destroy_neigh_entry;
+	e->encap_id = encap_id;
 
 	e->flags |= MLX5_ENCAP_ENTRY_VALID;
 	mlx5e_rep_queue_neigh_stats_work(netdev_priv(out_dev));
@@ -366,6 +368,7 @@ int mlx5e_tc_tun_create_header_ipv6(struct mlx5e_priv *priv,
 	int ipv6_encap_size;
 	char *encap_header;
 	u8 nud_state, ttl;
+	u32 encap_id = 0;
 	int err;
 
 	ttl = tun_key->ttl;
@@ -449,9 +452,10 @@ int mlx5e_tc_tun_create_header_ipv6(struct mlx5e_priv *priv,
 					 e->reformat_type,
 					 ipv6_encap_size, encap_header,
 					 MLX5_FLOW_NAMESPACE_FDB,
-					 &e->encap_id);
+					 &encap_id);
 	if (err)
 		goto destroy_neigh_entry;
+	e->encap_id = encap_id;
 
 	e->flags |= MLX5_ENCAP_ENTRY_VALID;
 	mlx5e_rep_queue_neigh_stats_work(netdev_priv(out_dev));

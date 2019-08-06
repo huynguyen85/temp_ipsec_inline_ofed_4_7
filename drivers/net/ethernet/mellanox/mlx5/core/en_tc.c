@@ -1292,18 +1292,21 @@ void mlx5e_tc_encap_flows_add(struct mlx5e_priv *priv,
 	struct mlx5_flow_handle *rule;
 	struct mlx5_flow_spec *spec;
 	struct mlx5e_tc_flow *flow;
+	u32 encap_id = 0;
 	int err;
 
 	err = mlx5_packet_reformat_alloc(priv->mdev,
 					 e->reformat_type,
 					 e->encap_size, e->encap_header,
 					 MLX5_FLOW_NAMESPACE_FDB,
-					 &e->encap_id);
+					 &encap_id);
 	if (err) {
+		e->encap_id = err;
 		mlx5_core_warn(priv->mdev, "Failed to offload cached encapsulation header, %d\n",
 			       err);
 		return;
 	}
+	e->encap_id = encap_id;
 	e->flags |= MLX5_ENCAP_ENTRY_VALID;
 	mlx5e_rep_queue_neigh_stats_work(priv);
 
@@ -1318,7 +1321,7 @@ void mlx5e_tc_encap_flows_add(struct mlx5e_priv *priv,
 		esw_attr = flow->esw_attr;
 		spec = &esw_attr->parse_attr->spec;
 
-		esw_attr->dests[efi->index].encap_id = e->encap_id;
+		esw_attr->dests[efi->index].encap_id = encap_id;
 		esw_attr->dests[efi->index].flags |= MLX5_ESW_DEST_ENCAP_VALID;
 		/* Flow can be associated with multiple encap entries.
 		 * Before offloading the flow verify that all of them have
@@ -1395,7 +1398,7 @@ loop_cont:
 
 	/* we know that the encap is valid */
 	e->flags &= ~MLX5_ENCAP_ENTRY_VALID;
-	mlx5_packet_reformat_dealloc(priv->mdev, e->encap_id);
+	mlx5_packet_reformat_dealloc(priv->mdev, (u32)e->encap_id);
 }
 
 static struct mlx5_fc *mlx5e_tc_get_counter(struct mlx5e_tc_flow *flow)
@@ -1478,7 +1481,7 @@ static void mlx5e_encap_dealloc(struct mlx5e_priv *priv, struct mlx5e_encap_entr
 	mlx5e_rep_encap_entry_detach(netdev_priv(e->out_dev), e);
 
 	if (e->flags & MLX5_ENCAP_ENTRY_VALID)
-		mlx5_packet_reformat_dealloc(priv->mdev, e->encap_id);
+		mlx5_packet_reformat_dealloc(priv->mdev, (u32)e->encap_id);
 
 	kfree(e->encap_header);
 	kfree(e);
@@ -2898,32 +2901,49 @@ static int mlx5e_attach_encap(struct mlx5e_priv *priv,
 	e = mlx5e_encap_get(priv, &key, hash_key);
 
 	/* must verify if encap is valid or not */
-	if (e)
+	if (e) {
+		mutex_unlock(&esw->offloads.encap_tbl_lock);
+		wait_for_completion(&e->hw_res_created);
+		mutex_lock(&esw->offloads.encap_tbl_lock);
+
+		if (e->encap_id < 0) {
+			err = (int)e->encap_id;
+			goto out_err;
+		}
 		goto attach_flow;
+	}
 
 	e = kzalloc(sizeof(*e), GFP_KERNEL);
 	if (!e) {
 		err = -ENOMEM;
-		goto out_err;
+		goto alloc_encap_err;
 	}
 
 	refcount_set(&e->refcnt, 1);
+	init_completion(&e->hw_res_created);
+
 	e->tun_info = *tun_info;
 	err = mlx5e_tc_tun_init_encap_attr(mirred_dev, priv, e, extack);
-	if (err)
-		goto out_err;
+	if (err) {
+		kfree(e);
+		goto alloc_encap_err;
+	}
 
 	INIT_LIST_HEAD(&e->flows);
+	hash_add_rcu(esw->offloads.encap_tbl, &e->encap_hlist, hash_key);
+	mutex_unlock(&esw->offloads.encap_tbl_lock);
 
 	if (family == AF_INET)
 		err = mlx5e_tc_tun_create_header_ipv4(priv, mirred_dev, e);
 	else if (family == AF_INET6)
 		err = mlx5e_tc_tun_create_header_ipv6(priv, mirred_dev, e);
 
-	if (err)
+	mutex_lock(&esw->offloads.encap_tbl_lock);
+	complete_all(&e->hw_res_created);
+	if (err) {
+		e->encap_id = err;
 		goto out_err;
-
-	hash_add_rcu(esw->offloads.encap_tbl, &e->encap_hlist, hash_key);
+	}
 
 attach_flow:
 	flow->encaps[out_index].e = e;
@@ -2931,7 +2951,7 @@ attach_flow:
 	flow->encaps[out_index].index = out_index;
 	*encap_dev = e->out_dev;
 	if (e->flags & MLX5_ENCAP_ENTRY_VALID) {
-		attr->dests[out_index].encap_id = e->encap_id;
+		attr->dests[out_index].encap_id = (u32)e->encap_id;
 		attr->dests[out_index].flags |= MLX5_ESW_DEST_ENCAP_VALID;
 		*encap_valid = true;
 	} else {
@@ -2943,7 +2963,11 @@ attach_flow:
 
 out_err:
 	mutex_unlock(&esw->offloads.encap_tbl_lock);
-	kfree(e);
+	mlx5e_encap_put(priv, e);
+	return err;
+
+alloc_encap_err:
+	mutex_unlock(&esw->offloads.encap_tbl_lock);
 	return err;
 }
 
