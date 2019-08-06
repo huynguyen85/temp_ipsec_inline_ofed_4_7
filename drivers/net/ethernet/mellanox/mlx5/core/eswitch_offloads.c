@@ -2913,6 +2913,12 @@ struct mlx5_eswitch_rep *mlx5_eswitch_vport_rep(struct mlx5_eswitch *esw,
 }
 EXPORT_SYMBOL(mlx5_eswitch_vport_rep);
 
+bool mlx5_eswitch_is_vf_vport(const struct mlx5_eswitch *esw, u16 vport_num)
+{
+	return vport_num >= MLX5_VPORT_FIRST_VF &&
+	       vport_num <= esw->dev->priv.sriov.max_vfs;
+}
+
 u32 mlx5_eswitch_vport_match_metadata_enabled(struct mlx5_eswitch *esw)
 {
 	return esw->flags & MLX5_ESWITCH_VPORT_MATCH_METADATA;
