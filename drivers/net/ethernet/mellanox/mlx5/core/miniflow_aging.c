@@ -222,6 +222,8 @@ flow_offload_del(struct flow_offload_table *flow_table,
 {
 	struct flow_offload_entry *e;
 
+	flow->flags |= FLOW_OFFLOAD_TEARDOWN;
+
 	rhashtable_remove_fast(&flow_table->rhashtable,
 			       &flow->tuplehash[FLOW_OFFLOAD_DIR_ORIGINAL].node,
 			       rhash_params);
@@ -233,7 +235,11 @@ flow_offload_del(struct flow_offload_table *flow_table,
 	clear_bit(IPS_OFFLOAD_BIT, &e->ct->status);
 	atomic_dec(&offloaded_flow_cnt);
 	flow_offload_fixup_ct_state(e->ct);
+
+	spin_lock(&e->dep_lock);
 	ct_flow_offload_destroy(&e->deps);
+	spin_unlock(&e->dep_lock);
+
 	flow_offload_free(flow);
 }
 
@@ -323,7 +329,11 @@ static void nf_flow_offload_gc_step(struct flow_offload *flow, void *data)
 	u64 lastuse;
 
 	e = container_of(flow, struct flow_offload_entry, flow);
+
+	spin_lock(&e->dep_lock);
 	ct_flow_offload_get_stats(&e->deps, &lastuse);
+	spin_unlock(&e->dep_lock);
+
 	if (flow->timeout < (lastuse + timeout))
 		flow->timeout = lastuse + timeout;
 
@@ -491,6 +501,7 @@ int mlx5_ct_flow_offload_add(const struct net *net,
 	spin_lock(&entry->dep_lock);
 	ct_flow_offload_add(tc_flow, &entry->deps);
 	spin_unlock(&entry->dep_lock);
+
 	entry->flow.timeout = jiffies + timeout;
 
 out:
