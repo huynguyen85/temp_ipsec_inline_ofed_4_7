@@ -866,9 +866,7 @@ static void miniflow_merge_work(struct work_struct *work)
 {
 	struct mlx5e_miniflow *miniflow = container_of(work, struct mlx5e_miniflow, work);
 
-	atomic_dec(&nr_of_mfe_in_queue);
 	inc_debug_counter(&nr_of_inflight_mfe);
-	atomic_dec(&miniflow_wq_size);
 	dec_debug_counter(&nr_of_merge_mfe_in_queue);
 	inc_debug_counter(&nr_of_inflight_merge_mfe);
 
@@ -876,6 +874,8 @@ static void miniflow_merge_work(struct work_struct *work)
 
 	dec_debug_counter(&nr_of_inflight_mfe);
 	dec_debug_counter(&nr_of_inflight_merge_mfe);
+	atomic_dec(&nr_of_mfe_in_queue);
+	atomic_dec(&miniflow_wq_size);
 }
 
 static int miniflow_merge(struct mlx5e_miniflow *miniflow)
@@ -898,12 +898,11 @@ static void mlx5e_del_miniflow(struct mlx5e_miniflow *miniflow)
 {
 	struct rhashtable *mf_ht = get_mf_ht(miniflow->priv);
 
-	atomic_dec(&currently_in_hw);
-
 	mlx5e_flow_put(miniflow->priv, miniflow->flow);
 	rhashtable_remove_fast(mf_ht, &miniflow->node, mf_ht_params);
 	miniflow_free(miniflow);
 
+	atomic_dec(&currently_in_hw);
 	inc_debug_counter(&nr_of_total_del_mf_succ);
 	inc_debug_counter(&nr_of_total_mf_succ);
 }
@@ -1219,7 +1218,7 @@ int miniflow_configure(struct mlx5e_priv *priv,
 	/* If rules in HW + rules in queue exceed the max value, then igore new one.
 	 * Note the rules in queue could be the to_be_deleted rules. */
 	if ((atomic_read(&currently_in_hw) +
-	     atomic_read(&nr_of_mfe_in_queue)) >
+	     atomic_read(&nr_of_mfe_in_queue)) >=
 	    atomic_read((atomic_t *)&max_nr_mf))
 		goto err;
 
