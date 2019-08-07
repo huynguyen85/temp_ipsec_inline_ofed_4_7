@@ -38,3 +38,5 @@ Change-Id=I2ff7813d279c9dc8b6f51e0780ffcedaade3f699; subject=net/mlx5: Don't han
 Change-Id=Ic53b7eff4c3edb284bde0b79ed9d69ba9dac483e; subject=net/mlx5: E-Switch, Consolidate eswitch function number of VFs; feature=mlx5_sfs; upstream_status=accepted; general=;
 Change-Id=Iabc97a71906e50623857c475cc7265bb29e90c37; subject=net/mlx5: E-Switch, Reg/unreg function changed event at correct stage; feature=mlx5_sfs; upstream_status=accepted; general=;
 Change-Id=I6da2daee9b04306c22b082cae52bafe9b60cdef3; subject=net/mlx5: E-Switch, Use iterator for vlan and min-inline setups; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I60fbe2fb42f7483f38d167bcedc632384e3d0f31; subject=net/mlx5: E-Switch, Consider host PF for inline mode and vlan pop; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I8d7ff85d699df99fde344829fee8597eb7f66a1b; subject=net/mlx5: E-Switch, Handle UC address change in switchdev mode; feature=mlx5_sfs; upstream_status=accepted; general=;

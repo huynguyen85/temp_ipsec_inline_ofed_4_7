@@ -37,3 +37,7 @@ Change-Id=I102dc85f7d31e614316e05d7399df8afeaf828ab; subject=net/mlx5: Add hardw
 Change-Id=I82e8f8b5a633f70552397f90c3f361eea2d10d5a; subject={IB, net}/mlx5: No need to typecast from void* to mlx5_ib_dev*; feature=mlx5_sfs; upstream_status=accepted; general=;
 Change-Id=I055441a6180c9b775f82069c5b8db53b172e2061; subject={IB,net}/mlx5: Constify rep ops functions pointers; feature=mlx5_sfs; upstream_status=accepted; general=;
 Change-Id=If344737379693340ada701a1c54863cf03aa7ba5; subject=net/mlx5e: Set drvinfo in generic manner; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I4850f97aad860d32c52c670bd75c685e1b3452a4; subject=net/mlx5: E-Switch prepare functions change handler to be modular; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I117fcd4ec7970ab7b9dd6617e54efe38064213b0; subject=net/mlx5: E-switch, Combine metadata enable/disable functionality; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I812121093f5ea0bf3e5b5cb86941c43f983fff6a; subject=net/mlx5: E-switch, Initialize TSAR Qos hardware block before its user vports; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I83077fbc8494fb895598f04dc525c28cb8a2329e; subject=net/mlx5: E-switch, Disable QoS if enabling eswitch fails; feature=mlx5_sfs; upstream_status=accepted; general=;
