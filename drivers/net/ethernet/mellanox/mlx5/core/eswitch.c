@@ -1803,17 +1803,17 @@ static void esw_destroy_vgroup(struct mlx5_eswitch *esw,
 	kfree(group);
 }
 
-static int esw_create_base_tsars(struct mlx5_eswitch *esw)
+static void esw_create_tsar(struct mlx5_eswitch *esw)
 {
 	u32 tsar_ctx[MLX5_ST_SZ_DW(scheduling_context)] = {0};
 	struct mlx5_core_dev *dev = esw->dev;
 	int err;
 
 	if (!MLX5_CAP_GEN(dev, qos) || !MLX5_CAP_QOS(dev, esw_scheduling))
-		return 0;
+		return;
 
 	if (esw->qos.enabled)
-		return -EEXIST;
+		return;
 
 	err = mlx5_create_scheduling_element_cmd(dev,
 						 SCHEDULING_HIERARCHY_E_SWITCH,
@@ -1822,7 +1822,7 @@ static int esw_create_base_tsars(struct mlx5_eswitch *esw)
 	if (err) {
 		esw_warn(esw->dev, "E-Switch create root TSAR failed (%d)\n",
 			 err);
-		return err;
+		return;
 	}
 
 	if (MLX5_CAP_QOS(dev, log_esw_max_sched_depth)) {
@@ -1830,7 +1830,6 @@ static int esw_create_base_tsars(struct mlx5_eswitch *esw)
 
 		esw->qos.group0 = esw_create_vgroup(esw, 0);
 		if (IS_ERR(esw->qos.group0)) {
-			err = PTR_ERR(esw->qos.group0);
 			esw_warn(esw->dev, "E-Switch create rate group 0 failed (%d)\n",
 				 err);
 			goto clean_root;
@@ -1840,17 +1839,16 @@ static int esw_create_base_tsars(struct mlx5_eswitch *esw)
 	}
 
 	esw->qos.enabled = true;
-	return 0;
+	return; 
 
 clean_root:
 	mlx5_destroy_scheduling_element_cmd(esw->dev,
 					    SCHEDULING_HIERARCHY_E_SWITCH,
 					    esw->qos.root_tsar_ix);
-
-	return err;
+	return;
 }
 
-static void esw_destroy_base_tsars(struct mlx5_eswitch *esw)
+static void esw_destroy_tsar(struct mlx5_eswitch *esw)
 {
 	int err;
 
@@ -2275,6 +2273,8 @@ int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int mode)
 	if (!MLX5_CAP_ESW_EGRESS_ACL(esw->dev, ft_support))
 		esw_warn(esw->dev, "E-Switch engress ACL is not supported by FW\n");
 
+	esw_create_tsar(esw);
+
 	esw->mode = mode;
 
 	mlx5_lag_update(esw->dev);
@@ -2291,10 +2291,6 @@ int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int mode)
 
 	if (err)
 		goto abort;
-
-	err = esw_create_base_tsars(esw);
-	if (err)
-		esw_warn(esw->dev, "Failed to create eswitch TSAR");
 
 	/* Don't enable vport events when in MLX5_ESWITCH_OFFLOADS mode, since:
 	 * 1. L2 table (MPFS) is programmed by PF/VF representors netdevs set_rx_mode
@@ -2358,12 +2354,12 @@ void mlx5_eswitch_disable(struct mlx5_eswitch *esw)
 	if (mc_promisc && mc_promisc->uplink_rule)
 		mlx5_del_flow_rules(mc_promisc->uplink_rule);
 
-	esw_destroy_base_tsars(esw);
-
 	if (esw->mode == MLX5_ESWITCH_LEGACY)
 		esw_destroy_legacy_table(esw);
 	else if (esw->mode == MLX5_ESWITCH_OFFLOADS)
 		esw_offloads_cleanup(esw);
+
+	esw_destroy_tsar(esw);
 
 	old_mode = esw->mode;
 	esw->mode = MLX5_ESWITCH_NONE;
