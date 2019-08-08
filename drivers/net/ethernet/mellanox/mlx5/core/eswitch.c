@@ -2271,7 +2271,6 @@ int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int nvfs, int mode)
 {
 	struct mlx5_vport *vport;
 	int total_nvports = 0;
-	u16 vf_nvports = 0;
 	int err;
 	int i, enabled_events;
 
@@ -2288,14 +2287,10 @@ int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int nvfs, int mode)
 		esw_warn(esw->dev, "E-Switch engress ACL is not supported by FW\n");
 
 	if (mode == MLX5_ESWITCH_OFFLOADS) {
-		if (mlx5_core_is_ecpf_esw_manager(esw->dev)) {
-			err = mlx5_esw_query_functions(esw->dev, &vf_nvports);
-			if (err)
-				return err;
+		if (mlx5_core_is_ecpf_esw_manager(esw->dev))
 			total_nvports = esw->total_vports;
-		} else {
+		else
 			total_nvports = nvfs + MLX5_SPECIAL_VPORTS(esw->dev);
-		}
 	}
 
 	esw->mode = mode;
@@ -2309,7 +2304,7 @@ int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int nvfs, int mode)
 	} else {
 		mlx5_reload_interface(esw->dev, MLX5_INTERFACE_PROTOCOL_ETH);
 		mlx5_reload_interface(esw->dev, MLX5_INTERFACE_PROTOCOL_IB);
-		err = esw_offloads_init(esw, vf_nvports, total_nvports);
+		err = esw_offloads_init(esw, nvfs, total_nvports);
 	}
 
 	if (err)
