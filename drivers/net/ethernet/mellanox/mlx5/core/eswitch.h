@@ -296,8 +296,7 @@ struct mlx5_eswitch {
 };
 
 void esw_offloads_cleanup(struct mlx5_eswitch *esw);
-int esw_offloads_init(struct mlx5_eswitch *esw, int vf_nvports,
-		      int total_nvports);
+int esw_offloads_init(struct mlx5_eswitch *esw);
 void esw_offloads_cleanup_reps(struct mlx5_eswitch *esw);
 int esw_offloads_init_reps(struct mlx5_eswitch *esw);
 void esw_vport_cleanup_ingress_rules(struct mlx5_eswitch *esw,
@@ -321,7 +320,7 @@ void esw_vport_del_ingress_acl_modify_metadata(struct mlx5_eswitch *esw,
 /* E-Switch API */
 int mlx5_eswitch_init(struct mlx5_core_dev *dev);
 void mlx5_eswitch_cleanup(struct mlx5_eswitch *esw);
-int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int nvfs, int mode);
+int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int mode);
 void mlx5_eswitch_disable(struct mlx5_eswitch *esw);
 int mlx5_eswitch_set_vport_mac(struct mlx5_eswitch *esw,
 			       u16 vport, u8 mac[ETH_ALEN]);
@@ -464,7 +463,7 @@ int mlx5_devlink_eswitch_mode_get(struct devlink *devlink, u16 *mode);
 int mlx5_devlink_eswitch_inline_mode_set(struct devlink *devlink, u8 mode,
 					 struct netlink_ext_ack *extack);
 int mlx5_devlink_eswitch_inline_mode_get(struct devlink *devlink, u8 *mode);
-int mlx5_eswitch_inline_mode_get(struct mlx5_eswitch *esw, int nvfs, u8 *mode);
+int mlx5_eswitch_inline_mode_get(struct mlx5_eswitch *esw, u8 *mode);
 int mlx5_eswitch_compat_sysfs_init(struct net_device *netdev);
 void mlx5_eswitch_compat_sysfs_cleanup(struct net_device *netdev);
 int mlx5_eswitch_vport_modify_other_hca_cap_roce(struct mlx5_eswitch *esw,
@@ -691,11 +690,13 @@ mlx5_eswitch_get_vport(struct mlx5_eswitch *esw, u16 vport_num);
 
 bool mlx5_eswitch_is_vf_vport(const struct mlx5_eswitch *esw, u16 vport_num);
 
+void mlx5_eswitch_update_num_of_vfs(struct mlx5_eswitch *esw, const int num_vfs);
+
 #else  /* CONFIG_MLX5_ESWITCH */
 /* eswitch API stubs */
 static inline int  mlx5_eswitch_init(struct mlx5_core_dev *dev) { return 0; }
 static inline void mlx5_eswitch_cleanup(struct mlx5_eswitch *esw) {}
-static inline int  mlx5_eswitch_enable(struct mlx5_eswitch *esw, int nvfs, int mode) { return 0; }
+static inline int  mlx5_eswitch_enable(struct mlx5_eswitch *esw, int mode) { return 0; }
 static inline void mlx5_eswitch_disable(struct mlx5_eswitch *esw) {}
 static inline bool mlx5_esw_lag_prereq(struct mlx5_core_dev *dev0, struct mlx5_core_dev *dev1) { return true; }
 static inline bool mlx5_eswitch_is_funcs_handler(struct mlx5_core_dev *dev) { return false; }
@@ -709,6 +710,8 @@ static inline u16 mlx5_eswitch_max_sfs(const struct mlx5_core_dev *dev)
 {
 	return 0;
 }
+
+static inline void mlx5_eswitch_update_num_of_vfs(struct mlx5_eswitch *esw, const int num_vfs) {}
 
 #define FDB_MAX_CHAIN 1
 #define FDB_SLOW_PATH_CHAIN (FDB_MAX_CHAIN + 1)
