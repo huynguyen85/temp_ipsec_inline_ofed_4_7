@@ -17,3 +17,4 @@ Change-Id=Ica7ad47ddf08e0bbc16198168d72f0c015272847; subject=RDMA/mlx5: Add vpor
 Change-Id=I3924d78b7586fe0d953296cd6e8aac2a0ae6406c; subject=net/mlx5: E-Switch, Enable vport metadata matching if firmware supports it; feature=mlx5_asap; upstream_status=in_progress; general=;
 Change-Id=I163d7d3eca615673bf32820da1e7c3e7ca314098; subject=vf-net-link-name.sh: Fix the issues of renaming representors; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=If4e510117650c02a29a2a95adfac496a2979e923; subject=net/mlx5: Support egress and ingress ACLs in eswitch mode; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I3fc5079f0bead71bab690b740622252d6a7f3e5b; subject=net/mlx5e: Don't add decap action for mirroring; feature=mlx5e_st_ct; upstream_status=NA; general=;

@@ -1,2 +1,3 @@
 sep=;
 Change-Id=Ibc334ba595dd76b5fb8f3fc9de94adb91fea07f6; subject=net/mlx5: Disable devcom when configured with miniflow; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=If9a9296ebbdd0b0e715c988617bddcb18fda51ac; subject=en_tc: Add debug counters for connection tracking in sysfs; feature=mlx5e_st_ct; upstream_status=NA; general=;

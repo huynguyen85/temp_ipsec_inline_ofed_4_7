@@ -1,8 +1,7 @@
 sep=;
-Change-Id=Ieb7fc8e05861cd478bfd085db90f8286de789bed; subject=net/mlx5: Fix dummy counters not correct; feature=mlx5e_st_ct; upstream_status=ignore; general=;
 Change-Id=I1f405944c33dca8c9e844fa191597a8086886971; subject=net/mlx5e: Split add fdb flow to simple flow and not simple flow; feature=mlx5e_st_ct; upstream_status=ignore; general=;
-Change-Id=Ia30fe89efe28a537f5eff08958715fcf094d1027; subject=net/mlx5: Allocate counter from memory cache; feature=mlx5e_st_ct; upstream_status=ignore; general=;
 Change-Id=I248d54509f95fbb27123786d03f5dfd939db1839; subject=net/mlx5e: Don't allow to loop back to chain zero; feature=mlx5e_st_ct; upstream_status=ignore; general=;
 Change-Id=Id211ddb55b83a5eeaae74cd8e3c07a895b546406; subject=net/mlx5e: miniflow, Abort merger for TCP packets with flags FIN, SYN and RST; feature=mlx5e_st_ct; upstream_status=ignore; general=;
 Change-Id=I2f66b61d0d96c16120a4d4f638ab90dc9e1a7164; subject=net/mlx5e: miniflow, Remove unnecessary rhashtable_remove_fast() call; feature=mlx5e_st_ct; upstream_status=ignore; general=;
 Change-Id=Iefb6c87cbf9e99a2db797774ec246bf19d34c014; subject=net/mlx5e: miniflow, Enlarge MINIFLOW_MAX_FLOWS and MINIFLOW_MAX_CT_TUPLES; feature=mlx5e_st_ct; upstream_status=ignore; general=;
+Change-Id=I0fa92ae89a34fd47d9451670532c47a67ba7fa72; subject=net/mlx5e: miniflow, fix aging counter; feature=mlx5e_st_ct; upstream_status=NA; general=;
