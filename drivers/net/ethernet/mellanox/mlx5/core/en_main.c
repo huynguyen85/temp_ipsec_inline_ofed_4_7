@@ -3395,6 +3395,7 @@ err_close_tises:
 
 static void mlx5e_cleanup_nic_tx(struct mlx5e_priv *priv)
 {
+	mlx5e_tx_reporter_destroy(priv);
 	mlx5e_destroy_tises(priv);
 }
 
