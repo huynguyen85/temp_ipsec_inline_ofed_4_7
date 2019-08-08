@@ -17,7 +17,7 @@ mlx5_ib_set_vport_rep(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 	vport_index = rep->vport_index;
 
 	ibdev->port[vport_index].rep = rep;
-	rep->rep_if[REP_IB].priv = ibdev;
+	rep->rep_data[REP_IB].priv = ibdev;
 	write_lock(&ibdev->port[vport_index].roce.netdev_lock);
 	ibdev->port[vport_index].roce.netdev =
 		mlx5_ib_get_rep_netdev(rep->esw, rep->vport);
@@ -61,7 +61,7 @@ mlx5_ib_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 	if (!__mlx5_ib_add(ibdev, profile))
 		return -EINVAL;
 
-	rep->rep_if[REP_IB].priv = ibdev;
+	rep->rep_data[REP_IB].priv = ibdev;
 
 	return 0;
 }
@@ -79,7 +79,7 @@ mlx5_ib_vport_rep_unload(struct mlx5_eswitch_rep *rep)
 			write_lock(&port->roce.netdev_lock);
 			port->roce.netdev = NULL;
 			write_unlock(&port->roce.netdev_lock);
-			rep->rep_if[REP_IB].priv = NULL;
+			rep->rep_data[REP_IB].priv = NULL;
 			port->rep = NULL;
 			break;
 		}
@@ -94,16 +94,17 @@ static void *mlx5_ib_vport_get_proto_dev(struct mlx5_eswitch_rep *rep)
 	return mlx5_ib_rep_to_dev(rep);
 }
 
+static const struct mlx5_eswitch_rep_ops rep_ops = {
+	.load = mlx5_ib_vport_rep_load,
+	.unload = mlx5_ib_vport_rep_unload,
+	.get_proto_dev = mlx5_ib_vport_get_proto_dev,
+};
+
 void mlx5_ib_register_vport_reps(struct mlx5_core_dev *mdev)
 {
 	struct mlx5_eswitch *esw = mdev->priv.eswitch;
-	struct mlx5_eswitch_rep_if rep_if = {};
 
-	rep_if.load = mlx5_ib_vport_rep_load;
-	rep_if.unload = mlx5_ib_vport_rep_unload;
-	rep_if.get_proto_dev = mlx5_ib_vport_get_proto_dev;
-
-	mlx5_eswitch_register_vport_reps(esw, &rep_if, REP_IB);
+	mlx5_eswitch_register_vport_reps(esw, &rep_ops, REP_IB);
 }
 
 void mlx5_ib_unregister_vport_reps(struct mlx5_core_dev *mdev)

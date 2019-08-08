@@ -206,6 +206,7 @@ struct mlx5_esw_offload {
 	struct mutex encap_tbl_lock; /* protects encap_tbl */
 	DECLARE_HASHTABLE(encap_tbl, 8);
 	struct mod_hdr_tbl mod_hdr;
+	const struct mlx5_eswitch_rep_ops *rep_ops[NUM_REP_TYPES];
 	u8 inline_mode;
 	atomic64_t num_flows;
 	u8 encap;

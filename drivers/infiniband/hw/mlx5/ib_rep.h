@@ -88,6 +88,6 @@ u32 mlx5_ib_eswitch_get_vport_metadata_for_match(struct mlx5_eswitch *esw,
 static inline
 struct mlx5_ib_dev *mlx5_ib_rep_to_dev(struct mlx5_eswitch_rep *rep)
 {
-	return rep->rep_if[REP_IB].priv;
+	return rep->rep_data[REP_IB].priv;
 }
 #endif /* __MLX5_IB_REP_H__ */
