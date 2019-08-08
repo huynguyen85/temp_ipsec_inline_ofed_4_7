@@ -209,15 +209,20 @@ void mlx5_sriov_detach(struct mlx5_core_dev *dev)
 
 static u16 mlx5_get_max_vfs(struct mlx5_core_dev *dev)
 {
-	int total_vfs = 0, err;
+	u32 out[MLX5_ST_SZ_DW(query_esw_functions_out)] = {};
+	int host_total_vfs = 0, err;
 
 	if (mlx5_core_is_ecpf_esw_manager(dev)) {
-		err = mlx5_query_host_params_total_vfs(dev, &total_vfs);
+		err = mlx5_esw_query_functions(dev, out, sizeof(out));
+
+		host_total_vfs = MLX5_GET(query_esw_functions_out, out,
+					  host_params_context.host_total_vfs);
+
 		/* Old FW doesn't support getting total_vfs from host params
 		 * but supports getting from pci_sriov.
 		 */
-		if (!err && total_vfs)
-			return total_vfs;
+		if (!err && host_total_vfs)
+			return host_total_vfs;
 	}
 
 	/* In RH6.8 and lower pci_sriov_get_totalvfs might return -EINVAL
