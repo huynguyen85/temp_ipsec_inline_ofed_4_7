@@ -9,6 +9,8 @@
 #include "en_tc.h"
 #include "en.h"
 
+#ifdef HAVE_MINIFLOW
+
 static atomic64_t global_version = ATOMIC64_INIT(0);
 
 #define CT_DEBUG_COUNTERS 1
@@ -151,7 +153,6 @@ u64 miniflow_version_inc(void)
 	return atomic64_inc_return(&global_version);
 }
 
-/* TODO: have a second look */
 static struct rhashtable *get_mf_ht(struct mlx5e_priv *priv)
 {
 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
@@ -821,7 +822,7 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 	mflow->esw_attr->action &= ~(MLX5_FLOW_CONTEXT_ACTION_CT |
 				     MLX5_FLOW_CONTEXT_ACTION_GOTO);
 
-	err = mlx5e_tc_add_fdb_flow(priv, mparse_attr, mflow, NULL);
+	err = mlx5e_tc_add_fdb_flow(priv, mflow, NULL);
 	if (err) {
 		inc_debug_counter(&nr_of_total_mf_err_fdb_add);
 		goto err;
@@ -1299,3 +1300,5 @@ int ct_flow_offload_destroy(struct list_head *head)
 
 	return 0;
 }
+
+#endif /* HAVE_MINIFLOW */

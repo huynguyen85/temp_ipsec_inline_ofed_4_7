@@ -39,6 +39,8 @@
 #include <linux/rhashtable.h>
 #include <linux/llist.h>
 
+#define MINIFLOW_MAX_FLOWS 12
+
 /* FS_TYPE_PRIO_CHAINS is a PRIO that will have namespaces only,
  * and those are in parallel to one another when going over them to connect
  * a new flow table. Meaning the last flow table in a TYPE_PRIO prio in one

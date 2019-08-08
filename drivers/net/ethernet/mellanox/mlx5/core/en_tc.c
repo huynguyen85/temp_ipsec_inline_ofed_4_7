@@ -45,7 +45,9 @@
 #include <net/tc_act/tc_tunnel_key.h>
 #include <net/tc_act/tc_pedit.h>
 #include <net/tc_act/tc_csum.h>
+#ifdef HAVE_MINIFLOW
 #include <net/tc_act/tc_ct.h>
+#endif
 #include <net/arp.h>
 #include <net/ipv6_stubs.h>
 #include "en.h"
@@ -2137,21 +2139,6 @@ static int parse_cls_flower(struct mlx5e_priv *priv,
 	return err;
 }
 
-struct pedit_headers {
-	struct ethhdr  eth;
-	struct vlan_hdr vlan;
-	struct iphdr   ip4;
-	struct ipv6hdr ip6;
-	struct tcphdr  tcp;
-	struct udphdr  udp;
-};
-
-struct pedit_headers_action {
-	struct pedit_headers	vals;
-	struct pedit_headers	masks;
-	u32			pedits;
-};
-
 static int pedit_header_offsets[] = {
 	[FLOW_ACT_MANGLE_HDR_TYPE_ETH] = offsetof(struct pedit_headers, eth),
 	[FLOW_ACT_MANGLE_HDR_TYPE_IP4] = offsetof(struct pedit_headers, ip4),
@@ -3311,9 +3298,11 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 		case FLOW_ACTION_TUNNEL_DECAP:
 			action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
 			break;
+#ifdef HAVE_MINIFLOW
 		case FLOW_ACTION_CT:
 			action |= MLX5_FLOW_CONTEXT_ACTION_CT;
 			continue;
+#endif
 		case FLOW_ACTION_GOTO: {
 #ifndef HAVE_MINIFLOW
 			u32 dest_chain = act->chain_index;

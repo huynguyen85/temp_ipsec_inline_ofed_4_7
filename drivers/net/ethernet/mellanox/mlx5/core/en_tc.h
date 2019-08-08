@@ -154,6 +154,21 @@ struct mlx5e_tc_flow_parse_attr {
 
 #define MLX5_MH_ACT_SZ MLX5_UN_SZ_BYTES(set_action_in_add_action_in_auto)
 
+struct pedit_headers {
+	struct ethhdr  eth;
+	struct vlan_hdr vlan;
+	struct iphdr   ip4;
+	struct ipv6hdr ip6;
+	struct tcphdr  tcp;
+	struct udphdr  udp;
+};
+
+struct pedit_headers_action {
+	struct pedit_headers	vals;
+	struct pedit_headers	masks;
+	u32			pedits;
+};
+
 int mlx5e_tc_nic_init(struct mlx5e_priv *priv);
 void mlx5e_tc_nic_cleanup(struct mlx5e_priv *priv);
 

@@ -1247,22 +1247,22 @@ mlx5e_rep_setup_tc_cls_flower(struct mlx5e_priv *priv,
 	}
 }
 
+#ifdef HAVE_MINIFLOW
 static int mlx5e_rep_setup_tc_cb_egdev(enum tc_setup_type type, void *type_data,
 				       void *cb_priv)
 {
 	struct mlx5e_priv *priv = cb_priv;
 
 	switch (type) {
-#ifdef HAVE_MINIFLOW
 	case TC_SETUP_MINIFLOW:
 		return miniflow_configure(priv, type_data);
 	case TC_SETUP_CT:
 		return miniflow_configure_ct(priv, type_data);
-#endif
 	default:
 		return -EOPNOTSUPP;
 	}
 }
+#endif
 
 static int mlx5e_rep_setup_tc_cb(enum tc_setup_type type, void *type_data,
 				 void *cb_priv)

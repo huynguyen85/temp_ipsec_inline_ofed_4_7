@@ -9,6 +9,8 @@
 
 #include "miniflow.h"
 
+#ifdef HAVE_MINIFLOW
+
 static unsigned int offloaded_ct_timeout = 30;
 module_param(offloaded_ct_timeout, int, 0644);
 
@@ -556,3 +558,5 @@ int mlx5_ct_flow_offloaded_count(void)
 {
 	return atomic_read(&offloaded_flow_cnt);
 }
+
+#endif /* HAVE_MINIFLOW */
