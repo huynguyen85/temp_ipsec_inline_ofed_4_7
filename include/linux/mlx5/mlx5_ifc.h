@@ -800,7 +800,9 @@ struct mlx5_ifc_e_switch_cap_bits {
 	u8         esw_shared_ingress_acl[0x1];
 	u8         esw_uplink_ingress_acl[0x1];
 	u8         root_ft_on_other_esw[0x1];
-	u8         reserved_at_a[0x11];
+	u8         reserved_at_a[0xf];
+	u8         esw_functions_changed[0x1];
+	u8         reserved_at_1a[0x1];
 	u8         ecpf_vport_exists[0x1];
 	u8         counter_eswitch_affinity[0x1];
 	u8         merged_eswitch[0x1];
