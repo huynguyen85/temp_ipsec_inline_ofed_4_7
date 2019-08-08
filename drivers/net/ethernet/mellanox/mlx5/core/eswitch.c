@@ -2234,10 +2234,10 @@ int mlx5_esw_query_functions(struct mlx5_core_dev *dev, u32 *out, int outlen)
 
 static void mlx5_eswitch_event_handlers_register(struct mlx5_eswitch *esw)
 {
-	if (esw->mode == MLX5_ESWITCH_LEGACY) {
-		MLX5_NB_INIT(&esw->nb, eswitch_vport_event, NIC_VPORT_CHANGE);
-		mlx5_eq_notifier_register(esw->dev, &esw->nb);
-	} else if (mlx5_eswitch_is_funcs_handler(esw->dev)) {
+	MLX5_NB_INIT(&esw->nb, eswitch_vport_event, NIC_VPORT_CHANGE);
+	mlx5_eq_notifier_register(esw->dev, &esw->nb);
+
+	if (esw->mode == MLX5_ESWITCH_OFFLOADS && mlx5_eswitch_is_funcs_handler(esw->dev)) {
 		MLX5_NB_INIT(&esw->esw_funcs.nb, mlx5_esw_funcs_changed_handler,
 			     ESW_FUNCTIONS_CHANGED);
 		mlx5_eq_notifier_register(esw->dev, &esw->esw_funcs.nb);
@@ -2246,10 +2246,10 @@ static void mlx5_eswitch_event_handlers_register(struct mlx5_eswitch *esw)
 
 static void mlx5_eswitch_event_handlers_unregister(struct mlx5_eswitch *esw)
 {
-	if (esw->mode == MLX5_ESWITCH_LEGACY)
-		mlx5_eq_notifier_unregister(esw->dev, &esw->nb);
-	else if (mlx5_eswitch_is_funcs_handler(esw->dev))
+	if (esw->mode == MLX5_ESWITCH_OFFLOADS && mlx5_eswitch_is_funcs_handler(esw->dev))
 		mlx5_eq_notifier_unregister(esw->dev, &esw->esw_funcs.nb);
+
+	mlx5_eq_notifier_unregister(esw->dev, &esw->nb);
 
 	flush_workqueue(esw->work_queue);
 }
