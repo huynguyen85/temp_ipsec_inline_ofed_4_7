@@ -156,6 +156,61 @@ static ssize_t mac_show(struct kobject *kobj,
 		       "usage: write <LLADDR|Random> to set Mac Address\n");
 }
 
+static int strpolicy(const char *buf, enum port_state_policy *policy)
+{
+	if (sysfs_streq(buf, "Down")) {
+		*policy = MLX5_POLICY_DOWN;
+		return 0;
+	}
+
+	if (sysfs_streq(buf, "Up")) {
+		*policy = MLX5_POLICY_UP;
+		return 0;
+	}
+
+	if (sysfs_streq(buf, "Follow")) {
+		*policy = MLX5_POLICY_FOLLOW;
+		return 0;
+	}
+	return -EINVAL;
+}
+
+static ssize_t vport_state_store(struct kobject *kobj,
+				 struct kobj_attribute *attr,
+				 const char *buf,
+				 size_t count)
+{
+	struct mlx5_smart_nic_vport *tmp =
+		container_of(kobj, struct mlx5_smart_nic_vport, kobj);
+	struct mlx5_eswitch *esw = tmp->esw;
+	enum port_state_policy policy;
+	int err;
+
+	err = strpolicy(buf, &policy);
+	if (err)
+		return err;
+
+	err = mlx5_eswitch_set_vport_state(esw, tmp->vport, policy);
+	return err ? err : count;
+}
+
+static ssize_t vport_state_show(struct kobject *kobj,
+				struct kobj_attribute *attr,
+				char *buf)
+{
+	return sprintf(buf, "usage: write <Up|Down|Follow> to set VF State\n");
+}
+
+static const char *policy_str(enum port_state_policy policy)
+{
+	switch (policy) {
+	case MLX5_POLICY_DOWN:		return "Down\n";
+	case MLX5_POLICY_UP:		return "Up\n";
+	case MLX5_POLICY_FOLLOW:	return "Follow\n";
+	default:			return "Invalid policy\n";
+	}
+}
+
 #define _sprintf(p, buf, format, arg...)                               \
        ((PAGE_SIZE - (int)(p - buf)) <= 0 ? 0 :                        \
        scnprintf(p, PAGE_SIZE - (int)(p - buf), format, ## arg))
@@ -175,6 +230,7 @@ static ssize_t config_show(struct kobject *kobj,
 	ivi = &esw->vports[vport].info;
 	p += _sprintf(p, buf, "MAC        : %pM\n", ivi->mac);
 	p += _sprintf(p, buf, "MaxTxRate  : %d\n", ivi->max_rate);
+	p += _sprintf(p, buf, "State      : %s\n", policy_str(ivi->link_state));
 	mutex_unlock(&esw->state_lock);
 
 	return (ssize_t)(p - buf);
@@ -218,6 +274,14 @@ static struct kobj_attribute attr_mac = {
 	.show = mac_show,
 	.store = mac_store,
 };
+
+static struct kobj_attribute attr_vport_state = {
+	.attr = {.name = "vport_state",
+		 .mode = 0644 },
+	.show = vport_state_show,
+	.store = vport_state_store,
+};
+
 static struct kobj_attribute attr_config = {
 	.attr = {.name = "config",
 		 .mode = 0444 },
@@ -228,6 +292,7 @@ static struct attribute *smart_nic_attrs[] = {
 	&attr_config.attr,
 	&attr_max_tx_rate.attr,
 	&attr_mac.attr,
+	&attr_vport_state.attr,
 	NULL,
 };
 

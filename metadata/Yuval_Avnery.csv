@@ -22,3 +22,4 @@ Change-Id=Ida74b2cc4ebaa7a9814343c4db90109f2c73cb5b; subject=net/mlx5: Generaliz
 Change-Id=Iab2f1ffb61105f559401702b32fc6220cc9f0c1a; subject=net/mlx5: Move all IRQ logic to pci_irq.c; feature=rebase; upstream_status=accepted; general=;
 Change-Id=Ia631a3dae3b946683d273133db2343c9b10ab118; subject=net/mlx5: Rename mlx5_irq_info to mlx5_irq; feature=rebase; upstream_status=accepted; general=;
 Change-Id=I5f0a9946ca5bdfc3461c85d27f4b70751ffbd651; subject=net/mlx5: Add EQ enable/disable API; feature=rebase; upstream_status=accepted; general=;
+Change-Id=I3deeb7fbb866f1698619dbaa9bc231b416fc12f5; subject=net/mlx5: Host PF/VF vport state sysfs control via ECPF; feature=mlx5_en_bugs; upstream_status=NA; general=;
