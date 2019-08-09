@@ -46,3 +46,4 @@ Change-Id=I80780fd53c9db5d19fa79cb72d9c817e9912f0e1; subject=net/mlx5: Don't che
 Change-Id=I93ae4fe38c89d75c3e342eab500426d3ff61dcac; subject=net/mlx5: miniflow, fix use-after-free of dummy counters; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=I17c8e98a4ccf64db0fb0593508ed0253d393a458; subject=net/mlx5: Enable devcom; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=Id4fc78dcf1c70eaa4db970b94d8bcf4e027de5de; subject=net/mlx5e: miniflow, Parse more CT states; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I86c16748a8c6349bc523a479714b9fc3ce065b02; subject=net/mlx5: miniflow, protects all accessing of flowtable hash; feature=mlx5e_st_ct; upstream_status=NA; general=;
