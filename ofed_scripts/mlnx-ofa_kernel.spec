@@ -661,6 +661,7 @@ fi
 %endif
 /sbin/sysctl_perf_tuning
 /sbin/mlnx_eswitch_set
+/sbin/mlnx_net_rules
 /usr/sbin/mlnx_tune
 /usr/sbin/show_gids
 /usr/sbin/compat_gid_gen

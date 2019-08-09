@@ -324,6 +324,7 @@ endif
 	install -d $(INSTALL_MOD_PATH)/sbin
 	install -m 0755 ofed_scripts/sysctl_perf_tuning $(INSTALL_MOD_PATH)/sbin
 	install -m 0755 ofed_scripts/mlnx_eswitch_set $(INSTALL_MOD_PATH)/sbin
+	install -m 0755 ofed_scripts/mlnx_net_rules $(INSTALL_MOD_PATH)/sbin
 	install -d $(INSTALL_MOD_PATH)/$(prefix)/sbin
 	install -m 0755 ofed_scripts/*affinity* $(INSTALL_MOD_PATH)/$(prefix)/sbin
 	install -m 0755 ofed_scripts/vf-net-link-name.sh $(INSTALL_MOD_PATH)/etc/infiniband

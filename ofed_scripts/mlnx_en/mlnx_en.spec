@@ -308,6 +308,7 @@ install -D -m 755 source/ofed_scripts/set_irq_affinity_bynode.sh %{buildroot}/%{
 install -D -m 755 source/ofed_scripts/set_irq_affinity_cpulist.sh %{buildroot}/%{_sbindir}/set_irq_affinity_cpulist.sh
 install -D -m 755 source/ofed_scripts/sysctl_perf_tuning %{buildroot}/sbin/sysctl_perf_tuning
 install -D -m 755 source/ofed_scripts/mlnx_eswitch_set %{buildroot}/sbin/mlnx_eswitch_set
+install -D -m 755 source/ofed_scripts/mlnx_net_rules %{buildroot}/sbin/mlnx_net_rules
 install -D -m 755 source/ofed_scripts/mlnx_tune %{buildroot}/usr/sbin/mlnx_tune
 install -D -m 644 source/scripts/mlnx-en.conf %{buildroot}/etc/mlnx-en.conf
 install -D -m 755 source/scripts/mlnx-en.d %{buildroot}/etc/init.d/mlnx-en.d
