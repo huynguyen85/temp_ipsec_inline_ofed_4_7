@@ -33,3 +33,5 @@ Change-Id=If653a5525374605692ca497434b915abb33b0587; subject=Revert "net/mlx5e: 
 Change-Id=Ia7e9c2ceea891c1f04f80ec0c5627ae1e5037478; subject=metadata: Update metadata for rtnl lock rebase series; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I781f11808ed06bc4aa392526ed2dc3ae8b94ffa9; subject=net/mlx5e: Sync tc delete flow operation; feature=mlx5_asap; upstream_status=ignore; general=;
 Change-Id=Ib7525467259f0dbf086aa8617dacb0f4a7c3ea95; subject=metadata: update Raed Salem MD; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I9145978e3b3a26a439614d9d672e99fa61d36218; subject=net/sched/flower: Use correct TC flags macro; feature=mlx5_asap; upstream_status=ignore; general=;
+Change-Id=Ie8b31883dc244cf404bc8b725404f22f9bbf994e; subject=metadata: update Raed Salem MD (Post bug fix); feature=ofed_scripts; upstream_status=ignore; general=;
