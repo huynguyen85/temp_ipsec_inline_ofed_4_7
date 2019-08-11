@@ -7,3 +7,4 @@ Change-Id=Ibe26dc550d14298a24a66c4b13893b83aafdadd2; subject=IB/ipoib: Add child
 Change-Id=Ia585a2b305e75aaeca0223748e18a76d61f6977c; subject=IB/ipoib: Remove child from parent list before starting ipoib_uninit_dev; feature=ipoib_bugs; upstream_status=NA; general=;
 Change-Id=I8d28e6a1e7babbff43a481f94032d3228f2f4999; subject=IB/ipoib: Add TX timeout recovery functionality; feature=ipoib_bugs; upstream_status=in_progress; general=;
 Change-Id=Iebd4cafa47a8f488fba52eab31d6905a214c6cbc; subject=IB/ipoib: RSS - Add TX timeout recovery functionality; feature=ipoib_bugs; upstream_status=NA; general=;
+Change-Id=I2ae87d6c242bad864ca70e4fa0355573afcb6e1d; subject=REBASE: Add metadata for "rebase T10 Kernel 5.3 patches fro upstream to 4.7"; feature=ofed_scripts; upstream_status=ignore; general=;

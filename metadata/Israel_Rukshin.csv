@@ -27,3 +27,12 @@ Change-Id=Ia3cdbc08b31f8a5bf8a693c3e8a9edd43399c422; subject=nvmet: Fix NULL der
 Change-Id=I2fea442d4d59ac860774582d78a8bef924b4db91; subject=nvme: Add support for offload with native nvme MP device; feature=nvmf_offload; upstream_status=in_progress; general=;
 Change-Id=I5f1072b1973b1da559d002536ba8720dd19cd7f1; subject=nvme-rdma: Refactor admin queue creation; feature=nvmf_bugs; upstream_status=in_progress; general=;
 Change-Id=I09d314d04e1a360c2736830528b9a74416a79033; subject=nvme: Introduce nvme_is_aen_req function; feature=nvmf_bugs; upstream_status=in_progress; general=;
+Change-Id=I962ac7acd377acf2aa5766a1a2dc90c38d47e497; subject=RDMA/core: Introduce IB_MR_TYPE_INTEGRITY and ib_alloc_mr_integrity API; feature=mlx5_pi; upstream_status=accepted; general=;
+Change-Id=I364df3264274d75b23fe14a6d7b2b1f5891712de; subject=IB/iser: Use IB_WR_REG_MR_INTEGRITY for PI handover; feature=mlx5_pi; upstream_status=accepted; general=;
+Change-Id=I61b95900f3a8ab6cc15dae20fa74d087e047d3db; subject=IB/iser: Unwind WR union at iser_tx_desc; feature=mlx5_pi; upstream_status=accepted; general=;
+Change-Id=Ieab11c5f5f9ce6256d5101ff4f2534bd37d6b614; subject=RDMA/core: Add an integrity MR pool support; feature=mlx5_pi; upstream_status=accepted; general=;
+Change-Id=I5196c97b8d908672376895cf56f82e1d25f1fcfa; subject=RDMA/core: Rename signature qp create flag and signature device capability; feature=mlx5_pi; upstream_status=accepted; general=;
+Change-Id=Id7f5e66c0f9da786acef687fdfddb8c9d632b00b; subject=RDMA/rw: Introduce rdma_rw_inv_key helper; feature=mlx5_pi; upstream_status=accepted; general=;
+Change-Id=Iee29d091829a1309784197eb8ed8184d314c1849; subject=RDMA/rw: Use IB_WR_REG_MR_INTEGRITY for PI handover; feature=mlx5_pi; upstream_status=accepted; general=;
+Change-Id=I8610b8c22b9a4fdb1a0a5837a45f73b893317e1e; subject=RDMA/mlx5: Remove unused IB_WR_REG_SIG_MR code; feature=mlx5_pi; upstream_status=accepted; general=;
+Change-Id=Iac925ffc51531661b8892fe57c431c449df7c60c; subject=RDMA/mlx5: Improve PI handover performance; feature=mlx5_pi; upstream_status=accepted; general=;
