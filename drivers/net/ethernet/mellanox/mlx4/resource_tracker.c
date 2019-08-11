@@ -472,29 +472,32 @@ void mlx4_init_quotas(struct mlx4_dev *dev)
 		priv->mfunc.master.res_tracker.res_alloc[RES_MPT].quota[pf];
 }
 
-static int get_max_gauranteed_vfs_counter(struct mlx4_dev *dev)
-{
-	/* reduce the sink counter */
-	return (dev->caps.max_counters - 1 -
-		(MLX4_PF_COUNTERS_PER_PORT * MLX4_MAX_PORTS))
-		/ MLX4_MAX_PORTS;
-}
-
-
 static void init_counter_resource_tracker(struct mlx4_dev *dev,
 					  struct resource_allocator *res_alloc,
-					  int vf, int max_vfs_guarantee_counter)
+					  int vf)
 {
 	res_alloc->quota[vf] = dev->caps.max_counters;
-	if (vf == mlx4_master_func_num(dev))
+	/* For master, only allocate according to the number of phys ports */
+	if (vf == mlx4_master_func_num(dev)) {
 		res_alloc->guaranteed[vf] =
-			MLX4_PF_COUNTERS_PER_PORT * MLX4_MAX_PORTS;
-	else if (vf <= max_vfs_guarantee_counter)
-		res_alloc->guaranteed[vf] =
-			MLX4_VF_COUNTERS_PER_PORT * MLX4_MAX_PORTS;
-	else
-		res_alloc->guaranteed[vf] = 0;
+			MLX4_PF_COUNTERS_PER_PORT * dev->caps.num_ports;
+	} else {
+		int ports, guaranteed;
+		struct mlx4_active_ports actv_ports =
+				mlx4_get_active_ports(dev, vf);
 
+		/* calculate real number of ports for the VF */
+		ports = bitmap_weight(actv_ports.ports, dev->caps.num_ports);
+		guaranteed = ports * MLX4_VF_COUNTERS_PER_PORT;
+
+		/* If we do not have enough counters for this VF, do not
+		 * allocate any for it.
+		 */
+		if ((res_alloc->res_reserved + guaranteed) >
+		    (dev->caps.max_counters - 1))
+			guaranteed = 0;
+		res_alloc->guaranteed[vf] = guaranteed;
+	}
 	res_alloc->res_reserved += res_alloc->guaranteed[vf];
 }
 
@@ -503,7 +506,6 @@ void mlx4_update_counter_resource_tracker(struct mlx4_dev *dev)
 	struct mlx4_priv *priv = mlx4_priv(dev);
 	struct resource_allocator *res_alloc =
 		&priv->mfunc.master.res_tracker.res_alloc[RES_COUNTER];
-	int max_vfs_guarantee_counter = get_max_gauranteed_vfs_counter(dev);
 	int vf;
 
 	/* Reduce the sink counter */
@@ -511,8 +513,7 @@ void mlx4_update_counter_resource_tracker(struct mlx4_dev *dev)
 	res_alloc->res_reserved = 0;
 
 	for (vf = 0; vf < dev->persist->num_vfs + 1; vf++)
-		init_counter_resource_tracker(dev, res_alloc, vf,
-					      max_vfs_guarantee_counter);
+		init_counter_resource_tracker(dev, res_alloc, vf);
 }
 
 int mlx4_init_resource_tracker(struct mlx4_dev *dev)
@@ -520,7 +521,6 @@ int mlx4_init_resource_tracker(struct mlx4_dev *dev)
 	struct mlx4_priv *priv = mlx4_priv(dev);
 	int i, j;
 	int t;
-	int max_vfs_guarantee_counter = get_max_gauranteed_vfs_counter(dev);
 
 	priv->mfunc.master.res_tracker.slave_list =
 		kcalloc(dev->num_slaves, sizeof(struct slave_list),
@@ -638,8 +638,7 @@ int mlx4_init_resource_tracker(struct mlx4_dev *dev)
 				}
 				break;
 			case RES_COUNTER:
-				init_counter_resource_tracker(dev, res_alloc, t,
-							      max_vfs_guarantee_counter);
+				init_counter_resource_tracker(dev, res_alloc, t);
 				break;
 			default:
 				break;
