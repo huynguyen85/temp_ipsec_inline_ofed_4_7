@@ -287,8 +287,8 @@ static void fl_hw_destroy_filter(struct tcf_proto *tp, struct cls_fl_filter *f)
 	offload.cookie = (unsigned long)f;
 
 	priv = netdev_priv(dev);
-	mlx5e_delete_flower(priv, &offload, f->mlx5e_flags |
-			    MLX5E_TC_INGRESS | MLX5E_TC_ESW_OFFLOAD);
+	f->mlx5e_flags |= MLX5_TC_FLAG(INGRESS) | MLX5_TC_FLAG(ESW_OFFLOAD);
+	mlx5e_delete_flower(priv, &offload, f->mlx5e_flags);
 }
 
 static int fl_hw_replace_filter(struct tcf_proto *tp,
@@ -317,10 +317,10 @@ static int fl_hw_replace_filter(struct tcf_proto *tp,
 			return tc_skip_sw(f->flags) ? -EINVAL : 0;
 		}
 
-		f->mlx5e_flags = MLX5E_TC_EGRESS;
+		f->mlx5e_flags = MLX5_TC_FLAG(EGRESS);
 	} else {
 		f->hw_dev = dev;
-		f->mlx5e_flags = MLX5E_TC_INGRESS;
+		f->mlx5e_flags = MLX5_TC_FLAG(INGRESS);
 	}
 
 	offload.command = TC_CLSFLOWER_REPLACE;
@@ -332,8 +332,8 @@ static int fl_hw_replace_filter(struct tcf_proto *tp,
 	offload.exts = &f->exts;
 
 	priv = netdev_priv(f->hw_dev);
-	err = mlx5e_configure_flower(priv, &offload,
-				     f->mlx5e_flags | MLX5E_TC_ESW_OFFLOAD);
+	f->mlx5e_flags |= MLX5_TC_FLAG(ESW_OFFLOAD);
+	err = mlx5e_configure_flower(priv, &offload, f->mlx5e_flags);
 	if (!err)
 		f->flags |= TCA_CLS_FLAGS_IN_HW;
 	if (tc_skip_sw(f->flags))
@@ -358,8 +358,8 @@ static void fl_hw_update_stats(struct tcf_proto *tp, struct cls_fl_filter *f)
 	offload.exts = &f->exts;
 
 	priv = netdev_priv(dev);
-	mlx5e_stats_flower(priv, &offload, f->mlx5e_flags |
-			   MLX5E_TC_INGRESS | MLX5E_TC_ESW_OFFLOAD);
+	f->mlx5e_flags |= MLX5_TC_FLAG(INGRESS) | MLX5_TC_FLAG(ESW_OFFLOAD);
+	mlx5e_stats_flower(priv, &offload, f->mlx5e_flags);
 }
 
 static void __fl_delete(struct tcf_proto *tp, struct cls_fl_filter *f)

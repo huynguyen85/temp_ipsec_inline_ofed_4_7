@@ -3063,10 +3063,10 @@ static int fl_hw_replace_filter(struct tcf_proto *tp,
 			return tc_skip_sw(f->flags) ? -EINVAL : 0;
 		}
 
-		f->mlx5e_flags = MLX5E_TC_EGRESS;
+		f->mlx5e_flags = TC_FLAG(EGRESS);
 	} else {
 		f->hw_dev = dev;
-		f->mlx5e_flags = MLX5E_TC_INGRESS;
+		f->mlx5e_flags = TC_FLAG(INGRESS);
 	}
 
 	offload.command = TC_CLSFLOWER_REPLACE;
