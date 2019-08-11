@@ -3220,8 +3220,8 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 					return -EOPNOTSUPP;
 
 #ifdef HAVE_MINIFLOW
-				if (!is_tcf_mirred_egress_mirror(a) &&
-				    (atomic_read(&flow->flags) & MLX5E_TC_FLOW_EGRESS)) {
+				if (attr->split_count == 0 &&
+				    flow_flag_test(flow, EGRESS)) {
 					action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
 				}
 #endif
@@ -3304,8 +3304,8 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 			continue;
 #endif
 		case FLOW_ACTION_GOTO: {
-#ifndef HAVE_MINIFLOW
 			u32 dest_chain = act->chain_index;
+#ifndef HAVE_MINIFLOW
 			u32 max_chain = mlx5_eswitch_get_chain_range(esw);
 
 			if (dest_chain <= attr->chain) {
@@ -3322,7 +3322,7 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 				netdev_warn(priv->netdev, "Loop to chain 0 is not supported");
 				return -EOPNOTSUPP;
 			}
-			if (atomic_read(&flow->flags) & MLX5E_TC_FLOW_EGRESS) {
+			if (flow_flag_test(flow, EGRESS)) {
 				action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
 			}
 			action |= MLX5_FLOW_CONTEXT_ACTION_GOTO;
