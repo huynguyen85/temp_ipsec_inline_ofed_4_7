@@ -689,7 +689,6 @@ static void miniflow_link_dummy_counters(struct mlx5e_tc_flow *flow,
 	if (!counter)
 		return;
 
-	WARN_ON(counter->dummy);
 	mlx5_fc_link_dummies(counter, dummies, nr_dummies);
 }
 
@@ -704,26 +703,6 @@ static void miniflow_unlink_dummy_counters(struct mlx5e_tc_flow *flow)
 	mlx5_fc_unlink_dummies(counter);
 }
 
-static struct mlx5_fc *miniflow_alloc_dummy_counter(void)
-{
-	struct mlx5_fc *counter;
-
-	counter = kzalloc(sizeof(*counter), GFP_ATOMIC);
-	if (!counter)
-		return NULL;
-
-	counter->dummy = true;
-	counter->cache.lastuse = jiffies;
-	counter->aging = true;
-
-	return counter;
-}
-
-static void  miniflow_free_dummy_counter(struct mlx5_fc *counter)
-{
-	kfree(counter);
-}
-
 static int miniflow_attach_dummy_counter(struct mlx5e_tc_flow *flow)
 {
 	struct mlx5_fc *counter;
@@ -732,13 +711,13 @@ static int miniflow_attach_dummy_counter(struct mlx5e_tc_flow *flow)
 		return 0;
 
 	if (flow->esw_attr->action & MLX5_FLOW_CONTEXT_ACTION_COUNT) {
-		counter = miniflow_alloc_dummy_counter();
+		counter = mlx5_fc_alloc_dummy_counter();
 		if (!counter)
 			return -ENOMEM;
 
 		rcu_read_lock();
 		if (flow->dummy_counter)
-			miniflow_free_dummy_counter(counter);
+			mlx5_fc_free_dummy_counter(counter);
 		else
 			flow->dummy_counter = counter;
 		rcu_read_unlock();

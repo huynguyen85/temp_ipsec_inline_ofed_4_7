@@ -276,7 +276,7 @@ static void mlx5_fc_stats_work(struct work_struct *work)
 
 	llist_for_each_entry_safe(counter, tmp, dellist, dellist) {
 		if (counter->dummy) {
-			kfree(counter);
+			mlx5_fc_free_dummy_counter(counter);
 			continue;
 		}
 
@@ -388,6 +388,26 @@ void mlx5_fc_link_dummies(struct mlx5_fc *counter, struct mlx5_fc **dummies, int
 void mlx5_fc_unlink_dummies(struct mlx5_fc *counter)
 {
 	atomic_set(&counter->nr_dummies, 0);
+}
+
+struct mlx5_fc *mlx5_fc_alloc_dummy_counter(void)
+{
+	struct mlx5_fc *counter;
+
+	counter = kzalloc(sizeof(*counter), GFP_ATOMIC);
+	if (!counter)
+		return NULL;
+
+	counter->dummy = true;
+	counter->cache.lastuse = jiffies;
+	counter->aging = true;
+
+	return counter;
+}
+
+void mlx5_fc_free_dummy_counter(struct mlx5_fc *counter)
+{
+	kfree(counter);
 }
 
 void mlx5_fc_destroy(struct mlx5_core_dev *dev, struct mlx5_fc *counter)
