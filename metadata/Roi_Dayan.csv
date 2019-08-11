@@ -54,3 +54,12 @@ Change-Id=Ifb3e7653b6329b58f3306b4373625b89a5310991; subject=metdata: update min
 Change-Id=Ic1506e31044f9129bf0e9dec0d75bffea3bf64b5; subject=net/mlx5e: miniflow, fix dummy counters api; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=I885bfce8140239ecab5beb321ce82dfa8b3b84e4; subject=net/mlx5e: miniflow, fix compilation; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=I00d51effc80ac5cbc548634a29c086839f050554; subject=metata: miniflow update; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I9bce9e93d97031d70b04460a516d9dedb3fcf2ad; subject=net/mlx5e: miniflow, Fix handling miniflow work count and offloaded count; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I466bc5dbbed746b00e0a8ce0841f58dec3fbcbc8; subject=net/mlx5e: miniflow, protects all flow entry list access; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I6b3bbc2ae59375320434a9f9c50aa93fe90b4f1d; subject=net/mlx5e: Don't do peer flow for non simple flows; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I9a948e681985033c584c0b822dce26a94f244186; subject=net/mlx5e: miniflow, Remove redundant err label; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=Ic97c88de59ea94088387cc4301911868335ae851; subject=net/mlx5e: miniflow, Split add flow code into a function; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I2167dd7fcf7a4ae68f26d6eeee533be43e6e78b2; subject=net/mlx5e: miniflow, Split flow allocation and merge into a function; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I05036f61657c2b66684a2a80f3aaa0072af2b68d; subject=net/mlx5e: miniflow, Add support for VF LAG; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=Iae5fad6e580d6baa8dc342941ffcc8517fa6838e; subject=net/mlx5e: miniflow, Link dummy counters to peer flow; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I5c2ffbf8ef10be4bd46548d0b6e74af32a221475; subject=metadata: miniflow update; feature=ofed_scripts; upstream_status=ignore; general=;
