@@ -3855,9 +3855,7 @@ int mlx5e_delete_flower(struct net_device *dev, struct mlx5e_priv *priv,
 		return 0;
 	}
 
-	mlx5e_tc_del_flow(priv, flow);
-
-	kfree(flow);
+	mlx5e_flow_put(priv, flow);
 
 	return 0;
 
