@@ -2,3 +2,4 @@ sep=;
 Change-Id=I44a8c791319890e3b90a23de157c8ff4814a2672; subject=mlx4_core: Added mlx4_en_only_mode module parameter; feature=mlx4_en_only_mode_param; upstream_status=NA; general=;
 Change-Id=I9aecb7329c8cca2593eb3071e6892b6aef29ce81; subject=ofed_scripts/pre_build.sh: Verify that make distclean can run; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I2bbbfa05f15077aeea014adbfe083368e88d0428; subject=ofed_scripts: Added mlnx_net_rules; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I3deeb7fbb866f1698619dbaa9bc231b416fc12f5; subject=net/mlx5: Host PF/VF vport state sysfs control via ECPF; feature=mlx5_en_bugs; upstream_status=NA; general=;

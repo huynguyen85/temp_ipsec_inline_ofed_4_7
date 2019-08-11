@@ -48,3 +48,4 @@ Change-Id=I3f19eb80d26bf96ccdd9cfdc71a943920f95b522; subject=net/mlx5: Fix trace
 Change-Id=Id0d0e13ffb3d012d794536018af6717fe8ecf5e4; subject=IB/ipoib: Adapt base code to use RSS/TSS; feature=ipoib_rss_tss; upstream_status=NA; general=;
 Change-Id=Ie48913d162c9db3dc170213233a9031b5ba1c635; subject=IB/core: Fix ib_client_umem_get return status; feature=peer_direct; upstream_status=NA; general=;
 Change-Id=I6afe0b11373bc8d15684edffc799761e8509a656; subject=net/mlx5e: Ignore atomic_t fail; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Ia429ce79e25782fa09e38ed8c9de17bf7e4bd4ec; subject=metadata: Add missing metadata; feature=ofed_scripts; upstream_status=ignore; general=;
