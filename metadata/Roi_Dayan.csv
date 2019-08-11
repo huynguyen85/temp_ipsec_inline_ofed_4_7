@@ -51,3 +51,6 @@ Change-Id=I6b326f7ae9282d7d4e463386ab544e383f342884; subject=net/mlx5e: miniflow
 Change-Id=I4179e22b9b637512ebcfd7cb7e488f748fa47763; subject=net/mlx5e, miniflow: Block CT with mirroring; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=Id6c0679452cec664dc9f71db6aca67b5054b20a7; subject=net/mlx5e: miniflow, Fix compilation; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=Ifb3e7653b6329b58f3306b4373625b89a5310991; subject=metdata: update miniflow metadata; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Ic1506e31044f9129bf0e9dec0d75bffea3bf64b5; subject=net/mlx5e: miniflow, fix dummy counters api; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I885bfce8140239ecab5beb321ce82dfa8b3b84e4; subject=net/mlx5e: miniflow, fix compilation; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I00d51effc80ac5cbc548634a29c086839f050554; subject=metata: miniflow update; feature=ofed_scripts; upstream_status=ignore; general=;
