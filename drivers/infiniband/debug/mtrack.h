@@ -499,6 +499,21 @@
 #endif
 
 #ifndef memdup_user
+#ifdef ZERO_OR_NULL_PTR
+#define memdup_user(user_addr, size) ({						\
+	void *__memtrack_addr = NULL;						\
+										\
+	if (memtrack_inject_error(THIS_MODULE, __FILE__, "memdup_user", __func__, __LINE__)) \
+		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "memdup_user"); \
+	else									\
+		__memtrack_addr = memdup_user(user_addr, size);			\
+										\
+	if (!ZERO_OR_NULL_PTR(__memtrack_addr)) {							\
+		memtrack_alloc(MEMTRACK_KMALLOC, 0UL, (unsigned long)(__memtrack_addr), size, 0UL, 0, __FILE__, __LINE__, GFP_KERNEL); \
+	}									\
+	__memtrack_addr;							\
+})
+#else
 #define memdup_user(user_addr, size) ({						\
 	void *__memtrack_addr = NULL;						\
 										\
@@ -513,8 +528,24 @@
 	__memtrack_addr;							\
 })
 #endif
+#endif
 
 #ifndef memdup_user_nul
+#ifdef ZERO_OR_NULL_PTR
+#define memdup_user_nul(user_addr, size) ({						\
+	void *__memtrack_addr = NULL;						\
+										\
+	if (memtrack_inject_error(THIS_MODULE, __FILE__, "memdup_user_nul", __func__, __LINE__)) \
+		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "memdup_user_nul"); \
+	else									\
+		__memtrack_addr = memdup_user_nul(user_addr, size);			\
+										\
+	if (!ZERO_OR_NULL_PTR(__memtrack_addr)) {							\
+		memtrack_alloc(MEMTRACK_KMALLOC, 0UL, (unsigned long)(__memtrack_addr), size, 0UL, 0, __FILE__, __LINE__, GFP_KERNEL); \
+	}									\
+	__memtrack_addr;							\
+})
+#else
 #define memdup_user_nul(user_addr, size) ({						\
 	void *__memtrack_addr = NULL;						\
 										\
@@ -528,6 +559,7 @@
 	}									\
 	__memtrack_addr;							\
 })
+#endif
 #endif
 
 
