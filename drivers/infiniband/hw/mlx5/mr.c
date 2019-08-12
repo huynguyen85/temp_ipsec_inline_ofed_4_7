@@ -1125,6 +1125,9 @@ static struct mlx5_ib_mr *reg_create(struct ib_mr *ibmr, struct ib_pd *pd,
 			 get_octo_len(virt_addr, length, page_shift));
 	}
 
+	if (umem->ib_peer_mem && MLX5_CAP_GEN(dev->mdev, ats))
+		MLX5_SET(mkc, mkc, ma_tranlation_mode, 1);
+
 	err = mlx5_core_create_mkey(dev->mdev, &mr->mmkey, in, inlen);
 	if (err) {
 		mlx5_ib_warn(dev, "create mkey failed\n");
@@ -1334,6 +1337,11 @@ struct ib_mr *mlx5_ib_reg_user_mr(struct ib_pd *pd,
 
 	ib_peer_mem = umem->ib_peer_mem;
 	if (ib_peer_mem) {
+		if (access_flags & IB_ACCESS_ON_DEMAND) {
+			err = -EINVAL;
+			mlx5_ib_dbg(dev, "Peer memory with ODP is not supported\n");
+			goto error;
+		}
 		mlx5_ib_peer_id = kzalloc(sizeof(*mlx5_ib_peer_id), GFP_KERNEL);
 		if (!mlx5_ib_peer_id) {
 			err = -ENOMEM;
@@ -1361,7 +1369,9 @@ struct ib_mr *mlx5_ib_reg_user_mr(struct ib_pd *pd,
 		}
 	}
 
-	if ((access_flags & IB_ACCESS_ON_DEMAND) &&
+	if (ib_peer_mem && MLX5_CAP_GEN(dev->mdev, ats)) {
+		;
+	} else if ((access_flags & IB_ACCESS_ON_DEMAND) &&
 	    mlx5_ib_capi_enabled(dev)) {
 		mr = create_capi_mr(pd, virt_addr, length, access_flags);
 		if (IS_ERR(mr)) {

@@ -72,3 +72,4 @@ Change-Id=I7d02376d245845f6b0e1c10aeee9184af391232d; subject=IB/mlx5: Implement 
 Change-Id=I9d8075ce8c073731c20975ba3a0da70f52de2e6e; subject=IB/mlx5: Add DEVX support for CQ events; feature=devx; upstream_status=accepted; general=upstream commit ID: ef1659ade359, tag: v5.2-rc4;
 Change-Id=I9425b417c3f6319c06c81962363dd335cb27402c; subject=IB/mlx5: DEVX cleanup mdev; feature=devx; upstream_status=accepted; general=upstream commit ID: 5832fdd35e61, tag: v5.2-rc4;
 Change-Id=I36ed55e5ba37ddef42397df50c446714a9f48494; subject=IB/mlx5: Fix use after free warn reported by KASAN; feature=mlx5_ib_bugs; upstream_status=NA; general=;
+Change-Id=If7422612456e23f6d8cf5cf2f3cae2121005a26e; subject=IB/mlx5: Add ATS support for peer memory; feature=ATS; upstream_status=NA; general=;

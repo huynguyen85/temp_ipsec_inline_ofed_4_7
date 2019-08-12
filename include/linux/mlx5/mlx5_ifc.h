@@ -1449,7 +1449,9 @@ struct mlx5_ifc_cmd_hca_cap_bits {
 
 	u8         reserved_at_440[0x20];
 
-	u8         reserved_at_460[0x3];
+	u8         reserved_at_460[0x1];
+	u8         ats[0x1];
+	u8         reserved_at_462[0x1];
 	u8         log_max_uctx[0x5];
 	u8         reserved_at_468[0x3];
 	u8         log_max_umem[0x5];
@@ -10380,7 +10382,8 @@ struct mlx5_ifc_general_obj_out_cmd_hdr_bits {
 struct mlx5_ifc_umem_bits {
 	u8         reserved_at_0[0x80];
 
-	u8         reserved_at_80[0x1b];
+	u8         ats[0x1];
+	u8         reserved_at_81[0x1a];
 	u8         log_page_size[0x5];
 
 	u8         page_offset[0x20];
