@@ -789,12 +789,10 @@ static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
 		}
 
 		miniflow->flow = mflow;
+		miniflow->aged = false;
 		mflow->miniflow = miniflow;
 	}
 
-	miniflow->flow = mflow;
-	miniflow->aged = false;
-	mflow->miniflow = miniflow;
 	mflow->esw_attr->in_rep = rpriv->rep;
 	mflow->esw_attr->in_mdev = priv->mdev;
 
