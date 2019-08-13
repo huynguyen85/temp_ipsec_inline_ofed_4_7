@@ -48,3 +48,4 @@ Change-Id=Iacb5eb9710ec83597c20225ee9578fd96fc8780e; subject=net/mlx5e: Set dma_
 Change-Id=I093f01165e1611190effdddf3f9c309e46291e50; subject=net/mlx5e: Only support tx/rx pause setting for port owner; feature=mlx5_en_bugs; upstream_status=in_progress; general=;
 Change-Id=I17829e4d21ac2932343807204ba7d3ce33cc030b; subject=net/mlx5e: Print a warning when LRO feature is dropped or not allowed; feature=mlx5_en_bugs; upstream_status=in_progress; general=;
 Change-Id=I6e399abd4130c9464c96b66a444e0901440f4e33; subject=Revert "net/mlx5e: Fix out of memory when setting jumbo frames"; feature=mlx5_en_bugs; upstream_status=ignore; general=;
+Change-Id=Ib9ace23498f7b06fd4fd0ab06f72ccf773bac5a1; subject=net/mlx5e: Fix out of memory when setting jumbo frames; feature=mlx5_en_bugs; upstream_status=NA; general=;
