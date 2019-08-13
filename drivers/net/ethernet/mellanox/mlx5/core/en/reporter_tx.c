@@ -4,6 +4,7 @@
 #include <net/devlink.h>
 #include "reporter.h"
 #include "lib/eq.h"
+#include "devlink.h"
 
 #define MLX5E_TX_REPORTER_PER_SQ_MAX_LEN 256
 
@@ -292,7 +293,7 @@ static const struct devlink_health_reporter_ops mlx5_tx_reporter_ops = {
 int mlx5e_tx_reporter_create(struct mlx5e_priv *priv)
 {
 	struct mlx5_core_dev *mdev = priv->mdev;
-	struct devlink *devlink = priv_to_devlink(mdev);
+	struct devlink *devlink = mlx5_core_to_devlink(mdev);
 
 	priv->tx_reporter =
 		devlink_health_reporter_create(devlink, &mlx5_tx_reporter_ops,

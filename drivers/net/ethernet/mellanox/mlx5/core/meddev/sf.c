@@ -10,6 +10,7 @@
 #include "sf.h"
 #include "mlx5_core.h"
 #include "eswitch.h"
+#include "devlink.h"
 
 static int
 mlx5_cmd_query_sf_partitions(struct mlx5_core_dev *mdev, u32 *out, int outlen)
@@ -192,7 +193,7 @@ id_err:
 void mlx5_sf_free(struct mlx5_core_dev *coredev, struct mlx5_sf_table *sf_table,
 		  struct mlx5_sf *sf)
 {
-	struct devlink *devlink = priv_to_devlink(sf);
+	struct devlink *devlink = mlx5_core_to_devlink(&sf->dev);
 	u16 hw_function_id;
 
 	hw_function_id = mlx5_sf_hw_id(coredev, sf->idx);

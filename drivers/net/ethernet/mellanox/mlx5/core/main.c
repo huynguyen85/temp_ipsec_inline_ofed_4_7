@@ -74,6 +74,7 @@
 #include <asm/pnv-pci.h>
 #endif
 #include "diag/diag_cnt.h"
+#include "devlink.h"
 
 MODULE_AUTHOR("Eli Cohen <eli@mellanox.com>");
 MODULE_DESCRIPTION("Mellanox 5th generation network adapters (ConnectX series) core driver");
@@ -2110,7 +2111,7 @@ static void remove_one(struct pci_dev *pdev)
 	struct mlx5_priv *priv;
 
 	dev  = pci_get_drvdata(pdev);
-	devlink = priv_to_devlink(dev);
+	devlink = mlx5_core_to_devlink(dev);
 	priv = &dev->priv;
 
 	if (pdev->is_virtfn && !priv->sriov.probe_vf)
