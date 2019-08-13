@@ -499,6 +499,11 @@ int mlx5_ct_flow_offload_add(const struct net *net,
 	}
 
 	spin_lock(&entry->dep_lock);
+	if (entry->flow.flags & (FLOW_OFFLOAD_DYING | FLOW_OFFLOAD_TEARDOWN)) {
+		spin_unlock(&entry->dep_lock);
+		err = -EAGAIN;
+		goto out;
+	}
 	ct_flow_offload_add(tc_flow, &entry->deps);
 	spin_unlock(&entry->dep_lock);
 
