@@ -2145,8 +2145,9 @@ static void esw_vport_destroy_drop_counters(struct mlx5_vport *vport)
 		mlx5_fc_destroy(dev, vport->egress.drop_counter);
 }
 
-static void esw_enable_vport(struct mlx5_eswitch *esw, struct mlx5_vport *vport,
-			     enum mlx5_eswitch_vport_event enabled_events)
+void mlx5_eswitch_enable_vport(struct mlx5_eswitch *esw,
+			       struct mlx5_vport *vport,
+			       enum mlx5_eswitch_vport_event enabled_events)
 {
 	u16 vport_num = vport->vport;
 
@@ -2191,8 +2192,8 @@ unlock_out:
 	mutex_unlock(&esw->state_lock);
 }
 
-static void esw_disable_vport(struct mlx5_eswitch *esw,
-			      struct mlx5_vport *vport)
+void mlx5_eswitch_disable_vport(struct mlx5_eswitch *esw,
+				struct mlx5_vport *vport)
 {
 	u16 vport_num = vport->vport;
 
@@ -2321,17 +2322,17 @@ mlx5_eswitch_enable_pf_vf_vports(struct mlx5_eswitch *esw,
 
 	/* Enable PF vport */
 	vport = mlx5_eswitch_get_vport(esw, MLX5_VPORT_PF);
-	esw_enable_vport(esw, vport, enabled_events);
+	mlx5_eswitch_enable_vport(esw, vport, enabled_events);
 
 	/* Enable ECPF vports */
 	if (mlx5_ecpf_vport_exists(esw->dev)) {
 		vport = mlx5_eswitch_get_vport(esw, MLX5_VPORT_ECPF);
-		esw_enable_vport(esw, vport, enabled_events);
+		mlx5_eswitch_enable_vport(esw, vport, enabled_events);
 	}
 
 	/* Enable VF vports */
 	mlx5_esw_for_each_vf_vport(esw, i, vport, esw->esw_funcs.num_vfs)
-		esw_enable_vport(esw, vport, enabled_events);
+		mlx5_eswitch_enable_vport(esw, vport, enabled_events);
 }
 
 /* mlx5_eswitch_disable_pf_vf_vports() disables vports of PF, ECPF and VFs
@@ -2343,7 +2344,7 @@ void mlx5_eswitch_disable_pf_vf_vports(struct mlx5_eswitch *esw)
 	int i;
 
 	mlx5_esw_for_all_vports_reverse(esw, i, vport)
-		esw_disable_vport(esw, vport);
+		mlx5_eswitch_disable_vport(esw, vport);
 }
 
 int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int mode)

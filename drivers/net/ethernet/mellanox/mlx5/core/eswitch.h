@@ -362,6 +362,14 @@ int mlx5_eswitch_set_vgroup_max_rate(struct mlx5_eswitch *esw, int group_id,
 				     u32 max_rate);
 int mlx5_eswitch_set_vgroup_min_rate(struct mlx5_eswitch *esw, int group_id,
 				     u32 min_rate);
+void mlx5_eswitch_enable_vport(struct mlx5_eswitch *esw,
+			       struct mlx5_vport *vport,
+			       enum mlx5_eswitch_vport_event enable_events);
+void mlx5_eswitch_disable_vport(struct mlx5_eswitch *esw,
+				struct mlx5_vport *vport);
+int mlx5_eswitch_setup_sf_vport(struct mlx5_eswitch *esw, u16 vport_num);
+void mlx5_eswitch_cleanup_sf_vport(struct mlx5_eswitch *esw, u16 vport_num);
+
 #ifndef HAVE_STRUCT_IFLA_VF_STATS_TX_BROADCAST
 struct ifla_vf_stats_backport {
 	__u64 tx_broadcast;

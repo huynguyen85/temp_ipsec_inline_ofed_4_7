@@ -52,3 +52,4 @@ Change-Id=Idc0036fbbf8f895b87efb46be09b4a5123e49099; subject=net/mlx5: E-Switch,
 Change-Id=Iafca7796a3473a41b98a385cab0783ec277f92d1; subject=net/mlx5: E-switch, Tide up eswitch config sequence; feature=mlx5_sfs; upstream_status=accepted; general=;
 Change-Id=I964f7fa100fd7d6c8c75d80c85bb5484c2905a67; subject=net/mlx5: Introduce SF table framework; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=Iee90459e99c1ef912a61e353635e5e6b3a46aee4; subject=net/mlx5: Introduce SF life cycle APIs to allocate/free; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ibf871b5d091df9447445ef94eac5730a09f73ae6; subject=net/mlx5: E-Switch, Enable/disable SF's vport during SF life cycle; feature=mlx5_sfs; upstream_status=in_progress; general=;
