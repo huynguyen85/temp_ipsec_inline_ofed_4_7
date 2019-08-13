@@ -121,6 +121,14 @@ struct mlx5_vport_info {
 	u32			group;
 };
 
+/* Vport context events */
+enum mlx5_eswitch_vport_event {
+	MLX5_VPORT_UC_ADDR_CHANGE = BIT(0),
+	MLX5_VPORT_MC_ADDR_CHANGE = BIT(1),
+	MLX5_VPORT_VLAN_CHANGE = BIT(2),
+	MLX5_VPORT_PROMISC_CHANGE = BIT(3),
+};
+
 struct mlx5_vport {
 	struct mlx5_core_dev    *dev;
 	int                     vport;
@@ -147,7 +155,7 @@ struct mlx5_vport {
 	} qos;
 
 	bool                    enabled;
-	u16                     enabled_events;
+	enum mlx5_eswitch_vport_event enabled_events;
 };
 
 enum offloads_fdb_flags {
@@ -640,6 +648,11 @@ void mlx5e_tc_clean_fdb_peer_flows(struct mlx5_eswitch *esw);
 	     (vport) = &(esw)->vports[i],		\
 	     (i) < (esw)->total_vports; (i)++)
 
+#define mlx5_esw_for_all_vports_reverse(esw, i, vport)	\
+	for ((i) = (esw)->total_vports - 1;		\
+	     (vport) = &(esw)->vports[i],		\
+	     (i) >= MLX5_VPORT_PF; (i)--)
+
 #define mlx5_esw_for_each_vf_vport(esw, i, vport, nvfs)	\
 	for ((i) = MLX5_VPORT_FIRST_VF;			\
 	     (vport) = &(esw)->vports[(i)],		\
@@ -727,6 +740,11 @@ mlx5_esw_is_manager_vport(const struct mlx5_core_dev *dev, u16 vport_num)
 	return MLX5_VPORT_MANAGER(dev) &&
 	       dev->priv.eswitch->manager_vport == vport_num;
 }
+
+void
+mlx5_eswitch_enable_pf_vf_vports(struct mlx5_eswitch *esw,
+				 enum mlx5_eswitch_vport_event enabled_events);
+void mlx5_eswitch_disable_pf_vf_vports(struct mlx5_eswitch *esw);
 
 #else  /* CONFIG_MLX5_ESWITCH */
 /* eswitch API stubs */
