@@ -1992,8 +1992,10 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	}
 
 	err = device_create_file(&pdev->dev, mlx5_roce_enable_dev_attrs);
-	if (err)
-		return 0;
+	if (err) {
+		err = 0;
+		goto mdev_init_err;
+	}
 
 	dev = devlink_priv(devlink);
 	priv = &dev->priv;
