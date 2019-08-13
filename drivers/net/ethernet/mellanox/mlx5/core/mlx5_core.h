@@ -230,6 +230,8 @@ int mlx5_create_vf_group_sysfs(struct mlx5_core_dev *dev,
 void mlx5_destroy_vf_group_sysfs(struct mlx5_core_dev *dev,
 				 struct kobject *group_kobj);
 int mlx5_core_disable_hca(struct mlx5_core_dev *dev, u16 func_id);
+int mlx5_core_enable_sf_hca(struct mlx5_core_dev *dev, u16 sf_func_id);
+int mlx5_core_disable_sf_hca(struct mlx5_core_dev *dev, u16 sf_func_id);
 int mlx5_create_scheduling_element_cmd(struct mlx5_core_dev *dev, u8 hierarchy,
 				       void *context, u32 *element_id);
 int mlx5_modify_scheduling_element_cmd(struct mlx5_core_dev *dev, u8 hierarchy,
@@ -414,6 +416,8 @@ int set_tunneled_operation(struct mlx5_core_dev *mdev,
 			   u64 *response_bar_address);
 
 #ifdef CONFIG_MLX5_MDEV
+struct mlx5_sf;
+
 u16 mlx5_core_max_sfs(const struct mlx5_core_dev *dev);
 u16 mlx5_get_free_sfs(struct mlx5_core_dev *dev);
 int mlx5_sf_get_mac(struct mlx5_sf *sf, u8 *mac);

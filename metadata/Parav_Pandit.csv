@@ -46,3 +46,9 @@ Change-Id=Iead99e53f5e35c2b941ab4ad554f127387118ac2; subject=net/mlx5: E-switch,
 Change-Id=I837b288c8b2d47e65b198e7cc4dc280f9e5a8f33; subject=net/mlx5: Treat host PF vport as other (non eswitch manager) vport; feature=mlx5_asap; upstream_status=in_progress; general=;
 Change-Id=I4f5983574fce85cb52092bedbabba94573f58bdf; subject=net/mlx5: Consider non eswitch manager mode; feature=mlx5_asap; upstream_status=in_progress; general=;
 Change-Id=I47fc5eb7e4885db2db39aa8b7b6d0ef576879511; subject=net/mlx5e: Apply DECAP action only if tunnel config is enabled; feature=mlx5_asap; upstream_status=in_progress; general=;
+Change-Id=I1e1e116a91b837964356e185a6fc95f64f68a68e; subject=net/mlx5: Refactor mlx5_esw_query_functions for modularity; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I67843e5265ed92d3478ba911190347b04ddd9848; subject=net/mlx5: E-switch, Introduce helper function to enable/disable vports; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=Idc0036fbbf8f895b87efb46be09b4a5123e49099; subject=net/mlx5: E-Switch, Remove redundant mc_promisc NULL check; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=Iafca7796a3473a41b98a385cab0783ec277f92d1; subject=net/mlx5: E-switch, Tide up eswitch config sequence; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I964f7fa100fd7d6c8c75d80c85bb5484c2905a67; subject=net/mlx5: Introduce SF table framework; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Iee90459e99c1ef912a61e353635e5e6b3a46aee4; subject=net/mlx5: Introduce SF life cycle APIs to allocate/free; feature=mlx5_sfs; upstream_status=in_progress; general=;
