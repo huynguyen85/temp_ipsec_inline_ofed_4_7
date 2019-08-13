@@ -53,3 +53,8 @@ Change-Id=Iafca7796a3473a41b98a385cab0783ec277f92d1; subject=net/mlx5: E-switch,
 Change-Id=I964f7fa100fd7d6c8c75d80c85bb5484c2905a67; subject=net/mlx5: Introduce SF table framework; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=Iee90459e99c1ef912a61e353635e5e6b3a46aee4; subject=net/mlx5: Introduce SF life cycle APIs to allocate/free; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=Ibf871b5d091df9447445ef94eac5730a09f73ae6; subject=net/mlx5: E-Switch, Enable/disable SF's vport during SF life cycle; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I5a50f8248489a8059017769b8e33ca66a89bb011; subject=net/mlx5: Introduce and use mlx5_core_to_devlink API; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ie915e8faa38ded7e71e02f738b1a4413d774971a; subject=net/mlx5: Remove check active SFs; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I43e0ac7eb174e688d76c0bc0535756cd48e237f8; subject=net/mlx5: Add load/unload routines for SF driver binding; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ief079707997860b82d582b333737e64caa3118d4; subject=net/mlx5: Implement dma ops and params for mediated device; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ief03cfad464c4aa817c55791003c622ff8654058; subject=net/mlx5: Add mdev driver to bind to mdev devices; feature=mlx5_sfs; upstream_status=in_progress; general=;

@@ -10,3 +10,4 @@ Change-Id=I43eeba60aaec252a0acffec60b15a2384524b911; subject=net/mlx5e: Generali
 Change-Id=Id6b9aaba0924df0a37d393df8feb147985dab565; subject=net/mlx5: E-Switch, Handle representors creation in handler context; feature=mlx5_sfs; upstream_status=accepted; general=;
 Change-Id=I1f0b4b4342ed30346407c10b031046471c907d01; subject=net/mlx5: E-Switch, Exclude query_other_hca_cap_roce on SF vports; feature=mlx5_sfs; upstream_status=ignore; general=;
 Change-Id=Iab6168618698ebeba9090d7e1f25e3a63a5f2edc; subject=net/mlx5: E-Switch, Do not enable vports again; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=I147b7b3befe1f5b2134ab02e2da1754505a75bc4; subject=net/mlx5: Add support for mediated devices in switchdev mode; feature=mlx5_sfs; upstream_status=in_progress; general=;

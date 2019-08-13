@@ -66,4 +66,4 @@ mlx5_core-$(CONFIG_MLX5_EN_TLS) += en_accel/tls.o en_accel/tls_rxtx.o en_accel/t
 #
 # Mdev basic
 #
-mlx5_core-$(CONFIG_MLX5_MDEV) += meddev/sf.o meddev/mdev.o
+mlx5_core-$(CONFIG_MLX5_MDEV) += meddev/sf.o meddev/mdev.o meddev/mdev_driver.o

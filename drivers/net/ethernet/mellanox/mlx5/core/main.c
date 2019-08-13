@@ -40,6 +40,9 @@
 #include <linux/io-mapping.h>
 #include <linux/interrupt.h>
 #include <linux/delay.h>
+#ifdef CONFIG_MLX5_MDEV
+#include <linux/mdev.h>
+#endif
 #include <linux/mlx5/driver.h>
 #include <linux/mlx5/cq.h>
 #include <linux/mlx5/qp.h>
@@ -1902,8 +1905,6 @@ int mlx5_mdev_init(struct mlx5_core_dev *dev, int profile_idx)
 	if (err)
 		goto err_pagealloc_init;
 
-	return 0;
-
 err_pagealloc_init:
 	mlx5_health_cleanup(dev);
 err_health_init:
@@ -2448,6 +2449,12 @@ static int __init init(void)
 	if (err)
 		goto err_core_dir;
 
+	err = mlx5_meddev_register_driver();
+	if (err) {
+		pci_unregister_driver(&mlx5_core_driver);
+		goto err_core_dir;
+	}
+
 #ifdef CONFIG_MLX5_CORE_EN
 	mlx5e_init();
 #endif
@@ -2463,6 +2470,8 @@ err_debug:
 
 static void __exit cleanup(void)
 {
+	mlx5_meddev_unregister_driver();
+
 #ifdef CONFIG_MLX5_CORE_EN
 	mlx5e_cleanup();
 #endif
