@@ -2707,11 +2707,6 @@ int mlx5_devlink_eswitch_mode_set(struct devlink *devlink, u16 mode,
 	if (atomic_inc_return(&esw->handler.in_progress) > 1)
 		return -EBUSY;
 
-	if (mlx5_core_max_sfs(dev) != mlx5_get_free_sfs(dev)) {
-		esw_warn(dev, "mdevs/sfs active - remove them first.\n");
-		return -EINVAL;
-	}
-
 	if (mode == DEVLINK_ESWITCH_MODE_SWITCHDEV)
 		return esw_offloads_start(esw, extack);
 	else if (mode == DEVLINK_ESWITCH_MODE_LEGACY)
