@@ -949,6 +949,48 @@ static int mlx5_core_set_issi(struct mlx5_core_dev *dev)
 	return -EOPNOTSUPP;
 }
 
+static ssize_t mlx5_roce_enable_show_enabled(struct device *device,
+					     struct device_attribute *attr,
+					     char *buf)
+{
+	struct pci_dev *pdev = container_of(device, struct pci_dev, dev);
+	struct mlx5_core_dev *dev = pci_get_drvdata(pdev);
+	int ret;
+
+	mutex_lock(&dev->roce.state_lock);
+	ret = dev->roce.enabled;
+	mutex_unlock(&dev->roce.state_lock);
+
+	return sprintf(buf, "%d\n", ret);
+}
+
+static ssize_t mlx5_roce_enable_set_enabled(struct device *device,
+					    struct device_attribute *attr,
+					    const char *buf, size_t count)
+{
+	struct pci_dev *pdev = container_of(device, struct pci_dev, dev);
+	struct mlx5_core_dev *dev = pci_get_drvdata(pdev);
+	int ret;
+	bool val;
+
+	ret = kstrtobool(buf, &val);
+	if (ret)
+		return -EINVAL;
+
+	mutex_lock(&dev->roce.state_lock);
+	dev->roce.enabled = val;
+	mlx5_reload_interface(dev, MLX5_INTERFACE_PROTOCOL_IB);
+	mutex_unlock(&dev->roce.state_lock);
+
+	return count;
+}
+
+static DEVICE_ATTR(roce_enable, 0644, mlx5_roce_enable_show_enabled,
+		   mlx5_roce_enable_set_enabled);
+
+static struct device_attribute *mlx5_roce_enable_dev_attrs =
+	&dev_attr_roce_enable;
+
 static int mlx5_pci_init(struct mlx5_core_dev *dev, struct pci_dev *pdev,
 			 const struct pci_device_id *id)
 {
@@ -964,7 +1006,7 @@ static int mlx5_pci_init(struct mlx5_core_dev *dev, struct pci_dev *pdev,
 	err = mlx5_pci_enable_device(dev);
 	if (err) {
 		mlx5_core_err(dev, "Cannot enable PCI device, aborting\n");
-		return err;
+		goto err_file;
 	}
 
 	err = request_bar(pdev);
@@ -1009,6 +1051,8 @@ err_clr_master:
 	release_bar(dev->pdev);
 err_disable:
 	mlx5_pci_disable_device(dev);
+err_file:
+	device_remove_file(&pdev->dev, mlx5_roce_enable_dev_attrs);
 	return err;
 }
 
@@ -1018,6 +1062,7 @@ static void mlx5_pci_close(struct mlx5_core_dev *dev)
 	pci_clear_master(dev->pdev);
 	release_bar(dev->pdev);
 	mlx5_pci_disable_device(dev);
+	device_remove_file(&dev->pdev->dev, mlx5_roce_enable_dev_attrs);
 }
 
 static int mlx5_init_once(struct mlx5_core_dev *dev)
@@ -1962,48 +2007,6 @@ static void mlx5_as_notify_init(struct mlx5_core_dev *dev)
 #ifdef HAVE_PNV_PCI_AS_NOTIFY
 static void mlx5_as_notify_cleanup(struct mlx5_core_dev *dev) { }
 #endif
-
-static ssize_t mlx5_roce_enable_show_enabled(struct device *device,
-					     struct device_attribute *attr,
-					     char *buf)
-{
-	struct pci_dev *pdev = container_of(device, struct pci_dev, dev);
-	struct mlx5_core_dev *dev = pci_get_drvdata(pdev);
-	int ret;
-
-	mutex_lock(&dev->roce.state_lock);
-	ret = dev->roce.enabled;
-	mutex_unlock(&dev->roce.state_lock);
-
-	return sprintf(buf, "%d\n", ret);
-}
-
-static ssize_t mlx5_roce_enable_set_enabled(struct device *device,
-					    struct device_attribute *attr,
-					    const char *buf, size_t count)
-{
-	struct pci_dev *pdev = container_of(device, struct pci_dev, dev);
-	struct mlx5_core_dev *dev = pci_get_drvdata(pdev);
-	int ret;
-	bool val;
-
-	ret = kstrtobool(buf, &val);
-	if (ret)
-		return -EINVAL;
-
-	mutex_lock(&dev->roce.state_lock);
-	dev->roce.enabled = val;
-	mlx5_reload_interface(dev, MLX5_INTERFACE_PROTOCOL_IB);
-	mutex_unlock(&dev->roce.state_lock);
-
-	return count;
-}
-
-static DEVICE_ATTR(roce_enable, 0644, mlx5_roce_enable_show_enabled,
-		   mlx5_roce_enable_set_enabled);
-
-static struct device_attribute *mlx5_roce_enable_dev_attrs =
-	&dev_attr_roce_enable;
 
 
 #define MLX5_IB_MOD "mlx5_ib"
