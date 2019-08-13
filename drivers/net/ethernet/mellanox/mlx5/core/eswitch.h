@@ -306,8 +306,8 @@ struct mlx5_eswitch {
 	struct mlx5_smart_nic_sysfs smart_nic_sysfs;
 };
 
-void esw_offloads_cleanup(struct mlx5_eswitch *esw);
-int esw_offloads_init(struct mlx5_eswitch *esw);
+void esw_offloads_disable(struct mlx5_eswitch *esw);
+int esw_offloads_enable(struct mlx5_eswitch *esw);
 void esw_offloads_cleanup_reps(struct mlx5_eswitch *esw);
 int esw_offloads_init_reps(struct mlx5_eswitch *esw);
 void esw_vport_cleanup_ingress_rules(struct mlx5_eswitch *esw,
