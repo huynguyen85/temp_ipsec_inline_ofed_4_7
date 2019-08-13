@@ -2527,7 +2527,7 @@ int esw_offloads_enable(struct mlx5_eswitch *esw)
 	esw_offloads_devcom_init(esw);
 
 	mlx5_rdma_enable_roce(esw->dev);
-
+	mlx5_meddev_init(esw->dev);
 	return 0;
 
 err_reps:
@@ -2541,7 +2541,12 @@ err_vport_metadata:
 static int esw_offloads_stop_imp(struct mlx5_eswitch *esw,
 				 struct netlink_ext_ack *extack)
 {
+	bool can_cleanup;
 	int err, err1;
+
+	can_cleanup = mlx5_medev_can_and_mark_cleanup(esw->dev);
+	if (!can_cleanup)
+		return -EBUSY;
 
 	mlx5_lag_disable(esw->dev);
 	mlx5_eswitch_disable(esw);
@@ -2583,6 +2588,7 @@ static int esw_offloads_stop(struct mlx5_eswitch *esw,
 
 void esw_offloads_disable(struct mlx5_eswitch *esw)
 {
+	mlx5_meddev_cleanup(esw->dev);
 	mlx5_rdma_disable_roce(esw->dev);
 	esw_offloads_devcom_cleanup(esw);
 	esw_offloads_unload_all_reps(esw);

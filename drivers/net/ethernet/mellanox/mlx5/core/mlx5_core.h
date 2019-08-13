@@ -408,6 +408,28 @@ enum {
 
 u8 mlx5_get_nic_mode(struct mlx5_core_dev *dev);
 void mlx5_set_nic_state(struct mlx5_core_dev *dev, u8 state);
+
+#ifdef CONFIG_MLX5_MDEV
+void mlx5_meddev_init(struct mlx5_core_dev *dev);
+void mlx5_meddev_cleanup(struct mlx5_core_dev *dev);
+bool mlx5_medev_can_and_mark_cleanup(struct mlx5_core_dev *dev);
+#else
+static inline void mlx5_meddev_init(struct mlx5_core_dev *dev)
+{
+}
+
+static inline void mlx5_meddev_cleanup(struct mlx5_core_dev *dev)
+{
+}
+
+static inline bool mlx5_medev_can_and_mark_cleanup(struct mlx5_core_dev *dev)
+{
+	return true;
+}
+#endif
+
+struct mlx5_core_dev *mlx5_get_core_dev(const struct device *dev);
+
 void mlx5_pcie_print_link_status(struct mlx5_core_dev *dev);
 
 int set_tunneled_operation(struct mlx5_core_dev *mdev,
@@ -418,18 +440,6 @@ int set_tunneled_operation(struct mlx5_core_dev *mdev,
 #ifdef CONFIG_MLX5_MDEV
 struct mlx5_sf;
 
-u16 mlx5_core_max_sfs(const struct mlx5_core_dev *dev);
-u16 mlx5_get_free_sfs(struct mlx5_core_dev *dev);
 int mlx5_sf_get_mac(struct mlx5_sf *sf, u8 *mac);
-#else
-static inline u16 mlx5_core_max_sfs(const struct mlx5_core_dev *dev)
-{
-	        return 0;
-}
-
-static inline u16 mlx5_get_free_sfs(struct mlx5_core_dev *dev)
-{
-	        return 0;
-}
 #endif
 #endif /* __MLX5_CORE_H__ */

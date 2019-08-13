@@ -271,6 +271,8 @@ enum {
 	MLX5_ESWITCH_VPORT_MATCH_METADATA = BIT(0),
 };
 
+struct mlx5_mdev_table;
+
 struct mlx5_eswitch {
 	struct mlx5_core_dev    *dev;
 	struct mlx5_nb          nb;
@@ -302,6 +304,9 @@ struct mlx5_eswitch {
 	u16                     manager_vport;
 	u16                     first_host_vport;
 	struct mlx5_esw_functions esw_funcs;
+#ifdef CONFIG_MLX5_MDEV
+	struct mlx5_mdev_table *mdev_table;
+#endif
 	struct mlx5_esw_handler	handler;
 	struct mlx5_smart_nic_sysfs smart_nic_sysfs;
 };
