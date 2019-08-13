@@ -504,7 +504,7 @@ bool mlx5_esw_lag_prereq(struct mlx5_core_dev *dev0,
 bool mlx5_esw_multipath_prereq(struct mlx5_core_dev *dev0,
 			       struct mlx5_core_dev *dev1);
 
-int mlx5_esw_query_functions(struct mlx5_core_dev *dev, u32 *out, int outlen);
+const u32 *mlx5_esw_query_functions(struct mlx5_core_dev *dev);
 
 #define MLX5_DEBUG_ESWITCH_MASK BIT(3)
 
@@ -736,10 +736,9 @@ static inline int  mlx5_eswitch_enable(struct mlx5_eswitch *esw, int mode) { ret
 static inline void mlx5_eswitch_disable(struct mlx5_eswitch *esw) {}
 static inline bool mlx5_esw_lag_prereq(struct mlx5_core_dev *dev0, struct mlx5_core_dev *dev1) { return true; }
 static inline bool mlx5_eswitch_is_funcs_handler(struct mlx5_core_dev *dev) { return false; }
-static inline int
-mlx5_esw_query_functions(struct mlx5_core_dev *dev, u32 *out, int outlen)
+static inline const u32 *mlx5_esw_query_functions(struct mlx5_core_dev *dev)
 {
-	return -EOPNOTSUPP;
+	return ERR_PTR(-EOPNOTSUPP);
 }
 
 static inline u16 mlx5_eswitch_max_sfs(const struct mlx5_core_dev *dev)
