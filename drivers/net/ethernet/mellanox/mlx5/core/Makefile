@@ -60,3 +60,8 @@ mlx5_core-$(CONFIG_MLX5_EN_IPSEC) += en_accel/ipsec.o en_accel/ipsec_rxtx.o \
 				     en_accel/ipsec_stats.o
 
 mlx5_core-$(CONFIG_MLX5_EN_TLS) += en_accel/tls.o en_accel/tls_rxtx.o en_accel/tls_stats.o
+
+#
+# Mdev basic
+#
+mlx5_core-$(CONFIG_MLX5_MDEV) += meddev/sf.o
