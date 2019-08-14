@@ -62,3 +62,4 @@ Change-Id=Iee35b4d45b07e556301009fa60b76dd4f0824319; subject=net/mlx5: Avoid tou
 Change-Id=Ie18ad79cd7d6aacf7ceee064f443c5c795d96942; subject=net/mlx5: Implement mac address setting for SF vport; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=I6e0df14a3225d69ceaf1ce25829de22ef0312b35; subject=net/mlx5: Correctly add query for mac address; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=Iadefd69f9dfd76e4c844779d9a636b36f2cf51e1; subject=net/mlx5: Expose rep netdevice name for the mdev representor; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I0f379a619151cdf2b8ec62b952c05cfbb64a8c78; subject=net/mlx5: Fix merge error; feature=mlx5_sfs; upstream_status=in_progress; general=;

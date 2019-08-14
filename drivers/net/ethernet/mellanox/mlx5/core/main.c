@@ -1951,6 +1951,8 @@ int mlx5_mdev_init(struct mlx5_core_dev *dev, int profile_idx)
 	if (err)
 		goto err_pagealloc_init;
 
+	return 0;
+
 err_pagealloc_init:
 	mlx5_health_cleanup(dev);
 err_health_init:
