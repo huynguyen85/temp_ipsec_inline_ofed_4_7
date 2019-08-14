@@ -51,3 +51,4 @@ Change-Id=I6e399abd4130c9464c96b66a444e0901440f4e33; subject=Revert "net/mlx5e: 
 Change-Id=Ib9ace23498f7b06fd4fd0ab06f72ccf773bac5a1; subject=net/mlx5e: Fix out of memory when setting jumbo frames; feature=mlx5_en_bugs; upstream_status=ignore; general=;
 Change-Id=I4a5157a98d4a0089dbc2b7e92dc0bb1ce4fc7327; subject=Revert "net/mlx5e: Fix out of memory when setting jumbo frames"; feature=mlx5_en_bugs; upstream_status=ignore; general=;
 Change-Id=I773cf7452a2bd7fd43dcebd3ecc85f042a90007b; subject=net/mlx5e: Fix out of memory when setting jumbo frames; feature=mlx5_en_bugs; upstream_status=NA; general=;
+Change-Id=Ia6696e60f87b4c551b09639383de832cc97ff7d1; subject=net/mlx5: Support inner header match criteria for non decap flow action; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;

@@ -52,3 +52,11 @@ Change-Id=Iddaa055bc3e5090354763dcab675b6017ed960c8; subject=net/mlx5: Add IFC b
 Change-Id=I28890b56d45b9b373ec0a148efe86b623023a93d; subject=net/mlx5: E-Switch, Refactor send to vport to be more generic; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
 Change-Id=I826fb20ffcdf647c12fa8457be47c0addde1e235; subject=net/mlx5: Add send to vport rules on paired device; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
 Change-Id=I02e47e0f63e80a8938313ec5a5a394de8e07350b; subject=net/mlx5: E-Switch, base logic for single FDB; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I24cda925be11bf00df7f5be9f21caca61d8b3710; subject=net/mlx5: Update FDB root in single FDB; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=Ib9621a4200c8512f5b4498dd6ebdb3d36fca9dc7; subject=net/mlx5: Add core lag single fdb logic; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I5a28457a0e346938a843d56bfc2d905c64ea382e; subject=net/mlx5: Make sure we add/remove lag with proper locking; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I11c2df1ae33503a19d194c6c28a15445f2d3df42; subject=net/mlx5: Manage ldev with kref; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=Ib3d69e43c611f8023c3b224c64418626228a54e0; subject=RDMA/mlx5: Add single FDB IB device support; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=Ibc87ef1371fecd5683a3c0cddb316b3849a091de; subject=RDMA/mlx5: Add devx query IB port; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I815947aa7672af816593d31a2deaff5737f4add5; subject=net/mlx5e: Build tc to tx mapping; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I4e83253f636cf7f125db28385cfd23b7d67c2153; subject=net/mlx5: Make sure we put ldev even if lag is active; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;

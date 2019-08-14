@@ -6,3 +6,4 @@ Change-Id=Ie9f8d843b3e1773ccb841374b2cf1e22992d8eb9; subject=net/mlx5e: Make RX-
 Change-Id=I2ffd23af8d6a3052c7e3b67e23aedf71c71ae74d; subject=net/mlx5: Fix enabling spoofchk on VF in VST mode steering; feature=mlx5_qinq_vst; upstream_status=NA; general=;
 Change-Id=If6845863478a67f960648a1cfcfb6aad60725ea3; subject=memtrack: Fix definition of alloc_workqueue; feature=memtrack_bugs; upstream_status=NA; general=;
 Change-Id=I0c16a0957999ea86325e11c0cf7f42a8a9fb2dbc; subject=memtrack: Fix memtrack warnings that break compilation with gcc 7+.; feature=memtrack_bugs; upstream_status=NA; general=;
+Change-Id=Ib2a23e8a44d9e703ff3eafec1c33302446c67879; subject=metadata: Add MD for last mlx5_single_fdb_lag commits; feature=ofed_scripts; upstream_status=ignore; general=;
