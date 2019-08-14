@@ -112,14 +112,6 @@ void mlx5e_init_rq_type_params(struct mlx5_core_dev *mdev,
 		MLX5E_PARAMS_MINIMUM_LOG_RQ_SIZE :
 		MLX5E_PARAMS_DEFAULT_LOG_RQ_SIZE;
 
-#ifdef CONFIG_PPC64
-#define MLX5E_PARAMS_MAX_LOG_RQ_SIZE_NO_DDW 9
-	/* If ddw is not enabled, set ring size to 512 */
-	if (!phys_to_dma(mdev->device, 0) &&
-	    (params->log_rq_mtu_frames > MLX5E_PARAMS_MAX_LOG_RQ_SIZE_NO_DDW))
-		params->log_rq_mtu_frames = MLX5E_PARAMS_MAX_LOG_RQ_SIZE_NO_DDW;
-#endif
-
 	mlx5_core_info(mdev, "MLX5E: StrdRq(%d) RqSz(%ld) StrdSz(%ld) RxCqeCmprss(%d)\n",
 		       params->rq_wq_type == MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ,
 		       params->rq_wq_type == MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ ?
