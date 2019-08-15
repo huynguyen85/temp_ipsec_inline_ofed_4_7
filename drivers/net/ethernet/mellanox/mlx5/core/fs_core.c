@@ -2078,16 +2078,6 @@ void mlx5_del_flow_rules(struct mlx5_flow_handle *handle)
 	 */
 	fs_get_obj(fte, handle->rule[0]->node.parent);
 	down_write_ref_node(&fte->node, false);
-	for (i = handle->num_rules - 1; i >= 0; i--)
-		tree_remove_node(&handle->rule[i]->node, true);
-	if (fte->modify_mask && fte->dests_size) {
-		modify_fte(fte);
-		up_write_ref_node(&fte->node, false);
-	} else {
-		del_hw_fte(&fte->node);
-		up_write(&fte->node.lock);
-		tree_put_node(&fte->node, false);
-	}
 	for (i = handle->num_rules - 1; i >= 0; i--) {
 		rule = handle->rule[i];
 		ns = get_ns(&rule->node);
@@ -2098,10 +2088,19 @@ void mlx5_del_flow_rules(struct mlx5_flow_handle *handle)
 		if (atomic_read(&rule->users_refcount) == 0)
 			complete(&rule->complete);
 		wait_for_completion(&rule->complete);
-		tree_remove_node(&rule->node, false);
+		tree_remove_node(&rule->node, true);
 		if (ns)
 			up_read(&ns->ns_rw_sem);
 	}
+	if (fte->modify_mask && fte->dests_size) {
+		modify_fte(fte);
+		up_write_ref_node(&fte->node, false);
+	} else {
+		del_hw_fte(&fte->node);
+		up_write(&fte->node.lock);
+		tree_put_node(&fte->node, false);
+	}
+
 	kfree(handle);
 }
 EXPORT_SYMBOL(mlx5_del_flow_rules);
