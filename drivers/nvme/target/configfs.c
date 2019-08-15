@@ -345,6 +345,39 @@ static ssize_t nvmet_param_offload_queues_store(struct config_item *item,
 
 CONFIGFS_ATTR(nvmet_, param_offload_queues);
 
+static ssize_t nvmet_param_offload_srq_size_show(struct config_item *item,
+		char *page)
+{
+	struct nvmet_port *port = to_nvmet_port(item);
+
+	return snprintf(page, PAGE_SIZE, "%zu\n", port->offload_srq_size);
+}
+
+static ssize_t nvmet_param_offload_srq_size_store(struct config_item *item,
+		const char *page, size_t count)
+{
+	struct nvmet_port *port = to_nvmet_port(item);
+	u32 offload_srq_size;
+	int ret;
+
+	if (port->enabled) {
+		pr_err("Cannot modify offload_srq_size while enabled\n");
+		pr_err("Disable the port before modifying\n");
+		return -EACCES;
+	}
+
+	ret = kstrtou32(page, 0, &offload_srq_size);
+	if (ret || offload_srq_size < 256) {
+		pr_err("Invalid value '%s' for offload_srq_size, should >= 256\n", page);
+		return -EINVAL;
+	}
+	port->offload_srq_size = offload_srq_size;
+
+	return count;
+}
+
+CONFIGFS_ATTR(nvmet_, param_offload_srq_size);
+
 /*
  * Namespace structures & file operation functions below
  */
@@ -1435,6 +1468,7 @@ static struct configfs_attribute *nvmet_port_attrs[] = {
 	&nvmet_attr_addr_tractive,
 	&nvmet_attr_param_inline_data_size,
 	&nvmet_attr_param_offload_queues,
+	&nvmet_attr_param_offload_srq_size,
 	NULL,
 };
 
@@ -1483,6 +1517,7 @@ static struct config_group *nvmet_ports_make(struct config_group *group,
 	INIT_LIST_HEAD(&port->referrals);
 	port->inline_data_size = -1;	/* < 0 == let the transport choose */
 	port->offload_queues = 1;
+	port->offload_srq_size = 1024;
 
 	port->disc_addr.portid = cpu_to_le16(portid);
 	port->disc_addr.treq = NVMF_TREQ_DISABLE_SQFLOW;

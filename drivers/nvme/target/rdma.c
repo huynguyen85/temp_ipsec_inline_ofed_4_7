@@ -1011,6 +1011,13 @@ nvmet_rdma_find_get_device(struct rdma_cm_id *cm_id)
 	ndev->device = cm_id->device;
 	kref_init(&ndev->ref);
 
+	if (nport->offload_srq_size > ndev->device->attrs.max_srq_wr) {
+		pr_warn("offload_srq_size %zu cannot be supported by device %s. Reducing to %d.\n",
+			nport->offload_srq_size, cm_id->device->name,
+			ndev->device->attrs.max_srq_wr);
+		nport->offload_srq_size = ndev->device->attrs.max_srq_wr;
+	}
+
 	ndev->pd = ib_alloc_pd(ndev->device, 0);
 	if (IS_ERR(ndev->pd))
 		goto out_free_dev;
