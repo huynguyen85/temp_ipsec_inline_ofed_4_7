@@ -392,7 +392,8 @@ struct uapi_definition {
 #define DECLARE_UVERBS_OBJECT(_object_id, ...)                                 \
 	{                                                                      \
 		.kind = UAPI_DEF_OBJECT_START,                                 \
-		.object_start = { .object_id = _object_id },                   \
+		.scope = 0,                                 \
+		{ .object_start = { .object_id = _object_id } },                   \
 	},                                                                     \
 		##__VA_ARGS__
 
@@ -401,9 +402,9 @@ struct uapi_definition {
 	{                                                                      \
 		.kind = UAPI_DEF_WRITE,                                        \
 		.scope = UAPI_SCOPE_OBJECT,                                    \
-		.write = { .is_ex = 0, .command_num = _command_num },          \
-		.func_write = _func,                                           \
-		_cmd_desc,                                                     \
+		{ .write = { .is_ex = 0, .command_num = _command_num } ,          \
+		 _cmd_desc },                                                     \
+		{ .func_write = _func },                                           \
 	},                                                                     \
 		##__VA_ARGS__
 
@@ -412,9 +413,9 @@ struct uapi_definition {
 	{                                                                      \
 		.kind = UAPI_DEF_WRITE,                                        \
 		.scope = UAPI_SCOPE_OBJECT,                                    \
-		.write = { .is_ex = 1, .command_num = _command_num },          \
-		.func_write = _func,                                           \
-		_cmd_desc,                                                     \
+		{ .write = { .is_ex = 1, .command_num = _command_num } ,          \
+		_cmd_desc } ,                                                     \
+		{ .func_write = _func },                                           \
 	},                                                                     \
 		##__VA_ARGS__
 
@@ -423,9 +424,9 @@ struct uapi_definition {
 	{                                                                      \
 		.kind = UAPI_DEF_WRITE,                                        \
 		.scope = UAPI_SCOPE_OBJECT,                                    \
-		.write = { .is_exp = 1, .command_num = _command_num },          \
-		.func_write = _func,                                           \
-		_cmd_desc,                                                     \
+		{ .write = { .is_exp = 1, .command_num = _command_num } ,          \
+		_cmd_desc },                                                     \
+		{ .func_write = _func },                                           \
 	},                                                                     \
 		##__VA_ARGS__
 
@@ -437,11 +438,14 @@ struct uapi_definition {
 	{                                                                      \
 		.kind = UAPI_DEF_IS_SUPPORTED_DEV_FN,                          \
 		.scope = UAPI_SCOPE_OBJECT,                                    \
-		.needs_fn_offset =                                             \
+		{ .object_start = { .object_id = 0 } },                   \
+		{								\
+			.needs_fn_offset =                                             \
 			offsetof(struct ib_device_ops, ibdev_fn) +             \
 			BUILD_BUG_ON_ZERO(                                     \
 			    sizeof(((struct ib_device_ops *)0)->ibdev_fn) !=   \
-			    sizeof(void *)),				       \
+			    sizeof(void *))				       \
+		},								\
 	}
 
 /*
@@ -452,32 +456,41 @@ struct uapi_definition {
 	{                                                                      \
 		.kind = UAPI_DEF_IS_SUPPORTED_DEV_FN,                          \
 		.scope = UAPI_SCOPE_METHOD,                                    \
-		.needs_fn_offset =                                             \
-			offsetof(struct ib_device_ops, ibdev_fn) +             \
-			BUILD_BUG_ON_ZERO(                                     \
-			    sizeof(((struct ib_device_ops *)0)->ibdev_fn) !=   \
-			    sizeof(void *)),                                   \
+		{ .object_start = { .object_id = 0 } },                   \
+		{								\
+			.needs_fn_offset =                                             \
+				offsetof(struct ib_device_ops, ibdev_fn) +             \
+				BUILD_BUG_ON_ZERO(                                     \
+				    sizeof(((struct ib_device_ops *)0)->ibdev_fn) !=   \
+				    sizeof(void *))					\
+		},                                   \
 	}
 
 /* Call a function to determine if the entire object is supported or not */
 #define UAPI_DEF_IS_OBJ_SUPPORTED(_func)                                       \
 	{                                                                      \
 		.kind = UAPI_DEF_IS_SUPPORTED_FUNC,                            \
-		.scope = UAPI_SCOPE_OBJECT, .func_is_supported = _func,        \
+		.scope = UAPI_SCOPE_OBJECT,					\
+		{ .object_start = { .object_id = 0 } },                   \
+		{ .func_is_supported = _func },        \
 	}
 
 /* Include another struct uapi_definition in this one */
 #define UAPI_DEF_CHAIN(_def_var)                                               \
 	{                                                                      \
-		.kind = UAPI_DEF_CHAIN, .chain = _def_var,                     \
+		.kind = UAPI_DEF_CHAIN,						\
+		.scope = 0,                               \
+		{ .object_start = { .object_id = 0 } },                   \
+		{ .chain = _def_var } ,                     \
 	}
 
 /* Temporary until the tree base description is replaced */
 #define UAPI_DEF_CHAIN_OBJ_TREE(_object_enum, _object_ptr, ...)                \
 	{                                                                      \
 		.kind = UAPI_DEF_CHAIN_OBJ_TREE,                               \
-		.object_start = { .object_id = _object_enum },                 \
-		.chain_obj_tree = _object_ptr,                                 \
+		.scope = 0,                               \
+		{ .object_start = { .object_id = _object_enum } },                 \
+		{ .chain_obj_tree = _object_ptr },                                 \
 	},								       \
 		##__VA_ARGS__
 #define UAPI_DEF_CHAIN_OBJ_TREE_NAMED(_object_enum, ...)                       \
