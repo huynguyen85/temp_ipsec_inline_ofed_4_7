@@ -110,6 +110,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if linux/pagemap.h has release_pages ])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/pagemap.h>
+	],[
+		release_pages(NULL, 0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_RELEASE_PAGES, 1,
+			[release_pages is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if linux/mm.h has get_user_pages_longterm])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/mm.h>
@@ -253,6 +268,18 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_PERENT_OPERATIONS_ID, 1,
 		[pernet_operations_id is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if TO IMPLEMENT])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+	],[
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_PERENT_XA, 1,
+		[TO IMPLEMENT is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])
@@ -4876,6 +4903,66 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if netlink.h has nla_nest_start_noflag])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/netlink.h>
+	],[
+		nla_nest_start_noflag(NULL, 0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_NLA_NEST_START_NOFLAG, 1,
+			  [nla_nest_start_noflag exist])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if netlink.h has nlmsg_validate_deprecated ])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/netlink.h>
+	],[
+		nlmsg_validate_deprecated(NULL, 0, 0, NULL, NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_NLMSG_VALIDATE_DEPRECATED, 1,
+			  [nlmsg_validate_deprecated exist])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if netlink.h has nlmsg_parse_deprecated ])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/netlink.h>
+	],[
+		nlmsg_parse_deprecated(NULL, 0, NULL, 0, NULL, NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_NLMSG_PARSE_DEPRECATED, 1,
+			  [nlmsg_parse_deprecated exist])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if netlink.h has nla_parse_deprecated ])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/netlink.h>
+	],[
+		nla_parse_deprecated(NULL, 0, NULL, 0, NULL, NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_NLA_PARSE_DEPRECATED, 1,
+			  [nla_parse_deprecated exist])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if netlink.h nla_parse takes 6 parameters])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/netlink.h>
@@ -5699,6 +5786,38 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if vm_fault_t exist in mm_types.h])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/mm_types.h>
+	],[
+		vm_fault_t a;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_VM_FAULT_T, 1,
+			  [vm_fault_t is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if struct mm_struct has member atomic_pinned_vm])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/mm_types.h>
+	],[
+		struct mm_struct x;
+                atomic64_t y;
+		x.pinned_vm = y;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_ATOMIC_PINNED_VM, 1,
+			  [atomic_pinned_vm is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if struct mm_struct has member pinned_vm])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/mm_types.h>
@@ -5786,6 +5905,23 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_PDE_DATA, 1,
 			  [PDE_DATA is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if route.h struct rtable has member rt_gw_family])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/route.h>
+	],[
+		struct rtable x = {
+			.rt_gw_family = 0,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_RT_GW_FAMILY, 1,
+			  [rt_gw_family is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])
@@ -6631,6 +6767,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if xarray is defined])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/xarray.h>
+	],[
+                struct xa_limit x;
+		
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_XARRAY, 1,
+			  [xa_array is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if nospec.h has array_index_nospec])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/nospec.h>
@@ -6645,8 +6796,23 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	],[
 		AC_MSG_RESULT(no)
 	])
-	AC_MSG_CHECKING([if idr.h has ida_alloc_max])
 
+	AC_MSG_CHECKING([if idr.h has ida_alloc])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/idr.h>
+	],[
+		ida_alloc(NULL, 0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IDA_ALLOC, 1,
+			  [ida_alloc is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if idr.h has ida_alloc_max])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/idr.h>
 	],[
@@ -6655,7 +6821,7 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		return 0;
 	],[
 		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_IDA_ALLOC, 1,
+		MLNX_AC_DEFINE(HAVE_IDA_ALLOC_MAX, 1,
 			  [ida_alloc_max is defined])
 	],[
 		AC_MSG_RESULT(no)
@@ -7079,6 +7245,19 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if net/ipv6_stubs.h exists])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+                #include <net/ipv6_stubs.h>
+	],[
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IPV6_STUBS, 1,
+			  [net/ipv6_stubs.h exists])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if net/flow_keys.h exists])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/skbuff.h>
@@ -7207,6 +7386,36 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_GET_USER_PAGES_8_PARAMS, 1,
 			[get_user_pages has 8 params])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if mm.h has get_user_pages_longterm])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/mm.h>
+	],[
+		get_user_pages_longterm( 0, 0, 0, NULL, NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_GET_USER_PAGES_LONGTERM, 1,
+			[get_user_pages has 5 params])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if mm.h has FOLL_LONGTERM])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/mm.h>
+	],[
+		int x = FOLL_LONGTERM;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_FOLL_LONGTERM, 1,
+			[FOLL_LONGTERM is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])
@@ -10554,6 +10763,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if mmu_notifier.h has mmu_notifier_range_blockable])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/mmu_notifier.h>
+	],[
+                const struct mmu_notifier_range *range;
+
+		mmu_notifier_range_blockable(range);
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_MMU_NOTIFIER_RANGE_BLOCKABLE, 1,
+			  [mmu_notifier_range_blockable defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
 
 	AC_MSG_CHECKING([if ib_umem_notifier_invalidate_range_start get struct mmu_notifier_range ])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
@@ -10810,6 +11034,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	],[
 		AC_MSG_RESULT(no)
 	])
+
+	AC_MSG_CHECKING([if fs.h has stream_open])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/fs.h>
+	],[
+		stream_open(NULL, NULL);
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_STREAM_OPEN, 1,
+			[fs.h has stream_open])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 
 	AC_MSG_CHECKING([if vfs_getattr has 4 params])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
@@ -11863,6 +12102,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_QUEUE_FLAG_PCI_P2PDMA, 1,
 			[QUEUE_FLAG_PCI_P2PDMA is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if mm.h has mmget_still_valid])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sched/mm.h>
+	],[
+		mmget_still_valid(NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_MMGET_STILL_VALID, 1,
+			[mmget_still_valid is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])

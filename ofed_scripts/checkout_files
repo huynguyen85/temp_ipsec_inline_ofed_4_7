@@ -37,3 +37,5 @@ block/blk-mq-rdma.c
 include/linux/net_dim.h
 include/linux/lightnvm.h
 include/linux/mdev.h
+include/trace/events/ib_umad.h
+include/trace/events/ib_mad.h
