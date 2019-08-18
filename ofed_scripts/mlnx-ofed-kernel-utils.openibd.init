@@ -1418,31 +1418,22 @@ stop()
                 done
             fi
 
-            if is_module ib_isert; then
-                cannot_continue=1
-                blocking_modules="${blocking_modules} ib_isert"
-                echo "Please close all isert sessions and unload 'ib_isert' module."
-            fi
-
-            if is_module nvme_rdma; then
-                cannot_continue=1
-                blocking_modules="${blocking_modules} nvme_rdma"
-                echo "Please close all nvme sessions and unload 'nvme_rdma' module."
-            fi
-
-            if is_module nvmet_rdma; then
-                cannot_continue=1
-                blocking_modules="${blocking_modules} nvmet_rdma"
-                echo "Please close all nvmet sessions and unload 'nvmet_rdma' module."
-            fi
-
-            # check other storage modules
-            for storage_mod in rpcrdma xprtrdma ib_srpt
-            do
-                if is_module ${storage_mod}; then
+            for mod in ib_isert nvme_rdma nvmet_rdma rpcrdma xprtrdma ib_srpt; do
+                if is_module $mod; then
+                    ref=`is_ref $mod`
+                    if [ "$ref" = 0 ]; then
+                        continue
+                    fi
                     cannot_continue=1
-                    blocking_modules="${blocking_modules} ${storage_mod}"
-                    echo "Please make sure module '${storage_mod}' is not in use and unload it."
+                    blocking_modules="${blocking_modules} $mod"
+                    case "$mod" in
+                    ib_isert) echo "Please close all isert sessions and unload 'ib_isert' module.";;
+                    nvme_rdma) echo "Please close all nvme sessions and unload 'nvme_rdma' module.";;
+                    nvmet_rdma) echo "Please close all nvmet sessions and unload 'nvmet_rdma' module.";;
+                    rpcrdma xprtrdma ib_srpt)
+                        echo "Please make sure module '$mod' is not in use and unload it."
+                        ;;
+                    esac
                 fi
             done
 
