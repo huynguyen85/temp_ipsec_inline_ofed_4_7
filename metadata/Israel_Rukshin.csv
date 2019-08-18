@@ -39,3 +39,8 @@ Change-Id=Iac925ffc51531661b8892fe57c431c449df7c60c; subject=RDMA/mlx5: Improve 
 Change-Id=I0e4512cebb4d6dfe0eafaa521b6009da986fe58c; subject=Revert "nvme-rdma: fix double free of qe's in reconnect/delete flows"; feature=nvmf_bugs; upstream_status=ignore; general=;
 Change-Id=Ifdaa2b4d21ef2e235c7fee9167aa762faf8ac497; subject=nvmet: Reduce offload SRQ size; feature=nvmf_offload; upstream_status=in_progress; general=;
 Change-Id=Ic56d98c31d5f2a53dbe87fc2959f8b7c59cfb9f2; subject=BACKPORTS: Add nvme backports; feature=backports; upstream_status=ignore; general=;
+Change-Id=I6be698d0e1e2ea1b09e8fce63bff02f49423acf8; subject=nvme-fabrics: Add type of service (TOS) configuration; feature=rebase; upstream_status=in_progress; general=;
+Change-Id=Ifefde435d9e6bd848a9f1f8edfb3e43c854be1f5; subject=nvme-rdma: Add TOS for rdma transport; feature=rebase; upstream_status=in_progress; general=;
+Change-Id=I8f7853b2c710e5de650ac8aee1c0b2b527e3cd27; subject=nvme-tcp: Use struct nvme_ctrl directly; feature=rebase; upstream_status=in_progress; general=;
+Change-Id=I9753eceb863a54623aba8a5339666fe2732aa2d9; subject=nvme-tcp: Add TOS for tcp transport; feature=rebase; upstream_status=in_progress; general=;
+Change-Id=Iaeb5f92de416c6a2e4110e6be58ab1b91612f427; subject=nvmet-tcp: Add TOS for tcp transport; feature=rebase; upstream_status=in_progress; general=;
