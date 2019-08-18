@@ -1,0 +1,33 @@
+From: Talat Batheesh <talatb@mellanox.com>
+Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
+
+Change-Id: Iec18e297e96ee83d4a7db4c65f0efa8d4589510f
+---
+ drivers/net/ethernet/mellanox/mlx5/core/miniflow.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c b/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
+index xxxxxxx..xxxxxxx 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
+@@ -740,7 +740,11 @@ static int miniflow_add_fdb_flow(struct mlx5e_priv *priv,
+ {
+ 	int err;
+ 
+-	err = mlx5e_tc_add_fdb_flow(priv, mflow, NULL);
++	err = mlx5e_tc_add_fdb_flow(priv, mflow
++#ifdef HAVE_TC_CLS_OFFLOAD_EXTACK
++		,NULL
++#endif
++	);
+ 	complete_all(&mflow->init_done);
+ 	if (err) {
+ 		inc_debug_counter(&nr_of_total_mf_err_fdb_add);
+@@ -1080,6 +1084,7 @@ static int miniflow_cache_get(void)
+ 	if (!miniflow_cache)
+ 		return -ENOMEM;
+ 
++#define __WQ_LEGACY (1 << 18)
+ 	miniflow_wq = alloc_workqueue("miniflow",
+ 				      __WQ_LEGACY | WQ_MEM_RECLAIM |
+ 				      WQ_UNBOUND | WQ_HIGHPRI | WQ_SYSFS, 16);

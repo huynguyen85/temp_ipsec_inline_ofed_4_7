@@ -1,0 +1,62 @@
+From: Talat Batheesh <talatb@mellanox.com>
+Subject: [PATCH] BACKPORT:
+ drivers/net/ethernet/mellanox/mlx5/core/miniflow_aging.c
+
+Change-Id: I0317ae29fe8b9d12d726e2fef71483d53ca067e8
+---
+ .../net/ethernet/mellanox/mlx5/core/miniflow_aging.c  | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/miniflow_aging.c b/drivers/net/ethernet/mellanox/mlx5/core/miniflow_aging.c
+index xxxxxxx..xxxxxxx 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/miniflow_aging.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/miniflow_aging.c
+@@ -1,6 +1,8 @@
+ // SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
+ /* Copyright (c) 2019 Mellanox Technologies. */
+ 
++#ifdef HAVE_MINIFLOW
++
+ #include <linux/workqueue.h>
+ #include <linux/spinlock.h>
+ #include <linux/rhashtable.h>
+@@ -9,7 +11,6 @@
+ 
+ #include "miniflow.h"
+ 
+-#ifdef HAVE_MINIFLOW
+ 
+ static unsigned int offloaded_ct_timeout = 30;
+ module_param(offloaded_ct_timeout, int, 0644);
+@@ -117,7 +118,11 @@ static void flow_offload_fixup_ct_state(struct nf_conn *ct)
+ 	if (l4num == IPPROTO_TCP)
+ 		flow_offload_fixup_tcp(&ct->proto.tcp);
+ 
++#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,19,0)
++	l4proto = __nf_ct_l4proto_find(nf_ct_l3num(ct), l4num);
++#else
+ 	l4proto = __nf_ct_l4proto_find(l4num);
++#endif
+ 	if (!l4proto)
+ 		return;
+ 
+@@ -128,7 +133,19 @@ static void flow_offload_fixup_ct_state(struct nf_conn *ct)
+ 	else
+ 		return;
+ 
++#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,0,0)
++	{
++		unsigned long newtime = _nfct_time_stamp + timeout;
++
++		/* Only update the timeout if the new timeout is at least
++		   HZ jiffies from the old timeout. Need del_timer for race
++		   avoidance (may already be dying). */
++		if (newtime - ct->timeout.expires >= HZ)
++			mod_timer_pending(&ct->timeout, newtime);
++	}
++#else
+ 	ct->timeout = _nfct_time_stamp + timeout;
++#endif
+ }
+ 
+ static void flow_offload_free(struct flow_offload *flow)

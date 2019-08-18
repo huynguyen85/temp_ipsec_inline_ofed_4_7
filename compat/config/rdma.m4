@@ -1200,6 +1200,23 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if struct ptp_clock_info has gettimex64])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/ptp_clock_kernel.h>
+	],[
+		struct ptp_clock_info info = {
+			..gettimex64 = NULL,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_GETTIMEX64, 1,
+			  [gettimex64 is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if struct ptp_clock_info has gettime])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/ptp_clock_kernel.h>
@@ -2008,6 +2025,29 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		#include <linux/netdevice.h>
 
 		static u16 select_queue(struct net_device *dev, struct sk_buff *skb,
+				        struct net_device *sb_dev)
+		{
+			return 0;
+		}
+	],[
+		struct net_device_ops ndops = {
+			.ndo_select_queue = select_queue,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(NDO_SELECT_QUEUE_HAS_3_PARMS_NO_FALLBACK, 1,
+			  [ndo_select_queue has 3 params with no fallback])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if ndo_select_queue has accel_priv])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/netdevice.h>
+
+		static u16 select_queue(struct net_device *dev, struct sk_buff *skb,
 				        void *accel_priv)
 		{
 			return 0;
@@ -2143,6 +2183,19 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(NDO_GETNUMTCS_RETURNS_INT, 1,
 			  [if getnumtcs returns int])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if include/linux/bits.h exists])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/bits.h>
+	],[
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_BITS_H, 1,
+			  [include/linux/bits.h exists])
 	],[
 		AC_MSG_RESULT(no)
 	])
@@ -5600,6 +5653,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_NETDEV_NOTIFIER_CHANGEUPPER_INFO, 1,
 			  [netdev_notifier_changeupper_info is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if build_bug.h has static_assert])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/build_bug.h>
+	],[
+                static_assert(0);
+
+                return 0;
+        ],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_STATIC_ASSERT, 1,
+			[build_bug.h has static_assert])
 	],[
 		AC_MSG_RESULT(no)
 	])

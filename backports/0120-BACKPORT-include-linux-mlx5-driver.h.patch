@@ -1,0 +1,42 @@
+From: Talat Batheesh <talatb@mellanox.com>
+Subject: [PATCH] BACKPORT: include/linux/mlx5/driver.h
+
+Change-Id: If205453569f232a2f5af33dcdc0a7acb33c0cd7b
+---
+ include/linux/mlx5/driver.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
+index xxxxxxx..xxxxxxx 100644
+--- a/include/linux/mlx5/driver.h
++++ b/include/linux/mlx5/driver.h
+@@ -543,8 +543,10 @@ struct mlx5_fc_pool {
+ };
+ 
+ struct mlx5_fc_stats {
++#if defined(HAVE_IDR_RT) || defined(HAVE_IDR_GET_NEXT_EXPORTED)
+ 	spinlock_t counters_idr_lock; /* protects counters_idr */
+ 	struct idr counters_idr;
++#endif
+ 	struct list_head counters;
+ 	struct llist_head addlist;
+ 	struct llist_head dellist;
+@@ -555,6 +557,9 @@ struct mlx5_fc_stats {
+ 	unsigned long sampling_interval; /* jiffies */
+ 	u32 *bulk_query_out;
+ 	struct mlx5_fc_pool fc_pool;
++#if (LINUX_VERSION_CODE <= KERNEL_VERSION(3,6,11))
++	char *fc_cache_name;
++#endif
+ };
+ 
+ struct mlx5_events;
+@@ -1037,7 +1042,7 @@ void mlx5_cmd_use_polling(struct mlx5_core_dev *dev);
+ struct mlx5_async_ctx {
+ 	struct mlx5_core_dev *dev;
+ 	atomic_t num_inflight;
+-	struct wait_queue_head wait;
++	wait_queue_head_t wait;
+ };
+ 
+ struct mlx5_async_work;

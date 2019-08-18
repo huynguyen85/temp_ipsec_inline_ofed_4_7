@@ -29,3 +29,4 @@ Change-Id=Ie594ae4dd00c1d7a70268892d17a21948ca1119d; subject=fixes: remove atomi
 Change-Id=Ia85c07cf896848f2bbd500b2b321d8cb1909dbed; subject=BACKPORT IB_CORE Till 4.14; feature=backports; upstream_status=ignore; general=;
 Change-Id=I83d241c23185d47a9e15948ac75fd62189f92b9d; subject=uverbs: Fix anonymous union initializers uverbs; feature=rebase; upstream_status=NA; general=;
 Change-Id=I80736012496affe48ad22e200e1120f39cc8318b; subject=net/mlx5: Remove redundunt line; feature=mlx5_core_bugs; upstream_status=NA; general=;
+Change-Id=Iaaeaa68c742e5ad352cd05f31eb86564766dd55c; subject=BACKPORT mlx5_core till 4.14; feature=backports; upstream_status=ignore; general=;

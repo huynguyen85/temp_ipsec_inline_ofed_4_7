@@ -4,6 +4,9 @@
 #include "../../compat/config.h"
 
 #include_next <net/vxlan.h>
+#ifndef IANA_VXLAN_UDP_PORT 
+#define IANA_VXLAN_UDP_PORT     4789
+#endif
 
 #ifndef HAVE_VXLAN_VNI_FIELD
 static inline __be32 vxlan_vni_field(__be32 vni)

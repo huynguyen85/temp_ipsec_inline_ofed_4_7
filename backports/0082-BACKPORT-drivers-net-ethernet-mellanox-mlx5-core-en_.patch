@@ -1,0 +1,40 @@
+From: Talat Batheesh <talatb@mellanox.com>
+Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
+
+Change-Id: Ic4a5a058d91c1d43e408598e0f6d1abce6007872
+---
+ drivers/net/ethernet/mellanox/mlx5/core/en_tx.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
+index xxxxxxx..xxxxxxx 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
+@@ -157,8 +157,27 @@ fallback:
+ }
+ #endif
+ 
++
++#ifdef NDO_SELECT_QUEUE_HAS_3_PARMS_NO_FALLBACK
+ u16 mlx5e_select_queue(struct net_device *dev, struct sk_buff *skb,
+ 		       struct net_device *sb_dev)
++
++#elif defined(NDO_SELECT_QUEUE_HAS_ACCEL_PRIV) || defined(HAVE_SELECT_QUEUE_FALLBACK_T)
++
++u16 mlx5e_select_queue(struct net_device *dev, struct sk_buff *skb,
++#ifdef HAVE_SELECT_QUEUE_FALLBACK_T
++#ifdef HAVE_SELECT_QUEUE_NET_DEVICE
++		       struct net_device *sb_dev,
++#else
++		       void *accel_priv,
++#endif /* HAVE_SELECT_QUEUE_NET_DEVICE */
++		       select_queue_fallback_t fallback)
++#else
++		       void *accel_priv)
++#endif
++#else /* NDO_SELECT_QUEUE_HAS_ACCEL_PRIV || HAVE_SELECT_QUEUE_FALLBACK_T */
++u16 mlx5e_select_queue(struct net_device *dev, struct sk_buff *skb)
++#endif
+ {
+ 	int txq_ix;
+ 	struct mlx5e_priv *priv = netdev_priv(dev);
