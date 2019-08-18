@@ -9,3 +9,4 @@ Change-Id=Id7c28914228e222cb7e5471e0c5867016451dc50; subject=net/mlx4: device LA
 Change-Id=I725673d2cdc01676ce6cab6a20f177a5b5ca75d5; subject=Add missing retpoline; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Iacd52e70a59fa913b3051e3538c161fa8eb9b85d; subject=openibd: unload storage modules if not in use; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Ia3142dbab411897a79453c03f2ae9fdbcdca959e; subject=openibd: deb: unload storage modules if not in use; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I4462bc4a1ab1c3555c70cbf2838f7943789a6397; subject=fixup! openibd: unload storage modules if not in use; feature=ofed_scripts; upstream_status=ignore; general=;

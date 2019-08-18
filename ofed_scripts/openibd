@@ -1657,8 +1657,8 @@ stop()
 
             for mod in ib_isert nvme_rdma nvmet_rdma rpcrdma xprtrdma ib_srpt; do
                 if is_module $mod; then
-                    ref=`is_ref $mod`
-                    if [ "$ref" = 0 ]; then
+                    if is_ref $mod; then
+                        # A misleading name. If we got here: refcnt=0
                         continue
                     fi
                     cannot_continue=1
@@ -1667,7 +1667,7 @@ stop()
                     ib_isert) echo "Please close all isert sessions and unload 'ib_isert' module.";;
                     nvme_rdma) echo "Please close all nvme sessions and unload 'nvme_rdma' module.";;
                     nvmet_rdma) echo "Please close all nvmet sessions and unload 'nvmet_rdma' module.";;
-                    rpcrdma xprtrdma ib_srpt)
+                    rpcrdma | xprtrdma | ib_srpt)
                         echo "Please make sure module '$mod' is not in use and unload it."
                         ;;
                     esac
