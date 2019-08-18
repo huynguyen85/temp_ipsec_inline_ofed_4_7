@@ -2050,6 +2050,29 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if ndo_select_queue has 3 parameters])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/netdevice.h>
+
+		u16 select_queue(struct net_device *dev, struct sk_buff *skb,
+		                 struct net_device *sb_dev)
+		{
+			return 0;
+		}
+	],[
+		struct net_device_ops ndops = {
+			.ndo_select_queue = select_queue,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_3_PARAMS_FOR_NDO_SELECT_QUEUE, 1,
+			  [.ndo_select_queue has 3 parameters])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if setapp returns int])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/netdevice.h>
@@ -5943,6 +5966,11 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	LB_CHECK_SYMBOL_EXPORT([devlink_params_publish],
+		[net/core/devlink.c],
+		[AC_DEFINE(HAVE_DEVLINK_PARAMS_PUBLISHED, 1,
+			[devlink_params_publish is exported by the kernel])],
+	[])
 	LB_CHECK_SYMBOL_EXPORT([split_page],
 		[mm/page_alloc.c],
 		[AC_DEFINE(HAVE_SPLIT_PAGE_EXPORTED, 1,
