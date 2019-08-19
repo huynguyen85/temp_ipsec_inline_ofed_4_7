@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/rdma_core.c
 
 Change-Id: Icf172e7fc8d54246725f7c91420bbd9f857ae6a8
 ---
- drivers/infiniband/core/rdma_core.c | 127 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 123 insertions(+), 4 deletions(-)
+ drivers/infiniband/core/rdma_core.c | 131 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 127 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/infiniband/core/rdma_core.c b/drivers/infiniband/core/rdma_core.c
 index xxxxxxx..xxxxxxx 100644
@@ -214,7 +214,7 @@ index xxxxxxx..xxxxxxx 100644
  	return 0;
  }
  
-@@ -712,13 +814,18 @@ void rdma_lookup_put_uobject(struct ib_uobject *uobj,
+@@ -712,13 +814,22 @@ void rdma_lookup_put_uobject(struct ib_uobject *uobj,
  
  void setup_ufile_idr_uobject(struct ib_uverbs_file *ufile)
  {
@@ -230,11 +230,15 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct ib_uobject *entry;
 -	unsigned long id;
++#ifdef HAVE_XARRAY
++	long unsigned int id;
++#else
 +	int id;
++#endif
  
  	/*
  	 * At this point uverbs_cleanup_ufile() is guaranteed to have run, and
-@@ -728,12 +835,22 @@ void release_ufile_idr_uobject(struct ib_uverbs_file *ufile)
+@@ -728,12 +839,22 @@ void release_ufile_idr_uobject(struct ib_uverbs_file *ufile)
  	 *
  	 * This is an optimized equivalent to remove_handle_idr_uobject
  	 */
@@ -257,7 +261,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  const struct uverbs_obj_type_class uverbs_idr_class = {
-@@ -811,8 +928,10 @@ static void ufile_destroy_ucontext(struct ib_uverbs_file *ufile,
+@@ -811,8 +932,10 @@ static void ufile_destroy_ucontext(struct ib_uverbs_file *ufile,
  			ib_dev->ops.disassociate_ucontext(ucontext);
  	}
  
