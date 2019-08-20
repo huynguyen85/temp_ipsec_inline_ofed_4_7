@@ -38,3 +38,4 @@ Change-Id=Ia3ddfa976ec501ae3d629cac1e32167b1249ad7a; subject=compat: rename xarr
 Change-Id=If7e469726daf98ac7f0945258fa7b828fed191cd; subject=BACKPORTS: mlx4_em till 4.14; feature=backports; upstream_status=ignore; general=;
 Change-Id=I53478b0acd4869ed4a7b21efaa8ffbaff9bae62d; subject=BACKPORTS: ib_ipoib till 4.14; feature=backports; upstream_status=ignore; general=;
 Change-Id=I92797b58b53d0084d087f8b8f656bd8f7f1de185; subject=BACKPORTS: mlxfw till 4.14; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ib71879a521b5d747ccb6619594609fa77a39a832; subject=BACKPORTS: rxe till 4.14; feature=backports; upstream_status=ignore; general=;

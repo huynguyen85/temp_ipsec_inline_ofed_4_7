@@ -2202,6 +2202,28 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if ndo_alloc_mr has 4 params])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/netdevice.h>
+
+		static struct ib_mr *rxe_alloc_mr(struct ib_pd *ibpd, enum ib_mr_type mr_type,
+						  u32 max_num_sg, struct ib_udata *udata)
+		{
+			return 0;
+		}
+	],[
+		struct ib_device_ops rxe_dev_ops = {
+			.alloc_mr = rxe_alloc_mr,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_NDO_ALLOC_MR_HAS_4_PARAMS, 1,
+			  [ndo alloc_mr has 4 params])
+	],[
+		AC_MSG_RESULT(no)
+	])
 	AC_MSG_CHECKING([if include/linux/bits.h exists])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/bits.h>
