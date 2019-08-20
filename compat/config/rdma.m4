@@ -360,6 +360,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	],[
 		AC_MSG_RESULT(no)
 	])
+	
+	AC_MSG_CHECKING([if if_vlan.h has __vlan_hwaccel_clear_tag])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/if_vlan.h>
+	],[
+		__vlan_hwaccel_clear_tag(NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE__VLAN_HWACCEL_CLEAR_TAG, 1,
+			  [__vlan_hwaccel_clear_tag defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
 
 	AC_MSG_CHECKING([if if_vlan.h has __vlan_get_protocol])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
@@ -7422,6 +7437,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_NETIF_XMIT_STOPPED, 1,
 			  [netif_xmit_stopped is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if netdevice.h has netdev_xmit_more])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/netdevice.h>
+	],[
+		netdev_xmit_more();
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_NEDEV_XMIT_MORE, 1,
+			  [netdev_xmit_more is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])
