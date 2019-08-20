@@ -1,0 +1,57 @@
+From: Talat Batheesh <talatb@mellanox.com>
+Subject: [PATCH] BACKPORT: drivers/infiniband/ulp/ipoib/ipoib_vlan.c
+
+Change-Id: Ibc00cfb5027e4b961b43bf1f42384a0ce86028cc
+---
+ drivers/infiniband/ulp/ipoib/ipoib_vlan.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_vlan.c b/drivers/infiniband/ulp/ipoib/ipoib_vlan.c
+index xxxxxxx..xxxxxxx 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_vlan.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_vlan.c
+@@ -104,8 +104,9 @@ int __ipoib_vlan_add(struct ipoib_dev_priv *ppriv, struct ipoib_dev_priv *priv,
+ 	 * We do not need to touch priv if register_netdevice fails, so just
+ 	 * always use this flow.
+ 	 */
++#ifdef HAVE_NET_DEVICE_NEEDS_FREE_NETDEV
+ 	ndev->priv_destructor = ipoib_intf_free;
+-
++#endif
+ 	/*
+ 	 * Racing with unregister of the parent must be prevented by the
+ 	 * caller.
+@@ -121,6 +122,10 @@ int __ipoib_vlan_add(struct ipoib_dev_priv *ppriv, struct ipoib_dev_priv *priv,
+ 	priv->pkey = pkey;
+ 	priv->child_type = type;
+ 
++#ifndef HAVE_NDO_GET_IFLINK
++	priv->dev->ifindex = ppriv->dev->ifindex;
++#endif
++
+ 	if (!is_child_unique(ppriv, priv)) {
+ 		result = -ENOTUNIQ;
+ 		goto out_early;
+@@ -163,8 +168,10 @@ sysfs_failed:
+ 	return -ENOMEM;
+ 
+ out_early:
++#ifdef HAVE_NET_DEVICE_NEEDS_FREE_NETDEV
+ 	if (ndev->priv_destructor)
+ 		ndev->priv_destructor(ndev);
++#endif
+ 	return result;
+ }
+ 
+@@ -243,6 +250,11 @@ static void ipoib_vlan_delete_task(struct work_struct *work)
+ 
+ 	rtnl_unlock();
+ 
++#ifndef HAVE_NET_DEVICE_NEEDS_FREE_NETDEV
++	rdma_uninit_netdev(priv->ca, priv->dev, priv->port,
++		RDMA_NETDEV_IPOIB, !ipoib_enhanced_enabled);
++	ipoib_intf_free(priv->dev);
++#endif
+ 	kfree(pwork);
+ }
+ 
