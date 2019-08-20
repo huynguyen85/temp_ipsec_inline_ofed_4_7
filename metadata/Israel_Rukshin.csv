@@ -36,3 +36,4 @@ Change-Id=Id7f5e66c0f9da786acef687fdfddb8c9d632b00b; subject=RDMA/rw: Introduce 
 Change-Id=Iee29d091829a1309784197eb8ed8184d314c1849; subject=RDMA/rw: Use IB_WR_REG_MR_INTEGRITY for PI handover; feature=mlx5_pi; upstream_status=accepted; general=;
 Change-Id=I8610b8c22b9a4fdb1a0a5837a45f73b893317e1e; subject=RDMA/mlx5: Remove unused IB_WR_REG_SIG_MR code; feature=mlx5_pi; upstream_status=accepted; general=;
 Change-Id=Iac925ffc51531661b8892fe57c431c449df7c60c; subject=RDMA/mlx5: Improve PI handover performance; feature=mlx5_pi; upstream_status=accepted; general=;
+Change-Id=I0e4512cebb4d6dfe0eafaa521b6009da986fe58c; subject=Revert "nvme-rdma: fix double free of qe's in reconnect/delete flows"; feature=nvmf_bugs; upstream_status=ignore; general=;
