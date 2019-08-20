@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
 
 Change-Id: I7d0a8d44343a654dabf59f4ababe3014dd9867c0
 ---
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h | 340 ++++++++++++++++++++++++++-
- 1 file changed, 338 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/mlx4_en.h | 342 ++++++++++++++++++++++++++-
+ 1 file changed, 339 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
 index xxxxxxx..xxxxxxx 100644
@@ -387,25 +387,26 @@ index xxxxxxx..xxxxxxx 100644
  void mlx4_en_arm_cq(struct mlx4_en_priv *priv, struct mlx4_en_cq *cq);
  
  void mlx4_en_tx_irq(struct mlx4_cq *mcq);
-+#ifdef HAVE_3_PARAMS_FOR_NDO_SELECT_QUEUE
++#ifdef NDO_SELECT_QUEUE_HAS_3_PARMS_NO_FALLBACK
  u16 mlx4_en_select_queue(struct net_device *dev, struct sk_buff *skb,
- 			 struct net_device *sb_dev);
-+#else
-+#if defined(NDO_SELECT_QUEUE_HAS_ACCEL_PRIV) || defined(HAVE_SELECT_QUEUE_FALLBACK_T)
+-			 struct net_device *sb_dev);
++		       struct net_device *sb_dev);
++
++#elif defined(NDO_SELECT_QUEUE_HAS_ACCEL_PRIV) || defined(HAVE_SELECT_QUEUE_FALLBACK_T)
++
 +u16 mlx4_en_select_queue(struct net_device *dev, struct sk_buff *skb,
 +#ifdef HAVE_SELECT_QUEUE_FALLBACK_T
 +#ifdef HAVE_SELECT_QUEUE_NET_DEVICE
-+			 struct net_device *sb_dev,
++		       struct net_device *sb_dev,
 +#else
-+			 void *accel_priv,
++		       void *accel_priv,
 +#endif /* HAVE_SELECT_QUEUE_NET_DEVICE */
-+ 			 select_queue_fallback_t fallback);
++		       select_queue_fallback_t fallback);
 +#else
-+			 void *accel_priv);
-+#endif /* HAVE_SELECT_QUEUE_FALLBACK_T */
++		       void *accel_priv);
++#endif
 +#else /* NDO_SELECT_QUEUE_HAS_ACCEL_PRIV || HAVE_SELECT_QUEUE_FALLBACK_T */
 +u16 mlx4_en_select_queue(struct net_device *dev, struct sk_buff *skb);
-+#endif
 +#endif /* HAVE_3_PARAMS_FOR_NDO_SELECT_QUEUE */
  netdev_tx_t mlx4_en_xmit(struct sk_buff *skb, struct net_device *dev);
  netdev_tx_t mlx4_en_vgtp_xmit(struct sk_buff *skb, struct net_device *dev);

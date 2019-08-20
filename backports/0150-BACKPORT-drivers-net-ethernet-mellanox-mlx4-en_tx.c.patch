@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx4/en_tx.c
 
 Change-Id: I7b0e13987edd7b33e4027ecdb2d902efc0d04aea
 ---
- drivers/net/ethernet/mellanox/mlx4/en_tx.c | 130 ++++++++++++++++++++++++++++-
- 1 file changed, 126 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/en_tx.c | 128 ++++++++++++++++++++++++++++-
+ 1 file changed, 125 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx4/en_tx.c b/drivers/net/ethernet/mellanox/mlx4/en_tx.c
 index xxxxxxx..xxxxxxx 100644
@@ -103,15 +103,14 @@ index xxxxxxx..xxxxxxx 100644
  	}
  }
  
--u16 mlx4_en_select_queue(struct net_device *dev, struct sk_buff *skb,
--			 struct net_device *sb_dev)
 +#ifdef NDO_SELECT_QUEUE_HAS_3_PARMS_NO_FALLBACK
-+u16 mlx4e_select_queue(struct net_device *dev, struct sk_buff *skb,
+ u16 mlx4_en_select_queue(struct net_device *dev, struct sk_buff *skb,
+-			 struct net_device *sb_dev)
 +		       struct net_device *sb_dev)
 +
 +#elif defined(NDO_SELECT_QUEUE_HAS_ACCEL_PRIV) || defined(HAVE_SELECT_QUEUE_FALLBACK_T)
 +
-+u16 mlx4e_select_queue(struct net_device *dev, struct sk_buff *skb,
++u16 mlx4_en_select_queue(struct net_device *dev, struct sk_buff *skb,
 +#ifdef HAVE_SELECT_QUEUE_FALLBACK_T
 +#ifdef HAVE_SELECT_QUEUE_NET_DEVICE
 +		       struct net_device *sb_dev,
@@ -123,7 +122,7 @@ index xxxxxxx..xxxxxxx 100644
 +		       void *accel_priv)
 +#endif
 +#else /* NDO_SELECT_QUEUE_HAS_ACCEL_PRIV || HAVE_SELECT_QUEUE_FALLBACK_T */
-+u16 mlx4e_select_queue(struct net_device *dev, struct sk_buff *skb)
++u16 mlx4_en_select_queue(struct net_device *dev, struct sk_buff *skb)
 +#endif
  {
  	struct mlx4_en_priv *priv = netdev_priv(dev);

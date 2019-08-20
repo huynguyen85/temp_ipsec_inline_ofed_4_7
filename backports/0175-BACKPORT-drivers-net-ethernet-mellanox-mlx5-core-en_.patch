@@ -1,0 +1,54 @@
+From: Talat Batheesh <talatb@mellanox.com>
+Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
+
+Change-Id: Iac0a78c576cc1ccd25723611b68b5a4ba5d18f1d
+---
+ drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
+index xxxxxxx..xxxxxxx 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
+@@ -34,16 +34,22 @@
+ #include "en.h"
+ #include "en/xdp.h"
+ 
++#if defined(HAVE_IRQ_DESC_GET_IRQ_DATA) && defined(HAVE_IRQ_TO_DESC_EXPORTED)
+ static inline bool mlx5e_channel_no_affinity_change(struct mlx5e_channel *c)
+ {
+ 	int current_cpu = smp_processor_id();
+ 	const struct cpumask *aff;
++#ifndef HAVE_IRQ_DATA_AFFINITY
+ 	struct irq_data *idata;
+ 
+ 	idata = irq_desc_get_irq_data(c->irq_desc);
+ 	aff = irq_data_get_affinity_mask(idata);
++#else
++	aff = irq_desc_get_irq_data(c->irq_desc)->affinity;
++#endif
+ 	return cpumask_test_cpu(current_cpu, aff);
+ }
++#endif
+ 
+ static void mlx5e_handle_tx_dim(struct mlx5e_txqsq *sq)
+ {
+@@ -110,6 +116,7 @@ int mlx5e_napi_poll(struct napi_struct *napi, int budget)
+ 
+ 	busy |= c->rq.post_wqes(rq);
+ 
++#if defined(HAVE_IRQ_DESC_GET_IRQ_DATA) && defined(HAVE_IRQ_TO_DESC_EXPORTED)
+ 	if (busy) {
+ 		if (likely(mlx5e_channel_no_affinity_change(c)))
+ 			return budget;
+@@ -117,6 +124,10 @@ int mlx5e_napi_poll(struct napi_struct *napi, int budget)
+ 		if (budget && work_done == budget)
+ 			work_done--;
+ 	}
++#else
++	if (busy)
++		return budget;
++#endif
+ 
+ 	if (unlikely(!napi_complete_done(napi, work_done)))
+ 		return work_done;

@@ -1,0 +1,23 @@
+From: Talat Batheesh <talatb@mellanox.com>
+Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+
+Change-Id: Ic98272d33272d75411ecef62eadb0615482c7a71
+---
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index xxxxxxx..xxxxxxx 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -2002,7 +2002,10 @@ static int mlx5e_open_channel(struct mlx5e_priv *priv, int ix,
+ 	c->xdp      = !!params->xdp_prog;
+ 	c->stats    = &priv->channel_stats[ix].ch;
+ 	c->lag_port = ix % mlx5e_get_num_lag_ports(priv->mdev);
++#if defined(HAVE_IRQ_DESC_GET_IRQ_DATA) && defined(HAVE_IRQ_TO_DESC_EXPORTED)
+ 	c->irq_desc = irq_to_desc(irq);
++#endif
++
+ 
+ #ifdef CONFIG_MLX5_EN_SPECIAL_SQ
+ 	c->num_special_sq = params->num_rl_txqs / params->num_channels +
