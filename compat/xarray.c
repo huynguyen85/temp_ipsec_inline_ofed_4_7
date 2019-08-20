@@ -5,6 +5,7 @@
  * Author: Matthew Wilcox <willy@infradead.org>
  */
 
+#ifndef HAVE_XARRAY
 #include <linux/bitmap.h>
 #include <linux/export.h>
 #include <linux/list.h>
@@ -2073,4 +2074,5 @@ void xa_dump(const struct xarray *xa)
 		shift = xa_to_node(entry)->shift + XA_CHUNK_SHIFT;
 	xa_dump_entry(entry, 0, shift);
 }
+#endif
 #endif

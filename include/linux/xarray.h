@@ -531,8 +531,10 @@ void *__xa_cmpxchg(struct xarray *, unsigned long index, void *old,
 		void *entry, gfp_t);
 int __must_check __xa_insert(struct xarray *, unsigned long index,
 		void *entry, gfp_t);
+#define __xa_alloc  LINUX_BACKPORT(__xa_alloc)
 int __must_check __xa_alloc(struct xarray *, u32 *id, void *entry,
 		struct xa_limit, gfp_t);
+#define __xa_alloc_cyclic  LINUX_BACKPORT(__xa_alloc_cyclic)
 int __must_check __xa_alloc_cyclic(struct xarray *, u32 *id, void *entry,
 		struct xa_limit, u32 *next, gfp_t);
 void __xa_set_mark(struct xarray *, unsigned long index, xa_mark_t);
