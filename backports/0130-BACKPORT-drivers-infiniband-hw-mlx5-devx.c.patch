@@ -1,7 +1,7 @@
-From: Talat Batheesh <talatb@mellanox.com>
+From: Mikhael Goikhman <migo@mellanox.com>
 Subject: [PATCH] BACKPORT: drivers/infiniband/hw/mlx5/devx.c
 
-Change-Id: Ic7753b8dba17ce9b1a97328623df57e6bd946fc2
+Change-Id: If4acbbc40a59e42b873b89b9fe8ceb0ae6315d77
 ---
  drivers/infiniband/hw/mlx5/devx.c | 23 ++++++++++++++++++-----
  1 file changed, 18 insertions(+), 5 deletions(-)
@@ -10,17 +10,17 @@ diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/infiniband/hw/mlx5/devx.c
 +++ b/drivers/infiniband/hw/mlx5/devx.c
-@@ -13,6 +13,9 @@
- #include <rdma/uverbs_std_types.h>
- #include <linux/mlx5/driver.h>
+@@ -15,6 +15,9 @@
+ #include <linux/mlx5/eswitch.h>
+ #include <linux/mlx5/vport.h>
  #include <linux/mlx5/fs.h>
 +#include <linux/eventpoll.h>
 +#include <linux/file.h>
 +#include <linux/srcu.h>
  #include "mlx5_ib.h"
+ #include "ib_rep.h"
  #include <linux/xarray.h>
- 
-@@ -1284,10 +1287,12 @@ static int devx_handle_mkey_create(struct mlx5_ib_dev *dev,
+@@ -1474,10 +1477,12 @@ static int devx_handle_mkey_create(struct mlx5_ib_dev *dev,
  	return 0;
  }
  
@@ -33,7 +33,7 @@ index xxxxxxx..xxxxxxx 100644
  
  /* This function to delete from the radix tree needs to be called before
   * destroying the underlying mkey. Otherwise a race might occur in case that
-@@ -1372,11 +1377,19 @@ static int devx_obj_cleanup(struct ib_uobject *uobject,
+@@ -1562,11 +1567,19 @@ static int devx_obj_cleanup(struct ib_uobject *uobject,
  		devx_cleanup_subscription(dev, sub_entry);
  	mutex_unlock(&devx_event_table->event_xa_lock);
  
@@ -57,7 +57,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	kfree(obj);
  	return ret;
-@@ -1762,7 +1775,7 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_DEVX_OBJ_ASYNC_QUERY)(
+@@ -1952,7 +1965,7 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_DEVX_OBJ_ASYNC_QUERY)(
  	async_data->mdev = mdev;
  	async_data->fd_uobj = fd_uobj;
  
