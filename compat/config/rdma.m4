@@ -11222,6 +11222,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if iscsit_set_unsolicited_dataout is defined])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <target/iscsi/iscsi_transport.h>
+	],[
+		iscsit_set_unsolicited_dataout(NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_ISCSIT_SET_UNSOLICITED_DATAOUT, 1,
+			  [iscsit_set_unsolicited_dataout is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if mmu_notifier.h has mmu_notifier_call_srcu])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/mmu_notifier.h>
