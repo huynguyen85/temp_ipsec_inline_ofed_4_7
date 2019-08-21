@@ -8561,6 +8561,40 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if scsi_host.h struct Scsi_Host has member max_segment_size])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <scsi/scsi_host.h>
+	],[
+		struct Scsi_Host sh = {
+			.max_segment_size = 0,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_SCSI_HOST_MAX_SEGMENT_SIZE, 1,
+				[Scsi_Host has members max_segment_size])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if scsi_host.h struct Scsi_Host has member virt_boundary_mask])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <scsi/scsi_host.h>
+	],[
+		struct Scsi_Host sh = {
+			.virt_boundary_mask = 0,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_SCSI_HOST_VIRT_BOUNDARY_MASK, 1,
+				[Scsi_Host has members virt_boundary_mask])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if iscsi_target_core and iscsi_target_stat.h are under include/])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <target/iscsi/iscsi_target_core.h>
