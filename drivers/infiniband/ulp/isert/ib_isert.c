@@ -1811,7 +1811,7 @@ isert_send_done(struct ib_cq *cq, struct ib_wc *wc)
 	if (unlikely(wc->status != IB_WC_SUCCESS)) {
 		isert_print_wc(wc, "send");
 		if (wc->status == IB_WC_SIG_PIPELINE_CANCELED) {
-			isert_check_pi_status(cmd, isert_cmd->rw.sig->sig_mr);
+			isert_check_pi_status(cmd, isert_cmd->rw.reg->mr);
 			isert_rdma_rw_ctx_destroy(isert_cmd, isert_conn);
 			/*
 			 * transport_generic_request_failure() expects to have
@@ -1834,7 +1834,7 @@ isert_send_done(struct ib_cq *cq, struct ib_wc *wc)
 
 	/* To reuse the signature MR later, we need to mark it as checked. */
 	if (isert_cmd->send_sig_pipelined)
-		isert_check_pi_status(cmd, isert_cmd->rw.sig->sig_mr);
+		isert_check_pi_status(cmd, isert_cmd->rw.reg->mr);
 
 	switch (isert_cmd->iscsi_cmd->i_state) {
 	case ISTATE_SEND_TASKMGTRSP:
