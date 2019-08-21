@@ -16,3 +16,4 @@ Change-Id=I02e5c30745f78942c68b32dbeb4a3dddec9d3183; subject=IB/isert: Add sig_p
 Change-Id=I503ba12eabdbb3dcf58ea5979e4b4f49f5bbf542; subject=IB/isert: Split the isert_init_send_wr function; feature=signature_pipeline; upstream_status=NA; general=;
 Change-Id=Ib96820d320a5d11bb4562cf6fb511ec51945c321; subject=IB/isert: Use the signature pipeline feature; feature=signature_pipeline; upstream_status=NA; general=;
 Change-Id=Icce5462598ade053b958325d84b2471bf52b5cb6; subject=BACKPORTS: Add SRP backports; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ie218a0f520b37fa0ec5f5dfad9b05cfd0f0b3622; subject=BACKPORTS: Add iSER backports; feature=backports; upstream_status=ignore; general=;
