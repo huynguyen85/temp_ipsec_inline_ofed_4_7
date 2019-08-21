@@ -1090,9 +1090,49 @@
 	wq_addr;								\
 })
 #else /* 2.6.36 */
+
 #ifdef alloc_workqueue
-	#undef alloc_workqueue
+/* In kernels < 5.1, alloc_workqueue was a macro */
+#undef alloc_workqueue
+#ifdef CONFIG_LOCKDEP
+#define alloc_workqueue(name, flags, max_active, args...)			\
+({										\
+	static struct lock_class_key __key;					\
+	const char *__lock_name;						\
+	struct workqueue_struct *wq_addr = NULL;				\
+										\
+	if (__builtin_constant_p(name))						\
+		__lock_name = (name);						\
+	else									\
+		__lock_name = #name;						\
+										\
+	if (memtrack_inject_error(THIS_MODULE, __FILE__, "alloc_workqueue", __func__, __LINE__)) \
+		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "alloc_workqueue"); \
+	else									\
+		wq_addr = __alloc_workqueue_key((name), (flags), (max_active),	\
+						&__key, __lock_name, ##args);	\
+	if (wq_addr) {								\
+		memtrack_alloc(MEMTRACK_WORK_QUEUE, 0UL, (unsigned long)(wq_addr), 0, 0UL, 0, __FILE__, __LINE__, GFP_ATOMIC); \
+	}									\
+	wq_addr;								\
+})
+#else
+#define alloc_workqueue(name, flags, max_active, args...) ({			\
+	struct workqueue_struct *wq_addr = NULL;				\
+										\
+	if (memtrack_inject_error(THIS_MODULE, __FILE__, "alloc_workqueue", __func__, __LINE__)) \
+		MEMTRACK_ERROR_INJECTION_MESSAGE(THIS_MODULE, __FILE__, __LINE__, __func__, "alloc_workqueue"); \
+	else									\
+		wq_addr = __alloc_workqueue_key((name), (flags), (max_active),	\
+						NULL, NULL, ##args);		\
+	if (wq_addr) {								\
+		memtrack_alloc(MEMTRACK_WORK_QUEUE, 0UL, (unsigned long)(wq_addr), 0, 0UL, 0, __FILE__, __LINE__, GFP_ATOMIC); \
+	}									\
+	wq_addr;								\
+})
 #endif
+#else
+/* In kernels >= 5.1, alloc_workqueue is a function */
 #define alloc_workqueue(name, flags, max_active, args...) ({			\
 	struct workqueue_struct *wq_addr = NULL;				\
 										\
@@ -1105,6 +1145,7 @@
 	}									\
 	wq_addr;								\
 })
+#endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0))
 #define WQ_RESCUER 1 << 7 /* internal: workqueue has rescuer */
