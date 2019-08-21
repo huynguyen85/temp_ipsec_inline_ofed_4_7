@@ -36,7 +36,6 @@
 #include <rdma/ib_user_verbs.h>
 #include <rdma/rdma_counter.h>
 #include <linux/mlx5/fs.h>
-#include <linux/mlx5/qp.h>
 #include "mlx5_ib.h"
 #include "ib_rep.h"
 #include "cmd.h"
@@ -4627,22 +4626,6 @@ int mlx5_ib_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 	err = __mlx5_ib_modify_qp(ibqp, attr, attr_mask, cur_state,
 				  new_state, &ucmd, udata, is_exp);
 
-	if (!err &&
-	    cur_state != IB_QPS_RESET &&
-	    new_state == IB_QPS_RESET) {
-		struct mlx5_ib_qp_base *base = &qp->trans_qp.base;
-		struct mlx5_core_qp *mqp = &base->mqp;
-		unsigned long flags;
-
-		/* modify to RESET makes pending pagefault irrelevant */
-		spin_lock_irqsave(&mqp->common.lock, flags);
-		if (mqp->pfault_req)
-			mqp->pfault_req->wqe.ignore = true;
-
-		//if (mqp->pfault_res)
-		//	mqp->pfault_res->wqe.ignore = true;
-		spin_unlock_irqrestore(&mqp->common.lock, flags);
-	}
 out:
 	mutex_unlock(&qp->mutex);
 	return err;
