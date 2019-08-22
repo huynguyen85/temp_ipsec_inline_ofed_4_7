@@ -9973,7 +9973,7 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		return 0;
 	],[
 		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_BLK_MQ_TAG_SET_HAS_CONST_POS, 1,
+		MLNX_AC_DEFINE(HAVE_BLK_MQ_TAG_SET_HAS_CONST_OPS, 1,
 			  [ blk_mq_tag_set member ops is const])
 	],[
 		AC_MSG_RESULT(no)
@@ -13075,6 +13075,177 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if blk-mq.h has enum hctx_type])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/blk-mq.h>
+	],[
+		enum hctx_type type = HCTX_TYPE_DEFAULT;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_BLK_MQ_HCTX_TYPE, 1,
+			[blk-mq.h has enum hctx_type])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if blk-mq.h has blk_mq_complete_request_sync])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/blk-mq.h>
+	],[
+		blk_mq_complete_request_sync(NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_BLK_MQ_COMPLETE_REQUEST_SYNC, 1,
+			[blk-mq.h has blk_mq_complete_request_sync])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if scsi/scsi_transport_fc.h has FC_PORT_ROLE_NVME_TARGET])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <scsi/scsi_transport_fc.h>
+	],[
+		int x = FC_PORT_ROLE_NVME_TARGET;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_SCSI_TRANSPORT_FC_FC_PORT_ROLE_NVME_TARGET, 1,
+			[scsi/scsi_transport_fc.h has FC_PORT_ROLE_NVME_TARGET])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if linux/blk_types.h has REQ_HIPRI])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/blk_types.h>
+	],[
+		int x = REQ_HIPRI;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_BLK_TYPES_REQ_HIPRI, 1,
+			  [REQ_HIPRI is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if struct blk_mq_ops has commit_rqs])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/blk-mq.h>
+	],[
+		struct blk_mq_ops ops = {
+			.commit_rqs = NULL,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_BLK_MQ_OPS_COMMIT_RQS, 1,
+			  [struct blk_mq_ops has commit_rqs])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if struct irq_affinity has priv])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/interrupt.h>
+	],[
+		struct irq_affinity affd = {
+			.priv = NULL,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IRQ_AFFINITY_PRIV, 1,
+			  [struct irq_affinity has priv])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if fs.h has IOCB_NOWAIT])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/fs.h>
+	],[
+		int x = IOCB_NOWAIT;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IOCB_NOWAIT, 1,
+			[fs.h has IOCB_NOWAIT])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if dma-attrs.h has struct dma_attrs])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/dma-attrs.h>
+	],[
+		struct dma_attrs attr = {};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_DMA_ATTRS, 1,
+			[dma-attrs.h has struct dma_attrs])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if linux/blk-mq.h has blk_mq_delay_kick_requeue_list])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/blk-mq.h>
+	],[
+		blk_mq_delay_kick_requeue_list(NULL, 0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_BLK_MQ_DELAY_KICK_REQUEUE_LIST, 1,
+			  [blk_mq_delay_kick_requeue_list is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if linux/blk_types.h has op_is_write])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/blk_types.h>
+	],[
+		op_is_write(0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_OP_IS_WRITE, 1,
+			  [op_is_write is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if dma_map_bvec exist])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/blkdev.h>
+		#include <linux/dma-mapping.h>
+	],[
+		struct bio_vec bv = {};
+
+		dma_map_bvec(NULL, &bv, 0, 0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_BLKDEV_DMA_MAP_BVEC, 1,
+				[dma_map_bvec exist])
+	],[
+		AC_MSG_RESULT(no)
+	])
 ])
 #
 # COMPAT_CONFIG_HEADERS

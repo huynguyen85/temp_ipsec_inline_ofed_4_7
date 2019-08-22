@@ -6,6 +6,7 @@
 #ifndef _NVME_FC_DRIVER_H
 #define _NVME_FC_DRIVER_H 1
 
+#include "../../compat/config.h"
 
 /*
  * **********************  LLDD FC-NVME Host API ********************
@@ -16,6 +17,12 @@
  */
 
 
+#ifndef HAVE_SCSI_TRANSPORT_FC_FC_PORT_ROLE_NVME_TARGET
+/* FC Port role bitmask - can merge with FC Port Roles in fc transport */
+#define FC_PORT_ROLE_NVME_INITIATOR	0x10
+#define FC_PORT_ROLE_NVME_TARGET	0x20
+#define FC_PORT_ROLE_NVME_DISCOVERY	0x40
+#endif
 
 /**
  * struct nvme_fc_port_info - port-specific ids and FC connection-specific
