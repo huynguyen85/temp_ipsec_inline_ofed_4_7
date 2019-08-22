@@ -63,3 +63,8 @@ Change-Id=Ie18ad79cd7d6aacf7ceee064f443c5c795d96942; subject=net/mlx5: Implement
 Change-Id=I6e0df14a3225d69ceaf1ce25829de22ef0312b35; subject=net/mlx5: Correctly add query for mac address; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=Iadefd69f9dfd76e4c844779d9a636b36f2cf51e1; subject=net/mlx5: Expose rep netdevice name for the mdev representor; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=I0f379a619151cdf2b8ec62b952c05cfbb64a8c78; subject=net/mlx5: Fix merge error; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ibd17cdb0eed9710883b7fccbf658801fe6967d1c; subject=IB/core: Fix querying total rdma stats; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
+Change-Id=I85d09c7e4053700dcf81320c1dacb3bbd8c76828; subject=IB/counters: Always initialize the port counter object; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
+Change-Id=I6c947ee18671a405647a04980c9a42aa1a5c9ad8; subject=IB/mlx5: Avoid unnecessary typecast; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
+Change-Id=I05af426bfc3e75b1f1b2deb947ce2afea095980e; subject=IB/mlx5: Refactor code for counters allocation; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
+Change-Id=Ibda6a8622402790e12a12052b2781254dafa2175; subject=IB/mlx5: Support per device q counters in switchdev mode; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
