@@ -86,7 +86,6 @@ mlx_compat-y += syscall.o
 mlx_compat-y += mmu_notifier.o
 mlx_compat-y += radix-tree.o
 mlx_compat-y += xarray.o
-mlx_compat-y += flow_offload.o
 
 mlx_compat-y += ../block/blk-mq-rdma.o
 

@@ -486,20 +486,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if devlink has devlink_health_reporter_state_update])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <net/devlink.h>
-	],[
-		devlink_health_reporter_state_update(NULL, 0);
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_DEVLINK_HEALTH_REPORTER_STATE_UPDATE, 1,
-			  [devlink_health_reporter_state_update exist])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
 	AC_MSG_CHECKING([if devlink has devlink_param_driverinit_value_get])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/devlink.h>
@@ -1895,21 +1881,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if eth_get_headlen has 3 params])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/etherdevice.h>
-	],[
-		eth_get_headlen(NULL, NULL, 0);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_ETH_GET_HEADLEN_3_PARAM, 1,
-			  [eth_get_headlen has 3 param])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
 	AC_MSG_CHECKING([if etherdevice.h has eth_get_headlen])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/etherdevice.h>
@@ -2936,21 +2907,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if pkt_cls.h has __tc_indr_block_cb_register])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <net/pkt_cls.h>
-	],[
-		__tc_indr_block_cb_register(NULL, NULL, NULL, NULL);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE___TC_INDR_BLOCK_CB_REGISTER, 1,
-			  [__tc_indr_block_cb_register is defined])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
 	AC_MSG_CHECKING([if net/tc_act/tc_mirred.h exists])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/tc_act/tc_mirred.h>
@@ -3050,19 +3006,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_TCF_MIRRED_DEV, 1,
 			  [tcf_mirred_dev is defined])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if net/ipv6_stubs.h exists])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <net/ipv6_stubs.h>
-	],[
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_IPV6_STUBS_H, 1,
-			  [net/ipv6_stubs.h exists])
 	],[
 		AC_MSG_RESULT(no)
 	])
@@ -5820,23 +5763,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if fib_nh has fib_nh_dev])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <net/ip_fib.h>
-	],[
-		struct fib_nh x = {
-			.fib_nh_dev = NULL,
-		};
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_FIB_NH_DEV, 1,
-			[fib_nh has fib_nh_dev])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
 	AC_MSG_CHECKING([if struct inet6_ifaddr has member if_list])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/if_inet6.h>
@@ -6145,16 +6071,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	LB_CHECK_SYMBOL_EXPORT([flow_rule_match_cvlan],
-		[net/core/flow_offload.c],
-		[AC_DEFINE(HAVE_FLOW_RULE_MATCH_CVLAN, 1,
-			[flow_rule_match_cvlan is exported by the kernel])],
-	[])
-	LB_CHECK_SYMBOL_EXPORT([devlink_health_report],
-		[net/core/devlink.c],
-		[AC_DEFINE(HAVE_DEVLINK_HEALTH_REPORT, 1,
-			[devlink_health_report is exported by the kernel])],
-	[])
 	LB_CHECK_SYMBOL_EXPORT([devlink_params_publish],
 		[net/core/devlink.c],
 		[AC_DEFINE(HAVE_DEVLINK_PARAMS_PUBLISHED, 1,
@@ -7543,21 +7459,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_NETIF_XMIT_STOPPED, 1,
 			  [netif_xmit_stopped is defined])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if netdevice.h has netdev_xmit_more])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/netdevice.h>
-	],[
-		netdev_xmit_more();
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_NEDEV_XMIT_MORE, 1,
-			  [netdev_xmit_more is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])
@@ -9991,21 +9892,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_IS_TCF_CSUM, 1,
 			  [is_tcf_csum is defined])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if struct  tc_action_ops has id])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <net/act_api.h>
-	],[
-		struct tc_action_ops x = { .id = 0, };
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_TC_ACTION_OPS_HAS_ID, 1,
-			  [struct  tc_action_ops has id])
 	],[
 		AC_MSG_RESULT(no)
 	])

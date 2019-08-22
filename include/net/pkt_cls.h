@@ -3,29 +3,10 @@
 
 #include_next <net/pkt_cls.h>
 
-#ifndef HAVE___TC_INDR_BLOCK_CB_REGISTER
-typedef int tc_indr_block_bind_cb_t(struct net_device *dev, void *cb_priv,
-                                    enum tc_setup_type type, void *type_data);
-
-static inline
-int __tc_indr_block_cb_register(struct net_device *dev, void *cb_priv,
-                                tc_indr_block_bind_cb_t *cb, void *cb_ident)
-{
-	        return 0;
-}
-
-static inline
-void __tc_indr_block_cb_unregister(struct net_device *dev,
-                                   tc_indr_block_bind_cb_t *cb, void *cb_ident)
-{
-}
-#endif
-
 #ifdef CONFIG_COMPAT_CLS_FLOWER_MOD
 #include "../../compat/config.h"
 #define HAVE_FLOWER_MULTI_MASK 1
 #include <uapi/linux/uapi/pkt_cls.h>
-
 
 #ifndef CONFIG_NET_SCHED_NEW
 enum tc_fl_command {

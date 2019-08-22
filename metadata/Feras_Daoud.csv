@@ -51,3 +51,4 @@ Change-Id=I6afe0b11373bc8d15684edffc799761e8509a656; subject=net/mlx5e: Ignore a
 Change-Id=Ia429ce79e25782fa09e38ed8c9de17bf7e4bd4ec; subject=metadata: Add missing metadata; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I897ec815b7b7c3b9211ad933a396893083285d5f; subject=mlx5/core: Fix init_one error flow; feature=mlx5_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I49d539f46d627c889a1141a0585586fd82e9c7ef; subject=net/mlx5: Align flow rules deletion to upstream; feature=mlx5_core_bugs; upstream_status=NA; general=;
+Change-Id=Ia1b730b9cadf443add70a3ce36c89e5cc8268214; subject=Revert "BACKPORTS: mlx5_en till 4.14"; feature=backports; upstream_status=ignore; general=;
