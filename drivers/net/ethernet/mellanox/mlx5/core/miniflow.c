@@ -1053,6 +1053,9 @@ void mlx5e_del_miniflow_list(struct mlx5e_tc_flow *flow)
 	list_for_each_entry_safe(mnode, n, &flow->miniflow_list, node) {
 		struct mlx5e_miniflow *miniflow = mnode->miniflow;
 
+		if (atomic_read(&miniflow->flow->flags) & MLX5E_TC_FLOW_DUP)
+			miniflow_unlink_dummy_counters(miniflow->flow->peer_flow);
+
 		miniflow_unlink_dummy_counters(miniflow->flow);
 		miniflow_detach(miniflow);
 
