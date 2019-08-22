@@ -78,6 +78,7 @@ struct mlx5_pagefault {
 
 	struct mlx5_ib_pf_eq	*eq;
 	struct work_struct	work;
+	unsigned long long      start;
 };
 
 #define MAX_PREFETCH_LEN (4*1024*1024U)
