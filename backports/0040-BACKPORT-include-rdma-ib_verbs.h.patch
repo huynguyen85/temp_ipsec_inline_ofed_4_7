@@ -177,17 +177,18 @@ index xxxxxxx..xxxxxxx 100644
  	int (*map_mr_sg_pi)(struct ib_mr *mr, struct scatterlist *data_sg,
  			    int data_sg_nents, unsigned int *data_sg_offset,
  			    struct scatterlist *meta_sg, int meta_sg_nents,
-@@ -2750,8 +2834,10 @@ struct ib_device {
+@@ -2750,9 +2834,11 @@ struct ib_device {
  	struct attribute_group	     *hw_stats_ag;
  	struct rdma_hw_stats         *hw_stats;
  
 +#ifdef HAVE_CGROUP_RDMA_H
  #ifdef CONFIG_CGROUP_RDMA
  	struct rdmacg_device         cg_device;
-+#endif
  #endif
++#endif
  
  	u32                          index;
+ 	struct rdma_restrack_root *res;
 @@ -2760,6 +2846,15 @@ struct ib_device {
  	const struct uapi_definition   *driver_def;
  	enum rdma_driver_id		driver_id;
