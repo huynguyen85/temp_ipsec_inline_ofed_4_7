@@ -15,3 +15,6 @@ Change-Id=I9cbab9be15f0f7245763a753ee623962965cd2b6; subject=metadata: Update Ma
 Change-Id=I15384da1007dd2f9129c1ce47fd1e222ee35dcc0; subject=metadata: update yishai hadas MD; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Ie668df01e7748f247a955784391578146b70466d; subject=memtrack: Fix memdup_user test for allocated address; feature=memtrack_bugs; upstream_status=ignore; general=;
 Change-Id=I775b34294ae6974caa9772328f4dda9a899d8146; subject=IB/mlx5: Check the correct variable in error handling code; feature=devx; upstream_status=in_progress; general=;
+Change-Id=Icadf2445e90904cc50b6589cefb1d0fb390a167a; subject=Revert "IB/mlx5: Ignore pagefault event that are handled after QP was reset"; feature=mlx5_ib_bugs; upstream_status=ignore; general=;
+Change-Id=Ibf3bbd2e5cf1542ff405fe50584fa8daf37bdbae; subject=IB/mlx5: Added data member back to mlx5 pagefault struct; feature=mlx5_ib_bugs; upstream_status=ignore; general=;
+Change-Id=Ibd33cd66889e037f4aeb1536411f2ec9eed5ccd9; subject=metadata: Update MD for Yonatan Cohen; feature=ofed_scripts; upstream_status=ignore; general=;
