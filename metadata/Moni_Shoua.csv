@@ -34,7 +34,7 @@ Change-Id=If359d56caf5540654ff3c43e5a5b9665858bbb27; subject=IB/mlx5: Avoid hang
 Change-Id=If3f914e451ea1e4678bd636abfd44682d5cc1f85; subject=IB/mlx5: Don't resume page fault if QP is not found; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
 Change-Id=I2395d9844f70a450867c6d7ce33e2ffba39e932b; subject=IB/mlx5: Cancel request for completion in error flow; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
 Change-Id=I1de008eea6d06ed53fa937c2a19bce2d34544b4f; subject=IB/mlx5: Increase timeout of waiting to mmu notifier to complete; feature=mlx5_ib_bugs; upstream_status=NA; general=;
-Change-Id=Ifc702488ec2d0ecc144118b17bf7e8ea4d8c3d17; subject=IB/mlx5: Ignore pagefault event that are handled after QP was reset; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
+Change-Id=Ifc702488ec2d0ecc144118b17bf7e8ea4d8c3d17; subject=IB/mlx5: Ignore pagefault event that are handled after QP was reset; feature=mlx5_ib_bugs; upstream_status=ignore; general=;
 Change-Id=I4678fd620ab51e66455cdd8135ec429925282263; subject=mlx5/core: Use multi threaded workqueue for page fault handling; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
 Change-Id=If6ba5fab9db736e9dab5ed6113ca857b4e0a6735; subject=net/mlx4: Don't try to manage device LAG on slaves; feature=mlx4_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I609afe43c1e7306df496956098e27f8830c2b1eb; subject=IB/mlx5: Change prefetch_mr implementation from exp to upstream; feature=mlx5_advise_mr; upstream_status=accepted; general=;
