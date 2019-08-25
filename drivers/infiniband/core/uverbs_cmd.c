@@ -1944,10 +1944,16 @@ static int modify_qp(struct uverbs_attr_bundle *attrs,
 		copy_ah_attr_from_uverbs(qp, &attr->alt_ah_attr,
 					 &cmd->base.alt_dest);
 
-	ret = ib_modify_qp_with_udata(qp, attr,
-				      modify_qp_mask(qp->qp_type,
-						     cmd->base.attr_mask),
-				      &attrs->driver_udata);
+	if (qp->qp_type == IB_QPT_XRC_TGT)
+		ret = ib_modify_qp(qp, attr,
+				   modify_qp_mask(qp->qp_type,
+						  cmd->base.attr_mask));
+	else
+		ret =
+		ib_modify_qp_with_udata(qp, attr,
+					modify_qp_mask(qp->qp_type,
+						       cmd->base.attr_mask),
+					&attrs->driver_udata);
 
 release_qp:
 	uobj_put_obj_read(qp);
