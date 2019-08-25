@@ -97,7 +97,7 @@ index xxxxxxx..xxxxxxx 100644
 +       		xdp_return_frame(xdpi.xdpf);
 +#else
 +				/* Assumes order0 page*/
-+				put_page(virt_to_page(xdpi->xdpf->data));
++				put_page(virt_to_page(xdpi.xdpf->data));
 +#endif
  		}
  	}

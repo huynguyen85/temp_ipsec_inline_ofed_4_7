@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
 
 Change-Id: Ia45d22b3ddef3c6b67e2fafb5b8c3e0bd9209d4b
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c | 29 ++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
 index xxxxxxx..xxxxxxx 100644
@@ -47,7 +47,49 @@ index xxxxxxx..xxxxxxx 100644
  static void mlx5_lag_set_port_affinity(struct mlx5_lag *ldev, int port)
  {
  	struct lag_tracker tracker;
-@@ -314,3 +322,5 @@ void mlx5_lag_mp_cleanup(struct mlx5_lag *ldev)
+@@ -123,7 +131,11 @@ static void mlx5_lag_fib_route_event(struct mlx5_lag *ldev,
+ 	/* Handle add/replace event */
+ 	if (fi->fib_nhs == 1) {
+ 		if (__mlx5_lag_is_active(ldev)) {
++#ifdef HAVE_FIB_NH_DEV
+ 			struct net_device *nh_dev = fi->fib_nh[0].fib_nh_dev;
++#else
++			struct net_device *nh_dev = fi->fib_nh[0].nh_dev;
++#endif
+ 			int i = mlx5_lag_dev_get_netdev_idx(ldev, nh_dev);
+ 
+ 			mlx5_lag_set_port_affinity(ldev, ++i);
+@@ -135,10 +147,17 @@ static void mlx5_lag_fib_route_event(struct mlx5_lag *ldev,
+ 		return;
+ 
+ 	/* Verify next hops are ports of the same hca */
++#ifdef HAVE_FIB_NH_DEV
+ 	if (!(fi->fib_nh[0].fib_nh_dev == ldev->pf[0].netdev &&
+ 	      fi->fib_nh[1].fib_nh_dev == ldev->pf[1].netdev) &&
+ 	    !(fi->fib_nh[0].fib_nh_dev == ldev->pf[1].netdev &&
+ 	      fi->fib_nh[1].fib_nh_dev == ldev->pf[0].netdev)) {
++#else
++	if (!(fi->fib_nh[0].nh_dev == ldev->pf[0].netdev &&
++	      fi->fib_nh[1].nh_dev == ldev->pf[1].netdev) &&
++	    !(fi->fib_nh[0].nh_dev == ldev->pf[1].netdev &&
++	      fi->fib_nh[1].nh_dev == ldev->pf[0].netdev)) {
++#endif
+ 		mlx5_core_warn(ldev->pf[0].dev, "Multipath offload require two ports of the same HCA\n");
+ 		return;
+ 	}
+@@ -168,7 +187,11 @@ static void mlx5_lag_fib_nexthop_event(struct mlx5_lag *ldev,
+ 
+ 	/* nh added/removed */
+ 	if (event == FIB_EVENT_NH_DEL) {
++#ifdef HAVE_FIB_NH_DEV
+ 		int i = mlx5_lag_dev_get_netdev_idx(ldev, fib_nh->fib_nh_dev);
++#else
++		int i = mlx5_lag_dev_get_netdev_idx(ldev, fib_nh->nh_dev);
++#endif
+ 
+ 		if (i >= 0) {
+ 			i = (i + 1) % 2 + 1; /* peer port */
+@@ -314,3 +337,5 @@ void mlx5_lag_mp_cleanup(struct mlx5_lag *ldev)
  	unregister_fib_notifier(&mp->fib_nb);
  	mp->fib_nb.notifier_call = NULL;
  }
