@@ -41,3 +41,4 @@ Change-Id=I92797b58b53d0084d087f8b8f656bd8f7f1de185; subject=BACKPORTS: mlxfw ti
 Change-Id=Ib71879a521b5d747ccb6619594609fa77a39a832; subject=BACKPORTS: rxe till 4.14; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ia7a4517f97fdc12fe30fbb43d69bfe7aa263f0f7; subject=BACKPORTS: fix mlx4_en_select_queue and irq_dsc; feature=backports; upstream_status=ignore; general=;
 Change-Id=I95720878281c8394c7378df861f1e08f4fd75ca6; subject=BACKPORTS: mlx5_en till 4.14; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia24dbc3d821c239fc9d35bdf4e8631848881cf6d; subject=BACKPORTS: Cancel ESWITCH feature for mlx5_mode; feature=ofed_scripts; upstream_status=ignore; general=;
