@@ -9,4 +9,5 @@ Change-Id=I9e61ebd0d63b0afaa3c8c040687ff8dd25d534b5; subject=IB/mlx4: Fix RoCEv2
 Change-Id=I38b042b24b171fc90f19fa5965add1356ab87c54; subject=net/mlx4_core: Pass register/unregister requests per MAC to PF only once; feature=mlx4_core_sriov; upstream_status=NA; general=;
 Change-Id=Ibe5ebbb7141de80409cf9a019a8dfe6fd2efb767; subject=RDMA/uverbs: Fix odp experimental sysfs interface; feature=exp_odp; upstream_status=NA; general=;
 Change-Id=Ibda1c61e6d5e73b3dcc701159db119b40a2dc93f; subject=net/mlx4: Dynamically set guaranteed amount of counters per VF; feature=mlx4_core_bugs; upstream_status=in_progress; general=;
-Change-Id=I6b107b2027f8591f3012428149d18cbbf91818cd; subject=IB/mlx4_core: Fix modify qp flow for XRC qps; feature=mlx4_ib_bugs; upstream_status=NA; general=;
+Change-Id=I6b107b2027f8591f3012428149d18cbbf91818cd; subject=IB/mlx4_core: Fix modify qp flow for XRC qps; feature=mlx4_ib_bugs; upstream_status=ignore; general=;
+Change-Id=Ida230b257e4e277be8b4481a6237fcf4d1340825; subject=Revert "IB/mlx4_core: Fix modify qp flow for XRC qps"; feature=mlx4_ib_bugs; upstream_status=ignore; general=;
