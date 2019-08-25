@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
 
 Change-Id: Ic4a5a058d91c1d43e408598e0f6d1abce6007872
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tx.c | 95 +++++++++++++++++++++++--
- 1 file changed, 91 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tx.c | 99 ++++++++++++++++++++++++-
+ 1 file changed, 95 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
 index xxxxxxx..xxxxxxx 100644
@@ -252,7 +252,19 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  static void mlx5e_dump_error_cqe(struct mlx5e_txqsq *sq,
-@@ -611,7 +688,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
+@@ -589,7 +666,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
+ 				mlx5e_dump_error_cqe(sq,
+ 						     (struct mlx5_err_cqe *)cqe);
+ 				queue_work(cq->channel->priv->wq,
++#ifdef HAVE_DEVLINK_HEALTH_REPORT
+ 					   &sq->recover_work);
++#else
++					   &sq->recover.recover_work);
++#endif
+ 			}
+ 			stats->cqe_err++;
+ 		}
+@@ -611,7 +692,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
  				continue;
  			}
  
@@ -264,7 +276,7 @@ index xxxxxxx..xxxxxxx 100644
  				     SKBTX_HW_TSTAMP)) {
  				struct skb_shared_hwtstamps hwts = {};
  
-@@ -631,7 +712,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
+@@ -631,7 +716,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
  			npkts++;
  			nbytes += wi->num_bytes;
  			sqcc += wi->num_wqebbs;
@@ -276,7 +288,7 @@ index xxxxxxx..xxxxxxx 100644
  		} while (!last_wqe);
  
  	} while ((++i < MLX5E_TX_CQ_POLL_BUDGET) && (cqe = mlx5_cqwq_get_cqe(&cq->wq)));
-@@ -738,7 +823,9 @@ netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+@@ -738,7 +827,9 @@ netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
  	}
  
  	stats->bytes     += num_bytes;

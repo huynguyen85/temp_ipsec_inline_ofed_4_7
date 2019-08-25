@@ -1,0 +1,25 @@
+From: Talat Batheesh <talatb@mellanox.com>
+Subject: [PATCH] BACKPORT:
+ drivers/net/ethernet/mellanox/mlx5/core/en/reporter.h
+
+Change-Id: I1cbf47262de543a773481ff53aa8d2881c344cb4
+---
+ drivers/net/ethernet/mellanox/mlx5/core/en/reporter.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter.h b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter.h
+index xxxxxxx..xxxxxxx 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter.h
+@@ -7,9 +7,11 @@
+ #include <linux/mlx5/driver.h>
+ #include "en.h"
+ 
++#ifdef HAVE_DEVLINK_HEALTH_REPORT
+ int mlx5e_tx_reporter_create(struct mlx5e_priv *priv);
+ void mlx5e_tx_reporter_destroy(struct mlx5e_priv *priv);
+ void mlx5e_tx_reporter_err_cqe(struct mlx5e_txqsq *sq);
+ int mlx5e_tx_reporter_timeout(struct mlx5e_txqsq *sq);
++#endif
+ 
+ #endif

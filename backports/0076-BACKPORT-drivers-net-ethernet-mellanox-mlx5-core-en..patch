@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en.h
 
 Change-Id: I24f5cbae494ccd0c7baf5320d1b68492f5ae0bd5
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h | 252 +++++++++++++++++++++++++--
- 1 file changed, 235 insertions(+), 17 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en.h | 267 +++++++++++++++++++++++++--
+ 1 file changed, 248 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
 index xxxxxxx..xxxxxxx 100644
@@ -139,16 +139,24 @@ index xxxxxxx..xxxxxxx 100644
  struct mlx5e_sq_flow_map {
  	struct hlist_node hlist;
  	u32               dst_ip;
-@@ -437,7 +479,7 @@ struct mlx5e_txqsq {
+@@ -436,8 +478,15 @@ struct mlx5e_txqsq {
+ 	int                        ch_ix;
  	int                        txq_ix;
  	u32                        rate_limit;
++#ifndef HAVE_DEVLINK_HEALTH_REPORT
++	struct mlx5e_txqsq_recover {
++		struct work_struct         recover_work;
++		u64                        last_recover;
++	} recover;
++#else
  	struct work_struct         recover_work;
 -#ifdef CONFIG_MLX5_EN_SPECIAL_SQ
++#endif
 +#if defined(CONFIG_MLX5_EN_SPECIAL_SQ) && (defined(HAVE_NDO_SET_TX_MAXRATE) || defined(HAVE_NDO_SET_TX_MAXRATE_EXTENDED))
  	struct mlx5e_sq_flow_map   flow_map;
  #endif
  } ____cacheline_aligned_in_smp;
-@@ -448,6 +490,7 @@ struct mlx5e_dma_info {
+@@ -448,6 +497,7 @@ struct mlx5e_dma_info {
  	u32 refcnt_bias;
  };
  
@@ -156,7 +164,7 @@ index xxxxxxx..xxxxxxx 100644
  struct mlx5e_xdp_info {
  	struct xdp_frame      *xdpf;
  	dma_addr_t            dma_addr;
-@@ -514,6 +557,7 @@ struct mlx5e_xdpsq {
+@@ -514,6 +564,7 @@ struct mlx5e_xdpsq {
  	struct mlx5_wq_ctrl        wq_ctrl;
  	struct mlx5e_channel      *channel;
  } ____cacheline_aligned_in_smp;
@@ -164,15 +172,15 @@ index xxxxxxx..xxxxxxx 100644
  
  struct mlx5e_icosq {
  	/* data path */
-@@ -558,8 +602,24 @@ struct mlx5e_umr_dma_info {
+@@ -558,9 +609,25 @@ struct mlx5e_umr_dma_info {
  struct mlx5e_mpw_info {
  	struct mlx5e_umr_dma_info umr;
  	u16 consumed_strides;
 +#ifdef HAVE_XDP_BUFF
  	DECLARE_BITMAP(xdp_xmit_bitmap, MLX5_MPWRQ_PAGES_PER_WQE);
 +#endif
-+};
-+
+ };
+ 
 +#ifdef CONFIG_COMPAT_LRO_ENABLED_IPOIB
 +#define IS_HW_LRO(params) \
 +	((params)->lro_en && ((params)->pflags & MLX5E_PFLAG_HWLRO))
@@ -184,12 +192,13 @@ index xxxxxxx..xxxxxxx 100644
 +struct mlx5e_sw_lro {
 +	struct net_lro_mgr	lro_mgr;
 +	struct net_lro_desc	lro_desc[MLX5E_LRO_MAX_DESC];
- };
++};
 +#endif
- 
++
  #define MLX5E_MAX_RX_FRAGS 4
  
-@@ -671,10 +731,18 @@ struct mlx5e_rq {
+ #define MLX5E_PAGE_CACHE_LOG_MAX_RQ_MULT	4
+@@ -671,10 +738,18 @@ struct mlx5e_rq {
  	struct mlx5e_dim       dim_obj; /* Adaptive Moderation */
  
  	/* XDP */
@@ -208,7 +217,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	/* control */
  	struct mlx5_wq_ctrl    wq_ctrl;
-@@ -685,9 +753,16 @@ struct mlx5e_rq {
+@@ -685,9 +760,16 @@ struct mlx5e_rq {
  	struct mlx5_core_mkey  umr_mkey;
  
  	/* XDP read-mostly */
@@ -225,7 +234,7 @@ index xxxxxxx..xxxxxxx 100644
  struct mlx5e_channel {
  	/* data path */
  	struct mlx5e_rq            rq;
-@@ -697,19 +772,28 @@ struct mlx5e_channel {
+@@ -697,19 +779,28 @@ struct mlx5e_channel {
  	u16			   num_special_sq;
  #endif
  	struct mlx5e_icosq         icosq;   /* internal control operations */
@@ -254,7 +263,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct mlx5e_ch_stats     *stats;
  
  	/* control */
-@@ -733,8 +817,12 @@ struct mlx5e_channel_stats {
+@@ -733,8 +824,12 @@ struct mlx5e_channel_stats {
  	struct mlx5e_ch_stats ch;
  	struct mlx5e_sq_stats sq[MLX5E_MAX_NUM_TC];
  	struct mlx5e_rq_stats rq;
@@ -267,7 +276,23 @@ index xxxxxxx..xxxxxxx 100644
  } ____cacheline_aligned_in_smp;
  
  enum {
-@@ -836,10 +924,10 @@ struct mlx5e_priv {
+@@ -815,13 +910,14 @@ struct mlx5e_rss_params {
+ 	u8	toeplitz_hash_key[40];
+ 	u8	hfunc;
+ };
+-
++#ifdef HAVE_DEVLINK_HEALTH_REPORT
+ struct mlx5e_modify_sq_param {
+ 	int curr_state;
+ 	int next_state;
+ 	int rl_update;
+ 	int rl_index;
+ };
++#endif
+ 
+ struct mlx5e_delay_drop {
+ 	struct work_struct	work;
+@@ -836,10 +932,10 @@ struct mlx5e_priv {
  	struct mlx5e_txqsq *txq2sq[MLX5E_MAX_NUM_CHANNELS * MLX5E_MAX_NUM_TC +
  				   MLX5E_MAX_RL_QUEUES];
  	int channel_tc2txq[MLX5E_MAX_NUM_CHANNELS][MLX5E_MAX_NUM_TC];
@@ -280,7 +305,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct mlx5e_dcbx_dp       dcbx_dp;
  #endif
  	/* priv data path fields - end */
-@@ -873,7 +961,13 @@ struct mlx5e_priv {
+@@ -873,7 +969,13 @@ struct mlx5e_priv {
  	struct net_device         *netdev;
  	struct mlx5e_stats         stats;
  	struct mlx5e_channel_stats channel_stats[MLX5E_MAX_NUM_CHANNELS];
@@ -294,7 +319,7 @@ index xxxxxxx..xxxxxxx 100644
  #ifdef CONFIG_MLX5_EN_SPECIAL_SQ
  	struct mlx5e_sq_stats      special_sq_stats[MLX5E_MAX_RL_QUEUES];
  	int                        max_opened_special_sq;
-@@ -883,9 +977,11 @@ struct mlx5e_priv {
+@@ -883,9 +985,11 @@ struct mlx5e_priv {
  	u16                        drop_rq_q_counter;
  	struct notifier_block      events_nb;
  
@@ -306,7 +331,17 @@ index xxxxxxx..xxxxxxx 100644
  
  	const struct mlx5e_profile *profile;
  	void                      *ppriv;
-@@ -910,14 +1006,6 @@ struct mlx5e_priv {
+@@ -895,7 +999,9 @@ struct mlx5e_priv {
+ #ifdef CONFIG_MLX5_EN_TLS
+ 	struct mlx5e_tls          *tls;
+ #endif
++#ifdef HAVE_DEVLINK_HEALTH_REPORT
+ 	struct devlink_health_reporter *tx_reporter;
++#endif
+ 
+ 	struct dentry *dfs_root;
+ 
+@@ -910,14 +1016,6 @@ struct mlx5e_priv {
  	struct mlx5e_ecn_enable_ctx ecn_enable_ctx[MLX5E_CONG_PROTOCOL_NUM][8];
  	struct mlx5e_delay_drop delay_drop;
  };
@@ -321,7 +356,7 @@ index xxxxxxx..xxxxxxx 100644
  
  struct mlx5e_profile {
  	int	(*init)(struct mlx5_core_dev *mdev,
-@@ -939,12 +1027,49 @@ struct mlx5e_profile {
+@@ -939,12 +1037,49 @@ struct mlx5e_profile {
  	int	max_tc;
  };
  
@@ -345,8 +380,8 @@ index xxxxxxx..xxxxxxx 100644
 +#ifdef __ETHTOOL_DECLARE_LINK_MODE_MASK
  void mlx5e_build_ptys2ethtool_map(void);
 +#endif
-+
  
++
 +#ifdef NDO_SELECT_QUEUE_HAS_3_PARMS_NO_FALLBACK
  u16 mlx5e_select_queue(struct net_device *dev, struct sk_buff *skb,
  		       struct net_device *sb_dev);
@@ -371,7 +406,7 @@ index xxxxxxx..xxxxxxx 100644
  netdev_tx_t mlx5e_xmit(struct sk_buff *skb, struct net_device *dev);
  netdev_tx_t mlx5e_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
  			  struct mlx5e_tx_wqe *wqe, u16 pi, bool xmit_more);
-@@ -988,15 +1113,25 @@ void mlx5e_update_stats(struct mlx5e_priv *priv);
+@@ -988,15 +1123,25 @@ void mlx5e_update_stats(struct mlx5e_priv *priv);
  int mlx5e_sysfs_create(struct net_device *dev);
  void mlx5e_sysfs_remove(struct net_device *dev);
  
@@ -398,7 +433,7 @@ index xxxxxxx..xxxxxxx 100644
  void mlx5e_fold_sw_stats64(struct mlx5e_priv *priv, struct rtnl_link_stats64 *s);
  
  void mlx5e_init_l2_addr(struct mlx5e_priv *priv);
-@@ -1005,16 +1140,36 @@ void mlx5e_self_test(struct net_device *ndev, struct ethtool_test *etest,
+@@ -1005,16 +1150,36 @@ void mlx5e_self_test(struct net_device *ndev, struct ethtool_test *etest,
  		     u64 *buf);
  void mlx5e_set_rx_mode_work(struct work_struct *work);
  
@@ -435,7 +470,21 @@ index xxxxxxx..xxxxxxx 100644
  struct mlx5e_redirect_rqt_param {
  	bool is_rss;
  	union {
-@@ -1160,7 +1315,11 @@ void mlx5e_notify_hw(struct mlx5_wq_cyc *wq, u16 pc,
+@@ -1063,11 +1228,12 @@ void mlx5e_set_rx_cq_mode_params(struct mlx5e_params *params,
+ void mlx5e_set_rq_type(struct mlx5_core_dev *mdev, struct mlx5e_params *params);
+ void mlx5e_init_rq_type_params(struct mlx5_core_dev *mdev,
+ 			       struct mlx5e_params *params);
+-
++#ifdef HAVE_DEVLINK_HEALTH_REPORT
+ int mlx5e_modify_sq(struct mlx5_core_dev *mdev, u32 sqn,
+ 		    struct mlx5e_modify_sq_param *p);
+ void mlx5e_activate_txqsq(struct mlx5e_txqsq *sq);
+ void mlx5e_tx_disable_queue(struct netdev_queue *txq);
++#endif
+ 
+ static inline bool mlx5e_tunnel_inner_ft_supported(struct mlx5_core_dev *mdev)
+ {
+@@ -1160,7 +1326,11 @@ void mlx5e_notify_hw(struct mlx5_wq_cyc *wq, u16 pc,
  {
  	ctrl->fm_ce_se = MLX5_WQE_CTRL_CQ_UPDATE;
  	/* ensure wqe is visible to device before updating doorbell record */
@@ -447,7 +496,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	*wq->db = cpu_to_be32(pc);
  
-@@ -1181,13 +1340,23 @@ static inline void mlx5e_cq_arm(struct mlx5e_cq *cq)
+@@ -1181,13 +1351,23 @@ static inline void mlx5e_cq_arm(struct mlx5e_cq *cq)
  }
  
  extern const struct ethtool_ops mlx5e_ethtool_ops;
@@ -471,7 +520,7 @@ index xxxxxxx..xxxxxxx 100644
  
  int mlx5e_create_tir(struct mlx5_core_dev *mdev,
  		     struct mlx5e_tir *tir, u32 *in, int inlen);
-@@ -1197,6 +1366,9 @@ int mlx5e_create_mdev_resources(struct mlx5_core_dev *mdev);
+@@ -1197,6 +1377,9 @@ int mlx5e_create_mdev_resources(struct mlx5_core_dev *mdev);
  void mlx5e_destroy_mdev_resources(struct mlx5_core_dev *mdev);
  int mlx5e_refresh_tirs(struct mlx5e_priv *priv, bool enable_uc_lb);
  int mlx5e_modify_tirs_lro(struct mlx5e_priv *priv);
@@ -481,7 +530,7 @@ index xxxxxxx..xxxxxxx 100644
  
  /* common netdev helpers */
  void mlx5e_create_q_counters(struct mlx5e_priv *priv);
-@@ -1251,27 +1423,53 @@ void mlx5e_ethtool_get_ringparam(struct mlx5e_priv *priv,
+@@ -1251,27 +1434,53 @@ void mlx5e_ethtool_get_ringparam(struct mlx5e_priv *priv,
  				 struct ethtool_ringparam *param);
  int mlx5e_ethtool_set_ringparam(struct mlx5e_priv *priv,
  				struct ethtool_ringparam *param);
@@ -537,7 +586,7 @@ index xxxxxxx..xxxxxxx 100644
  void mlx5e_ethtool_get_pauseparam(struct mlx5e_priv *priv,
  				  struct ethtool_pauseparam *pauseparam);
  int mlx5e_ethtool_set_pauseparam(struct mlx5e_priv *priv,
-@@ -1304,10 +1502,12 @@ void mlx5e_build_rss_params(struct mlx5e_rss_params *rss_params,
+@@ -1304,10 +1513,12 @@ void mlx5e_build_rss_params(struct mlx5e_rss_params *rss_params,
  			    u16 num_channels);
  u8 mlx5e_params_calculate_tx_min_inline(struct mlx5_core_dev *mdev);
  
@@ -550,7 +599,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static inline bool mlx5e_dropless_rq_supported(struct mlx5_core_dev *mdev)
  {
-@@ -1322,16 +1522,34 @@ int mlx5e_get_link_ksettings(struct net_device *netdev,
+@@ -1322,16 +1533,34 @@ int mlx5e_get_link_ksettings(struct net_device *netdev,
  			     struct ethtool_link_ksettings *link_ksettings);
  int mlx5e_set_link_ksettings(struct net_device *netdev,
  			     const struct ethtool_link_ksettings *link_ksettings);
