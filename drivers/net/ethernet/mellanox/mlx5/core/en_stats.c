@@ -361,6 +361,7 @@ static void mlx5e_grp_vnic_env_update_stats(struct mlx5e_priv *priv)
 	mlx5_cmd_exec(mdev, in, sizeof(in), out, outlen);
 }
 
+#ifdef CONFIG_MLX5_ESWITCH
 struct vport_rep_stats {
 	u64 vport_rx_packets;
 	u64 vport_tx_packets;
@@ -513,6 +514,7 @@ void mlx5e_grp_rep_sw_update_stats(struct mlx5e_priv *priv)
 		}
 	}
 }
+#endif /* CONFIG_MLX5_ESWITCH */
 
 #define VPORT_COUNTER_OFF(c) MLX5_BYTE_OFF(query_vport_counter_out, c)
 static const struct counter_desc vport_stats_desc[] = {
@@ -1660,6 +1662,7 @@ const struct mlx5e_stats_grp mlx5e_stats_grps[] = {
 
 const int mlx5e_num_stats_grps = ARRAY_SIZE(mlx5e_stats_grps);
 
+#ifdef CONFIG_MLX5_ESWITCH
 const struct mlx5e_stats_grp mlx5e_rep_stats_grps[] = {
 	{
 		.get_num_stats = mlx5e_grp_rep_sw_get_num_stats,
@@ -1786,3 +1789,5 @@ const struct mlx5e_stats_grp mlx5e_ul_rep_stats_grps[] = {
 };
 
 const int mlx5e_ul_rep_num_stats_grps = ARRAY_SIZE(mlx5e_ul_rep_stats_grps);
+#endif /* CONFIG_MLX5_ESWITCH */
+

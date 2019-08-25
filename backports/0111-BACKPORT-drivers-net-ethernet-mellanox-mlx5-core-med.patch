@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/meddev/sf.c
 
 Change-Id: I1c1f92939d399602626b6604c9aea148e330fc05
 ---
- .../net/ethernet/mellanox/mlx5/core/meddev/sf.c    | 82 +++++++++++++++++++---
- 1 file changed, 74 insertions(+), 8 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/meddev/sf.c    | 84 +++++++++++++++++++---
+ 1 file changed, 76 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/meddev/sf.c b/drivers/net/ethernet/mellanox/mlx5/core/meddev/sf.c
 index xxxxxxx..xxxxxxx 100644
@@ -194,3 +194,14 @@ index xxxxxxx..xxxxxxx 100644
  	dev->dma_mask = pdev->dev.dma_mask;
  	dev->dma_parms = pdev->dev.dma_parms;
  	dma_set_coherent_mask(dev, pdev->dev.coherent_dma_mask);
+@@ -452,8 +518,10 @@ struct net_device *mlx5_sf_get_netdev(struct mlx5_sf *sf)
+ 
+ 	vport_num = mlx5_sf_hw_id(parent_dev, sf->idx);
+ 
++#ifdef CONFIG_MLX5_ESWITCH                                                                     
+ 	ndev = mlx5_eswitch_get_proto_dev(parent_dev->priv.eswitch,
+ 					  vport_num, REP_ETH);
++#endif
+ 	if (!ndev)
+ 		return ERR_PTR(-ENODEV);
+ 	/* FIXME This is racy. get_proto_dev()) is poor API

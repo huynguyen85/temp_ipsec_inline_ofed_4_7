@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/hw/mlx5/main.c
 
 Change-Id: Id81a8fee200ee23e1323bd945409bd1ecbce3d3f
 ---
- drivers/infiniband/hw/mlx5/main.c | 40 +++++++++++++++++++++++++++++++++++----
- 1 file changed, 36 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/mlx5/main.c | 46 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 40 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
 index xxxxxxx..xxxxxxx 100644
@@ -48,7 +48,7 @@ index xxxxxxx..xxxxxxx 100644
  
  		if (ibdev->is_rep)
  			roce = mlx5_get_rep_roce(ibdev, ndev, &port_num);
-@@ -995,8 +1004,10 @@ int mlx5_ib_query_device(struct ib_device *ibdev,
+@@ -998,8 +1007,10 @@ int mlx5_ib_query_device(struct ib_device *ibdev,
  	if (MLX5_CAP_GEN(mdev, cd))
  		props->device_cap_flags |= IB_DEVICE_CROSS_CHANNEL;
  
@@ -59,7 +59,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (mlx5_ib_port_link_layer(ibdev, 1) ==
  	    IB_LINK_LAYER_ETHERNET && raw_support) {
-@@ -1819,7 +1830,9 @@ static int alloc_capi_context(struct mlx5_ib_dev *dev, struct mlx5_capi_context
+@@ -1822,7 +1833,9 @@ static int alloc_capi_context(struct mlx5_ib_dev *dev, struct mlx5_capi_context
  		goto out_mm;
  	}
  
@@ -69,7 +69,7 @@ index xxxxxxx..xxxxxxx 100644
  	return 0;
  
  out_mm:
-@@ -1837,7 +1850,9 @@ static int free_capi_context(struct mlx5_ib_dev *dev, struct mlx5_capi_context *
+@@ -1840,7 +1853,9 @@ static int free_capi_context(struct mlx5_ib_dev *dev, struct mlx5_capi_context *
  	err = mlx5_core_destroy_pec(dev->mdev, cctx->pasid);
  	if (err)
  		mlx5_ib_warn(dev, "destroy pec failed\n");
@@ -79,7 +79,7 @@ index xxxxxxx..xxxxxxx 100644
  	mmdrop(cctx->mm);
  	return err;
  }
-@@ -2140,9 +2155,11 @@ static int get_extended_index(unsigned long offset)
+@@ -2143,9 +2158,11 @@ static int get_extended_index(unsigned long offset)
  }
  
  
@@ -91,7 +91,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static inline char *mmap_cmd2str(enum mlx5_ib_mmap_cmd cmd)
  {
-@@ -2199,6 +2216,9 @@ static int uar_mmap(struct mlx5_ib_dev *dev, enum mlx5_ib_mmap_cmd cmd,
+@@ -2202,6 +2219,9 @@ static int uar_mmap(struct mlx5_ib_dev *dev, enum mlx5_ib_mmap_cmd cmd,
  	int dyn_uar = (cmd == MLX5_IB_MMAP_ALLOC_WC);
  	int max_valid_idx = dyn_uar ? bfregi->num_sys_pages :
  				bfregi->num_static_sys_pages;
@@ -101,7 +101,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
  		return -EINVAL;
-@@ -2219,7 +2239,11 @@ static int uar_mmap(struct mlx5_ib_dev *dev, enum mlx5_ib_mmap_cmd cmd,
+@@ -2222,7 +2242,11 @@ static int uar_mmap(struct mlx5_ib_dev *dev, enum mlx5_ib_mmap_cmd cmd,
  	case MLX5_IB_MMAP_ALLOC_WC:
  /* Some architectures don't support WC memory */
  #if defined(CONFIG_X86)
@@ -113,7 +113,35 @@ index xxxxxxx..xxxxxxx 100644
  			return -EPERM;
  #elif !(defined(CONFIG_PPC) || ((defined(CONFIG_ARM) || defined(CONFIG_ARM64)) && defined(CONFIG_MMU)))
  			return -EPERM;
-@@ -6398,7 +6422,9 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
+@@ -3381,11 +3405,12 @@ static struct mlx5_ib_flow_prio *get_flow_table(struct mlx5_ib_dev *dev,
+ 
+ 	max_table_size = BIT(MLX5_CAP_FLOWTABLE_NIC_RX(dev->mdev,
+ 						       log_max_ft_size));
++#ifdef CONFIG_MLX5_ESWITCH                                                                     
+ 	if (MLX5_ESWITCH_MANAGER(dev->mdev) &&
+ 	    mlx5_eswitch_mode(dev->mdev->priv.eswitch) == MLX5_ESWITCH_OFFLOADS)
+ 		esw_encap = mlx5_eswitch_get_encap_mode(esw) !=
+ 			DEVLINK_ESWITCH_ENCAP_MODE_NONE;
+-
++#endif
+ 	if (flow_attr->type == IB_FLOW_ATTR_NORMAL) {
+ 		enum mlx5_flow_namespace_type fn_type;
+ 
+@@ -4059,11 +4084,12 @@ _get_flow_table(struct mlx5_ib_dev *dev,
+ 	u32 flags = 0;
+ 	int priority;
+ 
++#ifdef CONFIG_MLX5_ESWITCH                                                                     
+ 	if (MLX5_ESWITCH_MANAGER(dev->mdev) &&
+ 	    mlx5_eswitch_mode(dev->mdev->priv.eswitch) == MLX5_ESWITCH_OFFLOADS)
+ 		esw_encap = mlx5_eswitch_get_encap_mode(esw) !=
+ 			DEVLINK_ESWITCH_ENCAP_MODE_NONE;
+-
++#endif
+ 	if (mcast)
+ 		priority = MLX5_IB_FLOW_MCAST_PRIO;
+ 	else
+@@ -6401,7 +6427,9 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
  	.destroy_qp = mlx5_ib_destroy_qp,
  	.destroy_srq = mlx5_ib_destroy_srq,
  	.detach_mcast = mlx5_ib_mcg_detach,
@@ -123,7 +151,7 @@ index xxxxxxx..xxxxxxx 100644
  	.drain_rq = mlx5_ib_drain_rq,
  	.drain_sq = mlx5_ib_drain_sq,
  	.get_dev_fw_str = get_dev_fw_str,
-@@ -6471,10 +6497,16 @@ static const struct ib_device_ops mlx5_ib_dev_frontend_ns_context_ops = {
+@@ -6474,10 +6502,16 @@ static const struct ib_device_ops mlx5_ib_dev_frontend_ns_context_ops = {
  };
  
  static const struct ib_device_ops mlx5_ib_dev_sriov_ops = {
