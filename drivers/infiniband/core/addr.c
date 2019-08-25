@@ -423,6 +423,9 @@ static int addr6_resolve(struct sockaddr *src_sock,
 	struct dst_entry *dst;
 	int ret;
 
+	if (!ipv6_mod_enabled())
+		return -EADDRNOTAVAIL;
+
 	memset(&fl6, 0, sizeof fl6);
 	fl6.daddr = dst_in->sin6_addr;
 	fl6.saddr = src_in->sin6_addr;
