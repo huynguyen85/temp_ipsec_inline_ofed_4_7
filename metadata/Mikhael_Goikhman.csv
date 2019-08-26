@@ -9,3 +9,4 @@ Change-Id=I0c16a0957999ea86325e11c0cf7f42a8a9fb2dbc; subject=memtrack: Fix memtr
 Change-Id=Ib2a23e8a44d9e703ff3eafec1c33302446c67879; subject=metadata: Add MD for last mlx5_single_fdb_lag commits; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I9d8fd71e8b000af97e8fba9ed0e5200b20bfd1b9; subject=BACKPORTS: Update backports after Mark Bloch eswitch/lag patches; feature=backports; upstream_status=ignore; general=;
 Change-Id=I0ce76da694c13427620525925d24434976c8776a; subject=memtrack: Fix definition of alloc_workqueue for kernels like 4.x; feature=memtrack_bugs; upstream_status=ignore; general=;
+Change-Id=Id2f9bccbb48a6a6f6a5b2e6337b6bc6e4515aaa1; subject=net/mlx5e: Allow configuring SW LRO with legacy RQ; feature=backports; upstream_status=ignore; general=;
