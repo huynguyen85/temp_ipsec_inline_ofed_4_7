@@ -4,8 +4,8 @@ Subject: [PATCH] BACKPORT:
 
 Change-Id: Id365ff1d1b96cf3082cdcbfd8448baac378376d8
 ---
- .../net/ethernet/mellanox/mlx5/core/en_ethtool.c   | 839 ++++++++++++++++++++-
- 1 file changed, 822 insertions(+), 17 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/en_ethtool.c   | 843 ++++++++++++++++++++-
+ 1 file changed, 826 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
 index xxxxxxx..xxxxxxx 100644
@@ -1009,17 +1009,36 @@ index xxxxxxx..xxxxxxx 100644
  static int set_pflag_cqe_based_moder(struct net_device *netdev, bool enable,
  				     bool is_rx_cq)
  {
-@@ -1937,6 +2571,9 @@ static const struct pflag_desc mlx5e_priv_flags[MLX5E_NUM_PFLAGS] = {
+@@ -1899,6 +2533,7 @@ static int set_pflag_dropless_rq(struct net_device *netdev,
+ 	return err;
+ }
+ 
++#ifdef HAVE_XDP_BUFF
+ static int set_pflag_tx_xdp_hw_checksum(struct net_device *netdev, bool new_val)
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
+@@ -1925,6 +2560,7 @@ static int set_pflag_tx_xdp_hw_checksum(struct net_device *netdev, bool new_val)
+ 
+ 	return err;
+ }
++#endif
+ 
+ static const struct pflag_desc mlx5e_priv_flags[MLX5E_NUM_PFLAGS] = {
+ 	{ "rx_cqe_moder",        set_pflag_rx_cqe_based_moder },
+@@ -1936,7 +2572,12 @@ static const struct pflag_desc mlx5e_priv_flags[MLX5E_NUM_PFLAGS] = {
+ 	{ "sniffer",        	 set_pflag_sniffer },
  	{ "dropless_rq",	 set_pflag_dropless_rq},
  	{ "per_channel_stats",	 set_pflag_per_channel_stats},
++#ifdef HAVE_XDP_BUFF
          { "tx_xdp_hw_checksum",  set_pflag_tx_xdp_hw_checksum},
++#endif
 +#ifdef CONFIG_COMPAT_LRO_ENABLED_IPOIB
 +	{ "hw_lro",              set_pflag_hwlro },
 +#endif
  };
  
  int mlx5e_priv_flags_num(void)
-@@ -1972,6 +2609,7 @@ static int mlx5e_handle_pflag(struct net_device *netdev,
+@@ -1972,6 +2613,7 @@ static int mlx5e_handle_pflag(struct net_device *netdev,
  	return 0;
  }
  
@@ -1027,7 +1046,7 @@ index xxxxxxx..xxxxxxx 100644
  int mlx5e_set_priv_flags(struct net_device *netdev, u32 pflags)
  {
  	struct mlx5e_priv *priv = netdev_priv(netdev);
-@@ -1989,7 +2627,11 @@ int mlx5e_set_priv_flags(struct net_device *netdev, u32 pflags)
+@@ -1989,7 +2631,11 @@ int mlx5e_set_priv_flags(struct net_device *netdev, u32 pflags)
  	mutex_unlock(&priv->state_lock);
  
  	/* Need to fix some features.. */
@@ -1039,7 +1058,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	return err;
  }
-@@ -2000,6 +2642,86 @@ u32 mlx5e_get_priv_flags(struct net_device *netdev)
+@@ -2000,6 +2646,86 @@ u32 mlx5e_get_priv_flags(struct net_device *netdev)
  
  	return priv->channels.params.pflags;
  }
@@ -1126,7 +1145,7 @@ index xxxxxxx..xxxxxxx 100644
  
  int mlx5e_ethtool_flash_device(struct mlx5e_priv *priv,
  			       struct ethtool_flash *flash)
-@@ -2059,40 +2781,123 @@ const struct ethtool_ops mlx5e_ethtool_ops = {
+@@ -2059,40 +2785,123 @@ const struct ethtool_ops mlx5e_ethtool_ops = {
  	.get_ethtool_stats = mlx5e_get_ethtool_stats,
  	.get_ringparam     = mlx5e_get_ringparam,
  	.set_ringparam     = mlx5e_set_ringparam,

@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_main.c
 
 Change-Id: I85a6e1bc1a15dd571c333156d669ec6927b0bcda
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 1147 ++++++++++++++++++++-
- 1 file changed, 1104 insertions(+), 43 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 1149 ++++++++++++++++++++-
+ 1 file changed, 1106 insertions(+), 43 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
 index xxxxxxx..xxxxxxx 100644
@@ -2065,12 +2065,12 @@ index xxxxxxx..xxxxxxx 100644
 +#else
 +#ifdef HAVE_NDO_SETUP_TC
 +#ifdef HAVE_NDO_SETUP_TC_TAKES_TC_SETUP_TYPE
- 	.ndo_setup_tc            = mlx5e_setup_tc,
++	.ndo_setup_tc            = mlx5e_setup_tc,
 +#else
 +#if defined(HAVE_NDO_SETUP_TC_4_PARAMS) || defined(HAVE_NDO_SETUP_TC_TAKES_CHAIN_INDEX)
 +	.ndo_setup_tc            = mlx5e_ndo_setup_tc,
 +#else
-+	.ndo_setup_tc            = mlx5e_setup_tc,
+ 	.ndo_setup_tc            = mlx5e_setup_tc,
 +#endif
 +#endif
 +#endif
@@ -2236,7 +2236,18 @@ index xxxxxxx..xxxxxxx 100644
  	params->rx_dim_enabled = MLX5_CAP_GEN(mdev, cq_moderation);
  	params->tx_dim_enabled = MLX5_CAP_GEN(mdev, cq_moderation);
  	mlx5e_set_rx_cq_mode_params(params, rx_cq_period_mode);
-@@ -5002,21 +5948,30 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
+@@ -4982,8 +5928,10 @@ void mlx5e_build_nic_params(struct mlx5_core_dev *mdev,
+ 	MLX5E_SET_PFLAG(params, MLX5E_PFLAG_SNIFFER, 0);
+ 	MLX5E_SET_PFLAG(params, MLX5E_PFLAG_PER_CH_STATS, true);
+ 
++#ifdef HAVE_XDP_BUFF
+ 	/* TX HW checksum offload for XDP is off by default */
+ 	MLX5E_SET_PFLAG(params, MLX5E_PFLAG_TX_XDP_CSUM, 0);
++#endif
+ }
+ 
+ static void mlx5e_set_netdev_dev_addr(struct net_device *netdev)
+@@ -5002,21 +5950,30 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
  {
  	struct mlx5e_priv *priv = netdev_priv(netdev);
  	struct mlx5_core_dev *mdev = priv->mdev;
@@ -2267,7 +2278,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	netdev->vlan_features    |= NETIF_F_SG;
  	netdev->vlan_features    |= NETIF_F_IP_CSUM;
-@@ -5025,91 +5980,164 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
+@@ -5025,91 +5982,164 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
  	netdev->vlan_features    |= NETIF_F_TSO;
  	netdev->vlan_features    |= NETIF_F_TSO6;
  	netdev->vlan_features    |= NETIF_F_RXCSUM;
@@ -2437,7 +2448,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	mlx5e_set_netdev_dev_addr(netdev);
  	mlx5e_ipsec_build_netdev(priv);
-@@ -5262,10 +6290,14 @@ static int mlx5e_init_nic_tx(struct mlx5e_priv *priv)
+@@ -5262,10 +6292,14 @@ static int mlx5e_init_nic_tx(struct mlx5e_priv *priv)
  		return err;
  	}
  
@@ -2452,7 +2463,7 @@ index xxxxxxx..xxxxxxx 100644
  	return 0;
  }
  
-@@ -5276,23 +6308,35 @@ static void mlx5e_nic_enable(struct mlx5e_priv *priv)
+@@ -5276,23 +6310,35 @@ static void mlx5e_nic_enable(struct mlx5e_priv *priv)
  
  	mlx5e_init_l2_addr(priv);
  
@@ -2488,7 +2499,7 @@ index xxxxxxx..xxxxxxx 100644
  #endif
  
  	queue_work(priv->wq, &priv->set_rx_mode_work);
-@@ -5310,9 +6354,11 @@ static void mlx5e_nic_disable(struct mlx5e_priv *priv)
+@@ -5310,9 +6356,11 @@ static void mlx5e_nic_disable(struct mlx5e_priv *priv)
  {
  	struct mlx5_core_dev *mdev = priv->mdev;
  
@@ -2500,7 +2511,7 @@ index xxxxxxx..xxxxxxx 100644
  #endif
  
  	rtnl_lock();
-@@ -5380,8 +6426,10 @@ int mlx5e_netdev_init(struct net_device *netdev,
+@@ -5380,8 +6428,10 @@ int mlx5e_netdev_init(struct net_device *netdev,
  	/* netdev init */
  	netif_carrier_off(netdev);
  
@@ -2511,7 +2522,7 @@ index xxxxxxx..xxxxxxx 100644
  #endif
  
  	return 0;
-@@ -5406,7 +6454,14 @@ struct net_device *mlx5e_create_netdev(struct mlx5_core_dev *mdev,
+@@ -5406,7 +6456,14 @@ struct net_device *mlx5e_create_netdev(struct mlx5_core_dev *mdev,
  		mdev->mlx5e_res.max_rl_queues = MLX5E_MAX_RL_QUEUES;
  
  	num_mqs = nch * profile->max_tc + mdev->mlx5e_res.max_rl_queues;
@@ -2526,7 +2537,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (!netdev) {
  		mlx5_core_err(mdev, "alloc_etherdev_mqs() failed\n");
  		return NULL;
-@@ -5575,8 +6630,10 @@ static void *mlx5e_add(struct mlx5_core_dev *mdev)
+@@ -5575,8 +6632,10 @@ static void *mlx5e_add(struct mlx5_core_dev *mdev)
  	if (err)
  		goto err_unregister_netdev;
  
@@ -2537,7 +2548,7 @@ index xxxxxxx..xxxxxxx 100644
  #endif
  	return priv;
  
-@@ -5601,8 +6658,10 @@ static void mlx5e_remove(struct mlx5_core_dev *mdev, void *vpriv)
+@@ -5601,8 +6660,10 @@ static void mlx5e_remove(struct mlx5_core_dev *mdev, void *vpriv)
  	}
  #endif
  	priv = vpriv;
@@ -2548,7 +2559,7 @@ index xxxxxxx..xxxxxxx 100644
  #endif
  	mlx5e_sysfs_remove(priv->netdev);
  	unregister_netdev(priv->netdev);
-@@ -5621,7 +6680,9 @@ static struct mlx5_interface mlx5e_interface = {
+@@ -5621,7 +6682,9 @@ static struct mlx5_interface mlx5e_interface = {
  void mlx5e_init(void)
  {
  	mlx5e_ipsec_build_inverse_table();

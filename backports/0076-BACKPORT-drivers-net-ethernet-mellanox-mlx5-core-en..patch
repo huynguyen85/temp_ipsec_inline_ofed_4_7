@@ -64,15 +64,16 @@ index xxxxxxx..xxxxxxx 100644
  
  #define MLX5E_METADATA_ETHER_TYPE (0x8CE4)
  #define MLX5E_METADATA_ETHER_LEN 8
-@@ -240,6 +262,12 @@ enum mlx5e_priv_flag {
+@@ -239,7 +261,13 @@ enum mlx5e_priv_flag {
+ 	MLX5E_PFLAG_SNIFFER,
  	MLX5E_PFLAG_DROPLESS_RQ,
  	MLX5E_PFLAG_PER_CH_STATS ,
++#ifdef HAVE_XDP_BUFF
  	MLX5E_PFLAG_TX_XDP_CSUM ,
++#endif
 +	/* OFED-specific private flags */
-+	MLX5E_PFLAG_OFED_FIRST_FREE,
-+	MLX5E_PFLAG_OFED_START = ((MLX5E_PFLAG_OFED_FIRST_FREE - 1) << 1),
 +#ifdef CONFIG_COMPAT_LRO_ENABLED_IPOIB
-+	MLX5E_PFLAG_HWLRO = (MLX5E_PFLAG_OFED_START << 0),
++	MLX5E_PFLAG_HWLRO,
 +#endif
  	MLX5E_NUM_PFLAGS, /* Keep last */
  };
@@ -319,18 +320,17 @@ index xxxxxxx..xxxxxxx 100644
  #ifdef CONFIG_MLX5_EN_SPECIAL_SQ
  	struct mlx5e_sq_stats      special_sq_stats[MLX5E_MAX_RL_QUEUES];
  	int                        max_opened_special_sq;
-@@ -883,9 +985,11 @@ struct mlx5e_priv {
+@@ -883,8 +985,10 @@ struct mlx5e_priv {
  	u16                        drop_rq_q_counter;
  	struct notifier_block      events_nb;
  
 +#ifdef HAVE_IEEE_DCBNL_ETS
  #ifdef CONFIG_MLX5_CORE_EN_DCB
  	struct mlx5e_dcbx          dcbx;
- #endif
 +#endif
+ #endif
  
  	const struct mlx5e_profile *profile;
- 	void                      *ppriv;
 @@ -895,7 +999,9 @@ struct mlx5e_priv {
  #ifdef CONFIG_MLX5_EN_TLS
  	struct mlx5e_tls          *tls;
@@ -380,8 +380,8 @@ index xxxxxxx..xxxxxxx 100644
 +#ifdef __ETHTOOL_DECLARE_LINK_MODE_MASK
  void mlx5e_build_ptys2ethtool_map(void);
 +#endif
- 
 +
+ 
 +#ifdef NDO_SELECT_QUEUE_HAS_3_PARMS_NO_FALLBACK
  u16 mlx5e_select_queue(struct net_device *dev, struct sk_buff *skb,
  		       struct net_device *sb_dev);
