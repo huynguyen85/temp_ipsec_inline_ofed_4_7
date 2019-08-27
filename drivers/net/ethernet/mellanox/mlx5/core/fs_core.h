@@ -156,6 +156,7 @@ struct mlx5_flow_table {
 	u32				flags;
 	struct rhltable			fgs_hash;
 	struct fs_debugfs_ft		debugfs;
+	enum mlx5_flow_table_miss_action def_miss_action;
 };
 
 struct mlx5_ft_underlay_qp {
@@ -212,6 +213,7 @@ struct mlx5_flow_namespace {
 	 */
 	struct  rw_semaphore		ns_rw_sem;
 	struct	fs_debugfs_ns		debugfs;
+	enum mlx5_flow_table_miss_action def_miss_action;
 };
 
 struct mlx5_flow_group_mask {
@@ -241,7 +243,6 @@ struct mlx5_flow_root_namespace {
 	struct mutex			chain_lock;
 	struct list_head		underlay_qpns;
 	const struct mlx5_flow_cmds	*cmds;
-	enum mlx5_flow_table_miss_action def_miss_action;
 };
 
 int mlx5_init_fc_stats(struct mlx5_core_dev *dev);

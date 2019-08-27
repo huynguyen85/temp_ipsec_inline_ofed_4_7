@@ -61,7 +61,8 @@
 	ADD_PRIO(NULL, num_prios_val, 0, num_levels_val, {},\
 		 __VA_ARGS__)\
 
-#define ADD_NS(name_val, ...) {.type = FS_TYPE_NAMESPACE,\
+#define ADD_NS(name_val, def_miss_act, ...) {.type = FS_TYPE_NAMESPACE,	\
+	.def_miss_action = def_miss_act,\
 	.name = name_val,\
 	.children = (struct init_tree_node[]) {__VA_ARGS__},\
 	.ar_size = INIT_TREE_NODE_ARRAY_SIZE(__VA_ARGS__) \
@@ -134,6 +135,7 @@ static struct init_tree_node {
 	int num_leaf_prios;
 	int prio;
 	int num_levels;
+	enum mlx5_flow_table_miss_action def_miss_action;
 } root_fs = {
 	.type = FS_TYPE_NAMESPACE,
 	.name = "root",
@@ -141,27 +143,34 @@ static struct init_tree_node {
 	.children = (struct init_tree_node[]) {
 		ADD_PRIO("by_pass", 0, BY_PASS_MIN_LEVEL, 0,
 			 FS_CHAINING_CAPS,
-			 ADD_NS("by_pass_ns", ADD_MULTIPLE_PRIO(MLX5_BY_PASS_NUM_PRIOS,
-								BY_PASS_PRIO_NUM_LEVELS))),
+			 ADD_NS("by_pass_ns", MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+				ADD_MULTIPLE_PRIO(MLX5_BY_PASS_NUM_PRIOS,
+						  BY_PASS_PRIO_NUM_LEVELS))),
 		ADD_PRIO("lag", 0, LAG_MIN_LEVEL, 0,
 			 FS_CHAINING_CAPS,
-			 ADD_NS("lag_ns", ADD_MULTIPLE_PRIO(LAG_NUM_PRIOS,
-							    LAG_PRIO_NUM_LEVELS))),
+			 ADD_NS("lag_ns", MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+				ADD_MULTIPLE_PRIO(LAG_NUM_PRIOS,
+						  LAG_PRIO_NUM_LEVELS))),
 		ADD_PRIO("offloads", 0, OFFLOADS_MIN_LEVEL, 0, FS_CHAINING_CAPS,
-			 ADD_NS("offloads_ns", ADD_MULTIPLE_PRIO(OFFLOADS_NUM_PRIOS, OFFLOADS_NUM_LEVELS))),
+			 ADD_NS("offloads_ns", MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+				ADD_MULTIPLE_PRIO(OFFLOADS_NUM_PRIOS, OFFLOADS_NUM_LEVELS))),
 		ADD_PRIO("ethtool", 0, ETHTOOL_MIN_LEVEL, 0,
 			 FS_CHAINING_CAPS,
-			 ADD_NS("ethtool_ns", ADD_MULTIPLE_PRIO(ETHTOOL_NUM_PRIOS,
-								ETHTOOL_PRIO_NUM_LEVELS))),
+			 ADD_NS("ethtool_ns", MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+				ADD_MULTIPLE_PRIO(ETHTOOL_NUM_PRIOS,
+						  ETHTOOL_PRIO_NUM_LEVELS))),
 		ADD_PRIO("kernel", 0, KERNEL_MIN_LEVEL, 0, {},
-			 ADD_NS("kernel_ns", ADD_MULTIPLE_PRIO(KERNEL_NIC_TC_NUM_PRIOS, KERNEL_NIC_TC_NUM_LEVELS),
+			 ADD_NS("kernel_ns", MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+				ADD_MULTIPLE_PRIO(KERNEL_NIC_TC_NUM_PRIOS, KERNEL_NIC_TC_NUM_LEVELS),
 				ADD_MULTIPLE_PRIO(KERNEL_NIC_NUM_PRIOS,
 						  KERNEL_NIC_PRIO_NUM_LEVELS))),
 		ADD_PRIO("leftovers", 0, BY_PASS_MIN_LEVEL, 0,
 			 FS_CHAINING_CAPS,
-			 ADD_NS("leftovers_ns", ADD_MULTIPLE_PRIO(LEFTOVERS_NUM_PRIOS, LEFTOVERS_NUM_LEVELS))),
+			 ADD_NS("leftovers_ns", MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+				ADD_MULTIPLE_PRIO(LEFTOVERS_NUM_PRIOS, LEFTOVERS_NUM_LEVELS))),
 		ADD_PRIO("anchor", 0, ANCHOR_MIN_LEVEL, 0, {},
-			 ADD_NS("anchor_ns", ADD_MULTIPLE_PRIO(ANCHOR_NUM_PRIOS, ANCHOR_NUM_LEVELS))),
+			 ADD_NS("anchor_ns", MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+				ADD_MULTIPLE_PRIO(ANCHOR_NUM_PRIOS, ANCHOR_NUM_LEVELS))),
 	}
 };
 
@@ -171,7 +180,8 @@ static struct init_tree_node egress_root_fs = {
 	.children = (struct init_tree_node[]) {
 		ADD_PRIO("egress_bypass", 0, MLX5_BY_PASS_NUM_PRIOS, 0,
 			 FS_CHAINING_CAPS_EGRESS,
-			 ADD_NS("egress_bypass_ns", ADD_MULTIPLE_PRIO(MLX5_BY_PASS_NUM_PRIOS,
+			 ADD_NS("egress_bypass_ns", MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+				ADD_MULTIPLE_PRIO(MLX5_BY_PASS_NUM_PRIOS,
 						  BY_PASS_PRIO_NUM_LEVELS))),
 	}
 };
@@ -1067,6 +1077,7 @@ static struct mlx5_flow_table *__mlx5_create_flow_table(struct mlx5_flow_namespa
 	tree_init_node(&ft->node, del_hw_flow_table, del_sw_flow_table);
 	log_table_sz = ft->max_fte ? ilog2(ft->max_fte) : 0;
 	next_ft = find_next_chained_ft(fs_prio);
+	ft->def_miss_action = ns->def_miss_action;
 	err = root->cmds->create_flow_table(root, ft, log_table_sz, next_ft);
 	if (err)
 		goto free_ft;
@@ -2360,7 +2371,8 @@ static struct mlx5_flow_namespace *fs_init_namespace(struct mlx5_flow_namespace
 }
 
 static struct mlx5_flow_namespace *fs_create_namespace(struct fs_prio *prio,
-						       const char *name)
+						       const char *name,
+						       int def_miss_act)
 {
 	struct mlx5_flow_namespace	*ns;
 
@@ -2369,6 +2381,7 @@ static struct mlx5_flow_namespace *fs_create_namespace(struct fs_prio *prio,
 		return ERR_PTR(-ENOMEM);
 
 	fs_init_namespace(ns);
+	ns->def_miss_action = def_miss_act;
 	tree_init_node(&ns->node, NULL, del_sw_ns);
 	tree_add_node(&ns->node, &prio->node, name);
 	list_add_tail(&ns->node.list, &prio->node.children);
@@ -2439,7 +2452,8 @@ static int init_root_tree_recursive(struct mlx5_flow_steering *steering,
 		base = &fs_prio->node;
 	} else if (init_node->type == FS_TYPE_NAMESPACE) {
 		fs_get_obj(fs_prio, fs_parent_node);
-		fs_ns = fs_create_namespace(fs_prio, init_node->name);
+		fs_ns = fs_create_namespace(fs_prio, init_node->name,
+					    init_node->def_miss_action);
 		if (IS_ERR(fs_ns))
 			return PTR_ERR(fs_ns);
 		base = &fs_ns->node;
@@ -2715,7 +2729,7 @@ static int init_rdma_rx_root_ns(struct mlx5_flow_steering *steering)
 	if (!steering->rdma_rx_root_ns)
 		return -ENOMEM;
 
-	steering->rdma_rx_root_ns->def_miss_action =
+	steering->rdma_rx_root_ns->ns.def_miss_action =
 		MLX5_FLOW_TABLE_MISS_ACTION_SWITCH_DOMAIN;
 
 	/* Create single prio */
@@ -2761,7 +2775,7 @@ static int init_fdb_root_ns(struct mlx5_flow_steering *steering)
 		char ns_name[16];
 
 		sprintf(ns_name, "fdb_ns_0_%d", chain);
-		ns = fs_create_namespace(maj_prio,ns_name);
+		ns = fs_create_namespace(maj_prio, ns_name, MLX5_FLOW_TABLE_MISS_ACTION_DEF);
 		if (IS_ERR(ns)) {
 			err = PTR_ERR(ns);
 			goto out_err;
