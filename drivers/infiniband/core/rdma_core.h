@@ -201,6 +201,7 @@ extern const struct uapi_definition uverbs_def_obj_flow_action[];
 extern const struct uapi_definition uverbs_def_obj_intf[];
 extern const struct uapi_definition uverbs_def_obj_mr[];
 extern const struct uapi_definition uverbs_def_write_intf[];
+extern const struct uapi_definition uverbs_def_obj_dct[];
 
 static inline const struct uverbs_api_write_method *
 uapi_get_method(const struct uverbs_api *uapi, u32 command, bool *exp_cmd)

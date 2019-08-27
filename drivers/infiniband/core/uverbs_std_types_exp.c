@@ -62,4 +62,9 @@ DECLARE_UVERBS_NAMED_OBJECT(UVERBS_OBJECT_DCT,
 			    UVERBS_TYPE_ALLOC_IDR_SZ(sizeof(struct ib_udct_object),
                             uverbs_exp_free_dct));
 
+const struct uapi_definition uverbs_def_obj_dct[] = {
+	UAPI_DEF_CHAIN_OBJ_TREE_NAMED(UVERBS_OBJECT_DCT,
+				      UAPI_DEF_OBJ_NEEDS_FN(exp_destroy_dct)),
+	{}
+};
 
