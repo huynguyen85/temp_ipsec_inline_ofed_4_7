@@ -32,3 +32,7 @@ Change-Id=I72f9e075867fbed5dc20f149cd432c17b69ccf81; subject=RDMA/counter: Allow
 Change-Id=I7f493ea3ad2089fe6953ac341ecf17b506600448; subject=RDMA/nldev: Allow counter manual mode configration through RDMA netlink; feature=cx5_qp_counters; upstream_status=accepted; general=upstream commit ID: b389327df905, tag: v5.2-rc4
 Change-Id=If97a7fa9c293b5f8125a6405ab3414c86610823e; subject=RDMA/nldev: Allow get counter mode through RDMA netlink; feature=cx5_qp_counters; upstream_status=accepted; general=upstream commit ID: 83c2c1fcbd08, tag: v5.2-rc4;
 Change-Id=I27857793fd34657f1a532c3f58d51341a1c55f13; subject=RDMA/nldev: Allow get default counter statistics through RDMA netlink; feature=cx5_qp_counters; upstream_status=accepted; general=upstream commit ID: 6e7be47a5345, tag: v5.2-rc4;
+Change-Id=I3d99aef5fb26f13ee9562316db63d36b1c3e1957; subject=net/mlx5: Add per-namespace flow table default miss action support; feature=roce_steering; upstream_status=in_progress; general=;
+Change-Id=Id2a2333e9fdd8fb5cf7e739ac584a58290633e0e; subject=net/mlx5: Create bypass and loopback flow steering namespaces for RDMA RX; feature=roce_steering; upstream_status=in_progress; general=;
+Change-Id=I7bbd3275ba34d2bbfa8fa96fa2e819ff0be5b484; subject=RDMA/mlx5: RDMA_RX flow type support for user applications; feature=roce_steering; upstream_status=in_progress; general=;
+Change-Id=I8dd001e2fa46bd9b816272ff5fa019947fe2f606; subject=BACKPORTS: Fix backport (RoCE Steering feature); feature=backports; upstream_status=ignore; general=;

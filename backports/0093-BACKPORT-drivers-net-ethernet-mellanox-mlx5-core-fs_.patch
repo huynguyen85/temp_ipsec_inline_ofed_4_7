@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/fs_core.h
 
 Change-Id: I1047f3e0a5c5648636d4f4699cbf55dddc414801
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.h | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.h | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.h b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.h
 index xxxxxxx..xxxxxxx 100644
@@ -25,15 +25,16 @@ index xxxxxxx..xxxxxxx 100644
  	/* FWD rules that point on this flow table */
  	struct list_head		fwd_rules;
  	u32				flags;
+-	struct rhltable			fgs_hash;
 +#if !defined(HAVE_RHLTABLE) && defined(HAVE_NETNS_FRAGS_RHASHTABLE)
 +	struct bp_rhltable		fgs_hash;
 +#else
- 	struct rhltable			fgs_hash;
++ 	struct rhltable			fgs_hash;
 +#endif
  	struct fs_debugfs_ft		debugfs;
+ 	enum mlx5_flow_table_miss_action def_miss_action;
  };
- 
-@@ -228,7 +236,11 @@ struct mlx5_flow_group {
+@@ -230,7 +238,11 @@ struct mlx5_flow_group {
  	struct ida			fte_allocator;
  	u32				id;
  	struct rhashtable		ftes_hash;
@@ -45,7 +46,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct fs_debugfs_fg		debugfs;
  };
  
-@@ -246,11 +258,13 @@ struct mlx5_flow_root_namespace {
+@@ -247,11 +259,13 @@ struct mlx5_flow_root_namespace {
  
  int mlx5_init_fc_stats(struct mlx5_core_dev *dev);
  void mlx5_cleanup_fc_stats(struct mlx5_core_dev *dev);
