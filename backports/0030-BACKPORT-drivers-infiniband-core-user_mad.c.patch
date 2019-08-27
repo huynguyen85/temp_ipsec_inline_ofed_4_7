@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/user_mad.c
 
 Change-Id: I135756e35348b8e0aa5df3feab86e2a290310e24
 ---
- drivers/infiniband/core/user_mad.c | 35 +++++++++++++++++++++++++++++++----
- 1 file changed, 31 insertions(+), 4 deletions(-)
+ drivers/infiniband/core/user_mad.c | 39 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 35 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
 index xxxxxxx..xxxxxxx 100644
@@ -59,7 +59,28 @@ index xxxxxxx..xxxxxxx 100644
  {
  	return kasprintf(GFP_KERNEL, "infiniband/%s", dev_name(dev));
  }
-@@ -1218,10 +1230,18 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+@@ -1176,16 +1188,20 @@ static ssize_t abi_version_show(struct class *class,
+ }
+ static CLASS_ATTR_RO(abi_version);
+ 
++#ifdef HAVE_CLASS_GROUPS
+ static struct attribute *umad_class_attrs[] = {
+ 	&class_attr_abi_version.attr,
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(umad_class);
++#endif
+ 
+ static struct class umad_class = {
+ 	.name		= "infiniband_mad",
+ 	.devnode	= umad_devnode,
++#ifdef HAVE_CLASS_GROUPS
+ 	.class_groups	= umad_class_groups,
++#endif
+ 	.dev_groups	= umad_class_dev_groups,
+ };
+ 
+@@ -1218,10 +1234,18 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
  	dev_t base_issm;
  	int ret;
  
@@ -78,7 +99,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (devnum >= IB_UMAD_NUM_FIXED_MINOR) {
  		base_umad = dynamic_umad_dev + devnum - IB_UMAD_NUM_FIXED_MINOR;
  		base_issm = dynamic_issm_dev + devnum - IB_UMAD_NUM_FIXED_MINOR;
-@@ -1264,7 +1284,11 @@ err_dev:
+@@ -1264,7 +1288,11 @@ err_dev:
  	cdev_device_del(&port->cdev, &port->dev);
  err_cdev:
  	put_device(&port->dev);
@@ -90,7 +111,7 @@ index xxxxxxx..xxxxxxx 100644
  	return ret;
  }
  
-@@ -1294,8 +1318,11 @@ static void ib_umad_kill_port(struct ib_umad_port *port)
+@@ -1294,8 +1322,11 @@ static void ib_umad_kill_port(struct ib_umad_port *port)
  
  	cdev_device_del(&port->sm_cdev, &port->sm_dev);
  	cdev_device_del(&port->cdev, &port->dev);

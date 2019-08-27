@@ -86,8 +86,9 @@ mlx_compat-y += syscall.o
 mlx_compat-y += mmu_notifier.o
 mlx_compat-y += radix-tree.o
 mlx_compat-y += xarray.o
+ifdef CONFIG_MLX5_ESWITCH
 mlx_compat-y += flow_offload.o
-
+endif
 mlx_compat-y += ../block/blk-mq-rdma.o
 
 mlx_compat-y += bitmap.o

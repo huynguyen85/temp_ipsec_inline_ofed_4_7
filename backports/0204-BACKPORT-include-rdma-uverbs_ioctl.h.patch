@@ -1,0 +1,24 @@
+From: Talat Batheesh <talatb@mellanox.com>
+Subject: [PATCH] BACKPORT: include/rdma/uverbs_ioctl.h
+
+Change-Id: Ic4136c4e0bae8d22b08776ab53a4a9877b1c522f
+---
+ include/rdma/uverbs_ioctl.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/include/rdma/uverbs_ioctl.h b/include/rdma/uverbs_ioctl.h
+index xxxxxxx..xxxxxxx 100644
+--- a/include/rdma/uverbs_ioctl.h
++++ b/include/rdma/uverbs_ioctl.h
+@@ -918,6 +918,11 @@ int uverbs_get_flags32(u32 *to, const struct uverbs_attr_bundle *attrs_bundle,
+ 		       size_t idx, u64 allowed_bits);
+ int uverbs_copy_to(const struct uverbs_attr_bundle *attrs_bundle, size_t idx,
+ 		   const void *from, size_t size);
++
++#ifndef __malloc
++#define __malloc
++#endif
++
+ __malloc void *_uverbs_alloc(struct uverbs_attr_bundle *bundle, size_t size,
+ 			     gfp_t flags);
+ 

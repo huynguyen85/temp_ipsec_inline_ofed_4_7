@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/uverbs_main.c
 
 Change-Id: I44af59c4c1ca183f92a6c31d4a88c8aa1bc10a4a
 ---
- drivers/infiniband/core/uverbs_main.c | 66 +++++++++++++++++++++++++++++++++--
- 1 file changed, 63 insertions(+), 3 deletions(-)
+ drivers/infiniband/core/uverbs_main.c | 71 +++++++++++++++++++++++++++++++++--
+ 1 file changed, 67 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
 index xxxxxxx..xxxxxxx 100644
@@ -61,15 +61,16 @@ index xxxxxxx..xxxxxxx 100644
  				return -EFAULT;
  		} else {
  			if (hdr->out_words || ex_hdr->provider_out_words)
-@@ -1045,11 +1062,19 @@ static void rdma_umap_close(struct vm_area_struct *vma)
+@@ -1045,11 +1062,20 @@ static void rdma_umap_close(struct vm_area_struct *vma)
   * Once the zap_vma_ptes has been called touches to the VMA will come here and
   * we return a dummy writable zero page for all the pfns.
   */
 +#ifdef HAVE_VM_FAULT_T
++#ifdef HAVE_VM_OPERATIONS_STRUCT_HAS_FAULT
  static vm_fault_t rdma_umap_fault(struct vm_fault *vmf)
 +#else
 +static int rdma_umap_fault(struct vm_fault *vmf)
-+#endif
++#endif/*HAVE_VM_OPERATIONS_STRUCT_HAS_FAULT*/
  {
  	struct ib_uverbs_file *ufile = vmf->vma->vm_file->private_data;
  	struct rdma_umap_priv *priv = vmf->vma->vm_private_data;
@@ -81,7 +82,22 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (!priv)
  		return VM_FAULT_SIGBUS;
-@@ -1261,8 +1286,11 @@ static int ib_uverbs_open(struct inode *inode, struct file *filp)
+@@ -1080,11 +1106,13 @@ static vm_fault_t rdma_umap_fault(struct vm_fault *vmf)
+ 
+ 	return ret;
+ }
+-
++#endif
+ static const struct vm_operations_struct rdma_umap_ops = {
+ 	.open = rdma_umap_open,
+ 	.close = rdma_umap_close,
++#ifdef HAVE_VM_FAULT_T
+ 	.fault = rdma_umap_fault,
++#endif
+ };
+ 
+ /*
+@@ -1261,8 +1289,11 @@ static int ib_uverbs_open(struct inode *inode, struct file *filp)
  	srcu_read_unlock(&dev->disassociate_srcu, srcu_key);
  
  	setup_ufile_idr_uobject(file);
@@ -94,7 +110,7 @@ index xxxxxxx..xxxxxxx 100644
  
  err_module:
  	module_put(ib_dev->owner);
-@@ -1369,8 +1397,16 @@ static const struct attribute_group dev_attr_group = {
+@@ -1369,8 +1400,16 @@ static const struct attribute_group dev_attr_group = {
  	.attrs = ib_dev_attrs,
  };
  
@@ -111,7 +127,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static int ib_uverbs_create_uapi(struct ib_device *device,
  				 struct ib_uverbs_device *uverbs_dev)
-@@ -1421,11 +1457,19 @@ static void ib_uverbs_add_one(struct ib_device *device)
+@@ -1421,11 +1460,19 @@ static void ib_uverbs_add_one(struct ib_device *device)
  	rcu_assign_pointer(uverbs_dev->ib_dev, device);
  	uverbs_dev->num_comp_vectors = device->num_comp_vectors;
  
@@ -131,7 +147,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (devnum >= IB_UVERBS_NUM_FIXED_MINOR)
  		base = dynamic_uverbs_dev + devnum - IB_UVERBS_NUM_FIXED_MINOR;
  	else
-@@ -1452,7 +1496,11 @@ static void ib_uverbs_add_one(struct ib_device *device)
+@@ -1452,7 +1499,11 @@ static void ib_uverbs_add_one(struct ib_device *device)
  	return;
  
  err_uapi:
@@ -143,7 +159,7 @@ index xxxxxxx..xxxxxxx 100644
  err:
  	if (atomic_dec_and_test(&uverbs_dev->refcount))
  		ib_uverbs_comp_dev(uverbs_dev);
-@@ -1491,7 +1539,6 @@ static void ib_uverbs_free_hw_resources(struct ib_uverbs_device *uverbs_dev,
+@@ -1491,7 +1542,6 @@ static void ib_uverbs_free_hw_resources(struct ib_uverbs_device *uverbs_dev,
  		ib_uverbs_event_handler(&file->event_handler, &event);
  		uverbs_destroy_ufile_hw(file, RDMA_REMOVE_DRIVER_REMOVE);
  		kref_put(&file->ref, ib_uverbs_release_file);
@@ -151,7 +167,7 @@ index xxxxxxx..xxxxxxx 100644
  		mutex_lock(&uverbs_dev->lists_mutex);
  	}
  
-@@ -1527,7 +1574,11 @@ static void ib_uverbs_remove_one(struct ib_device *device, void *client_data)
+@@ -1527,7 +1577,11 @@ static void ib_uverbs_remove_one(struct ib_device *device, void *client_data)
  		return;
  
  	cdev_device_del(&uverbs_dev->cdev, &uverbs_dev->dev);
@@ -163,7 +179,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (device->ops.disassociate_ucontext) {
  		/* We disassociate HW resources and immediately return.
-@@ -1553,7 +1604,11 @@ static void ib_uverbs_remove_one(struct ib_device *device, void *client_data)
+@@ -1553,7 +1607,11 @@ static void ib_uverbs_remove_one(struct ib_device *device, void *client_data)
  	put_device(&uverbs_dev->dev);
  }
  
@@ -175,7 +191,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	if (mode)
  		*mode = 0666;
-@@ -1589,7 +1644,12 @@ static int __init ib_uverbs_init(void)
+@@ -1589,7 +1647,12 @@ static int __init ib_uverbs_init(void)
  
  	uverbs_class->devnode = uverbs_devnode;
  

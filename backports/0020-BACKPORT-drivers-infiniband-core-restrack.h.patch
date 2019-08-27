@@ -3,21 +3,23 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/restrack.h
 
 Change-Id: I4c2478f8a28810172a7e4649e40fe028f5f77b26
 ---
- drivers/infiniband/core/restrack.h | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/infiniband/core/restrack.h | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/drivers/infiniband/core/restrack.h b/drivers/infiniband/core/restrack.h
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/infiniband/core/restrack.h
 +++ b/drivers/infiniband/core/restrack.h
-@@ -8,11 +8,26 @@
+@@ -7,12 +7,28 @@
+ #define _RDMA_CORE_RESTRACK_H_
  
  #include <linux/mutex.h>
- 
++#include <linux/hashtable.h>
++
 +#ifndef HAVE_XARRAY
 +#define RDMA_RESTRACK_HASH_BITS 8
 +#endif
-+
+ 
  /**
   * struct rdma_restrack_root - main resource tracking management
   * entity, per-device

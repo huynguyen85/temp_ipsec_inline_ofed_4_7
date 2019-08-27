@@ -11,6 +11,7 @@
 #include <linux/list.h>
 #include <linux/slab.h>
 #include <linux/xarray.h>
+#include <linux/radix-tree.h>
 
 /*
  * Coding conventions in this file:

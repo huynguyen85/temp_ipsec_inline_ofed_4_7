@@ -5786,6 +5786,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if linux/lockdep.h has lockdep_assert_held_exclusive])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/lockdep.h>
+	],[
+		lockdep_assert_held_exclusive(NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_LOCKUP_ASSERT_HELD_EXCLUSIVE, 1,
+			[linux/lockdep.h has lockdep_assert_held_exclusive])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if ip_fib.h fib_res_put exists])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/bug.h>
@@ -7232,6 +7247,45 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if device.h struct class has class_groups])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/device.h>
+
+	],[
+		struct class cm_class = {
+			.class_groups   = NULL,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_CLASS_GROUPS, 1,
+			  [struct class has class_groups])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if mm.h struct vm_operations_struct has .fault])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/mm.h>
+		static vm_fault_t rdma_umap_fault(struct vm_fault *vmf) {
+			return NULL;
+		}
+
+	],[
+		struct vm_operations_struct rdma_umap_ops = {
+			.fault = rdma_umap_fault,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_VM_OPERATIONS_STRUCT_HAS_FAULT, 1,
+			  [vm_operations_struct has .fault])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if device.h class devnode gets umode_t])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/device.h>
@@ -7440,6 +7494,22 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_RTNL_LINK_OPS_NEWLINK_5_PARAMS, 1,
 			  [newlink has 5 paramters])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if linux/ipv6.h has ipv6_mod_enabled])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/ipv6.h>
+	],[
+
+		ipv6_mod_enabled();
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IPV6_MOD_ENABLED, 1,
+			  [ipv6_mod_enabled is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])

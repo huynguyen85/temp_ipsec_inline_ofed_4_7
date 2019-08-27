@@ -46,3 +46,4 @@ Change-Id=I4b098ee66fb343c130b99a9c2ed89055d40afa25; subject=net/mlx5: Wrap eswi
 Change-Id=Ibf7b1e62fa34bb2b4acd793919f72d56db22d4fe; subject=BACKPORTS: mlx5_en till 4.14; feature=backports; upstream_status=ignore; general=;
 Change-Id=I77787366804eefad6f8c75821cda3583ad41c1d5; subject=BACKPORTS: Fix fc29 backports(HAVE_DEVLINK_HEALTH_REPORT feature); feature=backports; upstream_status=ignore; general=;
 Change-Id=I210a58df320ab721cc35bee26dbf9443b1bdcc9c; subject=BACKPORTS: fix trace_mlx5_fs_add_ft Ubuntu 18.04; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ic3c4e000b44c2e55dcc4807310d55d6f81c5bc9b; subject=BACKPORTS: Add IB_CORE till 4.4; feature=backports; upstream_status=ignore; general=;

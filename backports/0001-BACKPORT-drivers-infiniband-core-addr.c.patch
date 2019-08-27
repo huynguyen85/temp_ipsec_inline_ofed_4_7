@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/addr.c
 
 Change-Id: I9d3d108e2ae2c20836813443fa7c10924b357c17
 ---
- drivers/infiniband/core/addr.c | 175 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 168 insertions(+), 7 deletions(-)
+ drivers/infiniband/core/addr.c | 178 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 170 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/infiniband/core/addr.c b/drivers/infiniband/core/addr.c
 index xxxxxxx..xxxxxxx 100644
@@ -250,7 +250,7 @@ index xxxxxxx..xxxxxxx 100644
  	*prt = rt;
  	return 0;
  }
-@@ -419,31 +517,75 @@ static int addr6_resolve(struct sockaddr *src_sock,
+@@ -419,31 +517,76 @@ static int addr6_resolve(struct sockaddr *src_sock,
  	struct sockaddr_in6 *src_in = (struct sockaddr_in6 *)src_sock;
  	const struct sockaddr_in6 *dst_in =
  				(const struct sockaddr_in6 *)dst_sock;
@@ -261,9 +261,11 @@ index xxxxxxx..xxxxxxx 100644
 +#endif /* HAVE_FLOWI_AF_SPECIFIC_INSTANCES */
  	struct dst_entry *dst;
  	int ret;
- 
+-
++#ifdef HAVE_IPV6_MOD_ENABLED	
  	if (!ipv6_mod_enabled())
  		return -EADDRNOTAVAIL;
++#endif
  
 +#ifdef HAVE_FLOWI_AF_SPECIFIC_INSTANCES
  	memset(&fl6, 0, sizeof fl6);
@@ -327,7 +329,7 @@ index xxxxxxx..xxxxxxx 100644
  static int addr6_resolve(struct sockaddr *src_sock,
  			 const struct sockaddr *dst_sock,
  			 struct rdma_dev_addr *addr,
-@@ -451,7 +593,7 @@ static int addr6_resolve(struct sockaddr *src_sock,
+@@ -451,7 +594,7 @@ static int addr6_resolve(struct sockaddr *src_sock,
  {
  	return -EADDRNOTAVAIL;
  }
@@ -336,7 +338,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static int addr_resolve_neigh(const struct dst_entry *dst,
  			      const struct sockaddr *dst_in,
-@@ -478,6 +620,15 @@ static int copy_src_l2_addr(struct rdma_dev_addr *dev_addr,
+@@ -478,6 +621,15 @@ static int copy_src_l2_addr(struct rdma_dev_addr *dev_addr,
  			    const struct net_device *ndev)
  {
  	int ret = 0;
@@ -352,7 +354,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (dst->dev->flags & IFF_LOOPBACK)
  		ret = rdma_translate_ip(dst_in, dev_addr);
-@@ -489,7 +640,11 @@ static int copy_src_l2_addr(struct rdma_dev_addr *dev_addr,
+@@ -489,7 +641,11 @@ static int copy_src_l2_addr(struct rdma_dev_addr *dev_addr,
  	 * we're definitely in RoCE v2 (as RoCE v1 isn't routable) set the
  	 * network type accordingly.
  	 */
@@ -364,7 +366,7 @@ index xxxxxxx..xxxxxxx 100644
  	    ndev->type != ARPHRD_INFINIBAND)
  		dev_addr->network = dst_in->sa_family == AF_INET ?
  						RDMA_NETWORK_IPV4 :
-@@ -587,7 +742,11 @@ static int addr_resolve(struct sockaddr *src_in,
+@@ -587,7 +743,11 @@ static int addr_resolve(struct sockaddr *src_in,
  	}
  	if (src_in->sa_family == AF_INET) {
  		ret = addr4_resolve(src_in, dst_in, addr, &rt);
@@ -376,7 +378,7 @@ index xxxxxxx..xxxxxxx 100644
  	} else {
  		ret = addr6_resolve(src_in, dst_in, addr, &dst);
  	}
-@@ -851,6 +1010,7 @@ int rdma_addr_find_l2_eth_by_grh(const union ib_gid *sgid,
+@@ -851,6 +1011,7 @@ int rdma_addr_find_l2_eth_by_grh(const union ib_gid *sgid,
  static int netevent_callback(struct notifier_block *self, unsigned long event,
  	void *ctx)
  {
@@ -384,7 +386,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct addr_req *req;
  
  	if (event == NETEVENT_NEIGH_UPDATE) {
-@@ -863,6 +1023,7 @@ static int netevent_callback(struct notifier_block *self, unsigned long event,
+@@ -863,6 +1024,7 @@ static int netevent_callback(struct notifier_block *self, unsigned long event,
  			spin_unlock_bh(&lock);
  		}
  	}

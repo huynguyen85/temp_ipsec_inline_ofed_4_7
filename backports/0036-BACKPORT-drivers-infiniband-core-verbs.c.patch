@@ -72,10 +72,10 @@ index xxxxxxx..xxxxxxx 100644
 +	struct rdma_netdev_alloc_params params;
 +	int rc;
 +
-+	if (!device->rdma_netdev_get_params || force_fail)
++	if (!device->ops.rdma_netdev_get_params || force_fail)
 +		return -EOPNOTSUPP;
 +
-+	rc = device->rdma_netdev_get_params(device, port_num, type, &params);
++	rc = device->ops.rdma_netdev_get_params(device, port_num, type, &params);
 +	if (rc)
 +		return rc;
 +

@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/device.c
 
 Change-Id: I8d810fb71e2704f5f751d860e4f450c87a49fd5d
 ---
- drivers/infiniband/core/device.c | 171 +++++++++++++++++++++++++++++++++++----
- 1 file changed, 157 insertions(+), 14 deletions(-)
+ drivers/infiniband/core/device.c | 177 +++++++++++++++++++++++++++++++++++----
+ 1 file changed, 163 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
 index xxxxxxx..xxxxxxx 100644
@@ -48,7 +48,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static int rdma_dev_change_netns(struct ib_device *device, struct net *cur_net,
  				 struct net *net);
-@@ -443,17 +449,28 @@ static int alloc_name(struct ib_device *ibdev, const char *name)
+@@ -443,17 +449,30 @@ static int alloc_name(struct ib_device *ibdev, const char *name)
  {
  	struct ib_device *device;
  	unsigned long index;
@@ -59,13 +59,15 @@ index xxxxxxx..xxxxxxx 100644
 -	int i;
 +#else
 +	unsigned long *inuse;
-+
+ 
 +	inuse = (unsigned long *) get_zeroed_page(GFP_KERNEL);
 +	if (!inuse)
 +		return -ENOMEM;
 +#endif
- 
++#ifdef HAVE_LOCKUP_ASSERT_HELD_EXCLUSIVE
  	lockdep_assert_held_exclusive(&devices_rwsem);
++#endif
++
 +#ifdef HAVE_IDA_ALLOC
  	ida_init(&inuse);
 +#endif
@@ -78,7 +80,7 @@ index xxxxxxx..xxxxxxx 100644
  		if (i < 0 || i >= INT_MAX)
  			continue;
  		snprintf(buf, sizeof buf, name, i);
-@@ -473,6 +490,17 @@ static int alloc_name(struct ib_device *ibdev, const char *name)
+@@ -473,6 +492,17 @@ static int alloc_name(struct ib_device *ibdev, const char *name)
  out:
  	ida_destroy(&inuse);
  	return rc;
@@ -96,7 +98,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  static void ib_device_release(struct device *device)
-@@ -788,6 +816,7 @@ void ib_get_device_fw_str(struct ib_device *dev, char *str)
+@@ -788,6 +818,7 @@ void ib_get_device_fw_str(struct ib_device *dev, char *str)
  }
  EXPORT_SYMBOL(ib_get_device_fw_str);
  
@@ -104,7 +106,7 @@ index xxxxxxx..xxxxxxx 100644
  static void ib_policy_change_task(struct work_struct *work)
  {
  	struct ib_device *dev;
-@@ -824,6 +853,7 @@ static int ib_security_change(struct notifier_block *nb, unsigned long event,
+@@ -824,6 +855,7 @@ static int ib_security_change(struct notifier_block *nb, unsigned long event,
  
  	return NOTIFY_OK;
  }
@@ -112,7 +114,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static void compatdev_release(struct device *dev)
  {
-@@ -1145,6 +1175,7 @@ out:
+@@ -1145,6 +1177,7 @@ out:
  
  static void setup_dma_device(struct ib_device *device)
  {
@@ -120,7 +122,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct device *parent = device->dev.parent;
  
  	WARN_ON_ONCE(device->dma_device);
-@@ -1176,6 +1207,15 @@ static void setup_dma_device(struct ib_device *device)
+@@ -1176,6 +1209,15 @@ static void setup_dma_device(struct ib_device *device)
  		WARN_ON_ONCE(!parent);
  		device->dma_device = parent;
  	}
@@ -136,7 +138,7 @@ index xxxxxxx..xxxxxxx 100644
  	/* Setup default max segment size for all IB devices */
  	dma_set_max_seg_size(device->dma_device, SZ_2G);
  
-@@ -1307,6 +1347,10 @@ int ib_register_device(struct ib_device *device, const char *name)
+@@ -1307,6 +1349,10 @@ int ib_register_device(struct ib_device *device, const char *name)
  	if (ret)
  		return ret;
  
@@ -147,7 +149,7 @@ index xxxxxxx..xxxxxxx 100644
  	ret = setup_device(device);
  	if (ret)
  		return ret;
-@@ -1318,8 +1362,9 @@ int ib_register_device(struct ib_device *device, const char *name)
+@@ -1318,8 +1364,9 @@ int ib_register_device(struct ib_device *device, const char *name)
  		return ret;
  	}
  
@@ -158,7 +160,7 @@ index xxxxxxx..xxxxxxx 100644
  	rdma_counter_init(device);
  
  	/*
-@@ -1383,7 +1428,9 @@ dev_cleanup:
+@@ -1383,7 +1430,9 @@ dev_cleanup:
  	device_del(&device->dev);
  cg_cleanup:
  	dev_set_uevent_suppress(&device->dev, false);
@@ -168,7 +170,17 @@ index xxxxxxx..xxxxxxx 100644
  	ib_cache_cleanup_one(device);
  	return ret;
  }
-@@ -2269,6 +2316,46 @@ int ib_find_gid(struct ib_device *device, union ib_gid *gid,
+@@ -1410,7 +1459,9 @@ static void __ib_unregister_device(struct ib_device *ib_dev)
+ 
+ 	ib_device_unregister_sysfs(ib_dev);
+ 	device_del(&ib_dev->dev);
++#ifdef HAVE_CGROUP_RDMA_H
+ 	ib_device_unregister_rdmacg(ib_dev);
++#endif
+ 	ib_cache_cleanup_one(ib_dev);
+ 
+ 	/*
+@@ -2269,6 +2320,46 @@ int ib_find_gid(struct ib_device *device, union ib_gid *gid,
  }
  EXPORT_SYMBOL(ib_find_gid);
  
@@ -215,7 +227,7 @@ index xxxxxxx..xxxxxxx 100644
  /**
   * ib_find_pkey - Returns the PKey table index where a specified
   *   PKey value occurs.
-@@ -2502,11 +2589,19 @@ static const struct rdma_nl_cbs ibnl_ls_cb_table[RDMA_NL_LS_NUM_OPS] = {
+@@ -2502,11 +2593,19 @@ static const struct rdma_nl_cbs ibnl_ls_cb_table[RDMA_NL_LS_NUM_OPS] = {
  		.flags = RDMA_NL_ADMIN_PERM,
  	},
  	[RDMA_NL_LS_OP_SET_TIMEOUT] = {
@@ -235,7 +247,7 @@ index xxxxxxx..xxxxxxx 100644
  		.flags = RDMA_NL_ADMIN_PERM,
  	},
  };
-@@ -2519,17 +2614,62 @@ static int __init ib_core_init(void)
+@@ -2519,17 +2618,62 @@ static int __init ib_core_init(void)
  	if (!ib_wq)
  		return -ENOMEM;
  
@@ -301,7 +313,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (!ib_comp_unbound_wq) {
  		ret = -ENOMEM;
  		goto err_comp;
-@@ -2559,12 +2699,13 @@ static int __init ib_core_init(void)
+@@ -2559,12 +2703,13 @@ static int __init ib_core_init(void)
  		goto err_mad;
  	}
  
@@ -321,7 +333,7 @@ index xxxxxxx..xxxxxxx 100644
  	ret = register_pernet_device(&rdma_dev_net_ops);
  	if (ret) {
  		pr_warn("Couldn't init compat dev. ret %d\n", ret);
-@@ -2578,9 +2719,11 @@ static int __init ib_core_init(void)
+@@ -2578,9 +2723,11 @@ static int __init ib_core_init(void)
  	return 0;
  
  err_compat:
@@ -333,3 +345,13 @@ index xxxxxxx..xxxxxxx 100644
  err_mad:
  	ib_mad_cleanup();
  err_addr:
+@@ -2602,7 +2749,9 @@ static void __exit ib_core_cleanup(void)
+ 	nldev_exit();
+ 	rdma_nl_unregister(RDMA_NL_LS);
+ 	unregister_pernet_device(&rdma_dev_net_ops);
++#ifdef HAVE_REGISTER_LSM_NOTIFIER
+ 	unregister_lsm_notifier(&ibdev_lsm_nb);
++#endif
+ 	ib_sa_cleanup();
+ 	ib_mad_cleanup();
+ 	addr_cleanup();

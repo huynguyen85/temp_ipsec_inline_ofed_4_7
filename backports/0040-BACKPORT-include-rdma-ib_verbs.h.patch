@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: include/rdma/ib_verbs.h
 
 Change-Id: Ib09a171a43fa1e77a7341d50825698b70ae34220
 ---
- include/rdma/ib_verbs.h | 184 +++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 182 insertions(+), 2 deletions(-)
+ include/rdma/ib_verbs.h | 187 +++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 185 insertions(+), 2 deletions(-)
 
 diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
 index xxxxxxx..xxxxxxx 100644
@@ -151,7 +151,17 @@ index xxxxxxx..xxxxxxx 100644
  struct ib_port_immutable {
  	int                           pkey_tbl_len;
  	int                           gid_tbl_len;
-@@ -2505,6 +2584,7 @@ struct ib_device_ops {
+@@ -2278,6 +2357,9 @@ struct rdma_netdev_alloc_params {
+ 
+ 	int (*initialize_rdma_netdev)(struct ib_device *device, u8 port_num,
+ 				      struct net_device *netdev, void *param);
++#ifndef HAVE_NET_DEVICE_NEEDS_FREE_NETDEV
++	void (*uninitialize_rdma_netdev)(struct net_device *netdev);
++#endif
+ };
+ 
+ struct ib_counters {
+@@ -2505,6 +2587,7 @@ struct ib_device_ops {
  		struct ib_flow_action *action,
  		const struct ib_flow_action_attrs_esp *attr,
  		struct uverbs_attr_bundle *attrs);
@@ -159,7 +169,7 @@ index xxxxxxx..xxxxxxx 100644
  	int (*set_vf_link_state)(struct ib_device *device, int vf, u8 port,
  				 int state);
  	int (*get_vf_config)(struct ib_device *device, int vf, u8 port,
-@@ -2513,6 +2593,7 @@ struct ib_device_ops {
+@@ -2513,6 +2596,7 @@ struct ib_device_ops {
  			    struct ifla_vf_stats *stats);
  	int (*set_vf_guid)(struct ib_device *device, int vf, u8 port, u64 guid,
  			   int type);
@@ -167,7 +177,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct ib_wq *(*create_wq)(struct ib_pd *pd,
  				   struct ib_wq_init_attr *init_attr,
  				   struct ib_udata *udata);
-@@ -2538,6 +2619,9 @@ struct ib_device_ops {
+@@ -2538,6 +2622,9 @@ struct ib_device_ops {
  	int (*read_counters)(struct ib_counters *counters,
  			     struct ib_counters_read_attr *counters_read_attr,
  			     struct uverbs_attr_bundle *attrs);
@@ -177,7 +187,7 @@ index xxxxxxx..xxxxxxx 100644
  	int (*map_mr_sg_pi)(struct ib_mr *mr, struct scatterlist *data_sg,
  			    int data_sg_nents, unsigned int *data_sg_offset,
  			    struct scatterlist *meta_sg, int meta_sg_nents,
-@@ -2750,9 +2834,11 @@ struct ib_device {
+@@ -2750,9 +2837,11 @@ struct ib_device {
  	struct attribute_group	     *hw_stats_ag;
  	struct rdma_hw_stats         *hw_stats;
  
@@ -189,7 +199,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	u32                          index;
  	struct rdma_restrack_root *res;
-@@ -2760,6 +2846,15 @@ struct ib_device {
+@@ -2760,6 +2849,15 @@ struct ib_device {
  	const struct uapi_definition   *driver_def;
  	enum rdma_driver_id		driver_id;
  
@@ -205,7 +215,7 @@ index xxxxxxx..xxxxxxx 100644
  	/*
  	 * Positive refcount indicates that the device is currently
  	 * registered and cannot be unregistered.
-@@ -3431,6 +3526,7 @@ static inline unsigned int rdma_find_pg_bit(unsigned long addr,
+@@ -3431,6 +3529,7 @@ static inline unsigned int rdma_find_pg_bit(unsigned long addr,
  	return __fls(pgsz);
  }
  
@@ -213,7 +223,7 @@ index xxxxxxx..xxxxxxx 100644
  int ib_set_vf_link_state(struct ib_device *device, int vf, u8 port,
  			 int state);
  int ib_get_vf_config(struct ib_device *device, int vf, u8 port,
-@@ -3439,6 +3535,7 @@ int ib_get_vf_stats(struct ib_device *device, int vf, u8 port,
+@@ -3439,6 +3538,7 @@ int ib_get_vf_stats(struct ib_device *device, int vf, u8 port,
  		    struct ifla_vf_stats *stats);
  int ib_set_vf_guid(struct ib_device *device, int vf, u8 port, u64 guid,
  		   int type);
@@ -221,81 +231,81 @@ index xxxxxxx..xxxxxxx 100644
  
  int ib_query_pkey(struct ib_device *device,
  		  u8 port_num, u16 index, u16 *pkey);
-@@ -4071,6 +4168,10 @@ struct ib_mr *ib_get_dma_mr(struct ib_pd *pd, int mr_access_flags);
+@@ -4071,6 +4171,10 @@ struct ib_mr *ib_get_dma_mr(struct ib_pd *pd, int mr_access_flags);
   */
  static inline int ib_dma_mapping_error(struct ib_device *dev, u64 dma_addr)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		return dev->dma_ops->mapping_error(dev, dma_addr);
++	if (dev->ops.dma_ops)
++		return dev->ops.dma_ops->mapping_error(dev, dma_addr);
 +#endif
  	return dma_mapping_error(dev->dma_device, dma_addr);
  }
  
-@@ -4085,6 +4186,10 @@ static inline u64 ib_dma_map_single(struct ib_device *dev,
+@@ -4085,6 +4189,10 @@ static inline u64 ib_dma_map_single(struct ib_device *dev,
  				    void *cpu_addr, size_t size,
  				    enum dma_data_direction direction)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		return dev->dma_ops->map_single(dev, cpu_addr, size, direction);
++	if (dev->ops.dma_ops)
++		return dev->ops.dma_ops->map_single(dev, cpu_addr, size, direction);
 +#endif
  	return dma_map_single(dev->dma_device, cpu_addr, size, direction);
  }
  
-@@ -4099,6 +4204,11 @@ static inline void ib_dma_unmap_single(struct ib_device *dev,
+@@ -4099,6 +4207,11 @@ static inline void ib_dma_unmap_single(struct ib_device *dev,
  				       u64 addr, size_t size,
  				       enum dma_data_direction direction)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		dev->dma_ops->unmap_single(dev, addr, size, direction);
++	if (dev->ops.dma_ops)
++		dev->ops.dma_ops->unmap_single(dev, addr, size, direction);
 +	else
 +#endif
  	dma_unmap_single(dev->dma_device, addr, size, direction);
  }
  
-@@ -4116,6 +4226,10 @@ static inline u64 ib_dma_map_page(struct ib_device *dev,
+@@ -4116,6 +4229,10 @@ static inline u64 ib_dma_map_page(struct ib_device *dev,
  				  size_t size,
  					 enum dma_data_direction direction)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		return dev->dma_ops->map_page(dev, page, offset, size, direction);
++	if (dev->ops.dma_ops)
++		return dev->ops.dma_ops->map_page(dev, page, offset, size, direction);
 +#endif
  	return dma_map_page(dev->dma_device, page, offset, size, direction);
  }
  
-@@ -4130,6 +4244,11 @@ static inline void ib_dma_unmap_page(struct ib_device *dev,
+@@ -4130,6 +4247,11 @@ static inline void ib_dma_unmap_page(struct ib_device *dev,
  				     u64 addr, size_t size,
  				     enum dma_data_direction direction)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		dev->dma_ops->unmap_page(dev, addr, size, direction);
++	if (dev->ops.dma_ops)
++		dev->ops.dma_ops->unmap_page(dev, addr, size, direction);
 +	else
 +#endif
  	dma_unmap_page(dev->dma_device, addr, size, direction);
  }
  
-@@ -4144,6 +4263,10 @@ static inline int ib_dma_map_sg(struct ib_device *dev,
+@@ -4144,6 +4266,10 @@ static inline int ib_dma_map_sg(struct ib_device *dev,
  				struct scatterlist *sg, int nents,
  				enum dma_data_direction direction)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		return dev->dma_ops->map_sg(dev, sg, nents, direction);
++	if (dev->ops.dma_ops)
++		return dev->ops.dma_ops->map_sg(dev, sg, nents, direction);
 +#endif
  	return dma_map_sg(dev->dma_device, sg, nents, direction);
  }
  
-@@ -4158,14 +4281,28 @@ static inline void ib_dma_unmap_sg(struct ib_device *dev,
+@@ -4158,14 +4284,28 @@ static inline void ib_dma_unmap_sg(struct ib_device *dev,
  				   struct scatterlist *sg, int nents,
  				   enum dma_data_direction direction)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		dev->dma_ops->unmap_sg(dev, sg, nents, direction);
++	if (dev->ops.dma_ops)
++		dev->ops.dma_ops->unmap_sg(dev, sg, nents, direction);
 +	else
 +#endif
  	dma_unmap_sg(dev->dma_device, sg, nents, direction);
@@ -311,14 +321,14 @@ index xxxxxxx..xxxxxxx 100644
 +#endif
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		return dev->dma_ops->map_sg_attrs(dev, sg, nents, direction,
++	if (dev->ops.dma_ops)
++		return dev->ops.dma_ops->map_sg_attrs(dev, sg, nents, direction,
 +						  dma_attrs);
 +#endif
  	return dma_map_sg_attrs(dev->dma_device, sg, nents, direction,
  				dma_attrs);
  }
-@@ -4173,8 +4310,18 @@ static inline int ib_dma_map_sg_attrs(struct ib_device *dev,
+@@ -4173,8 +4313,18 @@ static inline int ib_dma_map_sg_attrs(struct ib_device *dev,
  static inline void ib_dma_unmap_sg_attrs(struct ib_device *dev,
  					 struct scatterlist *sg, int nents,
  					 enum dma_data_direction direction,
@@ -329,48 +339,48 @@ index xxxxxxx..xxxxxxx 100644
 +#endif
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		return dev->dma_ops->unmap_sg_attrs(dev, sg, nents, direction,
++	if (dev->ops.dma_ops)
++		return dev->ops.dma_ops->unmap_sg_attrs(dev, sg, nents, direction,
 +						  dma_attrs);
 +	else
 +#endif
  	dma_unmap_sg_attrs(dev->dma_device, sg, nents, direction, dma_attrs);
  }
  
-@@ -4203,6 +4350,11 @@ static inline void ib_dma_sync_single_for_cpu(struct ib_device *dev,
+@@ -4203,6 +4353,11 @@ static inline void ib_dma_sync_single_for_cpu(struct ib_device *dev,
  					      size_t size,
  					      enum dma_data_direction dir)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		dev->dma_ops->sync_single_for_cpu(dev, addr, size, dir);
++	if (dev->ops.dma_ops)
++		dev->ops.dma_ops->sync_single_for_cpu(dev, addr, size, dir);
 +	else
 +#endif
  	dma_sync_single_for_cpu(dev->dma_device, addr, size, dir);
  }
  
-@@ -4218,6 +4370,11 @@ static inline void ib_dma_sync_single_for_device(struct ib_device *dev,
+@@ -4218,6 +4373,11 @@ static inline void ib_dma_sync_single_for_device(struct ib_device *dev,
  						 size_t size,
  						 enum dma_data_direction dir)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		dev->dma_ops->sync_single_for_device(dev, addr, size, dir);
++	if (dev->ops.dma_ops)
++		dev->ops.dma_ops->sync_single_for_device(dev, addr, size, dir);
 +	else
 +#endif
  	dma_sync_single_for_device(dev->dma_device, addr, size, dir);
  }
  
-@@ -4233,6 +4390,16 @@ static inline void *ib_dma_alloc_coherent(struct ib_device *dev,
+@@ -4233,6 +4393,16 @@ static inline void *ib_dma_alloc_coherent(struct ib_device *dev,
  					   dma_addr_t *dma_handle,
  					   gfp_t flag)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops) {
++	if (dev->ops.dma_ops) {
 +		u64 handle;
 +		void *ret;
 +
-+		ret = dev->dma_ops->alloc_coherent(dev, size, &handle, flag);
++		ret = dev->ops.dma_ops->alloc_coherent(dev, size, &handle, flag);
 +		*dma_handle = handle;
 +		return ret;
 +	}
@@ -378,19 +388,19 @@ index xxxxxxx..xxxxxxx 100644
  	return dma_alloc_coherent(dev->dma_device, size, dma_handle, flag);
  }
  
-@@ -4247,6 +4414,11 @@ static inline void ib_dma_free_coherent(struct ib_device *dev,
+@@ -4247,6 +4417,11 @@ static inline void ib_dma_free_coherent(struct ib_device *dev,
  					size_t size, void *cpu_addr,
  					dma_addr_t dma_handle)
  {
 +#ifndef HAVE_DEVICE_DMA_OPS
-+	if (dev->dma_ops)
-+		dev->dma_ops->free_coherent(dev, size, cpu_addr, dma_handle);
++	if (dev->ops.dma_ops)
++		dev->ops.dma_ops->free_coherent(dev, size, cpu_addr, dma_handle);
 +	else
 +#endif
  	dma_free_coherent(dev->dma_device, size, cpu_addr, dma_handle);
  }
  
-@@ -4812,6 +4984,14 @@ ib_get_vector_affinity(struct ib_device *device, int comp_vector)
+@@ -4812,6 +4987,14 @@ ib_get_vector_affinity(struct ib_device *device, int comp_vector)
   */
  void rdma_roce_rescan_device(struct ib_device *ibdev);
  
