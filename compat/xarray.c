@@ -247,7 +247,7 @@ void *xas_load(struct xa_state *xas)
 EXPORT_SYMBOL_GPL(xas_load);
 
 /* Move the radix tree node cache here */
-struct kmem_cache *radix_tree_node_cachep;
+struct kmem_cache *compat_radix_tree_node_cachep;
 void radix_tree_node_rcu_free(struct rcu_head *head)
 {
 	struct radix_tree_node *node =
@@ -262,7 +262,7 @@ void radix_tree_node_rcu_free(struct rcu_head *head)
 	memset(node->tags, 0, sizeof(node->tags));
 	INIT_LIST_HEAD(&node->private_list);
 
-	kmem_cache_free(radix_tree_node_cachep, node);
+	kmem_cache_free(compat_radix_tree_node_cachep, node);
 
 }
 
@@ -288,7 +288,7 @@ static void xas_destroy(struct xa_state *xas)
 	if (!node)
 		return;
 	XA_NODE_BUG_ON(node, !list_empty(&node->private_list));
-	kmem_cache_free(radix_tree_node_cachep, node);
+	kmem_cache_free(compat_radix_tree_node_cachep, node);
 	xas->xa_alloc = NULL;
 }
 
@@ -318,7 +318,7 @@ bool xas_nomem(struct xa_state *xas, gfp_t gfp)
 	}
 	if (xas->xa->xa_flags & XA_FLAGS_ACCOUNT)
 		gfp |= __GFP_ACCOUNT;
-	xas->xa_alloc = kmem_cache_alloc(radix_tree_node_cachep, gfp);
+	xas->xa_alloc = kmem_cache_alloc(compat_radix_tree_node_cachep, gfp);
 	if (!xas->xa_alloc)
 		return false;
 	XA_NODE_BUG_ON(xas->xa_alloc, !list_empty(&xas->xa_alloc->private_list));
@@ -349,10 +349,10 @@ static bool __xas_nomem(struct xa_state *xas, gfp_t gfp)
 		gfp |= __GFP_ACCOUNT;
 	if (gfpflags_allow_blocking(gfp)) {
 		xas_unlock_type(xas, lock_type);
-		xas->xa_alloc = kmem_cache_alloc(radix_tree_node_cachep, gfp);
+		xas->xa_alloc = kmem_cache_alloc(compat_radix_tree_node_cachep, gfp);
 		xas_lock_type(xas, lock_type);
 	} else {
-		xas->xa_alloc = kmem_cache_alloc(radix_tree_node_cachep, gfp);
+		xas->xa_alloc = kmem_cache_alloc(compat_radix_tree_node_cachep, gfp);
 	}
 	if (!xas->xa_alloc)
 		return false;
@@ -385,7 +385,7 @@ static void *xas_alloc(struct xa_state *xas, unsigned int shift)
 		if (xas->xa->xa_flags & XA_FLAGS_ACCOUNT)
 			gfp |= __GFP_ACCOUNT;
 
-		node = kmem_cache_alloc(radix_tree_node_cachep, gfp);
+		node = kmem_cache_alloc(compat_radix_tree_node_cachep, gfp);
 		if (!node) {
 			xas_set_err(xas, -ENOMEM);
 			return NULL;
@@ -2076,4 +2076,31 @@ void xa_dump(const struct xarray *xa)
 	xa_dump_entry(entry, 0, shift);
 }
 #endif
+
+static void
+compat_radix_tree_node_ctor(void *arg)
+{
+	struct radix_tree_node *node = arg;
+
+	memset(node, 0, sizeof(*node));
+	INIT_LIST_HEAD(&node->private_list);
+}
+
+void compat_radix_tree_init(void)
+{
+	BUILD_BUG_ON(RADIX_TREE_MAX_TAGS + __GFP_BITS_SHIFT > 32);
+	BUILD_BUG_ON(XA_CHUNK_SIZE > 255);
+	compat_radix_tree_node_cachep = kmem_cache_create("mlx_compat_radix_tree_node",
+			sizeof(struct radix_tree_node), 0,
+			SLAB_PANIC | SLAB_RECLAIM_ACCOUNT,
+			compat_radix_tree_node_ctor);
+}
+EXPORT_SYMBOL_GPL(compat_radix_tree_init);
+
+void compat_radix_tree_clean(void)
+{
+	kmem_cache_destroy(compat_radix_tree_node_cachep);
+}
+EXPORT_SYMBOL_GPL(compat_radix_tree_clean);
+
 #endif
