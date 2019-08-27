@@ -53,3 +53,4 @@ Change-Id=I897ec815b7b7c3b9211ad933a396893083285d5f; subject=mlx5/core: Fix init
 Change-Id=I49d539f46d627c889a1141a0585586fd82e9c7ef; subject=net/mlx5: Align flow rules deletion to upstream; feature=mlx5_core_bugs; upstream_status=NA; general=;
 Change-Id=Ia1b730b9cadf443add70a3ce36c89e5cc8268214; subject=Revert "BACKPORTS: mlx5_en till 4.14"; feature=backports; upstream_status=ignore; general=;
 Change-Id=I330ddbc2e99b2d87ae8b2918468f5ae27daf4c3e; subject=BACKPORTS: Fix unused param warning; feature=backports; upstream_status=ignore; general=;
+Change-Id=I3326cd5d90f077165fcf6c604d11483383132f27; subject=BACKPORT: Fix defined but not used compilation warning; feature=backports; upstream_status=ignore; general=;

@@ -293,7 +293,7 @@ index xxxxxxx..xxxxxxx 100644
  				}
  			}
  			ret2 = add_nonoui_reg_req(mad_reg_req, mad_agent_priv,
-@@ -1016,23 +1119,46 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
+@@ -1016,24 +1119,47 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
  					if (is_vendor_method_in_use(
  							vendor_class,
  							mad_reg_req))
@@ -326,7 +326,7 @@ index xxxxxxx..xxxxxxx 100644
  	trace_ib_mad_create_agent(mad_agent_priv);
  	return &mad_agent_priv->agent;
 +#ifndef HAVE_IDR_LOCK
-+error6:
++error5:
 +	spin_unlock_irq(&port_priv->reg_lock);
 +#else
  error6:
@@ -338,10 +338,11 @@ index xxxxxxx..xxxxxxx 100644
 + 	idr_remove(&ib_mad_clients, mad_agent_priv->agent.hi_tid);
 + 	idr_unlock(&ib_mad_clients);
 +#endif /*HAVE_XARRAY*/
-+#endif /*HAVE_IDR_LOCK*/
  error5:
++#endif /*HAVE_IDR_LOCK*/
  	ib_mad_agent_security_cleanup(&mad_agent_priv->agent);
  error4:
+ 	kfree(reg_req);
 @@ -1196,9 +1322,19 @@ static void unregister_mad_agent(struct ib_mad_agent_private *mad_agent_priv)
  
  	spin_lock_irq(&port_priv->reg_lock);
