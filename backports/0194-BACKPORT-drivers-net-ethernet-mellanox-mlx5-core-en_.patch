@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
 
 Change-Id: Idf8c2890430b8a86101751e5cfd10bcb04ef3c96
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rx.c | 262 +++++++++++++++++++++++-
- 1 file changed, 258 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_rx.c | 264 +++++++++++++++++++++++-
+ 1 file changed, 260 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
 index xxxxxxx..xxxxxxx 100644
@@ -528,7 +528,16 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (unlikely(!test_bit(MLX5E_RQ_STATE_ENABLED, &rq->state)))
  		return 0;
-@@ -1496,6 +1724,11 @@ out:
+@@ -1489,13 +1717,20 @@ int mlx5e_poll_rx_cq(struct mlx5e_cq *cq, int budget)
+ 	} while ((++work_done < budget) && (cqe = mlx5_cqwq_get_cqe(cqwq)));
+ 
+ out:
++#ifdef HAVE_XDP_BUFF
+ 	if (rq->xdp_prog)
+ 		mlx5e_xdp_rx_poll_complete(rq);
++#endif
+ 
+ 	mlx5_cqwq_update_db_record(cqwq);
  
  	/* ensure cq space is freed before enabling more cqes */
  	wmb();
@@ -540,7 +549,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	return work_done;
  }
-@@ -1519,6 +1752,9 @@ static inline void mlx5i_complete_rx_cqe(struct mlx5e_rq *rq,
+@@ -1519,6 +1754,9 @@ static inline void mlx5i_complete_rx_cqe(struct mlx5e_rq *rq,
  	u32 qpn;
  	u8 *dgid;
  	u8 g;
@@ -550,7 +559,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	qpn = be32_to_cpu(cqe->sop_drop_qpn) & 0xffffff;
  	netdev = mlx5i_pkey_get_netdev(rq->netdev, qpn);
-@@ -1554,6 +1790,11 @@ static inline void mlx5i_complete_rx_cqe(struct mlx5e_rq *rq,
+@@ -1554,6 +1792,11 @@ static inline void mlx5i_complete_rx_cqe(struct mlx5e_rq *rq,
  
  	skb->protocol = *((__be16 *)(skb->data));
  
@@ -562,7 +571,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (netdev->features & NETIF_F_RXCSUM) {
  		skb->ip_summed = CHECKSUM_COMPLETE;
  		skb->csum = csum_unfold((__force __sum16)cqe->check_sum);
-@@ -1569,8 +1810,10 @@ static inline void mlx5i_complete_rx_cqe(struct mlx5e_rq *rq,
+@@ -1569,8 +1812,10 @@ static inline void mlx5i_complete_rx_cqe(struct mlx5e_rq *rq,
  
  	skb_record_rx_queue(skb, rq->ix);
  
@@ -573,7 +582,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	/* 20 bytes of ipoib header and 4 for encap existing */
  	pseudo_header = skb_push(skb, MLX5_IPOIB_PSEUDO_LEN);
-@@ -1591,6 +1834,9 @@ static inline void mlx5i_complete_rx_cqe(struct mlx5e_rq *rq,
+@@ -1591,6 +1836,9 @@ static inline void mlx5i_complete_rx_cqe(struct mlx5e_rq *rq,
  
  void mlx5i_handle_rx_cqe(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe)
  {
@@ -583,7 +592,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct mlx5_wq_cyc *wq = &rq->wqe.wq;
  	struct mlx5e_wqe_frag_info *wi;
  	struct sk_buff *skb;
-@@ -1610,6 +1856,11 @@ void mlx5i_handle_rx_cqe(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe)
+@@ -1610,6 +1858,11 @@ void mlx5i_handle_rx_cqe(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe)
  		dev_kfree_skb_any(skb);
  		goto wq_free_wqe;
  	}
@@ -595,7 +604,7 @@ index xxxxxxx..xxxxxxx 100644
  	napi_gro_receive(rq->cq.napi, skb);
  
  wq_free_wqe:
-@@ -1623,6 +1874,9 @@ wq_free_wqe:
+@@ -1623,6 +1876,9 @@ wq_free_wqe:
  
  void mlx5e_ipsec_handle_rx_cqe(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe)
  {

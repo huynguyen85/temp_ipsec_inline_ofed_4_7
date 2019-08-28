@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en/xdp.c
 
 Change-Id: Id057ce21ed1ec934c4e6151ed2624fda4fd5e7e5
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/xdp.c | 127 ++++++++++++++++++++---
- 1 file changed, 110 insertions(+), 17 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/xdp.c | 128 ++++++++++++++++++++---
+ 1 file changed, 111 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/xdp.c b/drivers/net/ethernet/mellanox/mlx5/core/en/xdp.c
 index xxxxxxx..xxxxxxx 100644
@@ -102,7 +102,7 @@ index xxxxxxx..xxxxxxx 100644
  		}
  	}
  }
-@@ -381,6 +407,29 @@ void mlx5e_free_xdpsq_descs(struct mlx5e_xdpsq *sq, struct mlx5e_rq *rq)
+@@ -381,6 +407,30 @@ void mlx5e_free_xdpsq_descs(struct mlx5e_xdpsq *sq, struct mlx5e_rq *rq)
  	}
  }
  
@@ -114,11 +114,12 @@ index xxxxxxx..xxxxxxx 100644
 +		mlx5e_xdp_mpwqe_complete(xdpsq);
 +
 +	mlx5e_xmit_xdp_doorbell(xdpsq);
-+
++#ifdef HAVE_XDP_REDIRECT
 +	if (test_bit(MLX5E_RQ_FLAG_XDP_REDIRECT, rq->flags)) {
 +		xdp_do_flush_map();
 +		__clear_bit(MLX5E_RQ_FLAG_XDP_REDIRECT, rq->flags);
 +	}
++#endif
 +}
 +
 +void mlx5e_set_xmit_fp(struct mlx5e_xdpsq *sq, bool is_mpw)
@@ -132,7 +133,7 @@ index xxxxxxx..xxxxxxx 100644
  int mlx5e_xdp_xmit(struct net_device *dev, int n, struct xdp_frame **frames,
  		   u32 flags)
  {
-@@ -419,9 +468,14 @@ int mlx5e_xdp_xmit(struct net_device *dev, int n, struct xdp_frame **frames,
+@@ -419,9 +469,14 @@ int mlx5e_xdp_xmit(struct net_device *dev, int n, struct xdp_frame **frames,
  		xdpi.xdpf = xdpf;
  
  		if (unlikely(!sq->xmit_xdp_frame(sq, &xdpi))) {
@@ -150,7 +151,7 @@ index xxxxxxx..xxxxxxx 100644
  			drops++;
  		}
  	}
-@@ -434,25 +488,64 @@ int mlx5e_xdp_xmit(struct net_device *dev, int n, struct xdp_frame **frames,
+@@ -434,25 +489,64 @@ int mlx5e_xdp_xmit(struct net_device *dev, int n, struct xdp_frame **frames,
  
  	return n - drops;
  }

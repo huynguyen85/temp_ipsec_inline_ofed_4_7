@@ -33,10 +33,6 @@
 #include <scsi/fc/fc_fcoe.h>
 #include <net/dst_metadata.h>
 
-#ifndef skb_vlan_tag_get_prio
-#define skb_vlan_tag_get_prio(__skb)   ((__skb)->vlan_tci & VLAN_PRIO_MASK)
-#endif
-
 #ifndef IP6_OFFSET
 #define IP6_OFFSET  0xFFF8
 #endif

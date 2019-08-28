@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/ulp/ipoib/ipoib.h
 
 Change-Id: I57ba757456a15c6e8fbdc5b761b4d65d7e7eca74
 ---
- drivers/infiniband/ulp/ipoib/ipoib.h | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/infiniband/ulp/ipoib/ipoib.h | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
 diff --git a/drivers/infiniband/ulp/ipoib/ipoib.h b/drivers/infiniband/ulp/ipoib/ipoib.h
 index xxxxxxx..xxxxxxx 100644
@@ -61,3 +61,10 @@ index xxxxxxx..xxxxxxx 100644
  	/* Function pointers for RSS support */
  	struct ipoib_func_pointers fp;
  };
+@@ -878,5 +899,6 @@ extern int ipoib_debug_level;
+ #define IPOIB_QPN(ha) (be32_to_cpup((__be32 *) ha) & 0xffffff)
+ 
+ extern const char ipoib_driver_version[];
++extern int ipoib_enhanced_enabled;
+ 
+ #endif /* _IPOIB_H */

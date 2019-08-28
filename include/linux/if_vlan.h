@@ -11,6 +11,10 @@
 #define skb_vlan_tag_get_id vlan_tx_tag_get_id
 #endif
 
+#ifndef skb_vlan_tag_get_prio
+#define skb_vlan_tag_get_prio(__skb)   ((__skb)->vlan_tci & VLAN_PRIO_MASK)
+#endif/*skb_vlan_tag_get_prio*/
+
 #ifndef HAVE_IS_VLAN_DEV
 static inline int is_vlan_dev(struct net_device *dev)
 {
