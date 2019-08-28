@@ -890,6 +890,39 @@ static void mlx5e_rep_changelowerstate_event(struct net_device *netdev, void *pt
 	}
 }
 
+static void mlx5e_rep_changeupper_event(struct net_device *netdev, void *ptr)
+{
+	struct netdev_notifier_changeupper_info *info = ptr;
+	struct mlx5e_rep_priv *rpriv;
+	struct net_device *lag_dev;
+	struct mlx5e_priv *priv;
+
+	/* A given netdev is not a representor or not a slave of LAG configuration */
+	if (!mlx5e_eswitch_rep(netdev) || !netif_is_lag_port(netdev))
+		return;
+
+	priv = netdev_priv(netdev);
+	rpriv = priv->ppriv;
+	/* Egress acl forward to vport is supported only non-uplink representor */
+	if (rpriv->rep->vport == MLX5_VPORT_UPLINK)
+		return;
+
+	lag_dev = info->upper_dev;
+	/* New representor start becoming a slave but not yet having a LAG master dev */
+	if (!lag_dev)
+		return;
+
+	/* Nothing to setup for new enslaved representor */
+	if (info->linking)
+		return;
+
+	mlx5_core_info(priv->mdev,
+		       "Unslave %s from lag(%s), reset vport(%d) egress acl\n",
+		       netdev->name, lag_dev->name, rpriv->rep->vport);
+	/* Delete vport egress acl rule to forward to other vport */
+	esw_del_egress_fwd2vport(priv->mdev->priv.eswitch, rpriv->rep->vport);
+}
+
 static int mlx5e_nic_rep_netdevice_event(struct notifier_block *nb,
 					 unsigned long event, void *ptr)
 {
@@ -898,8 +931,12 @@ static int mlx5e_nic_rep_netdevice_event(struct notifier_block *nb,
 	struct mlx5e_priv *priv = netdev_priv(rpriv->netdev);
 	struct net_device *netdev = netdev_notifier_info_to_dev(ptr);
 
-	if (event == NETDEV_CHANGELOWERSTATE) {
+	switch (event) {
+	case NETDEV_CHANGELOWERSTATE:
 		mlx5e_rep_changelowerstate_event(netdev, ptr);
+		return NOTIFY_OK;
+	case NETDEV_CHANGEUPPER:
+		mlx5e_rep_changeupper_event(netdev, ptr);
 		return NOTIFY_OK;
 	}
 
