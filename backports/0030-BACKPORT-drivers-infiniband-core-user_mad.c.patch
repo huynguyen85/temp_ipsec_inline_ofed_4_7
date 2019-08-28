@@ -118,7 +118,7 @@ index xxxxxxx..xxxxxxx 100644
  	.dev_groups	= umad_class_dev_groups,
  };
  
-@@ -1218,10 +1234,18 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+@@ -1218,10 +1234,19 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
  	dev_t base_issm;
  	int ret;
  
@@ -129,6 +129,7 @@ index xxxxxxx..xxxxxxx 100644
 +#else
 +	devnum = find_first_zero_bit(dev_map, IB_UMAD_MAX_PORTS);
 +	if (devnum >= IB_UMAD_MAX_PORTS)
++ 		return -1;
 +#endif
  	port->dev_num = devnum;
 +#ifndef HAVE_IDA_ALLOC_MAX
