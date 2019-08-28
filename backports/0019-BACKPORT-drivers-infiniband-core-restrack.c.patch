@@ -28,7 +28,7 @@ index xxxxxxx..xxxxxxx 100644
  	int i;
  
  	for (i = 0 ; i < RDMA_RESTRACK_MAX; i++) {
-@@ -101,6 +106,34 @@ void rdma_restrack_clean(struct ib_device *dev)
+@@ -101,6 +106,37 @@ void rdma_restrack_clean(struct ib_device *dev)
  		pr_err("restrack: %s", CUT_HERE);
  
  	kfree(rt);
@@ -36,8 +36,10 @@ index xxxxxxx..xxxxxxx 100644
 +
 +	int bkt;
 +
-+	if (hash_empty(res->hash))
++	if (hash_empty(res->hash)) {
++		kfree(res);
 +		return;
++	}
 +
 +	pr_err("restrack: %s", CUT_HERE);
 +	dev_err(&dev->dev, "BUG: RESTRACK detected leak of resources\n");
@@ -59,6 +61,7 @@ index xxxxxxx..xxxxxxx 100644
 +		       type2str(e->type), owner);
 +	}
 +	pr_err("restrack: %s", CUT_HERE);
++	kfree(res);
 +#endif /* HAVE_XARRAY */
  }
  
