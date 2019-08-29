@@ -127,6 +127,7 @@ static const u32 mlx5_ib_opcode[] = {
 	[IB_WR_MASKED_ATOMIC_CMP_AND_SWP]	= MLX5_OPCODE_ATOMIC_MASKED_CS,
 	[IB_WR_MASKED_ATOMIC_FETCH_AND_ADD]	= MLX5_OPCODE_ATOMIC_MASKED_FA,
 	[MLX5_IB_WR_UMR]			= MLX5_OPCODE_UMR,
+	[MLX5_IB_WR_NOP]			= MLX5_OPCODE_NOP,
 };
 
 struct mlx5_wqe_eth_pad {
@@ -5691,6 +5692,8 @@ static int _mlx5_ib_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
 
 		switch (ibqp->qp_type) {
 		case IB_QPT_XRC_INI:
+			if (unlikely(wr->opcode == MLX5_IB_WR_NOP))
+				break;
 			xrc = seg;
 			seg += sizeof(*xrc);
 			size += sizeof(*xrc) / 16;
@@ -5885,6 +5888,8 @@ static int _mlx5_ib_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
 			}
 			/* fall through */
 		case MLX5_IB_QPT_HW_GSI:
+			if (unlikely(wr->opcode == MLX5_IB_WR_NOP))
+				break;
 			set_datagram_seg(seg, wr);
 			seg += sizeof(struct mlx5_wqe_datagram_seg);
 			size += sizeof(struct mlx5_wqe_datagram_seg) / 16;
@@ -5899,6 +5904,8 @@ static int _mlx5_ib_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
 			handle_post_send_edge(&qp->sq, &seg, size, &cur_edge);
 			break;
 		case IB_QPT_UD:
+			if (unlikely(wr->opcode == MLX5_IB_WR_NOP))
+				break;
 			set_datagram_seg(seg, wr);
 			seg += sizeof(struct mlx5_wqe_datagram_seg);
 			size += sizeof(struct mlx5_wqe_datagram_seg) / 16;
