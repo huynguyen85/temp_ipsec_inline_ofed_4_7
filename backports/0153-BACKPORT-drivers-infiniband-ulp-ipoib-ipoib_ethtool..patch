@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/ulp/ipoib/ipoib_ethtool.c
 
 Change-Id: Idc5134dac8c647e4550d896691a4d798fbdfba38
 ---
- drivers/infiniband/ulp/ipoib/ipoib_ethtool.c | 100 +++++++++++++++++++++++++++
- 1 file changed, 100 insertions(+)
+ drivers/infiniband/ulp/ipoib/ipoib_ethtool.c | 99 ++++++++++++++++++++++++++++
+ 1 file changed, 99 insertions(+)
 
 diff --git a/drivers/infiniband/ulp/ipoib/ipoib_ethtool.c b/drivers/infiniband/ulp/ipoib/ipoib_ethtool.c
 index xxxxxxx..xxxxxxx 100644
@@ -26,7 +26,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static const struct ipoib_stats ipoib_gstrings_stats[] = {
  	IPOIB_NETDEV_STAT(rx_packets),
-@@ -100,7 +106,12 @@ static int ipoib_set_ring_param(struct net_device *dev,
+@@ -100,7 +106,11 @@ static int ipoib_set_ring_param(struct net_device *dev,
  		priv_current_flags = priv->flags;
  		dev_current_flags = dev->flags;
  
@@ -35,11 +35,10 @@ index xxxxxxx..xxxxxxx 100644
 +#else
 +		dev_change_flags(dev, dev->flags & ~IFF_UP);
 +#endif
-+ 		priv->rn_ops->ndo_uninit(dev);
  		priv->rn_ops->ndo_uninit(dev);
  
  		do {
-@@ -136,7 +147,11 @@ static int ipoib_set_ring_param(struct net_device *dev,
+@@ -136,7 +146,11 @@ static int ipoib_set_ring_param(struct net_device *dev,
  				dev->name, new_recvq_size, new_sendq_size);
  
  		if (dev_current_flags & IFF_UP)
@@ -51,7 +50,7 @@ index xxxxxxx..xxxxxxx 100644
  	}
  
  	return 0;
-@@ -242,6 +257,37 @@ static int ipoib_get_settings(struct net_device *dev, struct ethtool_cmd *ecmd)
+@@ -242,6 +256,37 @@ static int ipoib_get_settings(struct net_device *dev, struct ethtool_cmd *ecmd)
  	return 0;
  }
  */
@@ -89,7 +88,7 @@ index xxxxxxx..xxxxxxx 100644
  static void ipoib_get_ethtool_stats(struct net_device *dev,
  				    struct ethtool_stats __always_unused *stats,
  				    u64 *data)
-@@ -306,6 +352,7 @@ static inline int ib_speed_enum_to_int(int speed)
+@@ -306,6 +351,7 @@ static inline int ib_speed_enum_to_int(int speed)
  	return SPEED_UNKNOWN;
  }
  
@@ -97,7 +96,7 @@ index xxxxxxx..xxxxxxx 100644
  static int ipoib_get_link_ksettings(struct net_device *netdev,
  				    struct ethtool_link_ksettings *cmd)
  {
-@@ -343,12 +390,46 @@ static int ipoib_get_link_ksettings(struct net_device *netdev,
+@@ -343,12 +389,46 @@ static int ipoib_get_link_ksettings(struct net_device *netdev,
  
  	return 0;
  }
@@ -144,7 +143,7 @@ index xxxxxxx..xxxxxxx 100644
  //	.get_settings		= ipoib_get_settings,
  	.get_link		= ethtool_op_get_link,
  	.get_strings		= ipoib_get_strings,
-@@ -356,6 +437,25 @@ static const struct ethtool_ops ipoib_ethtool_ops = {
+@@ -356,6 +436,25 @@ static const struct ethtool_ops ipoib_ethtool_ops = {
  	.get_sset_count		= ipoib_get_sset_count,
  	.set_ringparam		= ipoib_set_ring_param,
  	.get_ringparam		= ipoib_get_ring_param,

@@ -55,3 +55,4 @@ Change-Id=Ia1b730b9cadf443add70a3ce36c89e5cc8268214; subject=Revert "BACKPORTS: 
 Change-Id=I330ddbc2e99b2d87ae8b2918468f5ae27daf4c3e; subject=BACKPORTS: Fix unused param warning; feature=backports; upstream_status=ignore; general=;
 Change-Id=I3326cd5d90f077165fcf6c604d11483383132f27; subject=BACKPORT: Fix defined but not used compilation warning; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ibd6deb612ceaa48b8ea387822104dfd77307a4c8; subject=BACKPORT: Wrap tracepoint calls with MLX_DISABLE_TRACEPOINTS; feature=backports; upstream_status=ignore; general=;
+Change-Id=I294f8a5e8e37462da159adc8702a3251f1b00b07; subject=BACKPORTS: Remove redundant uninit call; feature=backports; upstream_status=ignore; general=;
