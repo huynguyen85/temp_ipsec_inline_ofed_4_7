@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/restrack.c
 
 Change-Id: I2afdcd243906616208272ef9d27396f236ffbcfc
 ---
- drivers/infiniband/core/restrack.c | 56 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 55 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/restrack.c | 59 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 58 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/infiniband/core/restrack.c b/drivers/infiniband/core/restrack.c
 index xxxxxxx..xxxxxxx 100644
@@ -66,7 +66,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  /**
-@@ -112,6 +145,7 @@ void rdma_restrack_clean(struct ib_device *dev)
+@@ -112,6 +148,7 @@ void rdma_restrack_clean(struct ib_device *dev)
  int rdma_restrack_count(struct ib_device *dev, enum rdma_restrack_type type,
  			struct pid_namespace *ns)
  {
@@ -74,7 +74,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct rdma_restrack_root *rt = &dev->res[type];
  	struct rdma_restrack_entry *e;
  	XA_STATE(xas, &rt->xa, 0);
-@@ -126,6 +160,26 @@ int rdma_restrack_count(struct ib_device *dev, enum rdma_restrack_type type,
+@@ -126,6 +163,26 @@ int rdma_restrack_count(struct ib_device *dev, enum rdma_restrack_type type,
  	}
  	xa_unlock(&rt->xa);
  	return cnt;

@@ -3,14 +3,14 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/rw.c
 
 Change-Id: If86975bb201a190b51aa30c1ff90f0d69fd30d10
 ---
- drivers/infiniband/core/rw.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/rw.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/infiniband/core/rw.c b/drivers/infiniband/core/rw.c
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/infiniband/core/rw.c
 +++ b/drivers/infiniband/core/rw.c
-@@ -4,7 +4,9 @@
+@@ -4,10 +4,12 @@
   */
  #include <linux/moduleparam.h>
  #include <linux/slab.h>
@@ -19,7 +19,11 @@ index xxxxxxx..xxxxxxx 100644
 +#endif
  #include <rdma/mr_pool.h>
  #include <rdma/rw.h>
- 
+-
++#include <linux/sizes.h>
+ enum {
+ 	RDMA_RW_SINGLE_WR,
+ 	RDMA_RW_MULTI_WR,
 @@ -289,11 +291,12 @@ int rdma_rw_ctx_init(struct rdma_rw_ctx *ctx, struct ib_qp *qp, u8 port_num,
  {
  	struct ib_device *dev = qp->pd->device;

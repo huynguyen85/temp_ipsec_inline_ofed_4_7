@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: include/rdma/ib_verbs.h
 
 Change-Id: Ib09a171a43fa1e77a7341d50825698b70ae34220
 ---
- include/rdma/ib_verbs.h | 187 +++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 185 insertions(+), 2 deletions(-)
+ include/rdma/ib_verbs.h | 193 +++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 191 insertions(+), 2 deletions(-)
 
 diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
 index xxxxxxx..xxxxxxx 100644
@@ -187,7 +187,21 @@ index xxxxxxx..xxxxxxx 100644
  	int (*map_mr_sg_pi)(struct ib_mr *mr, struct scatterlist *data_sg,
  			    int data_sg_nents, unsigned int *data_sg_offset,
  			    struct scatterlist *meta_sg, int meta_sg_nents,
-@@ -2750,9 +2837,11 @@ struct ib_device {
+@@ -2690,7 +2777,13 @@ struct ib_core_device {
+ 	 * union of ib_core_device and device exists in ib_device.
+ 	 */
+ 	struct device dev;
++#ifdef HAVE_POSSIBLE_NET_T
+ 	possible_net_t rdma_net;
++#else
++#ifdef CONFIG_NET_NS
++	struct net           *rdma_net;
++#endif
++#endif
+ 	struct kobject *ports_kobj;
+ 	struct list_head port_list;
+ 	struct ib_device *owner; /* reach back to owner ib_device */
+@@ -2750,9 +2843,11 @@ struct ib_device {
  	struct attribute_group	     *hw_stats_ag;
  	struct rdma_hw_stats         *hw_stats;
  
@@ -199,7 +213,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	u32                          index;
  	struct rdma_restrack_root *res;
-@@ -2760,6 +2849,15 @@ struct ib_device {
+@@ -2760,6 +2855,15 @@ struct ib_device {
  	const struct uapi_definition   *driver_def;
  	enum rdma_driver_id		driver_id;
  
@@ -215,7 +229,7 @@ index xxxxxxx..xxxxxxx 100644
  	/*
  	 * Positive refcount indicates that the device is currently
  	 * registered and cannot be unregistered.
-@@ -3431,6 +3529,7 @@ static inline unsigned int rdma_find_pg_bit(unsigned long addr,
+@@ -3431,6 +3535,7 @@ static inline unsigned int rdma_find_pg_bit(unsigned long addr,
  	return __fls(pgsz);
  }
  
@@ -223,7 +237,7 @@ index xxxxxxx..xxxxxxx 100644
  int ib_set_vf_link_state(struct ib_device *device, int vf, u8 port,
  			 int state);
  int ib_get_vf_config(struct ib_device *device, int vf, u8 port,
-@@ -3439,6 +3538,7 @@ int ib_get_vf_stats(struct ib_device *device, int vf, u8 port,
+@@ -3439,6 +3544,7 @@ int ib_get_vf_stats(struct ib_device *device, int vf, u8 port,
  		    struct ifla_vf_stats *stats);
  int ib_set_vf_guid(struct ib_device *device, int vf, u8 port, u64 guid,
  		   int type);
@@ -231,7 +245,7 @@ index xxxxxxx..xxxxxxx 100644
  
  int ib_query_pkey(struct ib_device *device,
  		  u8 port_num, u16 index, u16 *pkey);
-@@ -4071,6 +4171,10 @@ struct ib_mr *ib_get_dma_mr(struct ib_pd *pd, int mr_access_flags);
+@@ -4071,6 +4177,10 @@ struct ib_mr *ib_get_dma_mr(struct ib_pd *pd, int mr_access_flags);
   */
  static inline int ib_dma_mapping_error(struct ib_device *dev, u64 dma_addr)
  {
@@ -242,7 +256,7 @@ index xxxxxxx..xxxxxxx 100644
  	return dma_mapping_error(dev->dma_device, dma_addr);
  }
  
-@@ -4085,6 +4189,10 @@ static inline u64 ib_dma_map_single(struct ib_device *dev,
+@@ -4085,6 +4195,10 @@ static inline u64 ib_dma_map_single(struct ib_device *dev,
  				    void *cpu_addr, size_t size,
  				    enum dma_data_direction direction)
  {
@@ -253,7 +267,7 @@ index xxxxxxx..xxxxxxx 100644
  	return dma_map_single(dev->dma_device, cpu_addr, size, direction);
  }
  
-@@ -4099,6 +4207,11 @@ static inline void ib_dma_unmap_single(struct ib_device *dev,
+@@ -4099,6 +4213,11 @@ static inline void ib_dma_unmap_single(struct ib_device *dev,
  				       u64 addr, size_t size,
  				       enum dma_data_direction direction)
  {
@@ -265,7 +279,7 @@ index xxxxxxx..xxxxxxx 100644
  	dma_unmap_single(dev->dma_device, addr, size, direction);
  }
  
-@@ -4116,6 +4229,10 @@ static inline u64 ib_dma_map_page(struct ib_device *dev,
+@@ -4116,6 +4235,10 @@ static inline u64 ib_dma_map_page(struct ib_device *dev,
  				  size_t size,
  					 enum dma_data_direction direction)
  {
@@ -276,7 +290,7 @@ index xxxxxxx..xxxxxxx 100644
  	return dma_map_page(dev->dma_device, page, offset, size, direction);
  }
  
-@@ -4130,6 +4247,11 @@ static inline void ib_dma_unmap_page(struct ib_device *dev,
+@@ -4130,6 +4253,11 @@ static inline void ib_dma_unmap_page(struct ib_device *dev,
  				     u64 addr, size_t size,
  				     enum dma_data_direction direction)
  {
@@ -288,7 +302,7 @@ index xxxxxxx..xxxxxxx 100644
  	dma_unmap_page(dev->dma_device, addr, size, direction);
  }
  
-@@ -4144,6 +4266,10 @@ static inline int ib_dma_map_sg(struct ib_device *dev,
+@@ -4144,6 +4272,10 @@ static inline int ib_dma_map_sg(struct ib_device *dev,
  				struct scatterlist *sg, int nents,
  				enum dma_data_direction direction)
  {
@@ -299,7 +313,7 @@ index xxxxxxx..xxxxxxx 100644
  	return dma_map_sg(dev->dma_device, sg, nents, direction);
  }
  
-@@ -4158,14 +4284,28 @@ static inline void ib_dma_unmap_sg(struct ib_device *dev,
+@@ -4158,14 +4290,28 @@ static inline void ib_dma_unmap_sg(struct ib_device *dev,
  				   struct scatterlist *sg, int nents,
  				   enum dma_data_direction direction)
  {
@@ -328,7 +342,7 @@ index xxxxxxx..xxxxxxx 100644
  	return dma_map_sg_attrs(dev->dma_device, sg, nents, direction,
  				dma_attrs);
  }
-@@ -4173,8 +4313,18 @@ static inline int ib_dma_map_sg_attrs(struct ib_device *dev,
+@@ -4173,8 +4319,18 @@ static inline int ib_dma_map_sg_attrs(struct ib_device *dev,
  static inline void ib_dma_unmap_sg_attrs(struct ib_device *dev,
  					 struct scatterlist *sg, int nents,
  					 enum dma_data_direction direction,
@@ -347,7 +361,7 @@ index xxxxxxx..xxxxxxx 100644
  	dma_unmap_sg_attrs(dev->dma_device, sg, nents, direction, dma_attrs);
  }
  
-@@ -4203,6 +4353,11 @@ static inline void ib_dma_sync_single_for_cpu(struct ib_device *dev,
+@@ -4203,6 +4359,11 @@ static inline void ib_dma_sync_single_for_cpu(struct ib_device *dev,
  					      size_t size,
  					      enum dma_data_direction dir)
  {
@@ -359,7 +373,7 @@ index xxxxxxx..xxxxxxx 100644
  	dma_sync_single_for_cpu(dev->dma_device, addr, size, dir);
  }
  
-@@ -4218,6 +4373,11 @@ static inline void ib_dma_sync_single_for_device(struct ib_device *dev,
+@@ -4218,6 +4379,11 @@ static inline void ib_dma_sync_single_for_device(struct ib_device *dev,
  						 size_t size,
  						 enum dma_data_direction dir)
  {
@@ -371,7 +385,7 @@ index xxxxxxx..xxxxxxx 100644
  	dma_sync_single_for_device(dev->dma_device, addr, size, dir);
  }
  
-@@ -4233,6 +4393,16 @@ static inline void *ib_dma_alloc_coherent(struct ib_device *dev,
+@@ -4233,6 +4399,16 @@ static inline void *ib_dma_alloc_coherent(struct ib_device *dev,
  					   dma_addr_t *dma_handle,
  					   gfp_t flag)
  {
@@ -388,7 +402,7 @@ index xxxxxxx..xxxxxxx 100644
  	return dma_alloc_coherent(dev->dma_device, size, dma_handle, flag);
  }
  
-@@ -4247,6 +4417,11 @@ static inline void ib_dma_free_coherent(struct ib_device *dev,
+@@ -4247,6 +4423,11 @@ static inline void ib_dma_free_coherent(struct ib_device *dev,
  					size_t size, void *cpu_addr,
  					dma_addr_t dma_handle)
  {
@@ -400,7 +414,7 @@ index xxxxxxx..xxxxxxx 100644
  	dma_free_coherent(dev->dma_device, size, cpu_addr, dma_handle);
  }
  
-@@ -4812,6 +4987,14 @@ ib_get_vector_affinity(struct ib_device *device, int comp_vector)
+@@ -4812,6 +4993,14 @@ ib_get_vector_affinity(struct ib_device *device, int comp_vector)
   */
  void rdma_roce_rescan_device(struct ib_device *ibdev);
  

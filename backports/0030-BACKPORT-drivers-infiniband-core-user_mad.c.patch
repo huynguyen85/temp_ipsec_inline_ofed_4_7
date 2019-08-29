@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/user_mad.c
 
 Change-Id: I135756e35348b8e0aa5df3feab86e2a290310e24
 ---
- drivers/infiniband/core/user_mad.c | 51 ++++++++++++++++++++++++++++++--------
- 1 file changed, 41 insertions(+), 10 deletions(-)
+ drivers/infiniband/core/user_mad.c | 98 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 88 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
 index xxxxxxx..xxxxxxx 100644
@@ -85,10 +85,57 @@ index xxxxxxx..xxxxxxx 100644
  out:
  	mutex_unlock(&port->file_mutex);
  	return ret;
-@@ -1164,7 +1172,11 @@ static struct attribute *umad_class_dev_attrs[] = {
+@@ -1133,8 +1141,13 @@ static struct ib_client umad_client = {
+ 	.remove = ib_umad_remove_one
+ };
+ 
++#ifdef HAVE_DEV_GROUPS
+ static ssize_t ibdev_show(struct device *dev, struct device_attribute *attr,
++#else
++static ssize_t show_ibdev(struct device *dev, struct device_attribute *attr,
++#endif
+ 			  char *buf)
++
+ {
+ 	struct ib_umad_port *port = dev_get_drvdata(dev);
+ 
+@@ -1143,9 +1156,17 @@ static ssize_t ibdev_show(struct device *dev, struct device_attribute *attr,
+ 
+ 	return sprintf(buf, "%s\n", dev_name(&port->ib_dev->dev));
+ }
++#ifdef HAVE_DEV_GROUPS
+ static DEVICE_ATTR_RO(ibdev);
++#else
++static DEVICE_ATTR(ibdev, S_IRUGO, show_ibdev, NULL);
++#endif
+ 
++#ifdef HAVE_DEV_GROUPS
+ static ssize_t port_show(struct device *dev, struct device_attribute *attr,
++#else
++static ssize_t show_port(struct device *dev, struct device_attribute *attr,
++#endif
+ 			 char *buf)
+ {
+ 	struct ib_umad_port *port = dev_get_drvdata(dev);
+@@ -1155,6 +1176,7 @@ static ssize_t port_show(struct device *dev, struct device_attribute *attr,
+ 
+ 	return sprintf(buf, "%d\n", port->port_num);
+ }
++#ifdef HAVE_DEV_GROUPS
+ static DEVICE_ATTR_RO(port);
+ 
+ static struct attribute *umad_class_dev_attrs[] = {
+@@ -1163,12 +1185,23 @@ static struct attribute *umad_class_dev_attrs[] = {
+ 	NULL,
  };
  ATTRIBUTE_GROUPS(umad_class_dev);
++#else
++static DEVICE_ATTR(port, S_IRUGO, show_port, NULL);
++#endif
  
++#ifndef HAVE_CLASS_GROUPS
++static CLASS_ATTR_STRING(abi_version, S_IRUGO, __stringify(IB_USER_MAD_ABI_VERSION));
++#endif
 +#ifdef HAVE_CLASS_DEVNODE_UMODE_T
  static char *umad_devnode(struct device *dev, umode_t *mode)
 +#else
@@ -97,13 +144,12 @@ index xxxxxxx..xxxxxxx 100644
  {
  	return kasprintf(GFP_KERNEL, "infiniband/%s", dev_name(dev));
  }
-@@ -1176,16 +1188,20 @@ static ssize_t abi_version_show(struct class *class,
- }
- static CLASS_ATTR_RO(abi_version);
  
 +#ifdef HAVE_CLASS_GROUPS
- static struct attribute *umad_class_attrs[] = {
- 	&class_attr_abi_version.attr,
+ static ssize_t abi_version_show(struct class *class,
+ 				struct class_attribute *attr, char *buf)
+ {
+@@ -1181,12 +1214,17 @@ static struct attribute *umad_class_attrs[] = {
  	NULL,
  };
  ATTRIBUTE_GROUPS(umad_class);
@@ -115,10 +161,13 @@ index xxxxxxx..xxxxxxx 100644
 +#ifdef HAVE_CLASS_GROUPS
  	.class_groups	= umad_class_groups,
 +#endif
++#ifdef HAVE_DEV_GROUPS
  	.dev_groups	= umad_class_dev_groups,
++#endif
  };
  
-@@ -1218,10 +1234,19 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+ static void ib_umad_release_port(struct device *device)
+@@ -1218,10 +1256,19 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
  	dev_t base_issm;
  	int ret;
  
@@ -138,7 +187,37 @@ index xxxxxxx..xxxxxxx 100644
  	if (devnum >= IB_UMAD_NUM_FIXED_MINOR) {
  		base_umad = dynamic_umad_dev + devnum - IB_UMAD_NUM_FIXED_MINOR;
  		base_issm = dynamic_issm_dev + devnum - IB_UMAD_NUM_FIXED_MINOR;
-@@ -1264,7 +1288,11 @@ err_dev:
+@@ -1247,6 +1294,12 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+ 	if (ret)
+ 		goto err_cdev;
+ 
++#ifndef HAVE_DEV_GROUPS
++	if (device_create_file(&port->dev, &dev_attr_ibdev))
++		goto err_dev;
++	if (device_create_file(&port->dev, &dev_attr_port))
++		goto err_dev;
++#endif
+ 	ib_umad_init_port_dev(&port->sm_dev, port, device);
+ 	port->sm_dev.devt = base_issm;
+ 	dev_set_name(&port->sm_dev, "issm%d", port->dev_num);
+@@ -1257,14 +1310,28 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+ 	if (ret)
+ 		goto err_dev;
+ 
++#ifndef HAVE_DEV_GROUPS
++	if (device_create_file(&port->sm_dev, &dev_attr_ibdev))
++		goto err_sm_dev;
++	if (device_create_file(&port->sm_dev, &dev_attr_port))
++		goto err_sm_dev;
++#endif
+ 	return 0;
+ 
++#ifndef HAVE_DEV_GROUPS
++err_sm_dev:
++	cdev_device_del(&port->sm_cdev, &port->sm_dev);
++#endif
+ err_dev:
+ 	put_device(&port->sm_dev);
  	cdev_device_del(&port->cdev, &port->dev);
  err_cdev:
  	put_device(&port->dev);
@@ -150,7 +229,7 @@ index xxxxxxx..xxxxxxx 100644
  	return ret;
  }
  
-@@ -1294,8 +1322,11 @@ static void ib_umad_kill_port(struct ib_umad_port *port)
+@@ -1294,8 +1361,11 @@ static void ib_umad_kill_port(struct ib_umad_port *port)
  
  	cdev_device_del(&port->sm_cdev, &port->sm_dev);
  	cdev_device_del(&port->cdev, &port->dev);
@@ -163,3 +242,18 @@ index xxxxxxx..xxxxxxx 100644
  	/* balances device_initialize() */
  	put_device(&port->sm_dev);
  	put_device(&port->dev);
+@@ -1389,6 +1459,14 @@ static int __init ib_umad_init(void)
+ 		goto out_chrdev;
+ 	}
+ 
++#ifndef HAVE_CLASS_GROUPS
++	ret = class_create_file(&umad_class, &class_attr_abi_version.attr);
++	if (ret) {
++		pr_err("couldn't create abi_version attribute\n");
++		goto out_class;
++	}
++#endif
++
+ 	ret = ib_register_client(&umad_client);
+ 	if (ret) {
+ 		pr_err("couldn't register ib_umad client\n");

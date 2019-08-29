@@ -1760,6 +1760,5 @@ static inline void *xas_next(struct xa_state *xas)
 
 void compat_radix_tree_init(void);
 void compat_radix_tree_clean(void);
-
 #endif
 #endif /* _LINUX_XARRAY_H */

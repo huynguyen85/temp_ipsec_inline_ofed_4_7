@@ -251,6 +251,20 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if net_namespace.h has possible_net_t])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+	#include <net/net_namespace.h>
+	],[
+		possible_net_t net;
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_POSSIBLE_NET_T, 1,
+		[possible_net_t is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if net_namespace.h has pernet_operations_id])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 	#include <net/net_namespace.h>
@@ -1474,6 +1488,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if gfp.h has gfpflags_allow_blocking])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/gfp.h>
+	],[
+		gfpflags_allow_blocking(0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAS_GFPFLAGES_ALLOW_BLOCKING, 1,
+			  [gfpflags_allow_blocking is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if gfp.h has __alloc_pages_node])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/gfp.h>
@@ -2267,6 +2296,25 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	],[
 		AC_MSG_RESULT(no)
 	])
+
+	AC_MSG_CHECKING([if include/trace/trace_events.h exists])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+                #undef TRACE_INCLUDE_PATH
+                #undef TRACE_INCLUDE_FILE
+                #undef TRACE_INCLUDE
+                #define TRACE_INCLUDE(a) "/dev/null"
+
+		#include <trace/trace_events.h>
+	],[
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_TRACE_EVENTS_H, 1,
+			  [include/trace/trace_events.h exists])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if include/linux/bits.h exists])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/bits.h>
@@ -7261,6 +7309,24 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if device.h struct class has dev_groups])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/device.h>
+
+	],[
+		struct class cm_class = {
+			.dev_groups   = NULL,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_DEV_GROUPS, 1,
+			  [struct class has dev_groups])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if device.h struct class has class_groups])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/device.h>
@@ -10822,6 +10888,20 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if radix-tree.h has struct radix_tree_node])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+	#include <linux/radix-tree.h>
+	],[
+		struct radix_tree_node x;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_RADIX_TREE_NODE, 1,
+		[struct radix_tree_node  is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
 
 	AC_MSG_CHECKING([if radix-tree.h has radix_tree_next_chunk])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
