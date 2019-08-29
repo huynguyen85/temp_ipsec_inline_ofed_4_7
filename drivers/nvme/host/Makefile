@@ -7,6 +7,7 @@ obj-$(CONFIG_BLK_DEV_NVME)		+= nvme.o
 obj-$(CONFIG_NVME_FABRICS)		+= nvme-fabrics.o
 obj-$(CONFIG_NVME_RDMA)			+= nvme-rdma.o
 obj-$(CONFIG_NVME_FC)			+= nvme-fc.o
+obj-$(CONFIG_NVME_TCP)			+= nvme-tcp.o
 
 obj-$(CONFIG_NVME_HOST_DUMMY)		+= nvme-rdma.o
 
@@ -34,5 +35,7 @@ nvme-fc-y				+= nvme-fc_dummy.o
 else
 nvme-fc-y				+= fc.o
 endif
+
+nvme-tcp-y				+= tcp.o
 
 endif
