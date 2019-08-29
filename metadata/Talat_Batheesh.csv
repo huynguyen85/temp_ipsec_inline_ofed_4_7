@@ -51,3 +51,4 @@ Change-Id=I089f0224876204ef5b19cad44ab355276e943fe4; subject=Fix xarray cashe in
 Change-Id=Ieb8c585646d185c5df353424f93d036b535200c0; subject=BACKPORTS: mlx5_mod mlx4_mod and all small modules till 4.4; feature=backports; upstream_status=ignore; general=;
 Change-Id=I5954a1e42fedb91e94021518e4061740aa51a7f4; subject=BACKPORT: mlnx_en should be reverted ,cancel ESWITCH feature; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Ic0c7e291a12a8af9df330c68785d17aa013410e1; subject=BACKPORT ib_core till 3.10; feature=backports; upstream_status=ignore; general=;
+Change-Id=I35e577946270951614aebed97fe2105fc2bfdd72; subject=mlx4 till 3.10; feature=backports; upstream_status=ignore; general=;

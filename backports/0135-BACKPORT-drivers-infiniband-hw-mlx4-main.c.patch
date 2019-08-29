@@ -104,7 +104,7 @@ index xxxxxxx..xxxxxxx 100644
  	.exp_query_device	= mlx4_ib_exp_query_device,
  	.exp_ioctl         = mlx4_ib_exp_ioctl,
 +#ifdef HAVE_MM_STRUCT_FREE_AREA_CACHE
-+	.exp_get_unmapped_area = mlx4_ib_exp_get_unmapped_area;
++	.exp_get_unmapped_area = mlx4_ib_exp_get_unmapped_area,
 +#endif
  
  	INIT_RDMA_OBJ_SIZE(ib_ah, mlx4_ib_ah, ibah),
