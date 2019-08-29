@@ -1304,12 +1304,17 @@ static int create_kernel_qp(struct mlx5_ib_dev *dev,
 					IB_QP_CREATE_BLOCK_MULTICAST_LOOPBACK |
 					IB_QP_CREATE_IPOIB_UD_LSO |
 					IB_QP_CREATE_NETIF_QP |
-					MLX5_IB_QP_CREATE_SQPN_QP1))
+					MLX5_IB_QP_CREATE_SQPN_QP1 |
+					MLX5_IB_QP_CREATE_WC_TEST))
 		return -EINVAL;
 
 	if (init_attr->qp_type == MLX5_IB_QPT_REG_UMR)
 		qp->bf.bfreg = &dev->fp_bfreg;
-	else
+	else if (unlikely(init_attr->create_flags &
+			  MLX5_IB_QP_CREATE_WC_TEST)) {
+		qp->bf.bfreg = &dev->wc_bfreg;
+		qp->flags |= MLX5_IB_QP_WC_TEST;
+	} else
 		qp->bf.bfreg = &dev->bfreg;
 
 	/* We need to divide by two since each register is comprised of
@@ -5621,6 +5626,7 @@ static int _mlx5_ib_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
 	int i;
 	u8 next_fence = 0;
 	u8 fence;
+	__be32 mmio_wqe[16] = {};
 
 	if (unlikely(mdev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR &&
 		     !drain)) {
@@ -5974,6 +5980,17 @@ static int _mlx5_ib_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
 		qp->next_fence = next_fence;
 		finish_wqe(qp, ctrl, seg, size, cur_edge, idx, wr->wr_id, nreq,
 			   fence, mlx5_ib_opcode[wr->opcode]);
+
+		/* In write-combining support test, after wqe is built, copy it
+		 * to a buffer that will be written later to bfreg and modify
+		 * the wqe in bfreg to request cqe
+		 */
+		if (unlikely(qp->flags & MLX5_IB_QP_WC_TEST)) {
+			struct mlx5_wqe_ctrl_seg *mmio_ctrl =
+				(struct mlx5_wqe_ctrl_seg *)mmio_wqe;
+			memcpy(mmio_wqe, ctrl, 32);
+			mmio_ctrl->fm_ce_se |= MLX5_WQE_CTRL_CQ_UPDATE;
+		}
 skip_psv:
 		if (0)
 			dump_wqe(qp, idx, size);
@@ -5994,8 +6011,18 @@ out:
 		 * we hit doorbell */
 		wmb();
 
-		/* currently we support only regular doorbells */
-		mlx5_write64((__be32 *)ctrl, bf->bfreg->map + bf->offset);
+		if (unlikely(qp->flags & MLX5_IB_QP_WC_TEST)) {
+			__be32 *ptr = mmio_wqe;
+
+			for (i = 0; i < 8; i++) {
+				mlx5_write64(ptr, bf->bfreg->map + bf->offset +
+							  i * 8);
+				ptr += 2;
+			}
+		} else {
+			mlx5_write64((__be32 *)ctrl,
+				     bf->bfreg->map + bf->offset);
+		}
 		/* Make sure doorbells don't leak out of SQ spinlock
 		 * and reach the HCA out of order.
 		 */

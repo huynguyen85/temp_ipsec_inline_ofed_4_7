@@ -170,8 +170,8 @@ index xxxxxxx..xxxxxxx 100644
 +#endif
  	.drain_rq = mlx5_ib_drain_rq,
  	.drain_sq = mlx5_ib_drain_sq,
- 	.get_dev_fw_str = get_dev_fw_str,
-@@ -6516,10 +6548,16 @@ static const struct ib_device_ops mlx5_ib_dev_frontend_ns_context_ops = {
+ 	.enable_driver = mlx5_ib_enable_driver,
+@@ -6517,10 +6549,16 @@ static const struct ib_device_ops mlx5_ib_dev_frontend_ns_context_ops = {
  };
  
  static const struct ib_device_ops mlx5_ib_dev_sriov_ops = {

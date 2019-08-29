@@ -269,6 +269,7 @@ struct mlx5_ib_flow_db {
  * rely on the range reserved for that use in the ib_qp_create_flags enum.
  */
 #define MLX5_IB_QP_CREATE_SQPN_QP1	(IB_QP_CREATE_RESERVED_START << 0)
+#define MLX5_IB_QP_CREATE_WC_TEST	(IB_QP_CREATE_RESERVED_START << 1)
 
 struct wr_list {
 	u16	opcode;
@@ -502,6 +503,7 @@ enum mlx5_ib_qp_flags {
 	MLX5_IB_QP_TUNNEL_OFFLOAD		= 1 << 12,
 	MLX5_IB_QP_PACKET_BASED_CREDIT		= 1 << 13,
 	MLX5_IB_QP_DRAIN_SIGERR			= 1 << 14,
+	MLX5_IB_QP_WC_TEST			= 1 << 15,
 };
 
 struct mlx5_umr_wr {
@@ -1053,6 +1055,11 @@ struct mlx5_devx_event_table {
 	struct xarray event_xa;
 };
 
+enum mlx5_ib_wc_sup_state {
+	MLX5_IB_WC_NOT_SUPPORTED,
+	MLX5_IB_WC_SUPPORTED,
+};
+
 struct mlx5_ib_dev {
 	struct ib_device		ib_dev;
 	struct mlx5_core_dev		*mdev;
@@ -1105,6 +1112,7 @@ struct mlx5_ib_dev {
 	/* Array with num_ports elements */
 	struct mlx5_ib_port	*port;
 	struct mlx5_sq_bfreg	bfreg;
+	struct mlx5_sq_bfreg	wc_bfreg;
 	struct mlx5_sq_bfreg	fp_bfreg;
 	struct mlx5_ib_delay_drop	delay_drop;
 	const struct mlx5_ib_profile	*profile;
@@ -1124,6 +1132,7 @@ struct mlx5_ib_dev {
 	struct mlx5_async_ctx   async_ctx;
 	struct mlx5_devx_event_table devx_event_table;
 	struct mlx5_core_capi   capi;
+	enum mlx5_ib_wc_sup_state wc_support;
 
 	u64 pf_count;
 	u64 pf_int_total_hist[MAX_HIST];
@@ -1650,4 +1659,6 @@ static inline bool mlx5_valid_roce_udp_sport(u16 sport)
 
 int mlx5_ib_qp_set_counter(struct ib_qp *qp, struct rdma_counter *counter);
 u16 mlx5_ib_get_counters_id(struct mlx5_ib_dev *dev, u8 port_num);
+int mlx5_ib_enable_driver(struct ib_device *dev);
+int mlx5_ib_test_wc(struct mlx5_ib_dev *dev);
 #endif /* MLX5_IB_H */
