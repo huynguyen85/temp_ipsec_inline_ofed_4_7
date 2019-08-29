@@ -353,20 +353,31 @@ struct xarray {
  */
 #define DEFINE_XARRAY_ALLOC1(name) DEFINE_XARRAY_FLAGS(name, XA_FLAGS_ALLOC1)
 
+#define xa_load LINUX_BACKPORT(xa_load)
 void *xa_load(struct xarray *, unsigned long index);
+#define xa_store LINUX_BACKPORT(xa_store)
 void *xa_store(struct xarray *, unsigned long index, void *entry, gfp_t);
+#define xa_erase LINUX_BACKPORT(xa_erase)
 void *xa_erase(struct xarray *, unsigned long index);
+#define xa_store_range LINUX_BACKPORT(xa_store_range)
 void *xa_store_range(struct xarray *, unsigned long first, unsigned long last,
 			void *entry, gfp_t);
+#define xa_get_mark LINUX_BACKPORT(xa_get_mark)
 bool xa_get_mark(struct xarray *, unsigned long index, xa_mark_t);
+#define xa_set_mark LINUX_BACKPORT(xa_set_mark)
 void xa_set_mark(struct xarray *, unsigned long index, xa_mark_t);
+#define xa_clear_mark LINUX_BACKPORT(xa_clear_mark)
 void xa_clear_mark(struct xarray *, unsigned long index, xa_mark_t);
+#define xa_find LINUX_BACKPORT(xa_find)
 void *xa_find(struct xarray *xa, unsigned long *index,
 		unsigned long max, xa_mark_t) __attribute__((nonnull(2)));
+#define xa_find_after LINUX_BACKPORT(xa_find_after)
 void *xa_find_after(struct xarray *xa, unsigned long *index,
 		unsigned long max, xa_mark_t) __attribute__((nonnull(2)));
+#define xa_extract LINUX_BACKPORT(xa_extract)
 unsigned int xa_extract(struct xarray *, void **dst, unsigned long start,
 		unsigned long max, unsigned int n, xa_mark_t);
+#define xa_destroy LINUX_BACKPORT(xa_destroy)
 void xa_destroy(struct xarray *);
 
 /**
@@ -525,10 +536,14 @@ static inline bool xa_marked(const struct xarray *xa, xa_mark_t mark)
  * may also re-enable interrupts if the XArray flags indicate the
  * locking should be interrupt safe.
  */
+#define __xa_erase LINUX_BACKPORT(__xa_erase)
 void *__xa_erase(struct xarray *, unsigned long index);
+#define __xa_store  LINUX_BACKPORT(__xa_store)
 void *__xa_store(struct xarray *, unsigned long index, void *entry, gfp_t);
+#define __xa_cmpxchg LINUX_BACKPORT(__xa_cmpxchg)
 void *__xa_cmpxchg(struct xarray *, unsigned long index, void *old,
 		void *entry, gfp_t);
+#define __xa_insert LINUX_BACKPORT(__xa_insert)
 int __must_check __xa_insert(struct xarray *, unsigned long index,
 		void *entry, gfp_t);
 #define __xa_alloc  LINUX_BACKPORT(__xa_alloc)
@@ -537,7 +552,10 @@ int __must_check __xa_alloc(struct xarray *, u32 *id, void *entry,
 #define __xa_alloc_cyclic  LINUX_BACKPORT(__xa_alloc_cyclic)
 int __must_check __xa_alloc_cyclic(struct xarray *, u32 *id, void *entry,
 		struct xa_limit, u32 *next, gfp_t);
+#define __xa_set_mark LINUX_BACKPORT(__xa_set_mark)
 void __xa_set_mark(struct xarray *, unsigned long index, xa_mark_t);
+
+#define __xa_clear_mark LINUX_BACKPORT(__xa_clear_mark)
 void __xa_clear_mark(struct xarray *, unsigned long index, xa_mark_t);
 
 /**
@@ -1465,20 +1483,32 @@ static inline bool xas_retry(struct xa_state *xas, const void *entry)
 	return true;
 }
 
+#define xas_load LINUX_BACKPORT(xas_load)
 void *xas_load(struct xa_state *);
+#define xas_store LINUX_BACKPORT(xas_store)
 void *xas_store(struct xa_state *, void *entry);
+#define xas_find LINUX_BACKPORT(xas_find)
 void *xas_find(struct xa_state *, unsigned long max);
+#define xas_find_conflict LINUX_BACKPORT(xas_find_conflict)
 void *xas_find_conflict(struct xa_state *);
 
+#define xas_get_mark LINUX_BACKPORT(xas_get_mark)
 bool xas_get_mark(const struct xa_state *, xa_mark_t);
+#define xas_set_mark LINUX_BACKPORT(xas_set_mark)
 void xas_set_mark(const struct xa_state *, xa_mark_t);
+#define xas_clear_mark LINUX_BACKPORT(xas_clear_mark)
 void xas_clear_mark(const struct xa_state *, xa_mark_t);
+#define xas_find_marked LINUX_BACKPORT(xas_find_marked)
 void *xas_find_marked(struct xa_state *, unsigned long max, xa_mark_t);
+#define xas_init_marks LINUX_BACKPORT(xas_init_marks)
 void xas_init_marks(const struct xa_state *);
 
+#define xas_nomem LINUX_BACKPORT(xas_nomem)
 bool xas_nomem(struct xa_state *, gfp_t);
+#define xas_pause LINUX_BACKPORT(xas_pause)
 void xas_pause(struct xa_state *);
 
+#define xas_create_range LINUX_BACKPORT(xas_create_range)
 void xas_create_range(struct xa_state *);
 
 /**
@@ -1697,7 +1727,9 @@ enum {
 #define xas_for_each_conflict(xas, entry) \
 	while ((entry = xas_find_conflict(xas)))
 
+#define __xas_next LINUX_BACKPORT(__xas_next)
 void *__xas_next(struct xa_state *);
+#define __xas_prev LINUX_BACKPORT(__xas_prev)
 void *__xas_prev(struct xa_state *);
 
 /**
