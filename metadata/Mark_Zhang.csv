@@ -36,3 +36,4 @@ Change-Id=I3d99aef5fb26f13ee9562316db63d36b1c3e1957; subject=net/mlx5: Add per-n
 Change-Id=Id2a2333e9fdd8fb5cf7e739ac584a58290633e0e; subject=net/mlx5: Create bypass and loopback flow steering namespaces for RDMA RX; feature=roce_steering; upstream_status=in_progress; general=;
 Change-Id=I7bbd3275ba34d2bbfa8fa96fa2e819ff0be5b484; subject=RDMA/mlx5: RDMA_RX flow type support for user applications; feature=roce_steering; upstream_status=in_progress; general=;
 Change-Id=I8dd001e2fa46bd9b816272ff5fa019947fe2f606; subject=BACKPORTS: Fix backport (RoCE Steering feature); feature=backports; upstream_status=ignore; general=;
+Change-Id=I6e5fe915fddeaeff4c4ea7a525f657acb74656a6; subject=IB/mlx5: Copy create_cq udata from user space with correct length; feature=mlx5_ib_bugs; upstream_status=ignore; general=;

@@ -734,7 +734,7 @@ static int create_cq_user(struct mlx5_ib_dev *dev, struct ib_udata *udata,
 	else
 		ucmdlen = udata->inlen < sizeof(struct mlx5_ib_create_cq) ?
 			(sizeof(struct mlx5_ib_create_cq) - sizeof(ucmd.flags)) :
-			sizeof(ucmd);
+			sizeof(struct mlx5_ib_create_cq);
 
 	if (ib_copy_from_udata(&ucmd, udata, ucmdlen))
 		return -EFAULT;
