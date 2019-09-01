@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
 
 Change-Id: Ied4350834de96ee98bedc81a379c1dc96a06952f
 ---
- .../net/ethernet/mellanox/mlx5/core/lib/clock.c    | 148 +++++++++++++++++++--
- 1 file changed, 135 insertions(+), 13 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/lib/clock.c    | 150 +++++++++++++++++++--
+ 1 file changed, 137 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
 index xxxxxxx..xxxxxxx 100644
@@ -358,16 +358,20 @@ index xxxxxxx..xxxxxxx 100644
  	clock->ptp = ptp_clock_register(&clock->ptp_info,
  					&mdev->pdev->dev);
  	if (IS_ERR(clock->ptp)) {
-@@ -570,7 +686,7 @@ void mlx5_init_clock(struct mlx5_core_dev *mdev)
+@@ -570,9 +686,11 @@ void mlx5_init_clock(struct mlx5_core_dev *mdev)
  			       PTR_ERR(clock->ptp));
  		clock->ptp = NULL;
  	}
 -
 +#endif
++#if defined (HAVE_PTP_CLOCK_INFO_N_PINS) && defined (HAVE_PTP_CLOCK_INFO) && (defined (CONFIG_PTP_1588_CLOCK) || defined(CONFIG_PTP_1588_CLOCK_MODULE))
  	MLX5_NB_INIT(&clock->pps_nb, mlx5_pps_event, PPS_EVENT);
  	mlx5_eq_notifier_register(mdev, &clock->pps_nb);
++#endif
  }
-@@ -583,12 +699,16 @@ void mlx5_cleanup_clock(struct mlx5_core_dev *mdev)
+ 
+ void mlx5_cleanup_clock(struct mlx5_core_dev *mdev)
+@@ -583,12 +701,16 @@ void mlx5_cleanup_clock(struct mlx5_core_dev *mdev)
  		return;
  
  	mlx5_eq_notifier_unregister(mdev, &clock->pps_nb);
@@ -384,7 +388,7 @@ index xxxxxxx..xxxxxxx 100644
  	cancel_delayed_work_sync(&clock->overflow_work);
  
  	if (mdev->clock_info) {
-@@ -596,5 +716,7 @@ void mlx5_cleanup_clock(struct mlx5_core_dev *mdev)
+@@ -596,5 +718,7 @@ void mlx5_cleanup_clock(struct mlx5_core_dev *mdev)
  		mdev->clock_info = NULL;
  	}
  

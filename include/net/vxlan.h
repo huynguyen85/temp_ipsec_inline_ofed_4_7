@@ -2,8 +2,10 @@
 #define COMPAT_NET_VXLAN_H
 
 #include "../../compat/config.h"
-
+#ifdef HAVE_NET_VXLAN_H
 #include_next <net/vxlan.h>
+#endif
+
 #ifndef IANA_VXLAN_UDP_PORT 
 #define IANA_VXLAN_UDP_PORT     4789
 #endif
