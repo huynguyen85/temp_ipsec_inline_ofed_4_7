@@ -11,3 +11,7 @@ Change-Id=Iab2a55230617b6c283a5fbd57551ccbdf632ad1a; subject=IB/mlx5: Add mlx5 c
 Change-Id=I3a54fc6cea537ebb0cc34781a71162c2885a13b8; subject=IB/mlx5: Add NOP WR; feature=Blueflame_for_vfs; upstream_status=in_progress; general=;
 Change-Id=I69cdb4d9897a9677f46f70832aaa8b2ac779bed0; subject=IB/mlx5: Test write combining support; feature=Blueflame_for_vfs; upstream_status=in_progress; general=;
 Change-Id=I4996850762a943fdfd4c18634ca0b72daf0e1b87; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I3acb07407a08b0bd1e28ffb216c44c6186192140; subject=net/mlx5: Set ODP capabilities for DC transport to max; feature=odp_dc; upstream_status=accepted; general=;
+Change-Id=If0cfa5814cf70a5bf743e2fb7ad7c4e8afd6442c; subject=IB/mlx5: Remove check of FW capabilities in ODP page fault handling; feature=odp_dc; upstream_status=accepted; general=;
+Change-Id=If87ee529f24ce3357bc2ec7c6dcc9a5b2c2bd86f; subject=IB/mlx5: Add page fault handler for DC initiator WQE; feature=odp_dc; upstream_status=accepted; general=;
+Change-Id=I432c2d62217aaa17d99a3cbecd623051b87b6ce2; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
