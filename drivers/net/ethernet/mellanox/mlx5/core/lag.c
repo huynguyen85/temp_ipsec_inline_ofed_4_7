@@ -284,14 +284,28 @@ static int mlx5_deactivate_lag(struct mlx5_lag *ldev)
 
 static bool mlx5_lag_check_prereq(struct mlx5_lag *ldev)
 {
-	if (!ldev->pf[0].dev || !ldev->pf[1].dev)
+	struct mlx5_core_dev *dev0 = ldev->pf[0].dev;
+	struct mlx5_core_dev *dev1 = ldev->pf[1].dev;
+	bool roce_lag_allowed;
+
+	if (!dev0 || !dev1)
 		return false;
+       roce_lag_allowed = !mlx5_sriov_is_enabled(dev0) &&
+			  !mlx5_sriov_is_enabled(dev1);
 
 #ifdef CONFIG_MLX5_ESWITCH
-	return mlx5_esw_lag_prereq(ldev->pf[0].dev, ldev->pf[1].dev);
+	roce_lag_allowed &= dev0->priv.eswitch->mode == SRIOV_NONE &&
+		dev1->priv.eswitch->mode == SRIOV_NONE;
+#endif
+
+	if (roce_lag_allowed)
+		return !dev0->priv.lag_disabled && !dev1->priv.lag_disabled;
+
+#ifdef CONFIG_MLX5_ESWITCH
+	return mlx5_esw_lag_prereq(dev0, dev1);
 #else
-	return (!mlx5_sriov_is_enabled(ldev->pf[0].dev) &&
-		!mlx5_sriov_is_enabled(ldev->pf[1].dev));
+	return (!mlx5_sriov_is_enabled(dev0) &&
+		!mlx5_sriov_is_enabled(dev1));
 #endif
 }
 
@@ -649,20 +663,6 @@ static void mlx5_lag_dev_remove_pf(struct mlx5_lag *ldev,
 	mutex_unlock(&lag_mutex);
 }
 
-static bool mlx5_is_lag_allowed(struct mlx5_core_dev *dev)
-{
-	struct mlx5_lag *ldev;
-	bool allowed = false;
-
-	mutex_lock(&lag_mutex);
-	ldev = mlx5_lag_dev_get(dev);
-	if (ldev)
-		allowed = mlx5_lag_check_prereq(ldev);
-	mutex_unlock(&lag_mutex);
-
-	return allowed;
-}
-
 static ssize_t mlx5_lag_show_enabled(struct device *device,
 				     struct device_attribute *attr,
 				     char *buf)
@@ -670,7 +670,7 @@ static ssize_t mlx5_lag_show_enabled(struct device *device,
 	struct pci_dev *pdev = container_of(device, struct pci_dev, dev);
 	struct mlx5_core_dev *dev  = pci_get_drvdata(pdev);
 
-	return sprintf(buf, "%d\n", mlx5_is_lag_allowed(dev) ? 1 : 0);
+	return sprintf(buf, "%d\n", !dev->priv.lag_disabled);
 }
 
 static ssize_t mlx5_lag_set_enabled(struct device *device,
