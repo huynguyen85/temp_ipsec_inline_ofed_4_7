@@ -2241,12 +2241,16 @@ static int __mlx4_ib_modify_qp(void *src, enum mlx4_ib_source_type src_type,
 			context->param3 |= cpu_to_be32(1 << 30);
 	}
 
-	if (ucontext)
-		context->usr_page = cpu_to_be32(
-			mlx4_to_hw_uar_index(dev->dev, qp->uar->index));
-	else
-		context->usr_page = cpu_to_be32(
-			mlx4_to_hw_uar_index(dev->dev, qp->bf.uar->index));
+	if (ucontext) {
+		int ix = (qp_type == IB_QPT_XRC_TGT) ? ucontext->uar.index :
+						       qp->uar->index;
+		context->usr_page =
+			cpu_to_be32(mlx4_to_hw_uar_index(dev->dev, ix));
+	} else {
+		context->usr_page =
+			cpu_to_be32(mlx4_to_hw_uar_index(dev->dev,
+							 qp->bf.uar->index));
+	}
 
 	if (attr_mask & IB_QP_DEST_QPN)
 		context->remote_qpn = cpu_to_be32(attr->dest_qp_num);
