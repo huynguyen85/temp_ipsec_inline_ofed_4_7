@@ -11,8 +11,9 @@ Change-Id=Ibe5ebbb7141de80409cf9a019a8dfe6fd2efb767; subject=RDMA/uverbs: Fix od
 Change-Id=Ibda1c61e6d5e73b3dcc701159db119b40a2dc93f; subject=net/mlx4: Dynamically set guaranteed amount of counters per VF; feature=mlx4_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I6b107b2027f8591f3012428149d18cbbf91818cd; subject=IB/mlx4_core: Fix modify qp flow for XRC qps; feature=mlx4_ib_bugs; upstream_status=ignore; general=;
 Change-Id=Ida230b257e4e277be8b4481a6237fcf4d1340825; subject=Revert "IB/mlx4_core: Fix modify qp flow for XRC qps"; feature=mlx4_ib_bugs; upstream_status=ignore; general=;
-Change-Id=I7a1daa72809c0298cc52d898fde1c03ef1a7e5de; subject=IB/uverbs: Make uverbs layer treat XRC_TGT qp as a kernel QP in modify_qp; feature=ib_core_bugs; upstream_status=in_progress; general=;
+Change-Id=I7a1daa72809c0298cc52d898fde1c03ef1a7e5de; subject=IB/uverbs: Make uverbs layer treat XRC_TGT qp as a kernel QP in modify_qp; feature=ib_core_bugs; upstream_status=ignore; general=;
 Change-Id=Iad8824a09999405b2de8da5be53be7f3baa581f4; subject=IB/mad: Fix use-after-free in ib mad completion handling; feature=ib_core_bugs; upstream_status=accepted; general=upstream commit ID: 770b7d96cfff, tag: v5.3-rc3;
 Change-Id=Idcbe22f6f14193458bf822972f300d670c0c299f; subject=RDMA/cm: Fix memory leak in cm_add/remove_one; feature=ib_core_bugs; upstream_status=in_progress; general=;
 Change-Id=Ifd2a5c5ae731ee0e45290cbae401785f460a5892; subject=BACKPORTS: fix user-mad.c backport; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ia071c1cdff6d8ce212db2379790a37c54dcc9ef6; subject=BACKPORTS: fix core/restrack.c backport; feature=backports; upstream_status=ignore; general=;
+Change-Id=I5351306c00f25abc6331c7d019d0bdb586c244f8; subject=Revert "IB/uverbs: Make uverbs layer treat XRC_TGT qp as a kernel QP in modify_qp; feature=ib_core_bugs; upstream_status=ignore; general=;
