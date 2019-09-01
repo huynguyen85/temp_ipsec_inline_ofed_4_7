@@ -3102,6 +3102,7 @@ void mlx5_eswitch_register_vport_reps(struct mlx5_eswitch *esw,
 	struct mlx5_eswitch_rep *rep;
 	int i;
 
+	esw->offloads.rep_ops[rep_type] = ops;
 	mlx5_esw_for_all_reps(esw, i, rep) {
 		rep->esw = esw;
 
