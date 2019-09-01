@@ -946,7 +946,9 @@ struct mlx5_ifc_roce_cap_bits {
 	u8         reserved_at_e0[0x10];
 	u8         roce_address_table_size[0x10];
 
-	u8         reserved_at_100[0x700];
+	struct mlx5_ifc_odp_per_transport_service_cap_bits dc_odp_caps;
+
+	u8         reserved_at_120[0x6E0];
 };
 
 struct mlx5_ifc_device_mem_cap_bits {
