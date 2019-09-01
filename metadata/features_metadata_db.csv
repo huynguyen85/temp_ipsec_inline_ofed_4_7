@@ -314,4 +314,5 @@ name=cx5_qp_counters; type=feature; upstream_status=accepted;
 name=rdma_netns; type=feature; upstream_status=accepted;
 name=mlx5_pi; type=feature; upstream_status=accepted;
 name=ATS; type=feature; upstream_status=NA;
+name=Blueflame_for_vfs; type=feature; upstream_status=in_progress;
 
