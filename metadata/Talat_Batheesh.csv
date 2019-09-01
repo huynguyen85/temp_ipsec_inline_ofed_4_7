@@ -6,7 +6,7 @@ Change-Id=I78da6e73d0e64cb4333183acf7fb2a548a60729e; subject=Add dummy modules a
 Change-Id=Ifa6e0cbd6fe0c838c2c51f0757455e48b60a272b; subject=configure: Add Remove unwanted o files from Makefile; feature=rebase; upstream_status=NA; general=;
 Change-Id=I6abec53734926bab6c3c3bd5a5928e4a73de311a; subject=compat: fix tc_mirred and unknown symbol in blk-mq-rdma; feature=rebase; upstream_status=NA; general=;
 Change-Id=Iaa4dade21518d0f640d2a3e43001443c69e54620; subject=rxe: block user space libs access kernel in.h in6.h headers; feature=rdma_rxe_bugs; upstream_status=NA; general=;
-Change-Id=I8a1458d013a7698c7c564f8f909c63afde6d08a7; subject=IB/ipoib: remark get_settings from ethtool_ops; feature=ipoib_ethtool_speed_support; upstream_status=NA; general=;
+Change-Id=I8a1458d013a7698c7c564f8f909c63afde6d08a7; subject=IB/ipoib: remark get_settings from ethtool_ops; feature=ipoib_ethtool_speed_support; upstream_status=ignore; general=;
 Change-Id=I9b5ac6e412b2802009fed3e6aa0c58df8001fb45; subject=net/mlx5e: Add support for XDP TX HW checksum offload; feature=checksum_offload; upstream_status=in_progress; general=;
 Change-Id=I9ab4bd60fcd5f246c15e851ce2a0d63537be4d53; subject=net/mlx5: Fix number of max channels in mlx5e_grp_channels_fill_[strings,stats]; feature=mlx5e_counter_groups; upstream_status=NA; general=;
 Change-Id=Ib4eeeba180d7bcd5471710a5022f43a0ff5451a5; subject=IB/mlx5: Replace non-supported function clear_thread_tidr; feature=mlx5_ib_bugs; upstream_status=NA; general=;
