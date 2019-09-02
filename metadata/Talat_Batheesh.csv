@@ -55,3 +55,5 @@ Change-Id=I35e577946270951614aebed97fe2105fc2bfdd72; subject=mlx4 till 3.10; fea
 Change-Id=I7b6360977b26c291d15dc86475f86968b2997926; subject=compat: Fix exports duplicate symbol in xarray; feature=backports; upstream_status=ignore; general=;
 Change-Id=Id2742810ffe0ab265e4f69ad689f9a035edd128d; subject=BACKPORT: mlx5_core till 3.10; feature=backports; upstream_status=ignore; general=;
 Change-Id=I2ac46e70bae5df304d84074e90d24181c41c3a83; subject=BACKPORTS: mlx5_en and mlx5_all till 3.10; feature=backports; upstream_status=ignore; general=;
+Change-Id=Iec451ae29f73ed427374d5e2c92df8ea3ee85002; subject=BACKPORTS: use rename ESWITCH define SRIOV_NONE; feature=backports; upstream_status=ignore; general=;
+Change-Id=I2d449b7f9a88d1adbdac48cebe26ee38297be747; subject=BACKPORTS: Enable ESWITCH for 5.2; feature=ofed_scripts; upstream_status=ignore; general=;
