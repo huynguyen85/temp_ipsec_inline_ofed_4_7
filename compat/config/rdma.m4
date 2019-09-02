@@ -8844,6 +8844,20 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if net_namespace.h has netlink_ns_capable])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/net_namespace.h>
+	],[
+		netlink_ns_capable(NULL, NULL, 0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_NETLINK_NS_CAPABLE, 1,
+			  [netlink_ns_capable is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
 	AC_MSG_CHECKING([if scsi_host.h struct scsi_host_template has member use_blk_tags])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <scsi/scsi_host.h>
@@ -12338,6 +12352,19 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_XDP_RXQ_INFO_REG_MEM_MODEL, 1,
 			  [net/xdp.h has xdp_rxq_info_reg_mem_model])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if net/geneve.h exists])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/geneve.h>
+	],[
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_NET_GENEVE_H, 1,
+			  [net/geneve.h is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])

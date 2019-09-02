@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
 
 Change-Id: Ic4a5a058d91c1d43e408598e0f6d1abce6007872
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tx.c | 99 ++++++++++++++++++++++++-
- 1 file changed, 95 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tx.c | 134 ++++++++++++++++++++++--
+ 1 file changed, 123 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
 index xxxxxxx..xxxxxxx 100644
@@ -192,7 +192,22 @@ index xxxxxxx..xxxxxxx 100644
  
  	return ihs;
  }
-@@ -381,8 +440,16 @@ mlx5e_txwqe_complete(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+@@ -366,8 +425,12 @@ static inline void mlx5e_fill_sq_frag_edge(struct mlx5e_txqsq *sq,
+ static inline void
+ mlx5e_txwqe_complete(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+ 		     u8 opcode, u16 ds_cnt, u8 num_wqebbs, u32 num_bytes, u8 num_dma,
+-		     struct mlx5e_tx_wqe_info *wi, struct mlx5_wqe_ctrl_seg *cseg,
+-		     bool xmit_more)
++		     struct mlx5e_tx_wqe_info *wi, struct mlx5_wqe_ctrl_seg *cseg
++#if defined(HAVE_SK_BUFF_XMIT_MORE) || defined(HAVE_NEDEV_XMIT_MORE)
++		     ,bool xmit_more
++#endif
++		     )
++
+ {
+ 	struct mlx5_wq_cyc *wq = &sq->wq;
+ 
+@@ -381,8 +444,16 @@ mlx5e_txwqe_complete(struct mlx5e_txqsq *sq, struct sk_buff *skb,
  
  	netdev_tx_sent_queue(sq->txq, num_bytes);
  
@@ -209,27 +224,39 @@ index xxxxxxx..xxxxxxx 100644
  
  	sq->pc += wi->num_wqebbs;
  	if (unlikely(!mlx5e_wqc_has_room_for(wq, sq->cc, sq->pc, MLX5E_SQ_STOP_ROOM))) {
-@@ -390,7 +457,9 @@ mlx5e_txwqe_complete(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+@@ -390,14 +461,20 @@ mlx5e_txwqe_complete(struct mlx5e_txqsq *sq, struct sk_buff *skb,
  		sq->stats->stopped++;
  	}
  
-+#ifdef HAVE_SK_BUFF_XMIT_MORE
++#if defined(HAVE_SK_BUFF_XMIT_MORE) || defined(HAVE_NEDEV_XMIT_MORE)
  	if (!xmit_more || netif_xmit_stopped(sq->txq))
 +#endif
  		mlx5e_notify_hw(wq, sq->pc, sq->uar_map, cseg);
  }
  
-@@ -432,7 +501,9 @@ netdev_tx_t mlx5e_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+ #define INL_HDR_START_SZ (sizeof(((struct mlx5_wqe_eth_seg *)NULL)->inline_hdr.start))
+ 
+ netdev_tx_t mlx5e_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+-			  struct mlx5e_tx_wqe *wqe, u16 pi, bool xmit_more)
++			  struct mlx5e_tx_wqe *wqe, u16 pi
++#if defined(HAVE_SK_BUFF_XMIT_MORE) || defined(HAVE_NEDEV_XMIT_MORE)
++			  , bool xmit_more
++#endif
++			  )
+ {
+ 	struct mlx5_wq_cyc *wq = &sq->wq;
+ 	struct mlx5_wqe_ctrl_seg *cseg;
+@@ -432,7 +509,9 @@ netdev_tx_t mlx5e_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
  	}
  
  	stats->bytes     += num_bytes;
-+#ifdef HAVE_SK_BUFF_XMIT_MORE
++#if defined(HAVE_SK_BUFF_XMIT_MORE) || defined(HAVE_NEDEV_XMIT_MORE)
  	stats->xmit_more += xmit_more;
 +#endif
  
  	headlen = skb->len - ihs - skb->data_len;
  	ds_cnt += !!headlen;
-@@ -484,8 +555,10 @@ netdev_tx_t mlx5e_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+@@ -484,8 +563,10 @@ netdev_tx_t mlx5e_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
  		dseg += ds_cnt_inl;
  	} else if (vlan_present) {
  		eseg->insert.type = cpu_to_be16(MLX5_ETH_WQE_INSERT_VLAN);
@@ -240,19 +267,34 @@ index xxxxxxx..xxxxxxx 100644
  		eseg->insert.vlan_tci = cpu_to_be16(skb_vlan_tag_get(skb));
  		stats->added_vlan_packets++;
  	}
-@@ -525,7 +598,11 @@ netdev_tx_t mlx5e_xmit(struct sk_buff *skb, struct net_device *dev)
+@@ -495,7 +576,11 @@ netdev_tx_t mlx5e_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+ 		goto err_drop;
+ 
+ 	mlx5e_txwqe_complete(sq, skb, opcode, ds_cnt, num_wqebbs, num_bytes,
+-			     num_dma, wi, cseg, xmit_more);
++			     num_dma, wi, cseg
++#if defined(HAVE_SK_BUFF_XMIT_MORE) || defined(HAVE_NEDEV_XMIT_MORE)
++			    , xmit_more
++#endif
++			    );
+ 
+ 	sq->dim_obj.sample.pkt_ctr  = sq->stats->packets;
+ 	sq->dim_obj.sample.byte_ctr = sq->stats->bytes;
+@@ -525,7 +610,13 @@ netdev_tx_t mlx5e_xmit(struct sk_buff *skb, struct net_device *dev)
  	if (unlikely(!skb))
  		return NETDEV_TX_OK;
  
 +#ifdef HAVE_NEDEV_XMIT_MORE
  	return mlx5e_sq_xmit(sq, skb, wqe, pi, netdev_xmit_more());
-+#else
++#elif defined(HAVE_SK_BUFF_XMIT_MORE)
 +	return mlx5e_sq_xmit(sq, skb, wqe, pi, skb->xmit_more);
++#else
++	return mlx5e_sq_xmit(sq, skb, wqe, pi);
 +#endif
  }
  
  static void mlx5e_dump_error_cqe(struct mlx5e_txqsq *sq,
-@@ -589,7 +666,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
+@@ -589,7 +680,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
  				mlx5e_dump_error_cqe(sq,
  						     (struct mlx5_err_cqe *)cqe);
  				queue_work(cq->channel->priv->wq,
@@ -264,7 +306,7 @@ index xxxxxxx..xxxxxxx 100644
  			}
  			stats->cqe_err++;
  		}
-@@ -611,7 +692,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
+@@ -611,7 +706,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
  				continue;
  			}
  
@@ -276,7 +318,7 @@ index xxxxxxx..xxxxxxx 100644
  				     SKBTX_HW_TSTAMP)) {
  				struct skb_shared_hwtstamps hwts = {};
  
-@@ -631,7 +716,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
+@@ -631,7 +730,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
  			npkts++;
  			nbytes += wi->num_bytes;
  			sqcc += wi->num_wqebbs;
@@ -288,13 +330,40 @@ index xxxxxxx..xxxxxxx 100644
  		} while (!last_wqe);
  
  	} while ((++i < MLX5E_TX_CQ_POLL_BUDGET) && (cqe = mlx5_cqwq_get_cqe(&cq->wq)));
-@@ -738,7 +827,9 @@ netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+@@ -699,8 +802,11 @@ mlx5i_txwqe_build_datagram(struct mlx5_av *av, u32 dqpn, u32 dqkey,
+ }
+ 
+ netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+-			  struct mlx5_av *av, u32 dqpn, u32 dqkey,
+-			  bool xmit_more)
++			  struct mlx5_av *av, u32 dqpn, u32 dqkey
++#if defined(HAVE_SK_BUFF_XMIT_MORE) || defined(HAVE_NEDEV_XMIT_MORE)
++			 , bool xmit_more
++#endif
++			 )
+ {
+ 	struct mlx5_wq_cyc *wq = &sq->wq;
+ 	struct mlx5i_tx_wqe *wqe;
+@@ -738,7 +844,9 @@ netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
  	}
  
  	stats->bytes     += num_bytes;
-+#ifdef HAVE_SK_BUFF_XMIT_MORE
++#if defined(HAVE_SK_BUFF_XMIT_MORE) || defined(HAVE_NEDEV_XMIT_MORE)
  	stats->xmit_more += xmit_more;
 +#endif
  
  	headlen = skb->len - ihs - skb->data_len;
  	ds_cnt += !!headlen;
+@@ -783,7 +891,11 @@ netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+ 		goto err_drop;
+ 
+ 	mlx5e_txwqe_complete(sq, skb, opcode, ds_cnt, num_wqebbs, num_bytes,
+-			     num_dma, wi, cseg, xmit_more);
++			     num_dma, wi, cseg
++#if defined(HAVE_SK_BUFF_XMIT_MORE) || defined(HAVE_NEDEV_XMIT_MORE)
++			    , xmit_more
++#endif
++			    );
+ 
+ 	sq->dim_obj.sample.pkt_ctr  = sq->stats->packets;
+ 	sq->dim_obj.sample.byte_ctr = sq->stats->bytes;
