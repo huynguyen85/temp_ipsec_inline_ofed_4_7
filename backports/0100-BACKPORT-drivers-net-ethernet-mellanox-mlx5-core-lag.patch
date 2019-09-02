@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/lag.c
 
 Change-Id: I2a88aad0f54ecd17882fb357fb7557cd221ff9df
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag.c | 183 +++++++++++++++++++++++++-
- 1 file changed, 180 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lag.c | 187 +++++++++++++++++++++++++-
+ 1 file changed, 182 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
 index xxxxxxx..xxxxxxx 100644
@@ -188,7 +188,18 @@ index xxxxxxx..xxxxxxx 100644
  static bool __mlx5_lag_is_roce(struct mlx5_lag *ldev)
  {
  	return !!(ldev->flags & MLX5_LAG_FLAG_ROCE);
-@@ -447,14 +561,20 @@ static bool mlx5_lag_eval_bonding_conds(struct mlx5_lag *ldev,
+@@ -294,8 +408,8 @@ static bool mlx5_lag_check_prereq(struct mlx5_lag *ldev)
+ 			  !mlx5_sriov_is_enabled(dev1);
+ 
+ #ifdef CONFIG_MLX5_ESWITCH
+-	roce_lag_allowed &= dev0->priv.eswitch->mode == SRIOV_NONE &&
+-		dev1->priv.eswitch->mode == SRIOV_NONE;
++	roce_lag_allowed &= dev0->priv.eswitch->mode == MLX5_ESWITCH_NONE &&
++		dev1->priv.eswitch->mode == MLX5_ESWITCH_NONE;
+ #endif
+ 
+ 	if (roce_lag_allowed)
+@@ -461,14 +575,20 @@ static bool mlx5_lag_eval_bonding_conds(struct mlx5_lag *ldev,
  	bool is_bonded;
  
  	rcu_read_lock();
