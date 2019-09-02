@@ -14,3 +14,6 @@ Change-Id=I4e6fe9573a3b96e82a507153c2defbad3252e4eb; subject=net/mlx5_core: Fix 
 Change-Id=I8d0c8df210d3f2852e3c873929a40a409c055857; subject=net/mlx5: Eswitch, avoid using work queue on direct devlink invocation; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=I1cbe42966116db5221370a1b92af70b6d31774bb; subject=net/mlx5: Change flow_flags to u32 to avoid overflow; feature=mlx5_asap; upstream_status=ignore; general=;
 Change-Id=Ic6c46469d910eef73d9d36ea631af7c6cfa6dd5c; subject=IB/mlx5: Add support for sync steering command; feature=devx; upstream_status=in_progress; general=;
+Change-Id=Ie79b7bd06e1d03b5d8754015c4da6bdd204f7495; subject=net/mlx5_core: Eswitch, use dynamic alloction for spec; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I0eb62c09cf4a4fe76d2262c35ed70bffcb298d6f; subject=net/mlx5_core: Eswitch, fix use befroe initialized; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I70314d9a1ff0863879a59686ae4dcb16cb6a2d68; subject=net/mlx5_core: Eswitch, remove unused variable; feature=mlx5_asap; upstream_status=NA; general=;

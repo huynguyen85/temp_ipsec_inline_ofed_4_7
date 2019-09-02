@@ -1939,7 +1939,6 @@ static int esw_vport_enable_qos(struct mlx5_eswitch *esw, int vport_num,
 {
 	struct mlx5_vport *vport = &esw->vports[vport_num];
 	struct mlx5_core_dev *dev = esw->dev;
-	struct mlx5_vgroup *group = vport->qos.group;
 	int err = 0;
 
 	if (!esw->qos.enabled || !MLX5_CAP_GEN(dev, qos) ||
