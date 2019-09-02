@@ -2332,8 +2332,12 @@ static int esw_vport_add_ingress_acl_modify_metadata(struct mlx5_eswitch *esw,
 {
 	u8 action[MLX5_UN_SZ_BYTES(set_action_in_add_action_in_auto)] = {};
 	struct mlx5_flow_act flow_act = {};
-	struct mlx5_flow_spec spec = {};
+	struct mlx5_flow_spec *spec;
 	int err = 0;
+
+	spec = kzalloc(sizeof(*spec), GFP_KERNEL);
+	if (!spec)
+		return -ENOMEM;
 
 	MLX5_SET(set_action_in, action, action_type, MLX5_ACTION_TYPE_SET);
 	MLX5_SET(set_action_in, action, field, MLX5_ACTION_IN_FIELD_METADATA_REG_C_0);
@@ -2347,13 +2351,13 @@ static int esw_vport_add_ingress_acl_modify_metadata(struct mlx5_eswitch *esw,
 		esw_warn(esw->dev,
 			 "failed to alloc modify header for vport %d ingress acl (%d)\n",
 			 vport->vport, err);
-		return err;
+		goto out_spec;
 	}
 
 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_MOD_HDR | MLX5_FLOW_CONTEXT_ACTION_ALLOW;
 	flow_act.modify_id = vport->ingress.modify_metadata_id;
 	vport->ingress.modify_metadata_rule = mlx5_add_flow_rules(vport->ingress.acl,
-								  &spec, &flow_act, NULL, 0);
+								  spec, &flow_act, NULL, 0);
 	if (IS_ERR(vport->ingress.modify_metadata_rule)) {
 		err = PTR_ERR(vport->ingress.modify_metadata_rule);
 		esw_warn(esw->dev,
@@ -2362,10 +2366,13 @@ static int esw_vport_add_ingress_acl_modify_metadata(struct mlx5_eswitch *esw,
 		vport->ingress.modify_metadata_rule = NULL;
 		goto out;
 	}
+	kfree(spec);
 
 out:
 	if (err)
 		mlx5_modify_header_dealloc(esw->dev, vport->ingress.modify_metadata_id);
+out_spec:
+	kfree(spec);
 	return err;
 }
 
