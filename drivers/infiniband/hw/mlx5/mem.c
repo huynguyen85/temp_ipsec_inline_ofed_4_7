@@ -277,6 +277,20 @@ int mlx5_ib_test_wc(struct mlx5_ib_dev *dev)
 		return 0;
 	}
 
+	if (MLX5_CAP_GEN(dev->mdev, port_type) == MLX5_CAP_PORT_TYPE_ETH &&
+	    !dev->mdev->roce.roce_en) {
+		if (mlx5_core_is_pf(dev->mdev))
+			dev->wc_support = MLX5_IB_WC_SUPPORTED;
+		else
+			/*
+			 * Blueflame may still be applicable but write
+			 * combining test cannot run when RoCE is disabled so
+			 * for now as some WA we maintain the legacy behaviour.
+			 */
+			dev->wc_support = MLX5_IB_WC_NOT_SUPPORTED;
+		return 0;
+	}
+
 	ret = mlx5_alloc_bfreg(dev->mdev, &dev->wc_bfreg, true, false);
 	if (ret)
 		return ret;
