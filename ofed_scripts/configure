@@ -666,6 +666,11 @@ main()
                             CONFIG_MLX5_EN_ARFS="y"
                             CONFIG_MLX5_EN_RXNFC="y"
                             CONFIG_MLX5_MPFS="y"
+
+SWITCH_SUPPORTED_KVERSION="5.1.0"
+    if check_kerver ${KVERSION} ${SWITCH_SUPPORTED_KVERSION}; then
+                            CONFIG_MLX5_ESWITCH="y"
+    fi
 #                            CONFIG_MLX5_ESWITCH="y"
                             CONFIG_MLX5_CORE_IPOIB="y"
                             CONFIG_MLX5_EN_SPECIAL_SQ="y"
