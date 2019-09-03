@@ -128,3 +128,24 @@ err_out:
 EXPORT_SYMBOL(tc_setup_flow_action);
 
 #endif
+
+#ifndef HAVE_TCF_EXTS_NUM_ACTIONS
+#include <net/pkt_cls.h>
+#include <net/tc_act/tc_pedit.h>
+unsigned int tcf_exts_num_actions(struct tcf_exts *exts)
+{
+        unsigned int num_acts = 0;
+        struct tc_action *act;
+        int i;
+
+        tcf_exts_for_each_action(i, act, exts) {
+                if (is_tcf_pedit(act))
+                        num_acts += tcf_pedit_nkeys(act);
+                else
+                num_acts++;
+        }
+        return num_acts;
+}
+EXPORT_SYMBOL(tcf_exts_num_actions);
+
+#endif

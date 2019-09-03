@@ -84,4 +84,27 @@ static inline bool tc_skip_hw(u32 flags)
 
 #endif
 
+#ifdef CONFIG_NET_CLS_ACT
+#define tcf_exts_for_each_action(i, a, exts) \
+	for (i = 0; i < TCA_ACT_MAX_PRIO && ((a) = (exts)->actions[i]); i++)
+#else
+#define tcf_exts_for_each_action(i, a, exts) \
+	for (; 0; (void)(i), (void)(a), (void)(exts))
+#endif
+
+#ifdef CONFIG_MLX5_ESWITCH
+#ifndef HAVE_TC_SETUP_FLOW_ACTION
+#include <net/flow_offload.h>
+#define tc_setup_flow_action LINUX_BACKPORT(tc_setup_flow_action)
+int tc_setup_flow_action(struct flow_action *flow_action,
+			 const struct tcf_exts *exts);
+#endif
+#endif
+
+#ifndef HAVE_TCF_EXTS_NUM_ACTIONS
+#include_next <net/pkt_cls.h>
+#define tcf_exts_num_actions LINUX_BACKPORT(tcf_exts_num_actions)
+unsigned int tcf_exts_num_actions(struct tcf_exts *exts);
+#endif
+
 #endif	/* _COMPAT_NET_PKT_CLS_H */

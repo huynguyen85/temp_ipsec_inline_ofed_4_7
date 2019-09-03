@@ -60,6 +60,13 @@ void flow_rule_match_ip(const struct flow_rule *rule,
 }
 EXPORT_SYMBOL(flow_rule_match_ip);
 
+void flow_rule_match_cvlan(const struct flow_rule *rule,
+                           struct flow_match_vlan *out)
+{
+	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_CVLAN, out);
+}
+EXPORT_SYMBOL(flow_rule_match_cvlan);
+
 void flow_rule_match_ports(const struct flow_rule *rule,
 			   struct flow_match_ports *out)
 {
@@ -108,6 +115,13 @@ void flow_rule_match_enc_ipv6_addrs(const struct flow_rule *rule,
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_ENC_IPV6_ADDRS, out);
 }
 EXPORT_SYMBOL(flow_rule_match_enc_ipv6_addrs);
+
+void flow_rule_match_enc_ip(const struct flow_rule *rule,
+                            struct flow_match_ip *out)
+{
+        FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_ENC_IP, out);
+}
+EXPORT_SYMBOL(flow_rule_match_enc_ip);
 
 void flow_rule_match_enc_ports(const struct flow_rule *rule,
 			       struct flow_match_ports *out)

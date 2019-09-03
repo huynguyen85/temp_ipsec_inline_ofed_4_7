@@ -127,6 +127,9 @@ void flow_rule_match_enc_keyid(const struct flow_rule *rule,
 #define flow_rule_match_enc_opts LINUX_BACKPORT(flow_rule_match_enc_opts)
 void flow_rule_match_enc_opts(const struct flow_rule *rule,
 			      struct flow_match_enc_opts *out);
+#define flow_rule_match_cvlan LINUX_BACKPORT(flow_rule_match_cvlan)
+void flow_rule_match_cvlan(const struct flow_rule *rule,
+                           struct flow_match_vlan *out);
 #endif
 
 enum flow_action_id {

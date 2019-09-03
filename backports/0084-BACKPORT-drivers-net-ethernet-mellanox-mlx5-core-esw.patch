@@ -3,14 +3,14 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
 
 Change-Id: I241b5d0ac4d733ec5e098e1eb481ddeef3512a52
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch.c | 64 ++++++++++++++++-------
- 1 file changed, 46 insertions(+), 18 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/eswitch.c | 67 +++++++++++++------
+ 1 file changed, 47 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -587,6 +587,7 @@ static void update_allmulti_vports(struct mlx5_eswitch *esw,
+@@ -588,6 +588,7 @@ static void update_allmulti_vports(struct mlx5_eswitch *esw,
  	u8 *mac = vaddr->node.addr;
  	struct mlx5_vport *vport;
  	u16 i, vport_num;
@@ -18,7 +18,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	mlx5_esw_for_all_vports(esw, i, vport) {
  		struct hlist_head *vport_hash = vport->mc_list;
-@@ -634,6 +635,7 @@ static int esw_add_mc_addr(struct mlx5_eswitch *esw, struct vport_addr *vaddr)
+@@ -635,6 +636,7 @@ static int esw_add_mc_addr(struct mlx5_eswitch *esw, struct vport_addr *vaddr)
  	struct esw_mc_addr *esw_mc;
  	u8 *mac = vaddr->node.addr;
  	u16 vport = vaddr->vport;
@@ -26,7 +26,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (!esw->fdb_table.legacy.fdb)
  		return 0;
-@@ -674,6 +676,7 @@ static int esw_del_mc_addr(struct mlx5_eswitch *esw, struct vport_addr *vaddr)
+@@ -675,6 +677,7 @@ static int esw_del_mc_addr(struct mlx5_eswitch *esw, struct vport_addr *vaddr)
  	struct esw_mc_addr *esw_mc;
  	u8 *mac = vaddr->node.addr;
  	u16 vport = vaddr->vport;
@@ -34,7 +34,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (!esw->fdb_table.legacy.fdb)
  		return 0;
-@@ -724,6 +727,7 @@ static void esw_apply_vport_addr_list(struct mlx5_eswitch *esw,
+@@ -725,6 +728,7 @@ static void esw_apply_vport_addr_list(struct mlx5_eswitch *esw,
  	struct hlist_head *hash;
  	struct hlist_node *tmp;
  	int hi;
@@ -42,7 +42,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	vport_addr_add = is_uc ? esw_add_uc_addr :
  				 esw_add_mc_addr;
-@@ -760,6 +764,7 @@ static void esw_update_vport_addr_list(struct mlx5_eswitch *esw,
+@@ -761,6 +765,7 @@ static void esw_update_vport_addr_list(struct mlx5_eswitch *esw,
  	int err;
  	int hi;
  	int i;
@@ -50,7 +50,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	size = is_uc ? MLX5_MAX_UC_PER_VPORT(esw->dev) :
  		       MLX5_MAX_MC_PER_VPORT(esw->dev);
-@@ -881,6 +886,7 @@ static void esw_update_vport_mc_promisc(struct mlx5_eswitch *esw,
+@@ -882,6 +887,7 @@ static void esw_update_vport_mc_promisc(struct mlx5_eswitch *esw,
  	struct hlist_head *hash;
  	struct hlist_node *tmp;
  	int hi;
@@ -58,7 +58,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	hash = vport->mc_list;
  
-@@ -2478,9 +2484,13 @@ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
+@@ -2474,9 +2480,13 @@ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
  		goto abort;
  
  	mutex_init(&esw->offloads.encap_tbl_lock);
@@ -75,7 +75,7 @@ index xxxxxxx..xxxxxxx 100644
  	atomic64_set(&esw->offloads.num_flows, 0);
  	mutex_init(&esw->state_lock);
  
-@@ -2770,6 +2780,7 @@ unlock:
+@@ -2766,6 +2776,7 @@ unlock:
  	return 0;
  }
  
@@ -83,7 +83,7 @@ index xxxxxxx..xxxxxxx 100644
  int mlx5_eswitch_get_vport_config(struct mlx5_eswitch *esw,
  				  u16 vport, struct ifla_vf_info *ivi)
  {
-@@ -2783,18 +2794,31 @@ int mlx5_eswitch_get_vport_config(struct mlx5_eswitch *esw,
+@@ -2779,18 +2790,31 @@ int mlx5_eswitch_get_vport_config(struct mlx5_eswitch *esw,
  
  	mutex_lock(&esw->state_lock);
  	ether_addr_copy(ivi->mac, evport->info.mac);
@@ -125,7 +125,23 @@ index xxxxxxx..xxxxxxx 100644
  
  int __mlx5_eswitch_set_vport_vlan(struct mlx5_eswitch *esw, int vport, u16 vlan,
  				  u8 qos, __be16 proto, u8 set_flags)
-@@ -3431,7 +3455,9 @@ int mlx5_eswitch_get_vport_stats(struct mlx5_eswitch *esw,
+@@ -3133,6 +3157,7 @@ int mlx5_eswitch_set_vport_rate(struct mlx5_eswitch *esw, u16 vport,
+ 	bool min_rate_supported;
+ 	bool max_rate_supported;
+ 	int err = 0;
++	u32 act_max_rate = max_rate;
+ 
+ 	if (!ESW_ALLOWED(esw))
+ 		return -EPERM;
+@@ -3143,7 +3168,6 @@ int mlx5_eswitch_set_vport_rate(struct mlx5_eswitch *esw, u16 vport,
+ 	min_rate_supported = MLX5_CAP_QOS(esw->dev, esw_bw_share) &&
+ 				fw_max_bw_share >= MLX5_MIN_BW_SHARE;
+ 	max_rate_supported = MLX5_CAP_QOS(esw->dev, esw_rate_limit);
+-	u32 act_max_rate = max_rate;
+ 
+ 	if ((min_rate && !min_rate_supported) || (max_rate && !max_rate_supported))
+ 		return -EOPNOTSUPP;
+@@ -3428,7 +3452,9 @@ int mlx5_eswitch_get_vport_stats(struct mlx5_eswitch *esw,
  	struct mlx5_vport *vport = mlx5_eswitch_get_vport(esw, vport_num);
  	int outlen = MLX5_ST_SZ_BYTES(query_vport_counter_out);
  	u32 in[MLX5_ST_SZ_DW(query_vport_counter_in)] = {0};
@@ -135,7 +151,7 @@ index xxxxxxx..xxxxxxx 100644
  	int err = 0;
  	u32 *out;
  
-@@ -3495,11 +3521,13 @@ int mlx5_eswitch_get_vport_stats(struct mlx5_eswitch *esw,
+@@ -3492,11 +3518,13 @@ int mlx5_eswitch_get_vport_stats(struct mlx5_eswitch *esw,
  	vf_stats->broadcast =
  		MLX5_GET_CTR(out, received_eth_broadcast.packets);
  
@@ -154,3 +170,11 @@ index xxxxxxx..xxxxxxx 100644
  #ifdef HAVE_STRUCT_IFLA_VF_STATS_TX_BROADCAST
  	vf_stats->tx_multicast =
  		MLX5_GET_CTR(out, transmitted_eth_multicast.packets) +
+@@ -3519,7 +3547,6 @@ int mlx5_eswitch_get_vport_stats_backport(struct mlx5_eswitch *esw,
+ 	int outlen = MLX5_ST_SZ_BYTES(query_vport_counter_out);
+ 	u32 in[MLX5_ST_SZ_DW(query_vport_counter_in)] = {0};
+ 	int err = 0;
+-	bool vst_mode_steering;
+ 	u32 *out;
+ 
+ 	if (!ESW_ALLOWED(esw))
