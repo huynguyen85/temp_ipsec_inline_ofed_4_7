@@ -2966,6 +2966,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if pkt_cls.h has tc_setup_flow_action])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/pkt_cls.h>
+	],[
+		tc_setup_flow_action(NULL, NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_TC_SETUP_FLOW_ACTION, 1,
+			  [tc_setup_flow_action is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if pkt_cls.h has tcf_queue_work])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/pkt_cls.h>
@@ -4673,6 +4688,23 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if struct tc_cls_flower_offload has stats field])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/pkt_cls.h>
+	],[
+		struct tc_cls_flower_offload *f;
+		struct flow_stats stats;
+
+		f->stats = stats;
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_TC_CLS_FLOWER_OFFLOAD_HAS_STATS_FIELD, 1,
+			  [HAVE_TC_CLS_FLOWER_OFFLOAD_HAS_STATS_FIELD is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if netdevice.h has napi_complete_done])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/netdevice.h>
@@ -4714,6 +4746,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_NETDEV_RSS_KEY_FILL, 1,
 			  [netdev_rss_key_fill is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if netdevice.h has netdev_port_same_parent_id])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/netdevice.h>
+	],[
+		netdev_port_same_parent_id(NULL, NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_NETDEV_PORT_SAME_PARENT_ID, 1,
+			  [netdev_port_same_parent_id is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])
@@ -9287,6 +9334,12 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	],[
 		AC_MSG_RESULT(no)
 	])
+
+	LB_CHECK_SYMBOL_EXPORT([tcf_exts_num_actions],
+		[net/sched/cls_api.c],
+		[AC_DEFINE(HAVE_TCF_EXTS_NUM_ACTIONS, 1,
+			[tcf_exts_num_actions is exported by the kernel])],
+	[])
 
 	LB_CHECK_SYMBOL_EXPORT([netpoll_poll_dev],
 		[net/core/netpoll.c],

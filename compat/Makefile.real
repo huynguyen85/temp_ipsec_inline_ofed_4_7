@@ -91,3 +91,4 @@ mlx_compat-y += flow_offload.o
 endif
 
 mlx_compat-y += bitmap.o
+mlx_compat-y += cls_api.o
