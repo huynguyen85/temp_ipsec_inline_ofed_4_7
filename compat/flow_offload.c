@@ -63,7 +63,9 @@ EXPORT_SYMBOL(flow_rule_match_ip);
 void flow_rule_match_cvlan(const struct flow_rule *rule,
                            struct flow_match_vlan *out)
 {
+#ifdef HAVE_FLOW_DISSECTOR_KEY_CVLAN
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_CVLAN, out);
+#endif
 }
 EXPORT_SYMBOL(flow_rule_match_cvlan);
 
@@ -119,7 +121,9 @@ EXPORT_SYMBOL(flow_rule_match_enc_ipv6_addrs);
 void flow_rule_match_enc_ip(const struct flow_rule *rule,
                             struct flow_match_ip *out)
 {
-        FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_ENC_IP, out);
+#ifdef FLOW_DISSECTOR_KEY_ENC_IP
+	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_ENC_IP, out);
+#endif
 }
 EXPORT_SYMBOL(flow_rule_match_enc_ip);
 
