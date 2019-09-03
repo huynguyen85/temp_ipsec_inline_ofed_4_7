@@ -1782,7 +1782,7 @@ index xxxxxxx..xxxxxxx 100644
 -	    (is_rep_ingress || act_is_encap))
 +	    (is_rep_ingress || act_is_encap
 +#ifdef HAVE_TC_SETUP_CB_EGDEV_REGISTER
-+	     || (flow->flags & MLX5E_TC_FLOW_EGRESS)
++	     || (flow->flags & MLX5_TC_FLAG(EGRESS))
 +#endif
 +))
  		return true;
