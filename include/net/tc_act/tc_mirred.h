@@ -96,4 +96,11 @@ static inline int tcf_mirred_ifindex(const struct tc_action *a)
 }
 #endif
 
+#ifndef HAVE_TCF_MIRRED_DEV
+static inline struct net_device *tcf_mirred_dev(const struct tc_action *a)
+{
+	return tcf_mirred_ifindex(a);
+}
+#endif
+
 #endif	/* _COMPAT_NET_TC_ACT_TC_MIRRED_H */
