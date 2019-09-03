@@ -3230,7 +3230,7 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 #ifdef HAVE_MINIFLOW
 				if (attr->split_count == 0 &&
 				    flow_flag_test(flow, EGRESS) &&
-				     flow->esw_attr->tunnel_match_level != MLX5_MATCH_NONE)
+				     attr->outer_match_level != MLX5_MATCH_NONE)
 					action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
 #endif
 
@@ -3325,17 +3325,17 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 				return -EOPNOTSUPP;
 			}
 			attr->dest_chain = dest_chain;
-#else
+#else /* HAVE_MINIFLOW */
 			if (dest_chain == 0) {
 				netdev_warn(priv->netdev, "Loop to chain 0 is not supported");
 				return -EOPNOTSUPP;
 			}
 			if (flow_flag_test(flow, EGRESS) &&
-			    flow->esw_attr->tunnel_match_level != MLX5_MATCH_NONE)
+			    attr->outer_match_level != MLX5_MATCH_NONE)
 				action |= MLX5_FLOW_CONTEXT_ACTION_DECAP;
 
 			action |= MLX5_FLOW_CONTEXT_ACTION_GOTO;
-#endif
+#endif /* HAVE_MINIFLOW */
 			action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
 			continue;
 		}

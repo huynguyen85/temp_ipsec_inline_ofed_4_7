@@ -160,7 +160,7 @@ static struct rhashtable *get_mf_ht(struct mlx5e_priv *priv)
 	struct mlx5e_rep_priv *uplink_rpriv;
 
 	uplink_rpriv = mlx5_eswitch_get_uplink_priv(esw, REP_ETH);
-	return &uplink_rpriv->mf_ht;
+	return &uplink_rpriv->uplink_priv.mf_ht;
 }
 
 static void miniflow_path_append_cookie(struct mlx5e_miniflow *miniflow,
@@ -614,7 +614,7 @@ miniflow_ct_flow_alloc(struct mlx5e_priv *priv,
 	int attr_size;
 	int err;
 
-	flow_flags |= BIT(MLX5E_TC_FLOW_FLAG_ESWITCH) | BIT(MLX5E_TC_FLOW_FLAG_CT);
+	flow_flags = BIT(MLX5E_TC_FLOW_FLAG_ESWITCH) | BIT(MLX5E_TC_FLOW_FLAG_CT);
 
 	if (ct_tuple->tuple.dst.dir == IP_CT_DIR_ORIGINAL)
 		flow_flags |= BIT(MLX5E_TC_FLOW_FLAG_CT_ORIG);
@@ -758,11 +758,8 @@ static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
 			       struct mlx5e_tc_flow **out_flow,
 			       struct mlx5_fc **dummy_counters)
 {
-	u32 flags = MLX5E_TC_FLOW_SIMPLE | MLX5E_TC_FLOW_ESWITCH;
-	u32 tmp_mask[MLX5_ST_SZ_DW(fte_match_param)];
 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
 	struct mlx5e_tc_flow_parse_attr *mparse_attr;
-	struct mlx5e_priv *priv = miniflow->priv;
 	struct mlx5e_rep_priv *rpriv = priv->ppriv;
 	u32 tmp_mask[MLX5_ST_SZ_DW(fte_match_param)];
 	unsigned long flow_flags;
@@ -770,7 +767,7 @@ static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
 	int attr_size, i;
 	int err;
 
-	flow_flags |= BIT(MLX5E_TC_FLOW_FLAG_ESWITCH) | BIT(MLX5E_TC_FLOW_FLAG_SIMPLE);
+	flow_flags = BIT(MLX5E_TC_FLOW_FLAG_ESWITCH) | BIT(MLX5E_TC_FLOW_FLAG_SIMPLE);
 	attr_size = sizeof(struct mlx5_esw_flow_attr);
 	err = mlx5e_alloc_flow(priv, attr_size, 0 /* cookie */, flow_flags,
 			       GFP_KERNEL, &mparse_attr, &mflow);
@@ -893,7 +890,7 @@ static int miniflow_add_peer_flow(struct mlx5e_miniflow *miniflow,
 		goto err_add;
 
 	flow->peer_flow = peer_flow;
-	flow_flags |= BIT(MLX5E_TC_FLOW_FLAG_DUP);
+	flow->flags |= BIT(MLX5E_TC_FLOW_FLAG_DUP);
 	mutex_lock(&esw->offloads.peer_mutex);
 	list_add_tail(&flow->peer, &esw->offloads.peer_flows);
 	mutex_unlock(&esw->offloads.peer_mutex);
@@ -944,7 +941,7 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
 				     dummy_counters,
 				     miniflow->nr_flows);
 
-	if (&mflow->flags & BIT(MLX5E_TC_FLOW_FLAG_DUP))
+	if (mflow->flags & BIT(MLX5E_TC_FLOW_FLAG_DUP))
 		miniflow_link_dummy_counters(mflow->peer_flow,
 					     dummy_counters,
 					     miniflow->nr_flows);
@@ -1053,7 +1050,7 @@ void mlx5e_del_miniflow_list(struct mlx5e_tc_flow *flow)
 	list_for_each_entry_safe(mnode, n, &flow->miniflow_list, node) {
 		struct mlx5e_miniflow *miniflow = mnode->miniflow;
 
-		if (atomic_read(&miniflow->flow->flags) & MLX5E_TC_FLOW_DUP)
+		if (miniflow->flow->flags & BIT(MLX5E_TC_FLOW_FLAG_DUP))
 			miniflow_unlink_dummy_counters(miniflow->flow->peer_flow);
 
 		miniflow_unlink_dummy_counters(miniflow->flow);
