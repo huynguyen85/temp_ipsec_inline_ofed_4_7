@@ -73,8 +73,20 @@ static inline bool is_tcf_gact_shot(const struct tc_action *a)
 {
 	return to_gact_compat(a).action == TC_ACT_SHOT;
 }
-#endif
+#endif /* HAVE_IS_TCF_GACT_SHOT */
 
+#endif /* CONFIG_COMPAT_TCF_GACT */
+
+#if !defined(HAVE_IS_TCF_GACT_OK) && (defined(HAVE_IS_TCF_GACT_ACT) || defined(HAVE_IS_TCF_GACT_ACT_OLD))
+#define HAVE_IS_TCF_GACT_OK
+static inline bool is_tcf_gact_ok(const struct tc_action *a)
+{
+#ifdef HAVE_IS_TCF_GACT_ACT
+	return __is_tcf_gact_act(a, TC_ACT_OK, false);
+#else
+	return __is_tcf_gact_act(a, TC_ACT_OK);
 #endif
+}
+#endif /* HAVE_IS_TCF_GACT_OK */
 
 #endif	/* _COMPAT_NET_TC_ACT_TC_GACT_H */

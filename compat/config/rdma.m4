@@ -3254,6 +3254,54 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if tc_gact.h has is_tcf_gact_ok])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/tc_act/tc_gact.h>
+	],[
+		struct tc_action a = {};
+		is_tcf_gact_ok(&a);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IS_TCF_GACT_OK, 1,
+			  [is_tcf_gact_ok is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if tc_gact.h has __is_tcf_gact_act with 3 variables])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/tc_act/tc_gact.h>
+	],[
+		struct tc_action a = {};
+		__is_tcf_gact_act(&a, 0, false);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IS_TCF_GACT_ACT, 1,
+			  [__is_tcf_gact_act is defined with 3 variables])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if tc_gact.h has __is_tcf_gact_act with 2 variables])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/tc_act/tc_gact.h>
+	],[
+		struct tc_action a = {};
+		__is_tcf_gact_act(&a, 0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IS_TCF_GACT_ACT_OLD, 1,
+			  [__is_tcf_gact_act is defined with 2 variables])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if tc_skbedit.h has is_tcf_skbedit_mark])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/tc_act/tc_skbedit.h>
