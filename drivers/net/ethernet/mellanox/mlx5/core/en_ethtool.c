@@ -1833,13 +1833,8 @@ static int set_pflag_rx_no_csum_complete(struct net_device *netdev, bool enable)
 
 static int set_pflag_per_channel_stats(struct net_device *netdev, bool enable)
 {
-	struct mlx5e_priv *priv = netdev_priv(netdev);
-	struct mlx5e_channels *channels = &priv->channels;
-	struct mlx5e_channel *c;
-	int i;
-
-	/*Talat and Tariq need to implement it */
-
+	/* This is empty on purpose. The per_channel_stats feature affects the
+	 * "ethtool -S" output only. Allow to toggle it unconditionally. */
 	return 0;
 }
 
