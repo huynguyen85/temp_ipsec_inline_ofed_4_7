@@ -62,7 +62,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	return dma_get_sgtable_attrs(dev->parent, sgt, cpu_addr,
  				     dma_addr, size, attrs);
-@@ -265,41 +282,71 @@ static dma_addr_t
+@@ -265,38 +282,67 @@ static dma_addr_t
  mlx5_sf_dma_map_page(struct device *dev, struct page *page,
  		     unsigned long offset, size_t size,
  		     enum dma_data_direction dir,
@@ -135,10 +135,14 @@ index xxxxxxx..xxxxxxx 100644
  {
  	return dma_map_resource(dev->parent, phys_addr, size, dir, attrs);
  }
+@@ -308,6 +354,7 @@ mlx5_sf_dma_unmap_resource(struct device *dev, dma_addr_t dma_handle,
+ {
+ 	dma_unmap_resource(dev->parent, dma_handle, size, dir, attrs);
+ }
 +#endif
  
  static void
- mlx5_sf_dma_unmap_resource(struct device *dev, dma_addr_t dma_handle,
+ mlx5_sf_dma_sync_single_for_cpu(struct device *dev,
 @@ -341,6 +388,7 @@ mlx5_sf_dma_sync_sg_for_device(struct device *dev,
  	dma_sync_sg_for_device(dev->parent, sg, nents, dir);
  }
