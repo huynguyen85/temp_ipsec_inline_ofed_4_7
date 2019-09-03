@@ -10,7 +10,7 @@ diff --git a/drivers/infiniband/hw/mlx5/mlx5_ib_exp.h b/drivers/infiniband/hw/ml
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/infiniband/hw/mlx5/mlx5_ib_exp.h
 +++ b/drivers/infiniband/hw/mlx5/mlx5_ib_exp.h
-@@ -403,6 +403,7 @@ int mlx5_ib_set_vma_data(struct vm_area_struct *vma,
+@@ -406,6 +406,7 @@ int mlx5_ib_set_vma_data(struct vm_area_struct *vma,
  
  static inline pgprot_t mlx5_ib_pgprot_writecombine(pgprot_t prot)
  {
@@ -18,7 +18,7 @@ index xxxxxxx..xxxxxxx 100644
  #if defined(CONFIG_ARM64)
  	/*
  	 * Fix up arm64 braindamage of using NORMAL_NC for write
-@@ -410,14 +411,25 @@ static inline pgprot_t mlx5_ib_pgprot_writecombine(pgprot_t prot)
+@@ -413,14 +414,25 @@ static inline pgprot_t mlx5_ib_pgprot_writecombine(pgprot_t prot)
  	 * purpose. Needed on ThunderX2.
  	 */
  	switch (read_cpuid_id() & MIDR_CPU_MODEL_MASK) {
@@ -30,8 +30,8 @@ index xxxxxxx..xxxxxxx 100644
  				       PTE_ATTRINDX(MT_DEVICE_GRE) |
  				       PTE_PXN | PTE_UXN);
  	}
- #endif
 +#endif
+ #endif
  	return prot;
  }
  

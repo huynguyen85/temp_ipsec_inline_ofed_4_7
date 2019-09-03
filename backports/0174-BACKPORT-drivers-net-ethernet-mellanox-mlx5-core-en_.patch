@@ -2303,8 +2303,8 @@ index xxxxxxx..xxxxxxx 100644
  #ifdef CONFIG_MLX5_CORE_EN_DCB
  	if (MLX5_CAP_GEN(mdev, vport_group_manager) && MLX5_CAP_GEN(mdev, qos))
  		netdev->dcbnl_ops = &mlx5e_dcbnl_ops;
- #endif
 +#endif
+ #endif
  
  	netdev->watchdog_timeo    = 15 * HZ;
  
@@ -2502,7 +2502,7 @@ index xxxxxxx..xxxxxxx 100644
  	return 0;
  }
  
-@@ -5273,27 +6321,42 @@ static void mlx5e_nic_enable(struct mlx5e_priv *priv)
+@@ -5273,26 +6321,41 @@ static void mlx5e_nic_enable(struct mlx5e_priv *priv)
  {
  	struct net_device *netdev = priv->netdev;
  	struct mlx5_core_dev *mdev = priv->mdev;
@@ -2540,12 +2540,11 @@ index xxxxxxx..xxxxxxx 100644
 +#ifdef HAVE_IEEE_DCBNL_ETS
  #ifdef CONFIG_MLX5_CORE_EN_DCB
  	mlx5e_dcbnl_init_app(priv);
- #endif
 +#endif
+ #endif
  
  	queue_work(priv->wq, &priv->set_rx_mode_work);
- 
-@@ -5310,10 +6373,12 @@ static void mlx5e_nic_disable(struct mlx5e_priv *priv)
+@@ -5310,9 +6373,11 @@ static void mlx5e_nic_disable(struct mlx5e_priv *priv)
  {
  	struct mlx5_core_dev *mdev = priv->mdev;
  
@@ -2553,23 +2552,21 @@ index xxxxxxx..xxxxxxx 100644
  #ifdef CONFIG_MLX5_CORE_EN_DCB
  	if (priv->netdev->reg_state == NETREG_REGISTERED)
  		mlx5e_dcbnl_delete_app(priv);
- #endif
 +#endif
+ #endif
  
  	rtnl_lock();
- 	if (netif_running(priv->netdev))
-@@ -5380,9 +6445,11 @@ int mlx5e_netdev_init(struct net_device *netdev,
+@@ -5380,8 +6445,10 @@ int mlx5e_netdev_init(struct net_device *netdev,
  	/* netdev init */
  	netif_carrier_off(netdev);
  
 +#ifdef HAVE_NETDEV_RX_CPU_RMAP
  #ifdef CONFIG_MLX5_EN_ARFS
  	netdev->rx_cpu_rmap =  mlx5_eq_table_get_rmap(mdev);
- #endif
 +#endif
+ #endif
  
  	return 0;
- }
 @@ -5406,7 +6473,14 @@ struct net_device *mlx5e_create_netdev(struct mlx5_core_dev *mdev,
  		mdev->mlx5e_res.max_rl_queues = MLX5E_MAX_RL_QUEUES;
  
@@ -2585,30 +2582,28 @@ index xxxxxxx..xxxxxxx 100644
  	if (!netdev) {
  		mlx5_core_err(mdev, "alloc_etherdev_mqs() failed\n");
  		return NULL;
-@@ -5575,9 +6649,11 @@ static void *mlx5e_add(struct mlx5_core_dev *mdev)
+@@ -5575,8 +6649,10 @@ static void *mlx5e_add(struct mlx5_core_dev *mdev)
  	if (err)
  		goto err_unregister_netdev;
  
 +#ifdef HAVE_IEEE_DCBNL_ETS
  #ifdef CONFIG_MLX5_CORE_EN_DCB
  	mlx5e_dcbnl_init_app(priv);
- #endif
 +#endif
+ #endif
  	return priv;
  
- err_unregister_netdev:
-@@ -5601,9 +6677,11 @@ static void mlx5e_remove(struct mlx5_core_dev *mdev, void *vpriv)
+@@ -5601,8 +6677,10 @@ static void mlx5e_remove(struct mlx5_core_dev *mdev, void *vpriv)
  	}
  #endif
  	priv = vpriv;
 +#ifdef HAVE_IEEE_DCBNL_ETS
  #ifdef CONFIG_MLX5_CORE_EN_DCB
  	mlx5e_dcbnl_delete_app(priv);
- #endif
 +#endif
+ #endif
  	mlx5e_sysfs_remove(priv->netdev);
  	unregister_netdev(priv->netdev);
- 	mlx5e_detach(mdev, vpriv);
 @@ -5621,7 +6699,9 @@ static struct mlx5_interface mlx5e_interface = {
  void mlx5e_init(void)
  {
