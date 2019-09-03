@@ -14,7 +14,7 @@ index xxxxxxx..xxxxxxx 100644
  #include <linux/string.h>
  #include <linux/atomic.h>
  #include <linux/blk-mq.h>
-+#if defined(HAVE_BLK_MQ_MAP_QUEUES) && defined(HAVE_BLK_MQ_TAG_SET_HAS_MQ_MAP)
++#if defined(HAVE_BLK_MQ_MAP_QUEUES) && defined(HAVE_BLK_MQ_TAG_SET_HAS_MAP)
  #include <linux/blk-mq-rdma.h>
 +#endif
  #include <linux/types.h>
@@ -353,7 +353,7 @@ index xxxxxxx..xxxxxxx 100644
  	nvme_complete_rq(rq);
  }
  
-+#if defined(HAVE_BLK_MQ_MAP_QUEUES) && defined(HAVE_BLK_MQ_TAG_SET_HAS_MQ_MAP)
++#if defined(HAVE_BLK_MQ_MAP_QUEUES) && defined(HAVE_BLK_MQ_TAG_SET_HAS_MAP)
  static int nvme_rdma_map_queues(struct blk_mq_tag_set *set)
  {
  	struct nvme_rdma_ctrl *ctrl = set->driver_data;
@@ -386,7 +386,7 @@ index xxxxxxx..xxxxxxx 100644
  	.exit_request	= nvme_rdma_exit_request,
  	.init_hctx	= nvme_rdma_init_hctx,
  	.timeout	= nvme_rdma_timeout,
-+#if defined(HAVE_BLK_MQ_MAP_QUEUES) && defined(HAVE_BLK_MQ_TAG_SET_HAS_MQ_MAP)
++#if defined(HAVE_BLK_MQ_MAP_QUEUES) && defined(HAVE_BLK_MQ_TAG_SET_HAS_MAP)
  	.map_queues	= nvme_rdma_map_queues,
 +#endif
 +#ifdef HAVE_BLK_MQ_OPS_POLL
