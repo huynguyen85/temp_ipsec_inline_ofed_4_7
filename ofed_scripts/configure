@@ -353,6 +353,9 @@ CONFIG_BF_POWER_FAILURE_EVENT=${CONFIG_BF_POWER_FAILURE_EVENT:-''}
 
 CONFIG_ENABLE_MLX5_FS_DEBUGFS=${CONFIG_ENABLE_MLX5_FS_DEBUGFS:-''}
 
+SWITCH_SUPPORTED_KVERSION="5.1.0"
+KVERSION=${KVERSION:-$(uname -r)}
+
 main()
 {
         ofed_patch_params=
@@ -666,12 +669,11 @@ main()
                             CONFIG_MLX5_EN_ARFS="y"
                             CONFIG_MLX5_EN_RXNFC="y"
                             CONFIG_MLX5_MPFS="y"
-
-SWITCH_SUPPORTED_KVERSION="5.1.0"
-    if check_kerver ${KVERSION} ${SWITCH_SUPPORTED_KVERSION}; then
                             CONFIG_MLX5_ESWITCH="y"
+    if ! check_kerver ${KVERSION} ${SWITCH_SUPPORTED_KVERSION}; then
+                            CONFIG_MLX5_ESWITCH=
+        echo "Error: CONFIG_MLX5_ESWITCH requires kernel version ${SWITCH_SUPPORTED_KVERSION} or higher (current: ${KVERSION})."
     fi
-#                            CONFIG_MLX5_ESWITCH="y"
                             CONFIG_MLX5_CORE_IPOIB="y"
                             CONFIG_MLX5_EN_SPECIAL_SQ="y"
                             CONFIG_MLX5_INFINIBAND="m"
@@ -1031,7 +1033,6 @@ SWITCH_SUPPORTED_KVERSION="5.1.0"
         done
 
 #Set default values
-KVERSION=${KVERSION:-$(uname -r)}
 MIN_KVERSION="2.6.16"
 SRP_1_5_3_SUPPORTED_KVERSION="3.7.0"
 ODP_SUPPORTED_KVERSION="3.7.0"
