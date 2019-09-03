@@ -603,7 +603,7 @@ index xxxxxxx..xxxxxxx 100644
 +#if defined(HAVE_TCF_TUNNEL_INFO) || defined(HAVE_TC_CLSFLOWER_STATS)
 +static struct mlx5_fc *mlx5e_tc_get_counter(struct mlx5e_tc_flow *flow)
 +{
-+	if (atomic_read(&flow->flags) & MLX5E_TC_FLOW_FLAG_ESWITCH)
++	if (flow->flags & MLX5E_TC_FLOW_FLAG_ESWITCH)
 +		return flow->esw_attr->counter;
 +	else
 +		return flow->nic_attr->counter;
@@ -1705,7 +1705,7 @@ index xxxxxxx..xxxxxxx 100644
 -	    (is_rep_ingress || act_is_encap))
 +	    (is_rep_ingress || act_is_encap
 +#ifdef HAVE_TC_SETUP_CB_EGDEV_REGISTER
-+	     || (atomic_read(&flow->flags) & MLX5E_TC_FLOW_EGRESS)
++	     || (flow->flags & MLX5E_TC_FLOW_EGRESS)
 +#endif
 +))
  		return true;
