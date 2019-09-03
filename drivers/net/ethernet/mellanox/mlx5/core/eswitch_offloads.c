@@ -2366,7 +2366,6 @@ static int esw_vport_add_ingress_acl_modify_metadata(struct mlx5_eswitch *esw,
 		vport->ingress.modify_metadata_rule = NULL;
 		goto out;
 	}
-	kfree(spec);
 
 out:
 	if (err)
