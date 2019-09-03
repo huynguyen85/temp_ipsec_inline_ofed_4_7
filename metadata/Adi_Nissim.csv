@@ -1,3 +1,6 @@
 sep=;
 Change-Id=Ibc334ba595dd76b5fb8f3fc9de94adb91fea07f6; subject=net/mlx5: Disable devcom when configured with miniflow; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=If9a9296ebbdd0b0e715c988617bddcb18fda51ac; subject=en_tc: Add debug counters for connection tracking in sysfs; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=Ia88d83f31ed3e7dbf0701dbd3d9ac93847bdc129; subject=BACKPORTS: Remove extra declaration of function mlx5_devlink_eswitch_inline_mode_set; feature=backports; upstream_status=ignore; general=;
+Change-Id=I42cd7c929065d935e643e432179380b15c4f0b03; subject=compat: Add netif_is_vxlan compat function; feature=backports; upstream_status=ignore; general=;
+Change-Id=I8aa86b163bf41237a59cf3b48b0685b7a5b9c871; subject=Update metadata; feature=backports; upstream_status=ignore; general=;
