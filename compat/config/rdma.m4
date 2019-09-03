@@ -3041,6 +3041,23 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if have netif_is_gretap])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/gre.h>
+	],[
+		struct net_device dev = {};
+
+		netif_is_gretap(&dev);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_NETIF_IS_GRETAP, 1,
+			  [netif_is_gretap is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if net/tc_act/tc_mirred.h exists])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/tc_act/tc_mirred.h>
