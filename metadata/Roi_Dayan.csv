@@ -68,3 +68,12 @@ Change-Id=Ifbdd20bff272dd4007197edb290a6d2bde5a6fb3; subject=net/mlx5e: miniflow
 Change-Id=I7af20e913ea21f40936fbdbd354c82a69291f876; subject=metadata: update miniflow; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I876c5eeeaeb9bc3bf9de317130e9e0ccf97ac766; subject=net/mlx5: Remove usage of magic number; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
 Change-Id=I451c8896f77f905f540a5a28bd14626b68409e4d; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Ide1be57dc091ca990bd8a0594c24e1f7e288e9d2; subject=net/mlx5e: fix double free of spec; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I7becd037bb7b00054452c6f1a0043a988db50153; subject=BACKPORTS: clean format patch; feature=backports; upstream_status=ignore; general=;
+Change-Id=Iafac4ad90c0ac46797afac2965977f21d10966c2; subject=BACKPORTS: Fix compilation with egress tc flag; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ib424a273a6b5449afecb14b4b1ae542cd4c5769d; subject=compat: add gre compat functions; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I16abb3248dadfe5b21d99fafc9fa12111dcba9f9; subject=BACKPORTS: Add switchdev ops ndo when exists; feature=backports; upstream_status=ignore; general=;
+Change-Id=I77852db65fecce2cfd1a5eed4afdc1a812d1f7dc; subject=net/mlx5e: miniflow, fix wrong flags usage and double declaration; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I0ac27956e881e18afebf1add7a7402a62ac63f63; subject=BACKPORTS: update miniflow backport; feature=backports; upstream_status=ignore; general=;
+Change-Id=I5037bb1bec79010ea3b9d95bf51c580e78d55dfd; subject=BACKPORTS: Fix ESWITCH supported version to 4.20; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Id55131e6c07d30db3e1c4240123fb6c23512786d; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
