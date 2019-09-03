@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
 
 Change-Id: I7773179de243537849679e4b224d7567b1602294
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c | 546 ++++++++++++++++++++++-
- 1 file changed, 524 insertions(+), 22 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_rep.c | 571 ++++++++++++++++++++++-
+ 1 file changed, 549 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
 index xxxxxxx..xxxxxxx 100644
@@ -216,9 +216,9 @@ index xxxxxxx..xxxxxxx 100644
 +#endif
  };
 +#endif
- 
 +
-+#ifdef HAVE_DEVLINK_HEALTH_REPORT
+ 
++#if defined(HAVE_DEVLINK_HEALTH_REPORT) || defined(HAVE_SWITCHDEV_OPS)
  static int mlx5e_rep_get_port_parent_id(struct net_device *dev,
  					struct netdev_phys_item_id *ppid)
  {
@@ -858,7 +858,7 @@ index xxxxxxx..xxxxxxx 100644
  	.ndo_set_features        = mlx5e_set_features,
  };
  
-@@ -1487,8 +1861,10 @@ static void mlx5e_build_rep_params(struct net_device *netdev)
+@@ -1487,10 +1861,33 @@ static void mlx5e_build_rep_params(struct net_device *netdev)
  
  	MLX5E_SET_PFLAG(params, MLX5E_PFLAG_PER_CH_STATS, true);
  
@@ -868,8 +868,31 @@ index xxxxxxx..xxxxxxx 100644
 +#endif
  }
  
++#ifdef HAVE_SWITCHDEV_OPS
++int mlx5e_attr_get(struct net_device *dev, struct switchdev_attr *attr)
++{
++    int err = 0;
++
++    switch (attr->id) {
++    case SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
++        err = mlx5e_rep_get_port_parent_id(dev, &attr->u.ppid);
++        break;
++    default:
++        return -EOPNOTSUPP;
++    }
++
++    return err;
++}
++
++static const struct switchdev_ops mlx5e_rep_switchdev_ops = {
++    .switchdev_port_attr_get    = mlx5e_attr_get,
++};
++#endif
++
  static void mlx5e_build_rep_netdev(struct net_device *netdev)
-@@ -1503,10 +1879,17 @@ static void mlx5e_build_rep_netdev(struct net_device *netdev)
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
+@@ -1503,10 +1900,17 @@ static void mlx5e_build_rep_netdev(struct net_device *netdev)
  		netdev->netdev_ops = &mlx5e_netdev_ops_uplink_rep;
  		/* we want a persistent mac for the uplink rep */
  		mlx5_query_nic_vport_mac_address(mdev, 0, netdev->dev_addr);
@@ -887,8 +910,14 @@ index xxxxxxx..xxxxxxx 100644
  #endif
  	} else {
  		netdev->netdev_ops = &mlx5e_netdev_ops_rep;
-@@ -1516,9 +1899,16 @@ static void mlx5e_build_rep_netdev(struct net_device *netdev)
+@@ -1514,11 +1918,22 @@ static void mlx5e_build_rep_netdev(struct net_device *netdev)
+ 		netdev->ethtool_ops = &mlx5e_rep_ethtool_ops;
+ 	}
  
++#ifdef HAVE_SWITCHDEV_OPS
++        netdev->switchdev_ops = &mlx5e_rep_switchdev_ops;
++#endif
++
  	netdev->watchdog_timeo    = 15 * HZ;
  
 -	netdev->features       |= NETIF_F_NETNS_LOCAL;
@@ -906,7 +935,7 @@ index xxxxxxx..xxxxxxx 100644
  	netdev->hw_features    |= NETIF_F_SG;
  	netdev->hw_features    |= NETIF_F_IP_CSUM;
  	netdev->hw_features    |= NETIF_F_IPV6_CSUM;
-@@ -1527,12 +1917,14 @@ static void mlx5e_build_rep_netdev(struct net_device *netdev)
+@@ -1527,12 +1942,14 @@ static void mlx5e_build_rep_netdev(struct net_device *netdev)
  	netdev->hw_features    |= NETIF_F_TSO6;
  	netdev->hw_features    |= NETIF_F_RXCSUM;
  
@@ -922,7 +951,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  static int mlx5e_init_rep(struct mlx5_core_dev *mdev,
-@@ -1863,11 +2255,19 @@ static void mlx5e_uplink_rep_enable(struct mlx5e_priv *priv)
+@@ -1863,11 +2280,19 @@ static void mlx5e_uplink_rep_enable(struct mlx5e_priv *priv)
  	struct net_device *netdev = priv->netdev;
  	struct mlx5_core_dev *mdev = priv->mdev;
  	struct mlx5e_rep_priv *rpriv = priv->ppriv;
@@ -942,7 +971,7 @@ index xxxxxxx..xxxxxxx 100644
  	mlx5e_set_dev_port_mtu(priv);
  
  	INIT_WORK(&rpriv->uplink_priv.reoffload_flows_work,
-@@ -1876,10 +2276,12 @@ static void mlx5e_uplink_rep_enable(struct mlx5e_priv *priv)
+@@ -1876,10 +2301,12 @@ static void mlx5e_uplink_rep_enable(struct mlx5e_priv *priv)
  	mlx5_lag_add(mdev, netdev, false);
  	priv->events_nb.notifier_call = uplink_rep_async_event;
  	mlx5_notifier_register(mdev, &priv->events_nb);
@@ -955,7 +984,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  static void mlx5e_uplink_rep_disable(struct mlx5e_priv *priv)
-@@ -1887,8 +2289,10 @@ static void mlx5e_uplink_rep_disable(struct mlx5e_priv *priv)
+@@ -1887,8 +2314,10 @@ static void mlx5e_uplink_rep_disable(struct mlx5e_priv *priv)
  	struct mlx5_core_dev *mdev = priv->mdev;
  	struct mlx5e_rep_priv *rpriv = priv->ppriv;
  
@@ -966,7 +995,7 @@ index xxxxxxx..xxxxxxx 100644
  #endif
  	mlx5_notifier_unregister(mdev, &priv->events_nb);
  	cancel_work_sync(&rpriv->uplink_priv.reoffload_flows_work);
-@@ -1926,6 +2330,73 @@ static const struct mlx5e_profile mlx5e_uplink_rep_profile = {
+@@ -1926,6 +2355,73 @@ static const struct mlx5e_profile mlx5e_uplink_rep_profile = {
  };
  
  /* e-Switch vport representors */
@@ -1040,7 +1069,7 @@ index xxxxxxx..xxxxxxx 100644
  static int
  mlx5e_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
  {
-@@ -1962,11 +2433,29 @@ mlx5e_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
+@@ -1962,11 +2458,29 @@ mlx5e_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
  			goto err_destroy_netdev;
  
  #ifdef HAVE_MINIFLOW
@@ -1073,7 +1102,7 @@ index xxxxxxx..xxxxxxx 100644
  #endif
  	}
  
-@@ -2006,10 +2495,14 @@ err_detach_netdev:
+@@ -2006,10 +2520,14 @@ err_detach_netdev:
  
  err_unregister_egdev_all:
  #ifdef HAVE_MINIFLOW
@@ -1091,7 +1120,7 @@ index xxxxxxx..xxxxxxx 100644
  
  err_destroy_mdev_resources:
  #endif
-@@ -2040,6 +2533,15 @@ mlx5e_vport_rep_unload(struct mlx5_eswitch_rep *rep)
+@@ -2040,6 +2558,15 @@ mlx5e_vport_rep_unload(struct mlx5_eswitch_rep *rep)
  	mlx5e_detach_netdev(priv);
  	if (rep->vport == MLX5_VPORT_UPLINK) {
  #ifdef HAVE_MINIFLOW
