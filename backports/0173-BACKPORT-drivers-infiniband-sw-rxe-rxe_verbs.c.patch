@@ -43,7 +43,7 @@ index xxxxxxx..xxxxxxx 100644
 +#ifdef HAVE_DEVICE_DMA_OPS
  	dev->dev.dma_ops = &dma_virt_ops;
 +#else
-+	dev->dma_ops = &rxe_dma_mapping_ops;
++	dev->ops.dma_ops = &rxe_dma_mapping_ops;
 +#endif
  	dma_coerce_mask_and_coherent(&dev->dev,
  				     dma_get_required_mask(&dev->dev));
