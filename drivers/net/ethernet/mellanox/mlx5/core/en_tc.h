@@ -220,6 +220,8 @@ int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
 			  int namespace,
 			  struct mlx5e_tc_flow_parse_attr *parse_attr,
 			  gfp_t flags);
+bool mlx5e_is_valid_eswitch_fwd_dev(struct mlx5e_priv *priv,
+				    struct net_device *out_dev);
 
 #else /* CONFIG_MLX5_ESWITCH */
 static inline int  mlx5e_tc_nic_init(struct mlx5e_priv *priv) { return 0; }

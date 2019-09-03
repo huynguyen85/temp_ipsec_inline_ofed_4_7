@@ -5,6 +5,7 @@
 #include <net/gre.h>
 #include "lib/vxlan.h"
 #include "en/tc_tun.h"
+#include "en_tc.h"
 
 static int get_route_and_out_devs(struct mlx5e_priv *priv,
 				  struct net_device *dev,
@@ -46,7 +47,8 @@ static int get_route_and_out_devs(struct mlx5e_priv *priv,
 		*route_dev = dev;
 		if (is_vlan_dev(*route_dev))
 			*out_dev = uplink_dev;
-		else if (mlx5e_eswitch_rep(dev))
+		else if (mlx5e_eswitch_rep(dev) &&
+			 mlx5e_is_valid_eswitch_fwd_dev(priv, dev))
 			*out_dev = *route_dev;
 		else
 			return -EOPNOTSUPP;
