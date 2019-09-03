@@ -62,3 +62,4 @@ Change-Id=Ie9a9013cf45ea98a52763acf71466251ec100c7e; subject=BACKPORTS: Fix RXE 
 Change-Id=Ia21b059bc9c7bd270610bfeedf675d4fe1c92422; subject=BACKPORTS: Add mdev_sysfs.c backport; feature=backports; upstream_status=ignore; general=;
 Change-Id=I3eb226dbd3529a0e02e95692106ceb4acb632fc9; subject=BACKPORTS: Fix backport for 4.12-rc6; feature=backports; upstream_status=ignore; general=;
 Change-Id=I70cf6b51bd82bc94fc2f8252c05a4d4d06212a40; subject=BACKPORTS: Add mde.h backport; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia2b66c17b89e893f603dcb24d81910883bc34c05; subject=BACKPORTS: Fix NETDEV_XMIT_MORE typo; feature=backports; upstream_status=ignore; general=;

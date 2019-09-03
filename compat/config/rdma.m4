@@ -7719,22 +7719,7 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		return 0;
 	],[
 		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_NEDEV_XMIT_MORE, 1,
-			  [netdev_xmit_more is defined])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if netdevice.h has netdev_xmit_more])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/netdevice.h>
-	],[
-		netdev_xmit_more();
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_NEDEV_XMIT_MORE, 1,
+		MLNX_AC_DEFINE(HAVE_NETDEV_XMIT_MORE, 1,
 			  [netdev_xmit_more is defined])
 	],[
 		AC_MSG_RESULT(no)

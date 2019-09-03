@@ -196,7 +196,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct mlx5_ib_ah *mah   = to_mah(address);
  	struct mlx5i_priv *ipriv = epriv->ppriv;
 -
-+#ifdef HAVE_NEDEV_XMIT_MORE
++#ifdef HAVE_NETDEV_XMIT_MORE
  	return mlx5i_sq_xmit(sq, skb, &mah->av, dqpn, ipriv->qkey, netdev_xmit_more());
 +#elif defined(HAVE_SK_BUFF_XMIT_MORE)
 +	return mlx5i_sq_xmit(sq, skb, &mah->av, dqpn, ipriv->qkey, skb->xmit_more);

@@ -29,7 +29,7 @@ index xxxxxxx..xxxxxxx 100644
 -			  struct mlx5_av *av, u32 dqpn, u32 dqkey,
 -			  bool xmit_more);
 +			  struct mlx5_av *av, u32 dqpn, u32 dqkey
-+#if defined(HAVE_SK_BUFF_XMIT_MORE) || defined(HAVE_NEDEV_XMIT_MORE)
++#if defined(HAVE_SK_BUFF_XMIT_MORE) || defined(HAVE_NETDEV_XMIT_MORE)
 +			 , bool xmit_more);
 +#else
 +			);
