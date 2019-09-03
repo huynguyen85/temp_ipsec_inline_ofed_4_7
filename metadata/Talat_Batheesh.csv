@@ -59,3 +59,5 @@ Change-Id=Iec451ae29f73ed427374d5e2c92df8ea3ee85002; subject=BACKPORTS: use rena
 Change-Id=I2d449b7f9a88d1adbdac48cebe26ee38297be747; subject=BACKPORTS: Enable ESWITCH for 5.2; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Id9232ce1f1bf4a435c5fc7e145940c6e50e78963; subject=BACKPORTS: Add backports due 'net/mlx5: Enable devcom' commit; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ie9a9013cf45ea98a52763acf71466251ec100c7e; subject=BACKPORTS: Fix RXE for low kerenels; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia21b059bc9c7bd270610bfeedf675d4fe1c92422; subject=BACKPORTS: Add mdev_sysfs.c backport; feature=backports; upstream_status=ignore; general=;
+Change-Id=I3eb226dbd3529a0e02e95692106ceb4acb632fc9; subject=BACKPORTS: Fix backport for 4.12-rc6; feature=backports; upstream_status=ignore; general=;

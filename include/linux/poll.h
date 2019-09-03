@@ -4,6 +4,7 @@
 #include "../../compat/config.h"
 
 #include_next <linux/poll.h>
+#include_next <uapi/linux/eventpoll.h>
 
 #ifndef EPOLLIN
 #define EPOLLIN		POLLIN
