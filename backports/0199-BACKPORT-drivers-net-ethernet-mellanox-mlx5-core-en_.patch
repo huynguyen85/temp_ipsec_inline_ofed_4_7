@@ -604,7 +604,7 @@ index xxxxxxx..xxxxxxx 100644
 +#if defined(HAVE_TCF_TUNNEL_INFO) || defined(HAVE_TC_CLSFLOWER_STATS)
 +static struct mlx5_fc *mlx5e_tc_get_counter(struct mlx5e_tc_flow *flow)
 +{
-+	if (flow->flags & MLX5E_TC_FLOW_FLAG_ESWITCH)
++	if (mlx5e_is_eswitch_flow(flow))
 +		return flow->esw_attr->counter;
 +	else
 +		return flow->nic_attr->counter;
