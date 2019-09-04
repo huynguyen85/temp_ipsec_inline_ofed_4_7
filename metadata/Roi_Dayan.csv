@@ -79,3 +79,8 @@ Change-Id=I5037bb1bec79010ea3b9d95bf51c580e78d55dfd; subject=BACKPORTS: Fix ESWI
 Change-Id=Id55131e6c07d30db3e1c4240123fb6c23512786d; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Ia186c0252983a48fe94af770629a2b8636e3e31d; subject=BACKPORTS: Fix eswitch flag check; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ia527f5bbc821585b3952bb2661d2a6cb87cc0621; subject=compat: add miniflow support for flow offload; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I97beca01d66770db2dc42453fcd20b94b36732e7; subject=BACKPORTS: move rep_sysfs_attr_group usage outside vport uplink scope; feature=backports; upstream_status=ignore; general=;
+Change-Id=I8a6e4933df657cb25f5bc7ecb569993ed8003efe; subject=BACKPORTS: fix egdev mehcanism; feature=backports; upstream_status=ignore; general=;
+Change-Id=I5e6d357098e94547bafed286488fc000d6c10021; subject=net/mlx5e: Fix double free of parse_attr; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Ib3dced2edcbe2fd0cadb46a74ef8ea641047a465; subject=BACKPORTS: update en_tc.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=If22b145c14cce51f984d866c8d6987f9baccf0b0; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
