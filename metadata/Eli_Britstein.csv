@@ -1,3 +1,7 @@
 sep=;
 Change-Id=Ie851085b97c2daf8bdf554a0d673d95de4b4d116; subject=net/mlx5e: Support tagged tunnel over bond; feature=rebase; upstream_status=accepted; general=;
 Change-Id=I1e83c2cd8f369101aa3ceba8342adddcd61982a7; subject=vf-net-link-name.sh: Omit np suffix; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I32293c27e81f220f8afe2cecea860a73bf38ba62; subject=net/mlx5e: Expose same physical switch_id for all representors; feature=mlx5_asap; upstream_status=accepted; general=;
+Change-Id=Ie19d44e0f9d8a0f162e334449cb8fb7789d7b753; subject=net/mlx5e: Disallow tc redirect offload cases we don't support; feature=mlx5_asap; upstream_status=accepted; general=;
+Change-Id=I4d4e70c940c1ebd9dea93fdd4b2b4ae284f18b0c; subject=BACKPORTS: same-swid; feature=backports; upstream_status=ignore; general=;
+Change-Id=I577f90b251364d27d6ac8e97bde716cb87f23ed5; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
