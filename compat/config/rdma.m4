@@ -1281,7 +1281,7 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		#include <linux/ptp_clock_kernel.h>
 	],[
 		struct ptp_clock_info info = {
-			..gettimex64 = NULL,
+			.gettimex64 = NULL,
 		};
 
 		return 0;
@@ -2309,12 +2309,12 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 
 	AC_MSG_CHECKING([if ndo_alloc_mr has 4 params])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/netdevice.h>
+		#include <rdma/ib_verbs.h>
 
 		static struct ib_mr *rxe_alloc_mr(struct ib_pd *ibpd, enum ib_mr_type mr_type,
 						  u32 max_num_sg, struct ib_udata *udata)
 		{
-			return 0;
+			return NULL;
 		}
 	],[
 		struct ib_device_ops rxe_dev_ops = {
@@ -6023,8 +6023,10 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	AC_MSG_CHECKING([if build_bug.h has static_assert])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/build_bug.h>
+                #define A 5
+                #define B 6
 	],[
-                static_assert(0);
+                static_assert(A < B);
 
                 return 0;
         ],[
@@ -7995,21 +7997,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if mm.h has get_user_pages_longterm])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/mm.h>
-	],[
-		get_user_pages_longterm( 0, 0, 0, NULL, NULL);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_GET_USER_PAGES_LONGTERM, 1,
-			[get_user_pages has 5 params])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
 	AC_MSG_CHECKING([if mm.h has FOLL_LONGTERM])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/mm.h>
@@ -9033,15 +9020,15 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		return 0;
 	],[
 		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_REGISTER_NET_SYSCTL, 1,
+		MLNX_AC_DEFINE(HAVE_REGISTER_NET_SYSCTL, 1_SHOULD_BE_FXED_FAILED_ON_PURPOUSE,
 			  [register_net_sysctl is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if net_namespace.h has netlink_ns_capable])
+	AC_MSG_CHECKING([if netlink.h has netlink_ns_capable])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <net/net_namespace.h>
+		#include <linux/netlink.h_SHOULD_BE_FXED_FAILED_ON_PURPOUSE>
 	],[
 		netlink_ns_capable(NULL, NULL, 0);
 
@@ -11679,7 +11666,7 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/if_link.h>
 	],[
-		struct ifla_vf_stats = {
+		struct ifla_vf_stats x = {
 			.tx_broadcast = 0,
 		};
 		return 0;
@@ -11695,7 +11682,7 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/if_link.h>
 	],[
-		struct ifla_vf_stats = {
+		struct ifla_vf_stats x = {
 			.rx_dropped = 0,
 			.tx_dropped = 0,
 		};
