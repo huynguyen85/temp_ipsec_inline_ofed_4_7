@@ -21,6 +21,9 @@
 #include <net/tc_act/tc_csum.h>
 #include <net/tc_act/tc_skbedit.h>
 #include <net/tc_act/tc_sample.h>
+#ifdef HAVE_MINIFLOW
+#include <net/tc_act/tc_ct.h>
+#endif
 
 int tc_setup_flow_action(struct flow_action *flow_action,
 			 const struct tcf_exts *exts)
@@ -76,6 +79,10 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 			entry->tunnel = tcf_tunnel_info(act);
 		} else if (is_tcf_tunnel_release(act)) {
 			entry->id = FLOW_ACTION_TUNNEL_DECAP;
+#ifdef HAVE_MINIFLOW
+		} else if (is_tcf_ct(act)) {
+			entry->id = FLOW_ACTION_CT;
+#endif
 		} else if (is_tcf_pedit(act)) {
 			for (k = 0; k < tcf_pedit_nkeys(act); k++) {
 				switch (tcf_pedit_cmd(act, k)) {

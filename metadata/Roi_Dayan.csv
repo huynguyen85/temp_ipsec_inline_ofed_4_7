@@ -78,3 +78,4 @@ Change-Id=I0ac27956e881e18afebf1add7a7402a62ac63f63; subject=BACKPORTS: update m
 Change-Id=I5037bb1bec79010ea3b9d95bf51c580e78d55dfd; subject=BACKPORTS: Fix ESWITCH supported version to 4.20; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Id55131e6c07d30db3e1c4240123fb6c23512786d; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Ia186c0252983a48fe94af770629a2b8636e3e31d; subject=BACKPORTS: Fix eswitch flag check; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia527f5bbc821585b3952bb2661d2a6cb87cc0621; subject=compat: add miniflow support for flow offload; feature=mlx5e_st_ct; upstream_status=NA; general=;

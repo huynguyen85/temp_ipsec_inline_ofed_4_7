@@ -152,6 +152,9 @@ enum flow_action_id {
 	FLOW_ACTION_QUEUE,
 	FLOW_ACTION_SAMPLE,
 	FLOW_ACTION_POLICE,
+#ifdef HAVE_MINIFLOW
+	FLOW_ACTION_CT,
+#endif
 };
 
 /* This is mirroring enum pedit_header_type definition for easy mapping between
