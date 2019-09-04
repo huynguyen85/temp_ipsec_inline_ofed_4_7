@@ -2488,6 +2488,22 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if flow_dissector.h has flow_dissector_key_vlan.vlan_tpid])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/flow_dissector.h>
+	],[
+		struct flow_dissector_key_vlan filter_dev_key;
+		filter_dev_key.vlan_tpid = 0;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_FLOW_DISSECTOR_KEY_VLAN_TPID, 1,
+			  [HAVE_FLOW_DISSECTOR_KEY_VLAN_TPID is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if flow_dissector.h enum flow_dissector_key_keyid has FLOW_DISSECTOR_KEY_CVLAN])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/flow_dissector.h>
