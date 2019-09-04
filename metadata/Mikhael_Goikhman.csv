@@ -13,3 +13,4 @@ Change-Id=Id2f9bccbb48a6a6f6a5b2e6337b6bc6e4515aaa1; subject=net/mlx5e: Allow co
 Change-Id=I8638dc86e87a49b0d73aa9f290fd7f54422025a1; subject=net/mlx5e: Add 'hw_lro' flag to ethtool private flags; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ifa3027d19c307979b215a8786d2e8a84d1d4d577; subject=net/mlx5e: Hide tx_xdp_hw_checksum flag when XDP not supported; feature=backports; upstream_status=ignore; general=;
 Change-Id=I947e420944c078ab24b86e23f5084d4c5cba11fd; subject=net/mlx5e: Complete implementation of set_pflag_per_channel_stats; feature=mlx5e_counter_groups; upstream_status=NA; general=;
+Change-Id=I8390366db140f8d1856f2db06b69c763421a1e55; subject=BACKPORTS: net/mlx5: Fix definition of IS_HW_LRO, IS_SW_LRO and such; feature=backports; upstream_status=ignore; general=;

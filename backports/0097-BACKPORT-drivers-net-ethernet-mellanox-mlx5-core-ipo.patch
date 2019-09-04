@@ -41,7 +41,7 @@ index xxxxxxx..xxxxxxx 100644
 -	params->lro_en = false;
 +#ifdef CONFIG_COMPAT_LRO_ENABLED_IPOIB
 +	params->lro_en = true;
-+	params->pflags &= ~MLX5E_PFLAG_HWLRO;
++	MLX5E_SET_PFLAG(params, MLX5E_PFLAG_HWLRO, false);
 +#else
 +       params->lro_en = false;
 +#endif

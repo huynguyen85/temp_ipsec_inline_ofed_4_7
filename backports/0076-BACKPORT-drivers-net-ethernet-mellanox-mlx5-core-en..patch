@@ -190,9 +190,9 @@ index xxxxxxx..xxxxxxx 100644
  
 +#ifdef CONFIG_COMPAT_LRO_ENABLED_IPOIB
 +#define IS_HW_LRO(params) \
-+	((params)->lro_en && ((params)->pflags & MLX5E_PFLAG_HWLRO))
++	((params)->lro_en && MLX5E_GET_PFLAG(params, MLX5E_PFLAG_HWLRO))
 +#define IS_SW_LRO(params) \
-+	((params)->lro_en && !((params)->pflags & MLX5E_PFLAG_HWLRO))
++	((params)->lro_en && !MLX5E_GET_PFLAG(params, MLX5E_PFLAG_HWLRO))
 +
 +/* SW LRO defines for MLX5 */
 +#define MLX5E_LRO_MAX_DESC	32
