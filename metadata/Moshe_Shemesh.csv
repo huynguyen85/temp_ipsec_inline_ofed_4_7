@@ -5,3 +5,7 @@ Change-Id=I5051027ad080d7187bc9e43d923caacdd3f6b905; subject=net/mlx5: Add QinQ 
 Change-Id=I0072ed503da6004f02d1f768da0b084aa6b66b89; subject=net/mlx5e: Fix wrong vlan protocol 802.1ad used for the switchdev mode; feature=mlx5_en_bugs; upstream_status=NA; general=;
 Change-Id=I5be27c1257b49d3df4aa712417c40bdd8a787c8a; subject=net/mlx4_core: Fix memory leak in VGT+ structures; feature=mlx4_core_bugs; upstream_status=NA; general=;
 Change-Id=I59af93f4db4e219b071510def718025219251848; subject=net/mlx5: Enable VST with QinQ option by vport_context; feature=mlx5_qinq_vst; upstream_status=NA; general=;
+Change-Id=Ifb82c8fe102f395966fa044ce0609cfe67522de3; subject=net/mlx5: Fix forced completion access non initialized command entry; feature=mlx5_core_bugs; upstream_status=in_progress; general=;
+Change-Id=I0712611dcab86ff851fc4a3c7abe27b002c708a5; subject=net/mlx5: Fix use after free of command outbox; feature=mlx5_core_bugs; upstream_status=in_progress; general=;
+Change-Id=I1d9f3f9dc236677a7c8e835793d54028276d9201; subject=net/mlx5: Avoid access command output after teardown; feature=mlx5_core_bugs; upstream_status=in_progress; general=;
+Change-Id=I35fc32490bc6ea35414533d849fa6e631e163c64; subject=BACKPORTS: fix backports cmd.c; feature=backports; upstream_status=ignore; general=;

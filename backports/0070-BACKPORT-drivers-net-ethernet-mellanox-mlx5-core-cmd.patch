@@ -4,7 +4,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/cmd.c
 Change-Id: Iae7431d219f8a38726ea7f9f1475e3ff0a6d247f
 ---
  drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 57 +++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
+ ofed_scripts/configure                        | 10 +++--
+ 2 files changed, 63 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
 index xxxxxxx..xxxxxxx 100644
@@ -32,9 +33,9 @@ index xxxxxxx..xxxxxxx 100644
 +	ktime_get_ts(&ent->ts1);
 +#endif
  	cmd_mode = cmd->mode;
+ 	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
  
- 	if (ent->callback)
-@@ -1042,6 +1050,9 @@ static int mlx5_cmd_invoke(struct mlx5_core_dev *dev, struct mlx5_cmd_msg *in,
+@@ -1043,6 +1051,9 @@ static int mlx5_cmd_invoke(struct mlx5_core_dev *dev, struct mlx5_cmd_msg *in,
  	struct mlx5_cmd *cmd = &dev->cmd;
  	struct mlx5_cmd_work_ent *ent;
  	struct mlx5_cmd_stats *stats;
@@ -44,7 +45,7 @@ index xxxxxxx..xxxxxxx 100644
  	int err = 0;
  	s64 ds;
  	u16 op;
-@@ -1077,7 +1088,14 @@ static int mlx5_cmd_invoke(struct mlx5_core_dev *dev, struct mlx5_cmd_msg *in,
+@@ -1078,7 +1089,14 @@ static int mlx5_cmd_invoke(struct mlx5_core_dev *dev, struct mlx5_cmd_msg *in,
  	if (err == -ETIMEDOUT)
  		goto out;
  
@@ -59,7 +60,7 @@ index xxxxxxx..xxxxxxx 100644
  	op = MLX5_GET(mbox_in, in->first.data, opcode);
  	if (op < ARRAY_SIZE(cmd->stats)) {
  		stats = &cmd->stats[op];
-@@ -1206,13 +1224,22 @@ static struct mlx5_cmd_mailbox *alloc_cmd_box(struct mlx5_core_dev *dev,
+@@ -1207,13 +1225,22 @@ static struct mlx5_cmd_mailbox *alloc_cmd_box(struct mlx5_core_dev *dev,
  	if (!mailbox)
  		return ERR_PTR(-ENOMEM);
  
@@ -82,7 +83,7 @@ index xxxxxxx..xxxxxxx 100644
  	mailbox->next = NULL;
  
  	return mailbox;
-@@ -1515,6 +1542,9 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
+@@ -1516,6 +1543,9 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
  	struct mlx5_cmd *cmd = &dev->cmd;
  	struct mlx5_cmd_work_ent *ent;
  	mlx5_cmd_cbk_t callback;
@@ -92,7 +93,7 @@ index xxxxxxx..xxxxxxx 100644
  	void *context;
  	int err;
  	int i;
-@@ -1545,12 +1575,20 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
+@@ -1546,12 +1576,20 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
  			}
  
  			if (ent->callback)
@@ -110,10 +111,10 @@ index xxxxxxx..xxxxxxx 100644
 +#else
 +			ktime_get_ts(&ent->ts2);
 +#endif
- 			memcpy(ent->out->first.data, ent->lay->out, sizeof(ent->lay->out));
- 			dump_command(dev, ent, 0);
- 			if (!ent->ret) {
-@@ -1572,7 +1610,14 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
+ 			if (!pci_channel_offline(dev->pdev) &&
+ 			    dev->state != MLX5_DEVICE_STATE_INTERNAL_ERROR) {
+ 				memcpy(ent->out->first.data, ent->lay->out, sizeof(ent->lay->out));
+@@ -1576,7 +1614,14 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
  				free_ent(cmd, ent->idx);
  
  			if (ent->callback) {
@@ -128,7 +129,7 @@ index xxxxxxx..xxxxxxx 100644
  				if (ent->op < ARRAY_SIZE(cmd->stats)) {
  					stats = &cmd->stats[ent->op];
  					spin_lock_irqsave(&stats->lock, flags);
-@@ -1943,7 +1988,11 @@ static int alloc_cmd_page(struct mlx5_core_dev *dev, struct mlx5_cmd *cmd)
+@@ -1942,7 +1987,11 @@ static int alloc_cmd_page(struct mlx5_core_dev *dev, struct mlx5_cmd *cmd)
  {
  	struct device *ddev = dev->device;
  
@@ -140,7 +141,7 @@ index xxxxxxx..xxxxxxx 100644
  						&cmd->alloc_dma, GFP_KERNEL);
  	if (!cmd->cmd_alloc_buf)
  		return -ENOMEM;
-@@ -1958,7 +2007,11 @@ static int alloc_cmd_page(struct mlx5_core_dev *dev, struct mlx5_cmd *cmd)
+@@ -1957,7 +2006,11 @@ static int alloc_cmd_page(struct mlx5_core_dev *dev, struct mlx5_cmd *cmd)
  
  	dma_free_coherent(ddev, MLX5_ADAPTER_PAGE_SIZE, cmd->cmd_alloc_buf,
  			  cmd->alloc_dma);
@@ -152,7 +153,7 @@ index xxxxxxx..xxxxxxx 100644
  						2 * MLX5_ADAPTER_PAGE_SIZE - 1,
  						&cmd->alloc_dma, GFP_KERNEL);
  	if (!cmd->cmd_alloc_buf)
-@@ -2309,7 +2362,11 @@ static ssize_t real_miss_store(struct device *dev, struct device_attribute *attr
+@@ -2308,7 +2361,11 @@ static ssize_t real_miss_store(struct device *dev, struct device_attribute *attr
  	return count;
  }
  
