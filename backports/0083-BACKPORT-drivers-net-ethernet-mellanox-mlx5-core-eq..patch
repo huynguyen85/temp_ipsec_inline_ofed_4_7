@@ -52,7 +52,7 @@ index xxxxxxx..xxxxxxx 100644
 +#ifdef HAVE_PCI_IRQ_API
 +       eq->irqn = pci_irq_vector(dev->pdev, vecidx);
 +#else
-+	eq->irqn = mlx5_get_msix_vec(dev->pdev, vecidx);
++	eq->irqn = mlx5_get_msix_vec(dev, vecidx);
 +#endif
  	eq->dev = dev;
  	eq->doorbell = priv->uar->map + MLX5_EQ_DOORBEL_OFFSET;

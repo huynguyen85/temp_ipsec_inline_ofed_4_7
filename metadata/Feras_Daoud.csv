@@ -60,3 +60,4 @@ Change-Id=Iae1d84bcbc1e5740841575c7285b68d3cf35e962; subject=revert BACKPORTS: E
 Change-Id=I4a71a466e44cce0376fabbd3ea30b38f630ea131; subject=BACKPORTS: Fix en_tc backports; feature=backports; upstream_status=ignore; general=;
 Change-Id=I62f909ab503367556eac31f319fd7d82011480b7; subject=Revert "revert BACKPORTS: Enable ESWITCH for 5.2"; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I81875e9e3425c30061be81efafa40b89a0b21566; subject=BACKPORTS: Fix IPoIB backports; feature=backports; upstream_status=ignore; general=;
+Change-Id=I42b11660826ab8a6aacc8da8dd91e8b0669fd32f; subject=BACKPORTS: Fix eq.c backports; feature=backports; upstream_status=ignore; general=;
