@@ -2502,7 +2502,7 @@ void ib_set_device_ops(struct ib_device *dev, const struct ib_device_ops *ops)
 	SET_DEVICE_OP(dev_ops, set_vf_guid);
 	SET_DEVICE_OP(dev_ops, set_vf_link_state);
 	SET_DEVICE_OP(dev_ops, unmap_fmr);
-	/* EXP */
+
 	SET_DEVICE_OP(dev_ops, exp_alloc_mr);
 	SET_DEVICE_OP(dev_ops, exp_modify_cq);
 	SET_DEVICE_OP(dev_ops, exp_create_qp);
@@ -2512,6 +2512,13 @@ void ib_set_device_ops(struct ib_device *dev, const struct ib_device_ops *ops)
 	SET_DEVICE_OP(dev_ops, exp_destroy_dct);
 	SET_DEVICE_OP(dev_ops, exp_query_dct);
 	SET_DEVICE_OP(dev_ops, exp_arm_dct);
+	SET_DEVICE_OP(dev_ops, exp_get_unmapped_area);
+	SET_DEVICE_OP(dev_ops, exp_set_context_attr);
+	SET_DEVICE_OP(dev_ops, exp_alloc_dm);
+	SET_DEVICE_OP(dev_ops, exp_free_dm);
+	SET_DEVICE_OP(dev_ops, exp_memcpy_dm);
+	SET_DEVICE_OP(dev_ops, exp_invalidate_range);
+	SET_DEVICE_OP(dev_ops, exp_prefetch_mr);
 
 	SET_DEVICE_OP(dev_ops, create_nvmf_backend_ctrl);
 	SET_DEVICE_OP(dev_ops, destroy_nvmf_backend_ctrl);

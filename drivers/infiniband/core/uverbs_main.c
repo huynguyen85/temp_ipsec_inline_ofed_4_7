@@ -656,10 +656,7 @@ static ssize_t verify_hdr(struct ib_uverbs_cmd_hdr *hdr,
 	return 0;
 }
 
-static int (*uverbs_exp_cmd_table[])(struct uverbs_attr_bundle *attrs/*
-				     struct ib_uverbs_file *file,
-				     struct ib_udata *ucore,
-				     struct ib_udata *uhw*/) = {
+static int (*uverbs_exp_cmd_table[])(struct uverbs_attr_bundle *attrs) = {
 	[IB_USER_VERBS_EXP_CMD_CREATE_QP]	= ib_uverbs_exp_create_qp,
 	[IB_USER_VERBS_EXP_CMD_MODIFY_CQ]	= ib_uverbs_exp_modify_cq,
 	[IB_USER_VERBS_EXP_CMD_MODIFY_QP]	= ib_uverbs_exp_modify_qp,
@@ -683,8 +680,8 @@ static int (*uverbs_exp_cmd_table[])(struct uverbs_attr_bundle *attrs/*
 	[IB_USER_VERBS_EXP_CMD_DESTROY_RWQ_IND_TBL] = ib_uverbs_exp_destroy_rwq_ind_table,
 	[IB_USER_VERBS_EXP_CMD_SET_CTX_ATTR]	= ib_uverbs_exp_set_context_attr,
 	[IB_USER_VERBS_EXP_CMD_CREATE_SRQ]	= ib_uverbs_exp_create_srq,
-// 	[IB_USER_VERBS_EXP_CMD_ALLOC_DM]	= ib_uverbs_exp_alloc_dm,
-// 	[IB_USER_VERBS_EXP_CMD_FREE_DM]		= ib_uverbs_exp_free_dm,
+	[IB_USER_VERBS_EXP_CMD_ALLOC_DM]	= ib_uverbs_exp_alloc_dm,
+	[IB_USER_VERBS_EXP_CMD_FREE_DM]		= ib_uverbs_exp_free_dm,
 };
 
 
@@ -708,10 +705,9 @@ static ssize_t verify_exp_hdr(struct ib_uverbs_cmd_hdr *hdr,
 		if (!hdr->out_words && !ex_hdr->provider_out_words)
 			return -EINVAL;
 
-// 		if (!access_ok(VERIFY_WRITE,
-// 					u64_to_user_ptr(ex_hdr->response),
-// 					(hdr->out_words + ex_hdr->provider_out_words) * 8))
-// 			return -EFAULT;
+		if (!access_ok(u64_to_user_ptr(ex_hdr->response),
+			       (hdr->out_words + ex_hdr->provider_out_words) * 8))
+			return -EFAULT;
 	} else {
 		if (hdr->out_words || ex_hdr->provider_out_words)
 			return -EINVAL;
@@ -918,12 +914,6 @@ static ssize_t ib_uverbs_write(struct file *filp, const char __user *buf,
 			u64_to_user_ptr(ex_hdr.response) + bundle.ucore.outlen,
 			ex_hdr.provider_in_words * 8,
 			ex_hdr.provider_out_words * 8);
-/* TALAT TODO _ Yoni should provide a functionality that tell if we are in exp flow 
-		if (exp_cmd) {
-			&bundle.ucore.src = IB_UDATA_EXP_CMD;
-			&bundle.driver_udata.src = IB_UDATA_EXP_CMD;
-		}
-*/
 	}
 
 	ret = method_elm->handler(&bundle);

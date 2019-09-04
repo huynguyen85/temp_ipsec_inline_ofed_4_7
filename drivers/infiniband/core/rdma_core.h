@@ -161,7 +161,6 @@ struct uverbs_api {
 	struct uverbs_api_write_method notsupp_method;
 	const struct uverbs_api_write_method **write_methods;
 	const struct uverbs_api_write_method **write_ex_methods;
-	const struct uverbs_api_write_method **write_exp_methods;
 };
 
 /*
