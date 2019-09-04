@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
 
 Change-Id: I4357f1536382d593df2ea8478e60cbf24b59a654
 ---
- drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c | 91 ++++++++++++++++++++++-
- 1 file changed, 89 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c | 105 +++++++++++++++++++++-
+ 1 file changed, 103 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
 index xxxxxxx..xxxxxxx 100644
@@ -121,15 +121,39 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  int mlx5_irq_table_create(struct mlx5_core_dev *dev)
-@@ -287,6 +330,7 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
- 	if (!table->irq)
+@@ -273,6 +316,9 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
+ 		      1 << MLX5_CAP_GEN(dev, log_max_eq);
+ 	int nvec;
+ 	int err;
++#ifndef HAVE_PCI_IRQ_API
++	int i;
++#endif
+ 
+ 	if (mlx5_core_is_sf(dev))
+ 		return 0;
+@@ -284,9 +330,21 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
  		return -ENOMEM;
  
+ 	table->irq = kcalloc(nvec, sizeof(*table->irq), GFP_KERNEL);
++#ifdef HAVE_PCI_IRQ_API
+ 	if (!table->irq)
+ 		return -ENOMEM;
++#else
++	priv->msix_arr = kcalloc(nvec, sizeof(*priv->msix_arr), GFP_KERNEL);
++	if (!priv->msix_arr || !table->irq) {
++		err = -ENOMEM;
++		goto err_free_irq;
++	}
+ 
++	for (i = 0; i < nvec; i++)
++		priv->msix_arr[i].entry = i;
++#endif
++
 +#ifdef HAVE_PCI_IRQ_API
  	nvec = pci_alloc_irq_vectors(dev->pdev, MLX5_IRQ_VEC_COMP_BASE + 1,
  				     nvec, PCI_IRQ_MSIX);
  	if (nvec < 0) {
-@@ -295,6 +339,31 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
+@@ -295,6 +353,31 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
  	}
  
  	table->nvec = nvec;
@@ -161,7 +185,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	err = irq_set_rmap(dev);
  	if (err)
-@@ -317,15 +386,23 @@ err_set_affinity:
+@@ -317,15 +400,23 @@ err_set_affinity:
  err_request_irqs:
  	irq_clear_rmap(dev);
  err_set_rmap:
@@ -185,7 +209,7 @@ index xxxxxxx..xxxxxxx 100644
  	int i;
  
  	if (mlx5_core_is_sf(dev))
-@@ -338,8 +415,18 @@ void mlx5_irq_table_destroy(struct mlx5_core_dev *dev)
+@@ -338,8 +429,18 @@ void mlx5_irq_table_destroy(struct mlx5_core_dev *dev)
  	irq_clear_rmap(dev);
  	clear_comp_irqs_affinity_hints(dev);
  	for (i = 0; i < table->nvec; i++)
