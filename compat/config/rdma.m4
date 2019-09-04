@@ -596,6 +596,26 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if struct devlink_ops.reload has extack])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/devlink.h>
+		static int mlx4_devlink_reload(struct devlink *devlink,
+					       struct netlink_ext_ack *extack) {
+			return 0;
+		}
+	],[
+		static const struct devlink_ops dlops = {
+			.reload = mlx4_devlink_reload,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_DEVLINK_RELAOD_EXTACK, 1,
+			  [struct devlink_ops.relaod has extack])
+	],[
+		AC_MSG_RESULT(no)
+	])
 	AC_MSG_CHECKING([if struct devlink_ops has eswitch_encap_mode_set/get])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/devlink.h>
