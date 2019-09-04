@@ -1191,7 +1191,6 @@ static void mlx5e_tc_del_fdb_flow_simple(struct mlx5e_priv *priv,
 
 	if (flow_flag_test(flow, NOT_READY)) {
 		remove_unready_flow(flow);
-		kvfree(attr->parse_attr);
 		return;
 	}
 
@@ -1207,7 +1206,6 @@ static void mlx5e_tc_del_fdb_flow_simple(struct mlx5e_priv *priv,
 	for (out_index = 0; out_index < MLX5_MAX_FLOW_FWD_VPORTS; out_index++)
 		if (attr->dests[out_index].flags & MLX5_ESW_DEST_ENCAP)
 			mlx5e_detach_encap(priv, flow, out_index);
-	kvfree(attr->parse_attr);
 
 	if (attr->action & MLX5_FLOW_CONTEXT_ACTION_MOD_HDR)
 		mlx5e_detach_mod_hdr(priv, flow);
