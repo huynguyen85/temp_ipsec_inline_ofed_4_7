@@ -1442,7 +1442,7 @@ static int devx_handle_mkey_indirect(struct devx_obj *obj,
 	spin_lock_irqsave(&table->lock, flags);
 	err = radix_tree_insert(&table->tree, mlx5_mkey_to_idx(mkey->key),
 				mkey);
-	spin_lock_irqsave(&table->lock, flags);
+	spin_unlock_irqrestore(&table->lock, flags);
 	return err;
 }
 
@@ -1499,7 +1499,7 @@ static void devx_cleanup_mkey(struct devx_obj *obj)
 
 	spin_lock_irqsave(&table->lock, flags);
 	radix_tree_delete(&table->tree, mlx5_mkey_to_idx(obj->devx_mr.mmkey.key));
-	spin_lock_irqsave(&table->lock, flags);
+	spin_unlock_irqrestore(&table->lock, flags);
 }
 
 static void devx_cleanup_subscription(struct mlx5_ib_dev *dev,
