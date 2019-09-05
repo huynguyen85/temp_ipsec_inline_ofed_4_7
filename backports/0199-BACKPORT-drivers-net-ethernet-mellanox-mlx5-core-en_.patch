@@ -3,7 +3,7 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
 
 Change-Id: I9f86790002164aea7b666ef5a4d23630a8db74c3
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 1004 +++++++++++++++++++----
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   | 1004 ++++++++++++++---
  1 file changed, 860 insertions(+), 144 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
@@ -1870,7 +1870,7 @@ index xxxxxxx..xxxxxxx 100644
 +	int err;
 +
 +	num_ent = tcf_exts_num_actions(f->exts);
-+	ret = kzalloc(sizeof(*ret) + (num_ent + 10) * sizeof(ret->action.entries[0]),
++	ret = kzalloc(sizeof(*ret) + num_ent * sizeof(ret->action.entries[0]),
 +		      GFP_KERNEL);
 +	if (!ret)
 +		return ERR_PTR(-ENOMEM);
