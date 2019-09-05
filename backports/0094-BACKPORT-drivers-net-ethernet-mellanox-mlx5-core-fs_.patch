@@ -4,8 +4,8 @@ Subject: [PATCH] BACKPORT:
 
 Change-Id: I75de1dfbee41f6d7ec8436ec21c7754f47abf07b
 ---
- .../net/ethernet/mellanox/mlx5/core/fs_counters.c  | 86 ++++++++++++++++++++--
- 1 file changed, 78 insertions(+), 8 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/fs_counters.c  | 69 ++++++++++++++++++++--
+ 1 file changed, 65 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_counters.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_counters.c
 index xxxxxxx..xxxxxxx 100644
@@ -146,52 +146,24 @@ index xxxxxxx..xxxxxxx 100644
  	int max_bulk_len;
  	int max_out_len;
  
--	spin_lock_init(&fc_stats->counters_idr_lock);
--	idr_init(&fc_stats->counters_idr);
 +#ifdef USE_IDR
-+       spin_lock_init(&fc_stats->counters_idr_lock);
-+       idr_init(&fc_stats->counters_idr);
+ 	spin_lock_init(&fc_stats->counters_idr_lock);
+ 	idr_init(&fc_stats->counters_idr);
 +#endif
  	INIT_LIST_HEAD(&fc_stats->counters);
  	init_llist_head(&fc_stats->addlist);
  	init_llist_head(&fc_stats->dellist);
-@@ -445,6 +503,10 @@ int mlx5_init_fc_stats(struct mlx5_core_dev *dev)
- 	if (!fc_stats->bulk_query_out)
- 		return -ENOMEM;
- 
-+#if (LINUX_VERSION_CODE <= KERNEL_VERSION(3,6,11))
-+	fc_stats->fc_cache_name = fc_stats->bulk_query_out;
-+#endif
-+
- 	fc_stats->wq = create_singlethread_workqueue("mlx5_fc");
- 	if (!fc_stats->wq)
- 		goto err_wq_create;
-@@ -452,6 +514,9 @@ int mlx5_init_fc_stats(struct mlx5_core_dev *dev)
- 	fc_stats->sampling_interval = MLX5_FC_STATS_PERIOD;
- 	INIT_DELAYED_WORK(&fc_stats->work, mlx5_fc_stats_work);
- 
-+#if (LINUX_VERSION_CODE > KERNEL_VERSION(3,6,11))
-+ 	kfree(fc_stats->bulk_query_out);
-+#endif
- 	mlx5_fc_pool_init(&fc_stats->fc_pool, dev);
- 	return 0;
- 
-@@ -479,8 +544,12 @@ void mlx5_cleanup_fc_stats(struct mlx5_core_dev *dev)
+@@ -479,7 +537,9 @@ void mlx5_cleanup_fc_stats(struct mlx5_core_dev *dev)
  		mlx5_fc_release(dev, counter);
  
  	mlx5_fc_pool_cleanup(&fc_stats->fc_pool);
--	idr_destroy(&fc_stats->counters_idr);
--	kfree(fc_stats->bulk_query_out);
 +#ifdef USE_IDR
-+       idr_destroy(&fc_stats->counters_idr);
+ 	idr_destroy(&fc_stats->counters_idr);
 +#endif
-+#if (LINUX_VERSION_CODE <= KERNEL_VERSION(3,6,11))
-+       kfree(fc_stats->bulk_query_out);
-+#endif
+ 	kfree(fc_stats->bulk_query_out);
  }
  
- int mlx5_fc_query(struct mlx5_core_dev *dev, struct mlx5_fc *counter,
-@@ -505,6 +574,7 @@ void mlx5_fc_query_cached(struct mlx5_fc *counter,
+@@ -505,6 +565,7 @@ void mlx5_fc_query_cached(struct mlx5_fc *counter,
  	counter->lastpackets = c.packets;
  }
  
@@ -199,7 +171,7 @@ index xxxxxxx..xxxxxxx 100644
  void mlx5_fc_queue_stats_work(struct mlx5_core_dev *dev,
  			      struct delayed_work *dwork,
  			      unsigned long delay)
-@@ -522,7 +592,7 @@ void mlx5_fc_update_sampling_interval(struct mlx5_core_dev *dev,
+@@ -522,7 +583,7 @@ void mlx5_fc_update_sampling_interval(struct mlx5_core_dev *dev,
  	fc_stats->sampling_interval = min_t(unsigned long, interval,
  					    fc_stats->sampling_interval);
  }
