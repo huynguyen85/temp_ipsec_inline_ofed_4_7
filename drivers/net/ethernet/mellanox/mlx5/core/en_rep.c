@@ -1892,7 +1892,7 @@ static void mlx5e_uplink_rep_disable(struct mlx5e_priv *priv)
 #endif
 	mlx5_notifier_unregister(mdev, &priv->events_nb);
 	cancel_work_sync(&rpriv->uplink_priv.reoffload_flows_work);
-	mlx5_lag_remove(mdev, false);
+	mlx5_lag_remove(mdev, true);
 }
 
 static const struct mlx5e_profile mlx5e_rep_profile = {
