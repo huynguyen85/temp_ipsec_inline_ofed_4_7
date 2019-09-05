@@ -47,3 +47,4 @@ Change-Id=Iaeb5f92de416c6a2e4110e6be58ab1b91612f427; subject=nvmet-tcp: Add TOS 
 Change-Id=I67decf0109b481c9a1ea590cb0c583804657668d; subject=Revert "nvme-rdma: Add association between ctrl and transport dev"; feature=rebase; upstream_status=ignore; general=;
 Change-Id=Iabba29b395131bf21f0a7b7a214657430be4baa0; subject=BACKPORTS: Fix nvme-rdma backports; feature=backports; upstream_status=ignore; general=;
 Change-Id=I37934dce2f51be662af08fbc6037d6e5fb3e0bff; subject=BACKPORTS: Fix nvme compilation on kernel 4.8; feature=backports; upstream_status=ignore; general=;
+Change-Id=Iecfe035e50f92c759f5cb52b2e38b720793696f1; subject=nvmet: Fix target offload after kernel 5.2 rebase; feature=nvmf_offload; upstream_status=in_progress; general=;

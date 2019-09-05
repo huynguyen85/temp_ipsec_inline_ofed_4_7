@@ -1200,6 +1200,9 @@ static int nvme_poll_irqdisable(struct nvme_queue *nvmeq, unsigned int tag)
 	u16 start, end;
 	int found;
 
+	if (nvmeq->p2p)
+		return 0;
+
 	/*
 	 * For a poll queue we need to protect against the polling thread
 	 * using the CQ lock.  For normal interrupt driven threads we have
@@ -1265,10 +1268,7 @@ static int adapter_alloc_cq(struct nvme_dev *dev, u16 qid,
 	struct nvme_command c;
 	int flags = NVME_QUEUE_PHYS_CONTIG;
 
-	if (!nvmeq->p2p)
-		flags |= NVME_CQ_IRQ_ENABLED;
-
-	if (!test_bit(NVMEQ_POLLED, &nvmeq->flags))
+	if (!test_bit(NVMEQ_POLLED, &nvmeq->flags) && !nvmeq->p2p)
 		flags |= NVME_CQ_IRQ_ENABLED;
 
 	/*
@@ -1689,9 +1689,9 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
 	 * A queue's vector matches the queue identifier unless the controller
 	 * has only one vector available.
 	 */
-	if (!polled)
+	if (!polled && !nvmeq->p2p)
 		vector = dev->num_vecs == 1 ? 0 : qid;
-	else
+	else if (polled)
 		set_bit(NVMEQ_POLLED, &nvmeq->flags);
 
 	result = adapter_alloc_cq(dev, qid, nvmeq, vector);
@@ -1888,7 +1888,7 @@ static int nvme_create_io_queues(struct nvme_dev *dev)
 	}
 
 	for (i = dev->online_queues; i <= max; i++) {
-		bool polled = i > rw_queues;
+		bool polled = i > rw_queues && !dev->queues[i].p2p;
 
 		ret = nvme_create_queue(&dev->queues[i], i, polled);
 		if (ret)

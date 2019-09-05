@@ -472,7 +472,7 @@ index xxxxxxx..xxxxxxx 100644
  	u16 start, end;
  	int found;
  
-@@ -1210,16 +1400,29 @@ static int nvme_poll_irqdisable(struct nvme_queue *nvmeq, unsigned int tag)
+@@ -1213,16 +1403,29 @@ static int nvme_poll_irqdisable(struct nvme_queue *nvmeq, unsigned int tag)
  		found = nvme_process_cq(nvmeq, &start, &end, tag);
  		spin_unlock(&nvmeq->cq_poll_lock);
  	} else {
@@ -502,7 +502,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct nvme_queue *nvmeq = hctx->driver_data;
  	u16 start, end;
-@@ -1229,12 +1432,17 @@ static int nvme_poll(struct blk_mq_hw_ctx *hctx)
+@@ -1232,12 +1435,17 @@ static int nvme_poll(struct blk_mq_hw_ctx *hctx)
  		return 0;
  
  	spin_lock(&nvmeq->cq_poll_lock);
@@ -647,13 +647,13 @@ index xxxxxxx..xxxxxxx 100644
 @@ -1690,7 +1942,11 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
  	 * has only one vector available.
  	 */
- 	if (!polled)
+ 	if (!polled && !nvmeq->p2p)
 +#if defined(HAVE_PCI_IRQ_API) && defined(HAVE_IRQ_CALC_AFFINITY_VECTORS_3_ARGS)
  		vector = dev->num_vecs == 1 ? 0 : qid;
 +#else
 +		vector = qid - 1;
 +#endif
- 	else
+ 	else if (polled)
  		set_bit(NVMEQ_POLLED, &nvmeq->flags);
  
 @@ -1725,24 +1981,50 @@ release_cq:
@@ -757,7 +757,7 @@ index xxxxxxx..xxxxxxx 100644
 +#endif
  
  	for (i = dev->online_queues; i <= max; i++) {
- 		bool polled = i > rw_queues;
+ 		bool polled = i > rw_queues && !dev->queues[i].p2p;
 @@ -2031,9 +2327,20 @@ static void nvme_free_host_mem(struct nvme_dev *dev)
  		struct nvme_host_mem_buf_desc *desc = &dev->host_mem_descs[i];
  		size_t size = le32_to_cpu(desc->size) * dev->ctrl.page_size;
