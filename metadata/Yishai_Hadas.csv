@@ -74,3 +74,4 @@ Change-Id=I9425b417c3f6319c06c81962363dd335cb27402c; subject=IB/mlx5: DEVX clean
 Change-Id=I36ed55e5ba37ddef42397df50c446714a9f48494; subject=IB/mlx5: Fix use after free warn reported by KASAN; feature=mlx5_ib_bugs; upstream_status=NA; general=;
 Change-Id=If7422612456e23f6d8cf5cf2f3cae2121005a26e; subject=IB/mlx5: Add ATS support for peer memory; feature=ATS; upstream_status=NA; general=;
 Change-Id=Idcb2300f91e80a4cccb35a0993807fc5cc7089a0; subject=IB/mlx5: Fix rebase issue; feature=mlx5_ib_bugs; upstream_status=NA; general=;
+Change-Id=Ia99ca6e20d98c9ae7016dc3111cc6a8cd8921ee2; subject=IB/mlx5: Fix rebase issue; feature=mlx5_ib_bugs; upstream_status=NA; general=;
