@@ -905,7 +905,6 @@ static int pagefault_single_data_segment(struct mlx5_ib_dev *dev,
 	struct pf_frame *head = NULL, *frame;
 	struct mlx5_core_mkey *mmkey;
 	struct mlx5_ib_mr *mr;
-	struct mlx5_ib_mw *mw;
 	struct mlx5_klm *pklm;
 	u32 *out = NULL;
 	size_t offset;
@@ -1001,9 +1000,8 @@ next_mr:
 		ret = 0;
 
 	} else {
-		if (mmkey->type == MLX5_MKEY_MW) {
-			mw = container_of(mmkey, struct mlx5_ib_mw, mmkey);
-			ndescs = mw->ndescs;
+		if (mmkey->type == MLX5_MKEY_MW || mmkey->type == MLX5_MKEY_INDIRECT_DEVX) {
+			ndescs = get_indirect_num_descs(mmkey);
 		} else if (mmkey->type == MLX5_MKEY_MR_USER) {
 			mr = container_of(mmkey, struct mlx5_ib_mr, mmkey);
 			ndescs = mr->max_descs;
@@ -1012,7 +1010,6 @@ next_mr:
 			ret = -EFAULT;
 			goto srcu_unlock;
 		}
-		ndescs = get_indirect_num_descs(mmkey);
 
 		if (depth >= MLX5_CAP_GEN(dev->mdev, max_indirection)) {
 			mlx5_ib_dbg(dev, "indirection level exceeded\n");
