@@ -912,15 +912,21 @@ static void mlx5e_rep_changeupper_event(struct net_device *netdev, void *ptr)
 	if (!lag_dev)
 		return;
 
-	/* Nothing to setup for new enslaved representor */
-	if (info->linking)
-		return;
-
-	mlx5_core_info(priv->mdev,
-		       "Unslave %s from lag(%s), reset vport(%d) egress acl\n",
-		       netdev->name, lag_dev->name, rpriv->rep->vport);
-	/* Delete vport egress acl rule to forward to other vport */
-	esw_del_egress_fwd2vport(priv->mdev->priv.eswitch, rpriv->rep->vport);
+	if (info->linking) {
+		mlx5_core_info(priv->mdev,
+			       "Enslave %s from lag(%s), reset vport(%d) egress acl\n",
+			       netdev->name, lag_dev->name, rpriv->rep->vport);
+		mlx5e_enslave_rep(priv->mdev->priv.eswitch, netdev, lag_dev);
+	} else {
+		mlx5_core_info(priv->mdev,
+			       "Unslave %s from lag(%s), reset vport(%d) egress acl\n",
+			       netdev->name, lag_dev->name, rpriv->rep->vport);
+		/* Reset vport ingress acl and its metadata to default */
+		mlx5e_unslave_rep(priv->mdev->priv.eswitch, netdev, lag_dev);
+		/* Delete vport egress acl rule to forward to other vport */
+		esw_del_egress_fwd2vport(priv->mdev->priv.eswitch,
+					 rpriv->rep->vport);
+	}
 }
 
 static int mlx5e_nic_rep_netdevice_event(struct notifier_block *nb,
