@@ -1427,7 +1427,7 @@ static void mlx5_ib_mr_wqe_pfault_handler(struct mlx5_ib_dev *dev,
 {
 	bool sq = pfault->type & MLX5_PFAULT_REQUESTOR;
 	u16 wqe_index = pfault->wqe.wqe_index;
-	void *wqe = NULL, *wqe_end = NULL;
+	void *wqe = NULL, *wqe_start = NULL, *wqe_end = NULL;
 	u32 bytes_mapped, total_wqe_bytes;
 	struct mlx5_core_rsc_common *res;
 	int resume_with_error = 1;
@@ -1452,6 +1452,7 @@ static void mlx5_ib_mr_wqe_pfault_handler(struct mlx5_ib_dev *dev,
 	if (!wqe)
 		return;
 
+	wqe_start = wqe;
 	qp = (res->res == MLX5_RES_QP) ? res_to_qp(res) : NULL;
  	if (!qp)
 		goto out_err;
@@ -1510,7 +1511,7 @@ resolve_page_fault:
 		    pfault->type);
 	mlx5_core_res_put(res);
 out_err:
-	free_page((unsigned long)wqe);
+	free_page((unsigned long)wqe_start);
 }
 
 static int pages_in_range(u64 address, u32 length)
