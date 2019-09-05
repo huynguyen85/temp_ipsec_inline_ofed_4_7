@@ -8976,21 +8976,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if scsi_tcq.h has function scsi_change_queue_type])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <scsi/scsi_tcq.h>
-	],[
-		scsi_change_queue_type(NULL, 0);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_SCSI_TCQ_SCSI_CHANGE_QUEUE_TYPE, 1,
-			[scsi_tcq.h has function scsi_change_queue_type])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
 	AC_MSG_CHECKING([if scsi_host.h struct scsi_host_template has member use_host_wide_tags])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <scsi/scsi_host.h>

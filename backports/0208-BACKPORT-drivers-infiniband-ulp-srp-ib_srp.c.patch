@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/ulp/srp/ib_srp.c
 
 Change-Id: I87db11ac4a67ae0c9c186703ccabdf3f0d9352fd
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 385 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 381 insertions(+), 4 deletions(-)
+ drivers/infiniband/ulp/srp/ib_srp.c | 380 +++++++++++++++++++++++++++-
+ 1 file changed, 376 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
 index xxxxxxx..xxxxxxx 100644
@@ -329,12 +329,11 @@ index xxxxxxx..xxxxxxx 100644
  err:
  	if (scmnd->result) {
  		scmnd->scsi_done(scmnd);
-@@ -2910,6 +3069,31 @@ static int srp_rdma_cm_handler(struct rdma_cm_id *cm_id,
+@@ -2910,6 +3069,30 @@ static int srp_rdma_cm_handler(struct rdma_cm_id *cm_id,
  	return 0;
  }
  
-+#if defined(HAVE_SCSI_HOST_TEMPLATE_CHANGE_QUEUE_TYPE) && \
-+	!defined(HAVE_SCSI_TCQ_SCSI_CHANGE_QUEUE_TYPE)
++#ifdef HAVE_SCSI_HOST_TEMPLATE_CHANGE_QUEUE_TYPE
 +/**
 + * srp_change_queue_type - changing device queue tag type
 + * @sdev: scsi device struct
@@ -361,7 +360,7 @@ index xxxxxxx..xxxxxxx 100644
  /**
   * srp_change_queue_depth - setting device queue depth
   * @sdev: scsi device struct
-@@ -2917,13 +3101,40 @@ static int srp_rdma_cm_handler(struct rdma_cm_id *cm_id,
+@@ -2917,13 +3100,40 @@ static int srp_rdma_cm_handler(struct rdma_cm_id *cm_id,
   *
   * Returns queue depth.
   */
@@ -402,7 +401,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static int srp_send_tsk_mgmt(struct srp_rdma_ch *ch, u64 req_tag, u64 lun,
  			     u8 func, u8 *status)
-@@ -3004,8 +3215,13 @@ static int srp_abort(struct scsi_cmnd *scmnd)
+@@ -3004,8 +3214,13 @@ static int srp_abort(struct scsi_cmnd *scmnd)
  
  	if (!req)
  		return SUCCESS;
@@ -416,7 +415,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (WARN_ON_ONCE(ch_idx >= target->ch_count))
  		return SUCCESS;
  	ch = &target->ch[ch_idx];
-@@ -3066,6 +3282,7 @@ static int srp_target_alloc(struct scsi_target *starget)
+@@ -3066,6 +3281,7 @@ static int srp_target_alloc(struct scsi_target *starget)
  	return 0;
  }
  
@@ -424,7 +423,7 @@ index xxxxxxx..xxxxxxx 100644
  static int srp_slave_alloc(struct scsi_device *sdev)
  {
  	struct Scsi_Host *shost = sdev->host;
-@@ -3079,6 +3296,7 @@ static int srp_slave_alloc(struct scsi_device *sdev)
+@@ -3079,6 +3295,7 @@ static int srp_slave_alloc(struct scsi_device *sdev)
  
  	return 0;
  }
@@ -432,7 +431,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static int srp_slave_configure(struct scsi_device *sdev)
  {
-@@ -3282,11 +3500,23 @@ static struct scsi_host_template srp_template = {
+@@ -3282,11 +3499,19 @@ static struct scsi_host_template srp_template = {
  	.name				= "InfiniBand SRP initiator",
  	.proc_name			= DRV_NAME,
  	.target_alloc			= srp_target_alloc,
@@ -447,16 +446,12 @@ index xxxxxxx..xxxxxxx 100644
  	.queuecommand			= srp_queuecommand,
  	.change_queue_depth             = srp_change_queue_depth,
 +#ifdef HAVE_SCSI_HOST_TEMPLATE_CHANGE_QUEUE_TYPE
-+#ifdef HAVE_SCSI_TCQ_SCSI_CHANGE_QUEUE_TYPE
-+	.change_queue_type		= scsi_change_queue_type,
-+#else
 +	.change_queue_type		= srp_change_queue_type,
-+#endif
 +#endif
  	.eh_timed_out			= srp_timed_out,
  	.eh_abort_handler		= srp_abort,
  	.eh_device_reset_handler	= srp_reset_device,
-@@ -3296,8 +3526,19 @@ static struct scsi_host_template srp_template = {
+@@ -3296,8 +3521,19 @@ static struct scsi_host_template srp_template = {
  	.can_queue			= SRP_DEFAULT_CMD_SQ_SIZE,
  	.this_id			= -1,
  	.cmd_per_lun			= SRP_DEFAULT_CMD_SQ_SIZE,
@@ -476,7 +471,7 @@ index xxxxxxx..xxxxxxx 100644
  };
  
  static int srp_sdev_count(struct Scsi_Host *host)
-@@ -3346,8 +3587,13 @@ static int srp_add_target(struct srp_host *host, struct srp_target_port *target)
+@@ -3346,8 +3582,13 @@ static int srp_add_target(struct srp_host *host, struct srp_target_port *target)
  	list_add_tail(&target->list, &host->target_list);
  	spin_unlock(&host->target_lock);
  
@@ -490,7 +485,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (srp_connected_ch(target) < target->ch_count ||
  	    target->qp_in_error) {
-@@ -3481,6 +3727,7 @@ static const match_table_t srp_opt_tokens = {
+@@ -3481,6 +3722,7 @@ static const match_table_t srp_opt_tokens = {
  	{ SRP_OPT_ERR,			NULL 			}
  };
  
@@ -498,7 +493,7 @@ index xxxxxxx..xxxxxxx 100644
  /**
   * srp_parse_in - parse an IP address and port number combination
   * @net:	   [in]  Network namespace.
-@@ -3517,12 +3764,32 @@ static int srp_parse_in(struct net *net, struct sockaddr_storage *sa,
+@@ -3517,12 +3759,32 @@ static int srp_parse_in(struct net *net, struct sockaddr_storage *sa,
  	pr_debug("%s -> %pISpfsc\n", addr_port_str, sa);
  	return ret;
  }
@@ -531,7 +526,7 @@ index xxxxxxx..xxxxxxx 100644
  	substring_t args[MAX_OPT_ARGS];
  	unsigned long long ull;
  	int opt_mask = 0;
-@@ -3586,11 +3853,24 @@ static int srp_parse_options(struct net *net, const char *buf,
+@@ -3586,11 +3848,24 @@ static int srp_parse_options(struct net *net, const char *buf,
  				kfree(p);
  				goto out;
  			}
@@ -557,7 +552,7 @@ index xxxxxxx..xxxxxxx 100644
  			break;
  
  		case SRP_OPT_PKEY:
-@@ -3623,8 +3903,16 @@ static int srp_parse_options(struct net *net, const char *buf,
+@@ -3623,8 +3898,16 @@ static int srp_parse_options(struct net *net, const char *buf,
  				ret = -ENOMEM;
  				goto out;
  			}
@@ -574,7 +569,7 @@ index xxxxxxx..xxxxxxx 100644
  				pr_warn("bad source parameter '%s'\n", p);
  				kfree(p);
  				goto out;
-@@ -3639,7 +3927,11 @@ static int srp_parse_options(struct net *net, const char *buf,
+@@ -3639,7 +3922,11 @@ static int srp_parse_options(struct net *net, const char *buf,
  				ret = -ENOMEM;
  				goto out;
  			}
@@ -586,7 +581,7 @@ index xxxxxxx..xxxxxxx 100644
  			if (ret < 0) {
  				pr_warn("bad dest parameter '%s'\n", p);
  				kfree(p);
-@@ -3736,12 +4028,21 @@ static int srp_parse_options(struct net *net, const char *buf,
+@@ -3736,12 +4023,21 @@ static int srp_parse_options(struct net *net, const char *buf,
  			break;
  
  		case SRP_OPT_SG_TABLESIZE:
@@ -608,7 +603,7 @@ index xxxxxxx..xxxxxxx 100644
  			target->sg_tablesize = token;
  			break;
  
-@@ -3801,7 +4102,11 @@ static ssize_t srp_create_target(struct device *dev,
+@@ -3801,7 +4097,11 @@ static ssize_t srp_create_target(struct device *dev,
  	struct srp_device *srp_dev = host->srp_dev;
  	struct ib_device *ibdev = srp_dev->dev;
  	int ret, node_idx, node, cpu, i;
@@ -620,7 +615,7 @@ index xxxxxxx..xxxxxxx 100644
  	bool multich = false;
  	uint32_t max_iu_len;
  
-@@ -3815,18 +4120,41 @@ static ssize_t srp_create_target(struct device *dev,
+@@ -3815,18 +4115,41 @@ static ssize_t srp_create_target(struct device *dev,
  	target_host->max_id      = 1;
  	target_host->max_lun     = -1LL;
  	target_host->max_cmd_len = sizeof ((struct srp_cmd *) (void *) 0L)->cdb;
@@ -663,7 +658,7 @@ index xxxxxxx..xxxxxxx 100644
  	target->allow_ext_sg	= allow_ext_sg;
  	target->tl_retry_count	= 7;
  	target->queue_size	= SRP_DEFAULT_QUEUE_SIZE;
-@@ -3845,6 +4173,12 @@ static ssize_t srp_create_target(struct device *dev,
+@@ -3845,6 +4168,12 @@ static ssize_t srp_create_target(struct device *dev,
  	if (ret)
  		goto out;
  
@@ -676,7 +671,7 @@ index xxxxxxx..xxxxxxx 100644
  	target->req_ring_size = target->queue_size - SRP_TSK_MGMT_SQ_SIZE;
  
  	if (!srp_conn_unique(target->srp_host, target)) {
-@@ -3875,9 +4209,12 @@ static ssize_t srp_create_target(struct device *dev,
+@@ -3875,9 +4204,12 @@ static ssize_t srp_create_target(struct device *dev,
  		bool gaps_reg = (ibdev->attrs.device_cap_flags &
  				 IB_DEVICE_SG_GAPS_REG);
  
@@ -689,7 +684,7 @@ index xxxxxxx..xxxxxxx 100644
  			/*
  			 * FR and FMR can only map one HCA page per entry. If
  			 * the start address is not aligned on a HCA page
-@@ -3894,15 +4231,25 @@ static ssize_t srp_create_target(struct device *dev,
+@@ -3894,15 +4226,25 @@ static ssize_t srp_create_target(struct device *dev,
  			mr_per_cmd = register_always +
  				(target->scsi_host->max_sectors + 1 +
  				 max_sectors_per_mr - 1) / max_sectors_per_mr;
@@ -715,7 +710,7 @@ index xxxxxxx..xxxxxxx 100644
  	}
  
  	target_host->sg_tablesize = target->sg_tablesize;
-@@ -3930,6 +4277,12 @@ static ssize_t srp_create_target(struct device *dev,
+@@ -3930,6 +4272,12 @@ static ssize_t srp_create_target(struct device *dev,
  	if (!target->ch)
  		goto out;
  
@@ -728,7 +723,7 @@ index xxxxxxx..xxxxxxx 100644
  	node_idx = 0;
  	for_each_online_node(node) {
  		const int ch_start = (node_idx * target->ch_count /
-@@ -3945,6 +4298,10 @@ static ssize_t srp_create_target(struct device *dev,
+@@ -3945,6 +4293,10 @@ static ssize_t srp_create_target(struct device *dev,
  		for_each_online_cpu(cpu) {
  			if (cpu_to_node(cpu) != node)
  				continue;
@@ -739,7 +734,7 @@ index xxxxxxx..xxxxxxx 100644
  			if (ch_start + cpu_idx >= ch_end)
  				continue;
  			ch = &target->ch[ch_start + cpu_idx];
-@@ -3984,6 +4341,9 @@ static ssize_t srp_create_target(struct device *dev,
+@@ -3984,6 +4336,9 @@ static ssize_t srp_create_target(struct device *dev,
  				} else {
  					srp_free_ch_ib(target, ch);
  					srp_free_req_data(target, ch);
@@ -749,7 +744,7 @@ index xxxxxxx..xxxxxxx 100644
  					target->ch_count = ch - target->ch;
  					goto connected;
  				}
-@@ -3996,7 +4356,9 @@ static ssize_t srp_create_target(struct device *dev,
+@@ -3996,7 +4351,9 @@ static ssize_t srp_create_target(struct device *dev,
  	}
  
  connected:
@@ -759,7 +754,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	ret = srp_add_target(host, target);
  	if (ret)
-@@ -4029,6 +4391,7 @@ out:
+@@ -4029,6 +4386,7 @@ out:
  put:
  	scsi_host_put(target->scsi_host);
  	if (ret < 0) {
@@ -767,7 +762,7 @@ index xxxxxxx..xxxxxxx 100644
  		/*
  		 * If a call to srp_remove_target() has not been scheduled,
  		 * drop the network namespace reference now that was obtained
-@@ -4036,6 +4399,7 @@ put:
+@@ -4036,6 +4394,7 @@ put:
  		 */
  		if (target->state != SRP_TARGET_REMOVED)
  			kobj_ns_drop(KOBJ_NS_TYPE_NET, target->net);
@@ -775,7 +770,7 @@ index xxxxxxx..xxxxxxx 100644
  		scsi_host_put(target->scsi_host);
  	}
  
-@@ -4051,6 +4415,11 @@ free_ch:
+@@ -4051,6 +4410,11 @@ free_ch:
  		srp_free_req_data(target, ch);
  	}
  
@@ -787,7 +782,7 @@ index xxxxxxx..xxxxxxx 100644
  	kfree(target->ch);
  	goto out;
  }
-@@ -4299,11 +4668,19 @@ static int __init srp_init_module(void)
+@@ -4299,11 +4663,19 @@ static int __init srp_init_module(void)
  		indirect_sg_entries = cmd_sg_entries;
  	}
  
