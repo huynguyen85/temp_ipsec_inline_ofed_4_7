@@ -5,3 +5,13 @@ Change-Id=Ia88d83f31ed3e7dbf0701dbd3d9ac93847bdc129; subject=BACKPORTS: Remove e
 Change-Id=I42cd7c929065d935e643e432179380b15c4f0b03; subject=compat: Add netif_is_vxlan compat function; feature=backports; upstream_status=ignore; general=;
 Change-Id=I8aa86b163bf41237a59cf3b48b0685b7a5b9c871; subject=Update metadata; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ie64a0799268e05591022c417ed4802850149d0a1; subject=BACKPORTS: Fix ESWITCH supported version to 4.19; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I5984762e3534f891c9f5939f20e0bff2d0ca5426; subject=compat: Define is_tcf_gact_ok if not defined; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ibe4518d013307fc8ef23a397658d5e311a8647da; subject=compat: add flow_dissector_key_vlan.vlan_tpid; feature=backports; upstream_status=ignore; general=;
+Change-Id=Id7b193a5b153bceaccca7d73529ed6f0d9b780bf; subject=BACKPORTS: Fix compialtion issues in flow_offload.c for v4.14; feature=backports; upstream_status=ignore; general=;
+Change-Id=I298c94742783b7705ad361246b48813d3e2ca509; subject=compat: add backport for tc_mirred_dev; feature=backports; upstream_status=ignore; general=;
+Change-Id=I8abbcc7f53ac0a26c7a350bdcc78f00473093ccc; subject=BACKPORTS: Fix compilation issues in tc_tun.c for v4.14; feature=backports; upstream_status=ignore; general=;
+Change-Id=I454a68632486523680c6c03494da8846437f2349; subject=BACKPORTS: Fix extack in en_tc.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ib7916b5c8c92c87b5d3cf1f6804e65df789d7216; subject=BACKPORTS: Fix tpid in en_tc.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=I07aad1c44fb30f0557fdd6f8779d1e11fd65cc74; subject=BACKPORTS: Add missing mask in en_tc.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=I435d1e366b4a3d00c1e5483826b81c0203fe6fba; subject=BACKPORTS: ifindex - was not defined in en_tc for v4.14; feature=backports; upstream_status=ignore; general=;
+Change-Id=I9d767d55e41d15e748823bf5faed54692e6b098a; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
