@@ -84,3 +84,9 @@ Change-Id=I8a6e4933df657cb25f5bc7ecb569993ed8003efe; subject=BACKPORTS: fix egde
 Change-Id=I5e6d357098e94547bafed286488fc000d6c10021; subject=net/mlx5e: Fix double free of parse_attr; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=Ib3dced2edcbe2fd0cadb46a74ef8ea641047a465; subject=BACKPORTS: update en_tc.c; feature=backports; upstream_status=ignore; general=;
 Change-Id=If22b145c14cce51f984d866c8d6987f9baccf0b0; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=If8d0794cc50f48217836586f41db72106f4203f1; subject=BACKPORTS: assume vxlan device for old kernels; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ie8a462f2759f384aa71c27a056c04e1b8318e28c; subject=BACKPORTS: fix fs_counters backport; feature=backports; upstream_status=ignore; general=;
+Change-Id=I0ef689b1283c664728970a43b90d455ef54e7d77; subject=BACKPORTS: fix egdev tc flow flags; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia392f3517778946e7cf5eb5a4537740e45c3e609; subject=metadata: update after asap fixes; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Iab9607d4bd551351b3460bff8b566760fde973ff; subject=net/mlx5e: Fix double free of mod_hdr_actions; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Ic28b70b1d3b889d79871dffda81780c7d16ba1b0; subject=BACKPORTS: update en_tc.c; feature=backports; upstream_status=ignore; general=;
