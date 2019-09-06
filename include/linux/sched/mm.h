@@ -34,7 +34,7 @@ static inline void mmget(struct mm_struct *mm)
 }
 
 #endif
-#ifndef HAVE_MMGET_STILL_VALID
+#if !defined (HAVE_MMGET_STILL_VALID) && !defined(HAVE_MMGET_STILL_VALID_IN_SCHED_H)
 /*
  * This has to be called after a get_task_mm()/mmget_not_zero()
  * followed by taking the mmap_sem for writing before modifying the

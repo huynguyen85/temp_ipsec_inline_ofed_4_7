@@ -11,3 +11,4 @@ Change-Id=I2ae87d6c242bad864ca70e4fa0355573afcb6e1d; subject=REBASE: Add metadat
 Change-Id=I0609a3236d0733b53fd69bf21bec184273268be7; subject=Revert "BACKPORT: mlnx_en should be reverted ,cancel ESWITCH feature"; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I6c09666a045c07348a91e10861d7caff8c9e2d75; subject=BACKPORT: Try_2 mlnx_en should be reverted ,cancel ESWITCH feature; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Iff9206fb636954df33577824cad6387425370941; subject=BACKPORTS: Fix RHEL 7.7 compilation; feature=backports; upstream_status=ignore; general=;
+Change-Id=I200972e04bc1838dfe86ace06789fa4b7778b28b; subject=BACKPORTS: Fix mmget_still_valid for debians; feature=backports; upstream_status=ignore; general=;
