@@ -90,3 +90,6 @@ Change-Id=I0ef689b1283c664728970a43b90d455ef54e7d77; subject=BACKPORTS: fix egde
 Change-Id=Ia392f3517778946e7cf5eb5a4537740e45c3e609; subject=metadata: update after asap fixes; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Iab9607d4bd551351b3460bff8b566760fde973ff; subject=net/mlx5e: Fix double free of mod_hdr_actions; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=Ic28b70b1d3b889d79871dffda81780c7d16ba1b0; subject=BACKPORTS: update en_tc.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=I2e25ab863014c9ba030a8c2aaef04c65a206ae48; subject=net/mlx5e: fix invalid memory access in neigh update flow; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I4bf742ae24b028d681a4d239afe2c47f20e7ba4e; subject=BACKPORTS: update after neigh update flow fix; feature=backports; upstream_status=ignore; general=;
+Change-Id=I2f9480266b94ad33674f45c5d0240952f6a79718; subject=metadata: update; feature=mlx5_asap; upstream_status=NA; general=;
