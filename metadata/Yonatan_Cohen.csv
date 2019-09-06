@@ -21,3 +21,4 @@ Change-Id=Ibd33cd66889e037f4aeb1536411f2ec9eed5ccd9; subject=metadata: Update MD
 Change-Id=I8e7132b51a92b8cc2eacbd082c850b327176c531; subject=metadata: Update MD for Moni Shoua; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Ie63c36174c88efc119c1b678b2f6d0c929cf61fb; subject=metadata: Update MD for Parav Pandit; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I5c28ecddc0810d42257e5172b26ee14cca7baca4; subject=IB/mlx5: Added support for MLX5_MKEY_INDIRECT_DEVX; feature=mlx5_ib_bugs; upstream_status=NA; general=;
+Change-Id=I637eba91151e0591915dd1b583e50e4d49fa55d9; subject=IB/mlx5: Remove redundant ODP mr check; feature=ib_core_bugs; upstream_status=NA; general=;
