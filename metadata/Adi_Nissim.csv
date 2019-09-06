@@ -15,3 +15,4 @@ Change-Id=Ib7916b5c8c92c87b5d3cf1f6804e65df789d7216; subject=BACKPORTS: Fix tpid
 Change-Id=I07aad1c44fb30f0557fdd6f8779d1e11fd65cc74; subject=BACKPORTS: Add missing mask in en_tc.c; feature=backports; upstream_status=ignore; general=;
 Change-Id=I435d1e366b4a3d00c1e5483826b81c0203fe6fba; subject=BACKPORTS: ifindex - was not defined in en_tc for v4.14; feature=backports; upstream_status=ignore; general=;
 Change-Id=I9d767d55e41d15e748823bf5faed54692e6b098a; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I48607dfc76b55157fe3a6725810264dee327b30b; subject=BACKPORTS: Fix ESWITCH supported version to 4.14; feature=ofed_scripts; upstream_status=ignore; general=;
