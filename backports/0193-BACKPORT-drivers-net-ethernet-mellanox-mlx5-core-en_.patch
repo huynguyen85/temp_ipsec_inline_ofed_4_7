@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_rep.h
 
 Change-Id: If510cac5261012c2d72aa76ee3c23fc36fa5bb6b
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.h | 59 +++++++++++++++++++-----
- 1 file changed, 47 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_rep.h | 53 ++++++++++++++++++++----
+ 1 file changed, 44 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.h b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.h
 index xxxxxxx..xxxxxxx 100644
@@ -118,29 +118,27 @@ index xxxxxxx..xxxxxxx 100644
  	unsigned char h_dest[ETH_ALEN];	/* destination eth addr	*/
  
  	struct net_device *out_dev;
-@@ -171,13 +199,18 @@ struct mlx5e_encap_entry {
+@@ -171,14 +199,19 @@ struct mlx5e_encap_entry {
  	int tunnel_type;
  	int tunnel_hlen;
  	int reformat_type;
--	u8 flags;
--	char *encap_header;
--	int encap_size;
 +#ifdef HAVE_TCF_TUNNEL_INFO
-+       u8 flags;
-+       char *encap_header;
-+       int encap_size;
+ 	u8 flags;
+ 	char *encap_header;
+ 	int encap_size;
 +#else
 +	struct neighbour *n;
 +#endif
  	refcount_t refcnt;
  	struct completion hw_res_created;
+ 	int compl_result;
  	struct rcu_head rcu;
  };
-+#endif
++#endif /* HAVE_NET_TC_ACT_TC_TUNNEL_KEY_H */
  
  struct mlx5e_rep_sq {
  	struct mlx5_flow_handle	*send_to_vport_rule;
-@@ -195,10 +228,12 @@ void mlx5e_remove_sqs_fwd_rules(struct mlx5e_priv *priv);
+@@ -196,10 +229,12 @@ void mlx5e_remove_sqs_fwd_rules(struct mlx5e_priv *priv);
  
  void mlx5e_handle_rx_cqe_rep(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe);
  
