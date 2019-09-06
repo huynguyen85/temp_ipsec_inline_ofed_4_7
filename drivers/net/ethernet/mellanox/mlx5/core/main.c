@@ -1004,7 +1004,6 @@ static int mlx5_pci_init(struct mlx5_core_dev *dev, struct pci_dev *pdev,
 	int err = 0;
 
 	mutex_init(&dev->pci_status_mutex);
-	pci_set_drvdata(dev->pdev, dev);
 
 	dev->bar_addr = pci_resource_start(pdev, 0);
 	priv->numa_node = dev_to_node(&dev->pdev->dev);
@@ -2042,16 +2041,17 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	priv = &dev->priv;
 	dev->device = &pdev->dev;
 	priv->sriov.probe_vf = probe_vf;
+	dev->pdev = pdev;
+
+	dev->coredev_type = id->driver_data & MLX5_PCI_DEV_IS_VF ?
+			 MLX5_COREDEV_VF : MLX5_COREDEV_PF;
+
+	pci_set_drvdata(dev->pdev, dev);
 
 	if (pdev->is_virtfn && !probe_vf) {
 		dev_info(&pdev->dev, "VFs are not binded to mlx5_core\n");
 		return 0;
 	}
-
-	dev->pdev = pdev;
-
-	dev->coredev_type = id->driver_data & MLX5_PCI_DEV_IS_VF ?
-			 MLX5_COREDEV_VF : MLX5_COREDEV_PF;
 
 	err = mlx5_mdev_init(dev, prof_sel);
 	if (err)
