@@ -1494,10 +1494,13 @@ void mlx5e_tc_update_neigh_used_value(struct mlx5e_neigh_hash_entry *nhe)
 static void mlx5e_encap_dealloc(struct mlx5e_priv *priv, struct mlx5e_encap_entry *e)
 {
 	WARN_ON(!list_empty(&e->flows));
-	mlx5e_rep_encap_entry_detach(netdev_priv(e->out_dev), e);
 
-	if (e->flags & MLX5_ENCAP_ENTRY_VALID)
-		mlx5_packet_reformat_dealloc(priv->mdev, (u32)e->encap_id);
+	if (e->compl_result > 0) {
+		mlx5e_rep_encap_entry_detach(netdev_priv(e->out_dev), e);
+
+		if (e->flags & MLX5_ENCAP_ENTRY_VALID)
+			mlx5_packet_reformat_dealloc(priv->mdev, (u32)e->encap_id);
+	}
 
 	kfree(e->encap_header);
 	kfree_rcu(e, rcu);
@@ -2940,10 +2943,11 @@ static int mlx5e_attach_encap(struct mlx5e_priv *priv,
 	if (e) {
 		mutex_unlock(&esw->offloads.encap_tbl_lock);
 		wait_for_completion(&e->hw_res_created);
-		mutex_lock(&esw->offloads.encap_tbl_lock);
 
-		if (e->encap_id < 0) {
-			err = (int)e->encap_id;
+		/* Protect against concurrent neigh update. */
+		mutex_lock(&esw->offloads.encap_tbl_lock);
+		if (e->compl_result < 0) {
+			err = -EREMOTEIO;
 			goto out_err;
 		}
 		goto attach_flow;
@@ -2952,7 +2956,7 @@ static int mlx5e_attach_encap(struct mlx5e_priv *priv,
 	e = kzalloc(sizeof(*e), GFP_KERNEL);
 	if (!e) {
 		err = -ENOMEM;
-		goto alloc_encap_err;
+		goto out_err;
 	}
 
 	refcount_set(&e->refcnt, 1);
@@ -2962,7 +2966,8 @@ static int mlx5e_attach_encap(struct mlx5e_priv *priv,
 	err = mlx5e_tc_tun_init_encap_attr(mirred_dev, priv, e, extack);
 	if (err) {
 		kfree(e);
-		goto alloc_encap_err;
+		e = NULL;
+		goto out_err;
 	}
 
 	INIT_LIST_HEAD(&e->flows);
@@ -2974,12 +2979,14 @@ static int mlx5e_attach_encap(struct mlx5e_priv *priv,
 	else if (family == AF_INET6)
 		err = mlx5e_tc_tun_create_header_ipv6(priv, mirred_dev, e);
 
+	/* Protect against concurrent neigh update. */
 	mutex_lock(&esw->offloads.encap_tbl_lock);
 	complete_all(&e->hw_res_created);
 	if (err) {
-		e->encap_id = err;
+		e->compl_result = err;
 		goto out_err;
 	}
+	e->compl_result = 1;
 
 attach_flow:
 	flow->encaps[out_index].e = e;
@@ -2999,11 +3006,8 @@ attach_flow:
 
 out_err:
 	mutex_unlock(&esw->offloads.encap_tbl_lock);
-	mlx5e_encap_put(priv, e);
-	return err;
-
-alloc_encap_err:
-	mutex_unlock(&esw->offloads.encap_tbl_lock);
+	if (e)
+		mlx5e_encap_put(priv, e);
 	return err;
 }
 
