@@ -36,3 +36,6 @@ Change-Id=Ib7525467259f0dbf086aa8617dacb0f4a7c3ea95; subject=metadata: update Ra
 Change-Id=I9145978e3b3a26a439614d9d672e99fa61d36218; subject=net/sched/flower: Use correct TC flags macro; feature=mlx5_asap; upstream_status=ignore; general=;
 Change-Id=Ie8b31883dc244cf404bc8b725404f22f9bbf994e; subject=metadata: update Raed Salem MD (Post bug fix); feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Iac8e78280f86bbf88aa675d60cd511af9abe3d69; subject=net/mlx5: E-Switch, fix kernel panic post change device mode from legacy to switchdev; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I988dc47c83b9902621f77e80a66f9784860c42b1; subject=Revert "net/mlx5e: release parse attr in mlx5e_tc_add_fdb_flow"; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I3cb3410e1fcd27255710fa94cc6c4f7802c0b6bd; subject=BACKPORTS: update en_tc.c; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I4d099a0e6616339396cc0058ad8507d9fb04dc17; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
