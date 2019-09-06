@@ -84,6 +84,19 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 
 AC_DEFUN([LINUX_CONFIG_COMPAT],
 [
+	AC_MSG_CHECKING([if has is_tcf_police])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+	#include <net/tc_act/tc_police.h>
+	],[
+		return is_tcf_police(NULL) ? 1 : 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IS_TCF_POLICE, 1,
+			[is_tcf_police is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if has netdev_notifier_info_to_dev])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 	#include <linux/netdevice.h>
