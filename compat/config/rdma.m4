@@ -7616,6 +7616,22 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if device.h has struct dev_arch_dmadata])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/device.h>
+	],[
+		struct dev_arch_dmadata x;
+                x.dma_offset = 0;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_DEV_ARCH_DMADATA_DMA_OFFSET, 1,
+			  [device.h has struct dev_arch_dmadata])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if file.h has fdget])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/file.h>
