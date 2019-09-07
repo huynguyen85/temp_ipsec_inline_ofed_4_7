@@ -323,7 +323,7 @@ int ib_uverbs_exp_create_qp(struct uverbs_attr_bundle *attrs)
 	 */
 	qp->res.type = RDMA_RESTRACK_QP;
 	if (attr->qp_type < IB_QPT_XRC_INI)
-		rdma_restrack_kadd(&qp->res);
+		rdma_restrack_uadd(&qp->res);
 	else
 		rdma_restrack_dontrack(&qp->res);
 
