@@ -6645,8 +6645,12 @@ static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)
 
 	if (MLX5_CAP_DEV_MEM(mdev, memic) ||
 	    MLX5_CAP_GEN_64(dev->mdev, general_obj_types) &
-	    MLX5_GENERAL_OBJ_TYPES_CAP_SW_ICM)
+	    MLX5_GENERAL_OBJ_TYPES_CAP_SW_ICM) {
 		ib_set_device_ops(&dev->ib_dev, &mlx5_ib_dev_dm_ops);
+		dev->ib_dev.uverbs_exp_cmd_mask |=
+			(1ull << IB_USER_VERBS_EXP_CMD_ALLOC_DM) |
+			(1ull << IB_USER_VERBS_EXP_CMD_FREE_DM);
+	}
 
 	if (mlx5_accel_ipsec_device_caps(dev->mdev) &
 	    MLX5_ACCEL_IPSEC_CAP_DEVICE)
