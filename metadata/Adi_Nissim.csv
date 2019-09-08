@@ -16,3 +16,4 @@ Change-Id=I07aad1c44fb30f0557fdd6f8779d1e11fd65cc74; subject=BACKPORTS: Add miss
 Change-Id=I435d1e366b4a3d00c1e5483826b81c0203fe6fba; subject=BACKPORTS: ifindex - was not defined in en_tc for v4.14; feature=backports; upstream_status=ignore; general=;
 Change-Id=I9d767d55e41d15e748823bf5faed54692e6b098a; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I48607dfc76b55157fe3a6725810264dee327b30b; subject=BACKPORTS: Fix ESWITCH supported version to 4.14; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I2b7a1b3b112f727bac05d62ed65bdb5877e0316e; subject=BACKPORTS: remove definition duplication of HAVE_TCF_MIRRED_DEV; feature=backports; upstream_status=ignore; general=;

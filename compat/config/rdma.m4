@@ -3171,22 +3171,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if tc_mirred.h has tcf_mirred_dev])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <net/tc_act/tc_mirred.h>
-	],[
-		struct tc_action a = {};
-		tcf_mirred_dev(&a);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_TCF_MIRRED_DEV, 1,
-			  [tcf_mirred_dev is defined])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
 	AC_MSG_CHECKING([if tc_mirred.h has is_tcf_mirred_mirror])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/tc_act/tc_mirred.h>
