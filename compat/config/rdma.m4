@@ -1828,8 +1828,12 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	AC_MSG_CHECKING([if switchdev.h has struct switchdev_ops])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/switchdev.h>
+		#include <linux/netdevice.h>
 	],[
 		struct switchdev_ops x;
+		struct net_device *ndev;
+
+		ndev->switchdev_ops = &x;
 
 		return 0;
 	],[
