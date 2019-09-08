@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_tc.h
 
 Change-Id: I2ae58906dd10b4d56f33216d5a3abf516fc8797c
 ---
- .../net/ethernet/mellanox/mlx5/core/en_tc.h   | 43 +++++++++++++++----
- 1 file changed, 35 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.h | 36 ++++++++++++++++++++-----
+ 1 file changed, 30 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.h b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.h
 index xxxxxxx..xxxxxxx 100644
@@ -113,22 +113,15 @@ index xxxxxxx..xxxxxxx 100644
  
  int mlx5e_tc_num_filters(struct mlx5e_priv *priv, unsigned long flags);
  
-@@ -209,8 +231,12 @@ void *mlx5e_lookup_tc_ht(struct mlx5e_priv *priv,
- void mlx5e_flow_put(struct mlx5e_priv *priv,
- 		    struct mlx5e_tc_flow *flow);
+@@ -211,6 +233,7 @@ void mlx5e_flow_put(struct mlx5e_priv *priv,
  int mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
--			  struct mlx5e_tc_flow *flow,
--			  struct netlink_ext_ack *extack);
-+			  struct mlx5e_tc_flow *flow
-+#ifdef HAVE_TC_CLS_OFFLOAD_EXTACK
-+			  ,struct netlink_ext_ack *extack
-+#endif
-+			  );
+ 			  struct mlx5e_tc_flow *flow,
+ 			  struct netlink_ext_ack *extack);
 +
  int mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
  		     u64 cookie, unsigned long flow_flags, gfp_t flags,
  		     struct mlx5e_tc_flow_parse_attr **__parse_attr,
-@@ -223,6 +249,7 @@ int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
+@@ -223,6 +246,7 @@ int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
  bool mlx5e_is_valid_eswitch_fwd_dev(struct mlx5e_priv *priv,
  				    struct net_device *out_dev);
  
