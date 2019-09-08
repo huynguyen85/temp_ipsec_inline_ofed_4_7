@@ -627,6 +627,7 @@ int mlx5_cmd_create_srq(struct mlx5_ib_dev *dev, struct mlx5_core_srq *srq,
 		srq->common.res = MLX5_RES_XSRQ;
 		break;
 	case IB_SRQT_TM:
+	case IB_EXP_SRQT_TAG_MATCHING:
 	case IB_EXP_SRQT_NVMF:
 		srq->common.res = MLX5_RES_XRQ;
 		break;
