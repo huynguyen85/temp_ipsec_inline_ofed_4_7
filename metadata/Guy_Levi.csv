@@ -8,3 +8,5 @@ Change-Id=Ie987a89524576a8c6150f045061b13e6dc94e43f; subject=net/mlx5: Support S
 Change-Id=I9034df6495287db70b639677b492a3c832181653; subject=IB/mlx5: Support extended number of strides for "Strding RQ"; feature=mp_wr; upstream_status=NA; general=;
 Change-Id=I6c7ddf298776846d486205e6f36608c525538d20; subject=IB/mlx5: Support Multi-Packet WR in mlx5_ib_exp_create_srq; feature=mp_wr; upstream_status=NA; general=;
 Change-Id=I7055c1c9fbb9640f589c0d7baff42d70e69111cf; subject=IB/mlx5: Expose support for Multi-Packet WR over SRQ TM; feature=mp_wr; upstream_status=NA; general=;
+Change-Id=I150732511b1f2b10d54e1a07eac6ca9ebda8252c; subject=IB/mlx5: Support IB_EXP_SRQT_TAG_MATCHING in mlx5_cmd_create_srq; feature=mp_wr; upstream_status=NA; general=;
+Change-Id=I3ec9aecff6338f6dd8994f60e0a03a887e0b82f7; subject=metadata: Update MD; feature=ofed_scripts; upstream_status=ignore; general=;
