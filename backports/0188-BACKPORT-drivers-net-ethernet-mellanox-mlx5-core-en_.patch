@@ -34,6 +34,7 @@ index xxxxxxx..xxxxxxx 100644
  }
 +#endif
 +
++#ifdef HAVE_ETHTOOL_GET_SET_SETTINGS
 +struct deprecated_ptys2ethtool_config {
 +	u32 supported;
 +	u32 advertised;
@@ -221,7 +222,6 @@ index xxxxxxx..xxxxxxx 100644
 +		      ARRAY_SIZE(deprecated_ptys2legacy_ethtool_table);
 +}
 +
-+#ifdef HAVE_ETHTOOL_GET_SET_SETTINGS
 +static u32 deprecated_ptys2ethtool_supported_link(u32 eth_proto_cap)
 +{
 +	int i;
