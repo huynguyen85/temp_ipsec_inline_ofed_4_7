@@ -7,3 +7,4 @@ Change-Id=I014722996eea1fbec2fd0751d2a8e313d9059795; subject=IB/mlx5: Report the
 Change-Id=Id1f3b1253fc9034d66ea2a071ee5ec61190dc720; subject=mlx5/core: Fix mlx5_pci_init error flow; feature=mlx5_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I11448a70e5bb620b25a58c569f663e7d507672da; subject=mlx5/core: Fix RoCE LAG disable; feature=mlx5_core_bugs; upstream_status=NA; general=;
 Change-Id=I498e3741ae649ce4a6014cc69eb3ce32a40351e8; subject=IB/mlx5: free page from the beginning of the allocation; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
+Change-Id=I88cf90910b9c59c373ffae07d1adc7bec1fd0d2f; subject=IB/mlx5: Free mpi in mp_slave mode; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
