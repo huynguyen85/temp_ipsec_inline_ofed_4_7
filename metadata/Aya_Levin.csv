@@ -1,2 +1,3 @@
 sep=;
 Change-Id=Idd099557212bad38e9a540bf9fdfa4dc9b5d6e8f; subject=net/mlx4_en: Update counters under one call of stats lock; feature=mlx4_en_bugs; upstream_status=NA; general=;
+Change-Id=Id79e93159410f0d3c44f3e5a1f0826f217e7775e; subject=BACKPORTS: net/mlx5: Fix tx reporter backports; feature=backports; upstream_status=ignore; general=;

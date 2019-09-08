@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
 
 Change-Id: Ic4a5a058d91c1d43e408598e0f6d1abce6007872
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tx.c | 134 ++++++++++++++++++++++--
- 1 file changed, 123 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tx.c | 130 ++++++++++++++++++++++--
+ 1 file changed, 119 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
 index xxxxxxx..xxxxxxx 100644
@@ -293,19 +293,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  static void mlx5e_dump_error_cqe(struct mlx5e_txqsq *sq,
-@@ -589,7 +680,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
- 				mlx5e_dump_error_cqe(sq,
- 						     (struct mlx5_err_cqe *)cqe);
- 				queue_work(cq->channel->priv->wq,
-+#ifdef HAVE_DEVLINK_HEALTH_REPORT
- 					   &sq->recover_work);
-+#else
-+					   &sq->recover.recover_work);
-+#endif
- 			}
- 			stats->cqe_err++;
- 		}
-@@ -611,7 +706,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
+@@ -611,7 +702,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
  				continue;
  			}
  
@@ -317,7 +305,7 @@ index xxxxxxx..xxxxxxx 100644
  				     SKBTX_HW_TSTAMP)) {
  				struct skb_shared_hwtstamps hwts = {};
  
-@@ -631,7 +730,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
+@@ -631,7 +726,11 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
  			npkts++;
  			nbytes += wi->num_bytes;
  			sqcc += wi->num_wqebbs;
@@ -329,7 +317,7 @@ index xxxxxxx..xxxxxxx 100644
  		} while (!last_wqe);
  
  	} while ((++i < MLX5E_TX_CQ_POLL_BUDGET) && (cqe = mlx5_cqwq_get_cqe(&cq->wq)));
-@@ -699,8 +802,11 @@ mlx5i_txwqe_build_datagram(struct mlx5_av *av, u32 dqpn, u32 dqkey,
+@@ -699,8 +798,11 @@ mlx5i_txwqe_build_datagram(struct mlx5_av *av, u32 dqpn, u32 dqkey,
  }
  
  netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
@@ -343,7 +331,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct mlx5_wq_cyc *wq = &sq->wq;
  	struct mlx5i_tx_wqe *wqe;
-@@ -738,7 +844,9 @@ netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+@@ -738,7 +840,9 @@ netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
  	}
  
  	stats->bytes     += num_bytes;
@@ -353,7 +341,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	headlen = skb->len - ihs - skb->data_len;
  	ds_cnt += !!headlen;
-@@ -783,7 +891,11 @@ netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+@@ -783,7 +887,11 @@ netdev_tx_t mlx5i_sq_xmit(struct mlx5e_txqsq *sq, struct sk_buff *skb,
  		goto err_drop;
  
  	mlx5e_txwqe_complete(sq, skb, opcode, ds_cnt, num_wqebbs, num_bytes,
