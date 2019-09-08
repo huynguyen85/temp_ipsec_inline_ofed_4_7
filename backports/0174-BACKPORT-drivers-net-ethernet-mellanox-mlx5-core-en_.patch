@@ -2530,7 +2530,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct net_device *netdev = priv->netdev;
  	struct mlx5_core_dev *mdev = priv->mdev;
-+#if defined(HAVE_NET_DEVICE_MIN_MAX_MTU) || defined(HAVE_NET_DEVICE_MIN_MAX_MTU_EXTENDED)
++#if defined(HAVE_NET_DEVICE_MIN_MAX_MTU_EXTENDED)
 +	u16 max_mtu;
 +#endif
  
