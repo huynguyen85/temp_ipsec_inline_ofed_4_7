@@ -31,7 +31,7 @@ Change-Id=I2657991d07f8d43180d4ec5f8e00b92645d44dfb; subject=IB/mlx: Fix destroy
 Change-Id=I0d0a2b6ded119ab0bfc1ee69356ba2c1891cf2be; subject=net/mlx4: Fix bad calculation of port map; feature=mlx4_core_bugs; upstream_status=in_progress; general=;
 Change-Id=Ida88d041cf19ad0c72f7d5fd7053ebad2d3d9806; subject=IB/mlx5: Force tclass on DC targets; feature=mlx5_force_tc; upstream_status=NA; general=;
 Change-Id=If359d56caf5540654ff3c43e5a5b9665858bbb27; subject=IB/mlx5: Avoid hangs due to missing completion; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
-Change-Id=If3f914e451ea1e4678bd636abfd44682d5cc1f85; subject=IB/mlx5: Don't resume page fault if QP is not found; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
+Change-Id=If3f914e451ea1e4678bd636abfd44682d5cc1f85; subject=IB/mlx5: Don't resume page fault if QP is not found; feature=mlx5_ib_bugs; upstream_status=ignore; general=;
 Change-Id=I2395d9844f70a450867c6d7ce33e2ffba39e932b; subject=IB/mlx5: Cancel request for completion in error flow; feature=mlx5_ib_bugs; upstream_status=in_progress; general=;
 Change-Id=I1de008eea6d06ed53fa937c2a19bce2d34544b4f; subject=IB/mlx5: Increase timeout of waiting to mmu notifier to complete; feature=mlx5_ib_bugs; upstream_status=NA; general=;
 Change-Id=Ifc702488ec2d0ecc144118b17bf7e8ea4d8c3d17; subject=IB/mlx5: Ignore pagefault event that are handled after QP was reset; feature=mlx5_ib_bugs; upstream_status=ignore; general=;
