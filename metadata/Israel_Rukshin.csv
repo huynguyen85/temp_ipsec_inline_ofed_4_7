@@ -49,3 +49,4 @@ Change-Id=Iabba29b395131bf21f0a7b7a214657430be4baa0; subject=BACKPORTS: Fix nvme
 Change-Id=I37934dce2f51be662af08fbc6037d6e5fb3e0bff; subject=BACKPORTS: Fix nvme compilation on kernel 4.8; feature=backports; upstream_status=ignore; general=;
 Change-Id=Iecfe035e50f92c759f5cb52b2e38b720793696f1; subject=nvmet: Fix target offload after kernel 5.2 rebase; feature=nvmf_offload; upstream_status=in_progress; general=;
 Change-Id=Id0ea3b5893c0c7b91dc206e4445f121643b2ba4c; subject=nvme: Remove redundant assignment of cq vector; feature=rebase; upstream_status=in_progress; general=;
+Change-Id=I9c6753ffabb93dd2d90a83a74f646de7dbe3fe97; subject=BACKPORTS: Fix nvme-core backports; feature=backports; upstream_status=ignore; general=;

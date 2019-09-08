@@ -3,7 +3,7 @@ Subject: [PATCH] BACKPORT: drivers/nvme/host/core.c
 
 Change-Id: Ibfcc74945c146fd22236672047f42ed7d3154fce
 ---
- drivers/nvme/host/core.c | 434 +++++++++++++++++++++++++++++++++++++++
+ drivers/nvme/host/core.c | 434 +++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 434 insertions(+)
 
 diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
@@ -390,14 +390,14 @@ index xxxxxxx..xxxxxxx 100644
  }
  EXPORT_SYMBOL_GPL(nvme_cleanup_cmd);
  
-@@ -708,6 +872,7 @@ blk_status_t nvme_setup_cmd(struct nvme_ns *ns, struct request *req,
- 
+@@ -709,6 +873,7 @@ blk_status_t nvme_setup_cmd(struct nvme_ns *ns, struct request *req,
  	nvme_clear_nvme_request(req);
  
-+#ifdef HAVE_BLK_TYPES_REQ_OP_DRV_OUT
  	memset(cmd, 0, sizeof(*cmd));
++#ifdef HAVE_BLK_TYPES_REQ_OP_DRV_OUT
  	switch (req_op(req)) {
  	case REQ_OP_DRV_IN:
+ 	case REQ_OP_DRV_OUT:
 @@ -717,9 +882,11 @@ blk_status_t nvme_setup_cmd(struct nvme_ns *ns, struct request *req,
  	case REQ_OP_FLUSH:
  		nvme_setup_flush(ns, cmd);
