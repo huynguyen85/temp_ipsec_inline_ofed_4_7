@@ -101,3 +101,6 @@ Change-Id=I9a241bd2ab4fe22519fc451bb1442e233474e8c4; subject=BACKPORTS: fix comp
 Change-Id=I66716903f9bba0bdcafdd500195f2aa35d7c4662; subject=BACKPORTS: fix compile warning in en_main.c; feature=backports; upstream_status=ignore; general=;
 Change-Id=I986ac82367977166c738f0f1c6a0023d75071f56; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Id4889e62dad23d043a6b6bb2079130699d92b1f5; subject=BACKPORTS: fix compile warning in en_tc.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=I8944703e888b30e4113cde7da43b269290ce3cd2; subject=BACKPORTS: define compat for NL_SET_ERR_MSG_MOD; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I085bbff90eca19bbdc2990e898db7b29f68375e8; subject=BACKPORTS: use compat extack function in en_tc.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=I0d8050a93471909c7888d55a14b5441724bb36a3; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
