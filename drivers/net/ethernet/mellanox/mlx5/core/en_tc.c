@@ -2087,17 +2087,40 @@ static bool is_valid_ct_state(struct mlx5e_priv *priv,
 {
 	u8 ct_state = (f->ct_state_key & f->ct_state_mask);
 
-	/* Allow only -trk and +trk+est only */
-	if (!(ct_state == 0 ||
-	      ct_state == (TCA_FLOWER_KEY_CT_FLAGS_TRACKED |
-			   TCA_FLOWER_KEY_CT_FLAGS_ESTABLISHED))) {
-		netdev_dbg(priv->netdev,
-			   "Unsupported ct_state used: key/mask: %x/%x\n",
-			   f->ct_state_key, f->ct_state_mask);
-		return false;
-	}
+	/* We can't offload new and invalid CT states.
+	 * Related state needs more investigation.
+	 */
 
-	return true;
+	/* -trk */
+	if (!ct_state)
+		return true;
+
+	/* +new */
+	if (ct_state & TCA_FLOWER_KEY_CT_FLAGS_NEW)
+		goto err;
+
+	/* +inv */
+	if (ct_state & TCA_FLOWER_KEY_CT_FLAGS_INVALID)
+		goto err;
+
+	/* +rel */
+	if (ct_state & TCA_FLOWER_KEY_CT_FLAGS_RELATED)
+		goto err;
+
+	/* +est */
+	if (ct_state & TCA_FLOWER_KEY_CT_FLAGS_ESTABLISHED)
+		return true;
+
+	/* -new exclusively */
+	if (!(f->ct_state_key & TCA_FLOWER_KEY_CT_FLAGS_NEW) &&
+	    (f->ct_state_mask & TCA_FLOWER_KEY_CT_FLAGS_NEW))
+		return true;
+
+err:
+	netdev_dbg(priv->netdev, "Unsupported ct_state used: key/mask: %x/%x\n",
+		   f->ct_state_key, f->ct_state_mask);
+
+	return false;
 }
 #endif
 
