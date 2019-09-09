@@ -65,3 +65,4 @@ Change-Id=I455ffa1564fad38425ca48c4090b383d302ae1d6; subject=BACKPORTS: Fix miss
 Change-Id=I232b38d70ed53dcb67ad2cd9895f7aa9d05197b9; subject=net/mlx5e: Avoid warning print when not required; feature=mlx5_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I86007024da099fdc71b6fb05b1635dd290cf4958; subject=mlx5/core: Initialize VF data correctly in init flow; feature=mlx5_core_bugs; upstream_status=NA; general=;
 Change-Id=Iaf8c98c27a3522f019473b40647fdd7956eb868d; subject=BACKPORTS: Fix ib umem get/release flow; feature=backports; upstream_status=ignore; general=;
+Change-Id=I8b70e0ed6a7a2677170c689e3b3e9944b080af65; subject=Compat: Zero allocated buffer if __GFP_ZERO passed; feature=ofed_scripts; upstream_status=NA; general=;
