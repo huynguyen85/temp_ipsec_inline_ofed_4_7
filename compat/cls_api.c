@@ -20,7 +20,6 @@
 #include <net/tc_act/tc_pedit.h>
 #include <net/tc_act/tc_csum.h>
 #include <net/tc_act/tc_skbedit.h>
-#include <net/tc_act/tc_sample.h>
 #ifdef HAVE_MINIFLOW
 #include <net/tc_act/tc_ct.h>
 #endif
@@ -109,13 +108,6 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 		} else if (is_tcf_skbedit_mark(act)) {
 			entry->id = FLOW_ACTION_MARK;
 			entry->mark = tcf_skbedit_mark(act);
-		} else if (is_tcf_sample(act)) {
-			entry->id = FLOW_ACTION_SAMPLE;
-			entry->sample.psample_group =
-				tcf_sample_psample_group(act);
-			entry->sample.trunc_size = tcf_sample_trunc_size(act);
-			entry->sample.truncate = tcf_sample_truncate(act);
-			entry->sample.rate = tcf_sample_rate(act);
 		}
 #ifdef HAVE_IS_TCF_POLICE
 		else if (is_tcf_police(act)) {
