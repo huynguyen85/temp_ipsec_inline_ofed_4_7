@@ -98,8 +98,10 @@ static const struct nla_policy tunnel_key_pol[TCA_TUNNEL_KEY_MAX + 1] = {
 	[TCA_TUNNEL_KEY_ENC_IPV6_DST] = { .len = sizeof(struct in6_addr) },
 	[TCA_TUNNEL_KEY_ENC_KEY_ID]   = { .type = NLA_U32 },
 	[TCA_TUNNEL_KEY_ENC_DST_PORT] = { .type = NLA_U16 },
+#ifdef HAVE_TCA_TUNNEL_KEY_ENC_TOS
 	[TCA_TUNNEL_KEY_ENC_TOS]      = { .type = NLA_U8 },
 	[TCA_TUNNEL_KEY_ENC_TTL]      = { .type = NLA_U8 },
+#endif
 };
 
 struct netlink_tunnel_key {

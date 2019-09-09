@@ -13033,6 +13033,36 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	        AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if TCA_TUNNEL_KEY_ENC_DST_PORT exists])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+	        #include <uapi/linux/tc_act/tc_tunnel_key.h>
+	],[
+	        int x = TCA_TUNNEL_KEY_ENC_DST_PORT;
+
+	        return 0;
+	],[
+	        AC_MSG_RESULT(yes)
+	        MLNX_AC_DEFINE(HAVE_TCA_TUNNEL_KEY_ENC_DST_PORT, 1,
+	                        [TCA_TUNNEL_KEY_ENC_DST_PORT is defined])
+	],[
+	        AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if TCA_TUNNEL_KEY_ENC_TOS exists])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+	        #include <uapi/linux/tc_act/tc_tunnel_key.h>
+	],[
+	        int x = TCA_TUNNEL_KEY_ENC_TOS;
+
+	        return 0;
+	],[
+	        AC_MSG_RESULT(yes)
+	        MLNX_AC_DEFINE(HAVE_TCA_TUNNEL_KEY_ENC_TOS, 1,
+	                        [TCA_TUNNEL_KEY_ENC_TOS is defined])
+	],[
+	        AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if linux/blk-mq.h has struct blk_mq_queue_map])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/blk-mq.h>
