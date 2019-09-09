@@ -28,6 +28,7 @@
  * @parent refers to the @xa_node closer to the head than @node.
  * @entry refers to something stored in a slot in the xarray
  */
+#define radix_tree_node         xa_node
 
 static inline unsigned int xa_lock_type(const struct xarray *xa)
 {
