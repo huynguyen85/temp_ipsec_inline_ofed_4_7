@@ -56,7 +56,9 @@ EXPORT_SYMBOL(flow_rule_match_ipv6_addrs);
 void flow_rule_match_ip(const struct flow_rule *rule,
 			struct flow_match_ip *out)
 {
+#ifdef HAVE_FLOW_DISSECTOR_KEY_IP
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_IP, out);
+#endif
 }
 EXPORT_SYMBOL(flow_rule_match_ip);
 
@@ -79,7 +81,9 @@ EXPORT_SYMBOL(flow_rule_match_ports);
 void flow_rule_match_tcp(const struct flow_rule *rule,
 			 struct flow_match_tcp *out)
 {
+#ifdef HAVE_FLOW_DISSECTOR_KEY_TCP
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_TCP, out);
+#endif
 }
 EXPORT_SYMBOL(flow_rule_match_tcp);
 
@@ -93,7 +97,9 @@ EXPORT_SYMBOL(flow_rule_match_icmp);
 void flow_rule_match_mpls(const struct flow_rule *rule,
 			  struct flow_match_mpls *out)
 {
+#ifdef FLOW_DISSECTOR_KEY_MPLS
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_MPLS, out);
+#endif
 }
 EXPORT_SYMBOL(flow_rule_match_mpls);
 

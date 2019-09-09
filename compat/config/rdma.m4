@@ -2581,6 +2581,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if flow_dissector.h enum flow_dissector_key_keyid has FLOW_DISSECTOR_KEY_MPLS])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/flow_dissector.h>
+	],[
+		enum flow_dissector_key_id keyid = FLOW_DISSECTOR_KEY_MPLS;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_FLOW_DISSECTOR_KEY_MPLS, 1,
+			  [FLOW_DISSECTOR_KEY_MPLS is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if flow_dissector.h enum flow_dissector_key_keyid has FLOW_DISSECTOR_KEY_ENC_IP])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/flow_dissector.h>
