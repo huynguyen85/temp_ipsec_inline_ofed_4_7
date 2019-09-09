@@ -14,3 +14,4 @@ Change-Id=Iff9206fb636954df33577824cad6387425370941; subject=BACKPORTS: Fix RHEL
 Change-Id=I200972e04bc1838dfe86ace06789fa4b7778b28b; subject=BACKPORTS: Fix mmget_still_valid for debians; feature=backports; upstream_status=ignore; general=;
 Change-Id=I7332308618af96f5a34940ced851663a5aef7dee; subject=BACKPORT: PPC RHEL 7.5 HAVE_DEV_ARCH_DMADATA_DMA_OFFSET NEW DEFINE; feature=backports; upstream_status=ignore; general=;
 Change-Id=I72ac116a4dc85293c2390b6d2e4412822664b497; subject=BACKPORTS: rdma.m4: Remove unused defines; feature=backports; upstream_status=ignore; general=;
+Change-Id=I3d256c7c74dee9c7d38a28fe51e9922fd9cea173; subject=BACKPORTS: Remove redundant IRQ backport; feature=backports; upstream_status=ignore; general=;

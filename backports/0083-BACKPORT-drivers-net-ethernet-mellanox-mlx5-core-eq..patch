@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/eq.c
 
 Change-Id: Ifb5c7eb75f3d3b9599818070f572cd4d494ebfc7
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eq.c | 32 +++++++++++++++++++++++++++-
- 1 file changed, 31 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eq.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eq.c b/drivers/net/ethernet/mellanox/mlx5/core/eq.c
 index xxxxxxx..xxxxxxx 100644
@@ -57,20 +57,7 @@ index xxxxxxx..xxxxxxx 100644
  	eq->dev = dev;
  	eq->doorbell = priv->uar->map + MLX5_EQ_DOORBEL_OFFSET;
  
-@@ -725,7 +739,12 @@ void mlx5_eq_synchronize_async_irq(struct mlx5_core_dev *dev)
- 
- void mlx5_eq_synchronize_cmd_irq(struct mlx5_core_dev *dev)
- {
-+#ifdef HAVE_PCI_IRQ_API
-+	synchronize_irq(pci_irq_vector(dev->pdev,dev->priv.eq_table->cmd_eq.core.irqn));
-+#else
- 	synchronize_irq(dev->priv.eq_table->cmd_eq.core.irqn);
-+#endif
-+
- }
- 
- /* Generic EQ API for mlx5_core consumers
-@@ -779,7 +798,11 @@ struct mlx5_eqe *mlx5_eq_get_eqe(struct mlx5_eq *eq, u32 cc)
+@@ -779,7 +793,11 @@ struct mlx5_eqe *mlx5_eq_get_eqe(struct mlx5_eq *eq, u32 cc)
  	 * checked the ownership bit.
  	 */
  	if (eqe)
@@ -82,7 +69,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	return eqe;
  }
-@@ -929,6 +952,13 @@ struct mlx5_eq_comp *mlx5_eqn2comp_eq(struct mlx5_core_dev *dev, int eqn)
+@@ -929,6 +947,13 @@ struct mlx5_eq_comp *mlx5_eqn2comp_eq(struct mlx5_core_dev *dev, int eqn)
  	return ERR_PTR(-ENOENT);
  }
  
