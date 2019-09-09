@@ -92,7 +92,6 @@ enum {
 
 #undef TCA_FLOWER_MAX
 #define TCA_FLOWER_MAX TCA_FLOWER_KEY_ARP_THA_MASK
-#endif /* HAVE_TCA_FLOWER_KEY_SCTP_SRC_MASK */
 
 #ifndef HAVE_TCA_FLOWER_KEY_MPLS_TTL
 enum {
@@ -124,11 +123,11 @@ enum {
 	TCA_FLOWER_KEY_ENC_IP_TOS_MASK,	/* u8 */
 	TCA_FLOWER_KEY_ENC_IP_TTL,	/* u8 */
 	TCA_FLOWER_KEY_ENC_IP_TTL_MASK,	/* u8 */
-
-	__TCA_FLOWER_MAX,
 };
 
-#define TCA_FLOWER_MAX (__TCA_FLOWER_MAX - 1)
+#undef TCA_FLOWER_MAX
+#define TCA_FLOWER_MAX TCA_FLOWER_KEY_ENC_IP_TTL_MASK
+#endif /* HAVE_TCA_FLOWER_KEY_CVLAN_ID */
 
 /* tca flags definitions */
 #define TCA_CLS_FLAGS_SKIP_HW	(1 << 0) /* don't offload filter to HW */
