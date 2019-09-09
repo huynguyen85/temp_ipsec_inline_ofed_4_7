@@ -99,7 +99,8 @@ static inline int tcf_mirred_ifindex(const struct tc_action *a)
 #ifndef HAVE_TCF_MIRRED_DEV
 static inline struct net_device *tcf_mirred_dev(const struct tc_action *a)
 {
-	return tcf_mirred_ifindex(a);
+	return __dev_get_by_index(current->nsproxy->net_ns,
+				  tcf_mirred_ifindex(a));
 }
 #endif
 
