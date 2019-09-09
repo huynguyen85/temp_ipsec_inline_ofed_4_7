@@ -17,3 +17,14 @@ Change-Id=I435d1e366b4a3d00c1e5483826b81c0203fe6fba; subject=BACKPORTS: ifindex 
 Change-Id=I9d767d55e41d15e748823bf5faed54692e6b098a; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I48607dfc76b55157fe3a6725810264dee327b30b; subject=BACKPORTS: Fix ESWITCH supported version to 4.14; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I2b7a1b3b112f727bac05d62ed65bdb5877e0316e; subject=BACKPORTS: remove definition duplication of HAVE_TCF_MIRRED_DEV; feature=backports; upstream_status=ignore; general=;
+Change-Id=I96dbdba04a620de603724ee6d2c05c9e7096e89b; subject=BACKPORTS: fix redeclaration __TCA_FLOWER_MAX; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I5088a25c338dc78323c2d7dd87c491cfcca91390; subject=BACKPORTS: remove handling of tcf_sample; feature=backports; upstream_status=ignore; general=;
+Change-Id=I5ac5e98247674e542812b56fd4c1b92cecad7b42; subject=BACKPORTS: add dummy for tc setup type for old kernels; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I9404953cdd1cec2fa2a52966f5ac946f3d808f9d; subject=BACKPORTS: add __is_tcf_gact_act; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I76bfb43338735135fff63ae7090d70df84769207; subject=BACKPORTS: fix compat for goto chain; feature=backports; upstream_status=ignore; general=;
+Change-Id=Id37d810f588aaf9d51987d43ddd1a22abab27f66; subject=BACKPORTS: add refcount_dec_and_mutex_lock; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I7408332a2b3b27b4151f045c2a52e7fe025e1610; subject=BACKPORTS: fix cls_flower backport; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Iaf4850fb4c2ba5adfb817ead3ad7016e45e4a187; subject=BACKPORTS: fix act_tunnel_key.c backport; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Ifd6cc1b907d1134c2fcdfb488a3d7d0e02c1e959; subject=BACKPORTS: fix pedit backport; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Id9d4a54f97cf713d9e2714a2023aa8669846d827; subject=BACKPORTS: fix asap backports; feature=backports; upstream_status=ignore; general=;
+Change-Id=I1e5e0dfc0b31e417a90ba369b5006fcd9ee5b510; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
