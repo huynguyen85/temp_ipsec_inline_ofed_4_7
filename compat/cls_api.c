@@ -28,7 +28,7 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 			 const struct tcf_exts *exts)
 {
 	const struct tc_action *act;
-	int i, j, k;
+	int i, j;
 
 	if (!exts)
 		return 0;
@@ -84,7 +84,9 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 		} else if (is_tcf_ct(act)) {
 			entry->id = FLOW_ACTION_CT;
 #endif
+#ifdef HAVE_TCF_PEDIT_TCFP_KEYS_EX
 		} else if (is_tcf_pedit(act)) {
+			int k;
 			for (k = 0; k < tcf_pedit_nkeys(act); k++) {
 				switch (tcf_pedit_cmd(act, k)) {
 				case TCA_PEDIT_KEY_EX_CMD_SET:
@@ -102,6 +104,7 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 				entry->mangle.offset = tcf_pedit_offset(act, k);
 				entry = &flow_action->entries[++j];
 			}
+#endif
 		} else if (is_tcf_csum(act)) {
 			entry->id = FLOW_ACTION_CSUM;
 			entry->csum_flags = tcf_csum_update_flags(act);
@@ -121,8 +124,10 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 			goto err_out;
 		}
 
+#ifdef HAVE_TCF_PEDIT_TCFP_KEYS_EX
 		if (!is_tcf_pedit(act))
 			j++;
+#endif
 	}
 	return 0;
 err_out:
@@ -132,6 +137,8 @@ EXPORT_SYMBOL(tc_setup_flow_action);
 
 #endif
 
+
+#ifdef HAVE_TCF_PEDIT_TCFP_KEYS_EX
 #ifndef HAVE_TCF_EXTS_NUM_ACTIONS
 #include <net/pkt_cls.h>
 #include <net/tc_act/tc_pedit.h>
@@ -143,12 +150,13 @@ unsigned int tcf_exts_num_actions(struct tcf_exts *exts)
 
         tcf_exts_for_each_action(i, act, exts) {
                 if (is_tcf_pedit(act))
-                        num_acts += tcf_pedit_nkeys(act);
+			num_acts += tcf_pedit_nkeys(act);
                 else
-                num_acts++;
+                	num_acts++;
         }
         return num_acts;
 }
 EXPORT_SYMBOL(tcf_exts_num_actions);
+#endif
 
 #endif
