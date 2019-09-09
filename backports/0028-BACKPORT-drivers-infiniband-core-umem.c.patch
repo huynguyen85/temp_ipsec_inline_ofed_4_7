@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/umem.c
 
 Change-Id: I51485baf119b4bc9bb31be5261ad3455376fba81
 ---
- drivers/infiniband/core/umem.c | 122 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 118 insertions(+), 4 deletions(-)
+ drivers/infiniband/core/umem.c | 135 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 132 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/infiniband/core/umem.c b/drivers/infiniband/core/umem.c
 index xxxxxxx..xxxxxxx 100644
@@ -29,7 +29,7 @@ index xxxxxxx..xxxxxxx 100644
 +	int i;
 +#endif
  	unsigned long lock_limit;
-+#ifdef HAVE_PINNED_VM
++#if defined(HAVE_PINNED_VM) || defined(HAVE_ATOMIC_PINNED_VM)
  	unsigned long new_pinned;
 +#endif
  	unsigned long cur_base;
@@ -87,35 +87,49 @@ index xxxxxxx..xxxxxxx 100644
  	npages = ib_umem_num_pages(umem);
  	if (npages == 0 || npages > UINT_MAX) {
  		pr_debug("%s: npages(%lu) isn't in the range 1..%u\n", __func__,
-@@ -420,11 +451,27 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -420,15 +451,41 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  
  	lock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
  
-+#ifdef HAVE_PINNED_VM
 +#ifdef HAVE_ATOMIC_PINNED_VM
  	new_pinned = atomic64_add_return(npages, &mm->pinned_vm);
  	if (new_pinned > lock_limit && !capable(CAP_IPC_LOCK)) {
 +#else
++	down_write(&mm->mmap_sem);
++#ifdef HAVE_PINNED_VM
 +	if (check_add_overflow(mm->pinned_vm, npages, &new_pinned) ||
 +	    (new_pinned > lock_limit && !capable(CAP_IPC_LOCK))) {
-+#endif
 +#else
 +	current->mm->locked_vm += npages;
 +	if ((current->mm->locked_vm > lock_limit) && !capable(CAP_IPC_LOCK)) {
-+#endif
-+#ifdef HAVE_PINNED_VM
++#endif /* HAVE_PINNED_VM */
++#endif /* HAVE_ATOMIC_PINNED_VM */
++
 +#ifdef HAVE_ATOMIC_PINNED_VM
  		atomic64_sub(npages, &mm->pinned_vm);
 +#else
-+		mm->pinned_vm -= npages;
-+#endif
++		up_write(&mm->mmap_sem);
++#ifdef HAVE_PINNED_VM
  		pr_debug("%s: requested to lock(%lu) while limit is(%lu)\n",
  		       __func__, new_pinned, lock_limit);
-+#endif
++#else
++		current->mm->locked_vm -= npages;
++#endif /* HAVE_PINNED_VM */
++#endif /* HAVE_ATOMIC_PINNED_VM */
  		ret = -ENOMEM;
  		goto out;
  	}
-@@ -438,23 +485,58 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+ 
++#ifndef HAVE_ATOMIC_PINNED_VM
++#ifdef HAVE_PINNED_VM
++	mm->pinned_vm = new_pinned;
++#endif /* HAVE_PINNED_VM */
++	up_write(&mm->mmap_sem);
++#endif /* HAVE_ATOMIC_PINNED_VM */
+ 	cur_base = addr & PAGE_MASK;
+ 
+ 	ret = sg_alloc_table(&umem->sg_head, npages, GFP_KERNEL);
+@@ -438,23 +495,58 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  		goto vma;
  	}
  
@@ -174,7 +188,7 @@ index xxxxxxx..xxxxxxx 100644
  			up_read(&mm->mmap_sem);
  			goto umem_release;
  		}
-@@ -465,7 +547,15 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -465,7 +557,15 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  		sg = ib_umem_add_sg_table(sg, page_list, ret,
  			dma_get_max_seg_size(context->device->dma_device),
  			&umem->sg_nents);
@@ -191,7 +205,7 @@ index xxxxxxx..xxxxxxx 100644
  		up_read(&mm->mmap_sem);
  	}
  
-@@ -475,7 +565,11 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -475,7 +575,11 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  				  umem->sg_head.sgl,
  				  umem->sg_nents,
  				  DMA_BIDIRECTIONAL,
@@ -204,20 +218,21 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (!umem->nmap) {
  		pr_err("%s: failed to map scatterlist, npages=%lu\n", __func__,
-@@ -490,8 +584,20 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -490,8 +594,22 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  umem_release:
  	__ib_umem_release(context->device, umem, 0);
  vma:
--	atomic64_sub(ib_umem_num_pages(umem), &mm->pinned_vm);
-+#ifdef HAVE_PINNED_VM
 +#ifdef HAVE_ATOMIC_PINNED_VM
-+       atomic64_sub(ib_umem_num_pages(umem), &mm->pinned_vm);
+ 	atomic64_sub(ib_umem_num_pages(umem), &mm->pinned_vm);
 +#else
-+       mm->pinned_vm -= ib_umem_num_pages(umem);
-+#endif
++	down_write(&mm->mmap_sem);
++#ifdef HAVE_PINNED_VM
++	mm->pinned_vm -= ib_umem_num_pages(umem);
 +#else
 +	mm->locked_vm -= ib_umem_num_pages(umem);
-+#endif
++#endif /* HAVE_PINNED_VM */
++	up_write(&mm->mmap_sem);
++#endif /* HAVE_ATOMIC_PINNED_VM */
  out:
 +#if !defined(HAVE_FOLL_LONGTERM) && !defined(HAVE_GET_USER_PAGES_LONGTERM)
 +	if (vma_list)
@@ -226,19 +241,22 @@ index xxxxxxx..xxxxxxx 100644
  	free_page((unsigned long) page_list);
  	/*
   	 * If the address belongs to peer memory client, then the first
-@@ -547,7 +653,15 @@ void ib_umem_release(struct ib_umem *umem)
+@@ -547,7 +665,18 @@ void ib_umem_release(struct ib_umem *umem)
  
  	__ib_umem_release(umem->context->device, umem, 1);
  
-+#ifdef HAVE_PINNED_VM
 +#ifdef HAVE_ATOMIC_PINNED_VM
  	atomic64_sub(ib_umem_num_pages(umem), &umem->owning_mm->pinned_vm);
 +#else
++	down_write(&umem->owning_mm->mmap_sem);
++#ifdef HAVE_PINNED_VM
 +	umem->owning_mm->pinned_vm -= ib_umem_num_pages(umem);
-+#endif /*HAVE_ATOMIC_PINNED_VM*/
 +#else
 +	umem->owning_mm->locked_vm -= ib_umem_num_pages(umem);
-+#endif
++#endif /* HAVE_PINNED_VM */
++	up_write(&umem->owning_mm->mmap_sem);
++#endif /*HAVE_ATOMIC_PINNED_VM*/
++
  	__ib_umem_release_tail(umem);
  }
  EXPORT_SYMBOL(ib_umem_release);
