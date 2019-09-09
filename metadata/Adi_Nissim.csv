@@ -31,3 +31,8 @@ Change-Id=I1e5e0dfc0b31e417a90ba369b5006fcd9ee5b510; subject=metadata: update; f
 Change-Id=I3e0c6abe0838932f353b08142c5ded5d66fcff9b; subject=net/mlx5e: remove redundant include of act_gact.h; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=Ia64ffaa358d99133428b4bb3a60f59895841e06e; subject=BACKPORTS: update; feature=backports; upstream_status=ignore; general=;
 Change-Id=I858f023cc6a7040be50182d9edb99d4f92550b9b; subject=BACKPORTS: Change ESWITCH supported version to 4.9; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I91d3a7b1565aa4e4863bdfe81cf5d03c36ca1888; subject=BACKPORTS: fix switchdev include; feature=backports; upstream_status=ignore; general=;
+Change-Id=I6fd08c2d0218adf6159246dae6dc404531bdf573; subject=BACKPORTS: add backprot checks for flow dissector keys ip, tcp and mpls; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia618445c90a4e901cf132925ffa27d14de474712; subject=BACKPORTS: update cls_api.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=If06a404d3c6fbc28998e5a2b543cc225ba6530f5; subject=BACKPORTS: fix pedit backport checks; feature=backports; upstream_status=ignore; general=;
+Change-Id=I8f7f720d170d1c381df76252476d765808c52545; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
