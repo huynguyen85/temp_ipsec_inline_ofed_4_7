@@ -3,6 +3,12 @@
 
 #include_next <net/pkt_cls.h>
 
+#ifndef HAVE_TC_SETUP_TYPE
+enum tc_setup_type {
+	dummy,
+};
+#endif
+
 #ifndef HAVE___TC_INDR_BLOCK_CB_REGISTER
 typedef int tc_indr_block_bind_cb_t(struct net_device *dev, void *cb_priv,
                                     enum tc_setup_type type, void *type_data);
