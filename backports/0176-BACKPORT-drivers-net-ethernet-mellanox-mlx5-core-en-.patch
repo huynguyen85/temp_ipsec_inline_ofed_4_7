@@ -131,7 +131,7 @@ index xxxxxxx..xxxxxxx 100644
  	int tunnel_type;
  	int err = 0;
  
-+#ifdef HAVE_TC_BLOCK_OFFLOAD
++#ifndef HAVE___TC_INDR_BLOCK_CB_REGISTER
 +/* in old kernels with egdev we don't pass the netdev so the filter_dev here
 + * is actually priv->netdev. we only assume and support vxlan */
 +	tunnel_type = MLX5E_TC_TUNNEL_TYPE_VXLAN;
