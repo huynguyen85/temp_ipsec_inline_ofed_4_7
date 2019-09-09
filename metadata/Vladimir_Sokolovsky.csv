@@ -6,3 +6,4 @@ Change-Id=I3deeb7fbb866f1698619dbaa9bc231b416fc12f5; subject=net/mlx5: Host PF/V
 Change-Id=I2583b1c885a678d671fdc9216dd83cc1b5ac8ba8; subject=mlnx-ofed-kernel-utils.openibd.init: Enable persistent configuration of PF via ECPF; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I708de3d850afbbd346c06efb6e985bca436c6d40; subject=debian/rules: Remove copying of non existent directory; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I9eb584858b0d351f5016e68a9fc49da95b339d5a; subject=debian/rules: Copy mlnx_net_rules; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I40ed04355a7088d6b3dc4e5ff80129424418ca55; subject=openibd/mlnx-en.d: Removed the warning deprecated; feature=ofed_scripts; upstream_status=ignore; general=;
