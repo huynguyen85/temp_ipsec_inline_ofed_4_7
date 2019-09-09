@@ -23,3 +23,4 @@ Change-Id=I1645fc8307a95cf844a14c7d38b4a3b610c6efe7; subject=net/mlx5: Decrease 
 Change-Id=I0cb508c96869564054844e9fd0a26c2cf9a01aa7; subject=net/mlx5: VF group code adjustments; feature=vf_group_bw_share; upstream_status=NA; general=;
 Change-Id=I9d892e6672f2012fbe1dd2ae90ea2073e9535be4; subject=net/mlx5: Eswitch: Support VF group minimum tx rate; feature=vf_group_bw_share; upstream_status=NA; general=;
 Change-Id=I4424c31a97411c713f5a25ef0f3560000e1578cd; subject=IB/mlx5: exp_alloc_mr support in mlx5_ib; feature=memic; upstream_status=NA; general=;
+Change-Id=I3c6be140c4fed04ec1b35b85d1ec61a25a903deb; subject=net/mlx5e: Move to HW checksumming advertising; feature=mlx5_ipip_tun_support; upstream_status=accepted; general=upstream commit ID: e4683f35f8e5, tag: v5.3-rc1;
