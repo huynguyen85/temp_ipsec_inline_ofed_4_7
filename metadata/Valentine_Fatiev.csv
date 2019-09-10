@@ -16,3 +16,4 @@ Change-Id=I7332308618af96f5a34940ced851663a5aef7dee; subject=BACKPORT: PPC RHEL 
 Change-Id=I72ac116a4dc85293c2390b6d2e4412822664b497; subject=BACKPORTS: rdma.m4: Remove unused defines; feature=backports; upstream_status=ignore; general=;
 Change-Id=I3d256c7c74dee9c7d38a28fe51e9922fd9cea173; subject=BACKPORTS: Remove redundant IRQ backport; feature=backports; upstream_status=ignore; general=;
 Change-Id=I5c04d0471af53f9cf45eebdd466dbbc19df5eac9; subject=BACKPORTS: Fix mlx5_ptp_gettimex backport; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ib542cb76b7fa3876cf16c2474538f74d714bc44c; subject=BACKPORTS: fix mmget_still_valid backport; feature=backports; upstream_status=ignore; general=;

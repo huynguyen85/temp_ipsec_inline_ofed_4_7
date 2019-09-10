@@ -12857,6 +12857,20 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if linux/mm.h has mmget_still_valid])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/mm.h>
+	],[
+		mmget_still_valid(NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_MMGET_STILL_VALID_IN_MM_H, 1,
+			[mmget_still_valid is defined in linux/mm.h])
+	],[
+		AC_MSG_RESULT(no)
+	])
 	AC_MSG_CHECKING([if mm.h has is_pci_p2pdma_page])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/mm.h>
