@@ -74,4 +74,12 @@ static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
 }
 #endif
 
+#ifndef HAVE_VLAN_GET_ENCAP_LEVEL
+static inline int vlan_get_encap_level(struct net_device *dev)
+{
+	BUG_ON(!is_vlan_dev(dev));
+	return 0;
+}
+#endif
+
 #endif /* LINUX_IF_VLAN_H */
