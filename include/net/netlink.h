@@ -24,9 +24,11 @@ struct netlink_ext_ack {
 	u8 cookie_len;
 };
 
+#ifndef NL_SET_ERR_MSG
 #define NL_SET_ERR_MSG(extack, msg) pr_err("%s\n", msg)
 #define NL_SET_ERR_MSG_MOD(extack, msg) NL_SET_ERR_MSG(extack, KBUILD_MODNAME ": " msg)
 #endif
+#endif/* NL_SET_ERR_MSG */
 
 #endif	/* _COMPAT_NET_NETLINK_H */
 
