@@ -36,3 +36,11 @@ Change-Id=I6fd08c2d0218adf6159246dae6dc404531bdf573; subject=BACKPORTS: add back
 Change-Id=Ia618445c90a4e901cf132925ffa27d14de474712; subject=BACKPORTS: update cls_api.c; feature=backports; upstream_status=ignore; general=;
 Change-Id=If06a404d3c6fbc28998e5a2b543cc225ba6530f5; subject=BACKPORTS: fix pedit backport checks; feature=backports; upstream_status=ignore; general=;
 Change-Id=I8f7f720d170d1c381df76252476d765808c52545; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I540f092d597028ce80c94eb91d26a357e8e83dab; subject=BACKPORTS: Add compat check for vlan_get_encap_level; feature=backports; upstream_status=ignore; general=;
+Change-Id=I42c180febf35aa67266f2bc18de21f64264e7cd1; subject=BACKPORTS: Add missing vlan_get_encap_level to en_tc.c; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Ib6d870393db328624c07c2486967eded1fd0d34a; subject=BACKPORTS: Add definition of list_next_or_null_rcu; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I50728aba52dd55038158400187ee7f4c1de0e49f; subject=BACKPORTS: Fix backport compilation errors; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia2b5f2f40e941bb36eac2ecabbf5e929049cf521; subject=BACKPORTS: Add compat check for HAVE_TCA_VLAN_ACT_MODIFY; feature=backports; upstream_status=ignore; general=;
+Change-Id=Iea1b7261f68943209a787ba1186a3cef2d095927; subject=BACKPORTS: Add backports to cls_api; feature=backports; upstream_status=ignore; general=;
+Change-Id=I49aeb1bd2b733ad15959d98601667e48e2fe0503; subject=BACKPORTS: Fix compilation error in pkt_cls.h; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Iefd36982d0d1c39af70566fe1840d16f003cee26; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
