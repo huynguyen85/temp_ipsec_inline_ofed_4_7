@@ -55,6 +55,7 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 		} else if (is_tcf_mirred_egress_mirror(act)) {
 			entry->id = FLOW_ACTION_MIRRED;
 			entry->dev = tcf_mirred_dev(act);
+#ifdef HAVE_IS_TCF_VLAN
 		} else if (is_tcf_vlan(act)) {
 			switch (tcf_vlan_action(act)) {
 			case TCA_VLAN_ACT_PUSH:
@@ -66,20 +67,25 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 			case TCA_VLAN_ACT_POP:
 				entry->id = FLOW_ACTION_VLAN_POP;
 				break;
+#ifdef HAVE_TCA_VLAN_ACT_MODIFY
 			case TCA_VLAN_ACT_MODIFY:
 				entry->id = FLOW_ACTION_VLAN_MANGLE;
 				entry->vlan.vid = tcf_vlan_push_vid(act);
 				entry->vlan.proto = tcf_vlan_push_proto(act);
 				entry->vlan.prio = tcf_vlan_push_prio(act);
 				break;
+#endif /* HAVE_TCA_VLAN_ACT_MODIFY */
 			default:
 				goto err_out;
 			}
+#endif /* HAVE_IS_TCF_VLAN */
+#ifdef HAVE_IS_TCF_TUNNEL
 		} else if (is_tcf_tunnel_set(act)) {
 			entry->id = FLOW_ACTION_TUNNEL_ENCAP;
 			entry->tunnel = tcf_tunnel_info(act);
 		} else if (is_tcf_tunnel_release(act)) {
 			entry->id = FLOW_ACTION_TUNNEL_DECAP;
+#endif /* HAVE_IS_TCF_TUNNEL */
 #ifdef HAVE_MINIFLOW
 		} else if (is_tcf_ct(act)) {
 			entry->id = FLOW_ACTION_CT;
