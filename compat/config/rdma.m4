@@ -2111,6 +2111,22 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if if_vlan.h has vlan_get_encap_level])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/if_vlan.h>
+	],[
+		vlan_get_encap_level(NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_VLAN_GET_ENCAP_LEVEL, 1,
+			  [vlan_get_encap_level is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+
 	AC_MSG_CHECKING([if netdevice.h has netdev_set_num_tc])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/netdevice.h>
