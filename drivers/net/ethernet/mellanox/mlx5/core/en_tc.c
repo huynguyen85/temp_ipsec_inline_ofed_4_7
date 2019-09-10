@@ -130,15 +130,25 @@ static struct mlx5e_tc_flow *mlx5e_flow_get(struct mlx5e_tc_flow *flow)
 	return flow;
 }
 
-void mlx5e_flow_put(struct mlx5e_priv *priv,
-		    struct mlx5e_tc_flow *flow)
+void mlx5e_flow_put_lock(struct mlx5e_priv *priv,
+			 struct mlx5e_tc_flow *flow, bool lock)
 {
 	if (refcount_dec_and_test(&flow->refcnt)) {
+		if (flow->dep_lock && lock)
+			spin_lock(flow->dep_lock);
 		if (!list_empty(&flow->nft_node))
 			list_del_init(&flow->nft_node);
+		if (flow->dep_lock && lock)
+			spin_unlock(flow->dep_lock);
 		mlx5e_tc_del_flow(priv, flow);
 		kfree_rcu(flow, rcu_head);
 	}
+}
+
+void mlx5e_flow_put(struct mlx5e_priv *priv,
+		    struct mlx5e_tc_flow *flow)
+{
+	mlx5e_flow_put_lock(priv, flow, true);
 }
 
 static void __flow_flag_set(struct mlx5e_tc_flow *flow, unsigned long flag)

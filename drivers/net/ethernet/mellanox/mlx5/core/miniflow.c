@@ -1389,7 +1389,8 @@ void ct_flow_offload_get_stats(struct list_head *head, u64 *lastuse)
 static void ct_flow_offload_del(struct mlx5e_tc_flow *flow)
 {
 	flow->miniflow->aged = true;
-	mlx5e_flow_put(flow->priv, flow);
+	/* We already hold dep_lock, set flag to flase */
+	mlx5e_flow_put_lock(flow->priv, flow, false);
 }
 
 int ct_flow_offload_destroy(struct list_head *head)

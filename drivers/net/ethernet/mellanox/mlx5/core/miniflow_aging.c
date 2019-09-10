@@ -516,6 +516,7 @@ int mlx5_ct_flow_offload_add(const struct net *net,
 		err = -EAGAIN;
 		goto out;
 	}
+	tc_flow->dep_lock = &entry->dep_lock;
 	ct_flow_offload_add(tc_flow, &entry->deps);
 	spin_unlock(&entry->dep_lock);
 

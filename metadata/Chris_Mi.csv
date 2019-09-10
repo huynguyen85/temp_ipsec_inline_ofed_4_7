@@ -9,3 +9,4 @@ Change-Id=I6e7e2564cb26ebf0ddab37cb1847da3740519e79; subject=net/mlx5: Eswitch, 
 Change-Id=I52ac9b9f79eaef0502b2b7aae55b2c74f8f743af; subject=net/mlx5e: Add ndo_set_feature for uplink representor; feature=rebase; upstream_status=accepted; general=;
 Change-Id=I8824d138ee2d3d64979d8fa96f67f759a48bded1; subject=net/mlx5e: miniflow, Add lock when adding flows; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=Ic11841c9c37e86613bfcba3456ca26cb55eb6d1f; subject=net/mlx5: Miniflow, Avoid free twice if the flow is freed by aging; feature=mlx5e_st_ct; upstream_status=NA; general=;
+Change-Id=I2eaa19763b869507b3846cc04f78aedb626d25d2; subject=net/mlx5e: miniflow, Hold dep_lock when freeing flow; feature=mlx5e_st_ct; upstream_status=NA; general=;

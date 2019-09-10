@@ -135,6 +135,7 @@ struct mlx5e_tc_flow {
 	struct list_head        miniflow_list;
 	struct rcu_head		rcu;
 	struct list_head        nft_node;
+	spinlock_t		*dep_lock;
 
 	union {
 		struct mlx5_esw_flow_attr esw_attr[0];
@@ -208,6 +209,8 @@ void *mlx5e_lookup_tc_ht(struct mlx5e_priv *priv,
 			 int flags);
 void mlx5e_flow_put(struct mlx5e_priv *priv,
 		    struct mlx5e_tc_flow *flow);
+void mlx5e_flow_put_lock(struct mlx5e_priv *priv,
+		    struct mlx5e_tc_flow *flow, bool lock);
 int mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
 			  struct mlx5e_tc_flow *flow,
 			  struct netlink_ext_ack *extack);
