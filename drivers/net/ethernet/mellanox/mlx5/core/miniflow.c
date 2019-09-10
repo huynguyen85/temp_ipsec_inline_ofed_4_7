@@ -458,9 +458,6 @@ static int miniflow_merge_hdr(struct mlx5e_priv *priv,
 static void miniflow_merge_vxlan(struct mlx5e_tc_flow *mflow,
 				 struct mlx5e_tc_flow *flow)
 {
-	if (!(flow->esw_attr->action & MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT))
-		return;
-
 	memcpy(mflow->esw_attr->parse_attr->mirred_ifindex,
 	       flow->esw_attr->parse_attr->mirred_ifindex,
 	       sizeof(flow->esw_attr->parse_attr->mirred_ifindex));
@@ -760,6 +757,7 @@ static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
 	struct mlx5e_tc_flow_parse_attr *mparse_attr;
 	struct mlx5e_rep_priv *rpriv = priv->ppriv;
 	u32 tmp_mask[MLX5_ST_SZ_DW(fte_match_param)];
+	struct net_device *filter_dev = NULL;
 	unsigned long flow_flags;
 	struct mlx5e_tc_flow *mflow;
 	int attr_size, i;
@@ -806,6 +804,9 @@ static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
 
 		flow_flags |= flow->flags;
 
+		if (!filter_dev)
+			filter_dev = flow->esw_attr->parse_attr->filter_dev;
+
 		miniflow_merge_match(mflow, flow, tmp_mask);
 		miniflow_merge_action(mflow, flow);
 		err = miniflow_merge_mirred(mflow, flow);
@@ -832,6 +833,7 @@ static int miniflow_alloc_flow(struct mlx5e_miniflow *miniflow,
 	}
 	rcu_read_unlock();
 
+	mflow->esw_attr->parse_attr->filter_dev = filter_dev;
 	mflow->flags = flow_flags;
 	miniflow_merge_tuple(mflow, &miniflow->tuple);
 	/* TODO: Workaround: crashes otherwise, should fix */
