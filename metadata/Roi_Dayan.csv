@@ -105,3 +105,4 @@ Change-Id=I8944703e888b30e4113cde7da43b269290ce3cd2; subject=BACKPORTS: define c
 Change-Id=I085bbff90eca19bbdc2990e898db7b29f68375e8; subject=BACKPORTS: use compat extack function in en_tc.c; feature=backports; upstream_status=ignore; general=;
 Change-Id=I0d8050a93471909c7888d55a14b5441724bb36a3; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Ibba8b3d8add55ab5c8749d73737c06dfa2e196c8; subject=BACKPORTS: remove incorrect backport check in en_tc.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=I35b734cfcf497a083fae49dece006ccf282283dd; subject=BACKPORTS: add missing test tc multi mask; feature=backports; upstream_status=ignore; general=;
