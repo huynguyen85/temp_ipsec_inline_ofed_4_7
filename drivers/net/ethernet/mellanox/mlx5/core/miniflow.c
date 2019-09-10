@@ -313,10 +313,8 @@ static int miniflow_merge_mirred(struct mlx5e_tc_flow *mflow,
 	if (out_count > MLX5_MAX_FLOW_FWD_VPORTS)
 		return -1;
 
-	for (i = 0, j = dst_attr->out_count; j < out_count; i++, j++) {
-		dst_attr->dests->rep[j] = src_attr->dests->rep[i];
-		dst_attr->dests->mdev[j] = src_attr->dests->mdev[i];
-	}
+	for (i = 0, j = dst_attr->out_count; j < out_count; i++, j++)
+		dst_attr->dests[j] = src_attr->dests[i];
 
 	dst_attr->out_count = out_count;
 	dst_attr->split_count += src_attr->split_count;
