@@ -13602,6 +13602,39 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	],[
 		AC_MSG_RESULT(no)
 	])
+
+	AC_MSG_CHECKING([if linux/blk-mq-rdma.h has blk_mq_rdma_map_queues with map])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/blk-mq.h>
+		#include <linux/blk-mq-rdma.h>
+	],[
+		struct blk_mq_queue_map *map = NULL;
+
+		blk_mq_rdma_map_queues(map, NULL, 0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_BLK_MQ_RDMA_MAP_QUEUES_MAP, 1,
+			  [linux/blk-mq-rdma.h has blk_mq_rdma_map_queues with map])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if linux/blk-mq.h has request_to_qc_t])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/blk-mq.h>
+	],[
+		request_to_qc_t(NULL, NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_REQUEST_TO_QC_T, 1,
+			  [linux/blk-mq.h has request_to_qc_t])
+	],[
+		AC_MSG_RESULT(no)
+	])
 ])
 #
 # COMPAT_CONFIG_HEADERS

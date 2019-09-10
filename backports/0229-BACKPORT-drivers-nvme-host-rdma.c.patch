@@ -34,7 +34,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	struct nvme_ctrl	ctrl;
  	bool			use_inline_data;
-+#ifdef HAVE_BLK_MQ_HCTX_TYPE
++#if defined(HAVE_BLK_MQ_HCTX_TYPE) && defined(HAVE_BLK_MQ_RDMA_MAP_QUEUES_MAP)
  	u32			io_queues[HCTX_MAX_TYPES];
 +#endif
  };
@@ -58,7 +58,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static bool nvme_rdma_poll_queue(struct nvme_rdma_queue *queue)
  {
-+#ifdef HAVE_BLK_MQ_HCTX_TYPE
++#if defined(HAVE_BLK_MQ_HCTX_TYPE) && defined(HAVE_BLK_MQ_RDMA_MAP_QUEUES_MAP)
  	return nvme_rdma_queue_idx(queue) >
  		queue->ctrl->io_queues[HCTX_TYPE_DEFAULT] +
  		queue->ctrl->io_queues[HCTX_TYPE_READ];
@@ -191,7 +191,7 @@ index xxxxxxx..xxxxxxx 100644
  	dev_info(ctrl->ctrl.device,
  		"creating %d I/O queues.\n", nr_io_queues);
  
-+#ifdef HAVE_BLK_MQ_HCTX_TYPE
++#if defined(HAVE_BLK_MQ_HCTX_TYPE) && defined(HAVE_BLK_MQ_RDMA_MAP_QUEUES_MAP)
  	if (opts->nr_write_queues && nr_read_queues < nr_io_queues) {
  		/*
  		 * separate read/write queues
@@ -237,7 +237,7 @@ index xxxxxxx..xxxxxxx 100644
  		set->driver_data = ctrl;
  		set->nr_hw_queues = nctrl->queue_count - 1;
  		set->timeout = NVME_IO_TIMEOUT;
-+#ifdef HAVE_BLK_MQ_HCTX_TYPE
++#if defined(HAVE_BLK_MQ_HCTX_TYPE) && defined(HAVE_BLK_MQ_RDMA_MAP_QUEUES_MAP)
  		set->nr_maps = nctrl->opts->nr_poll_queues ? HCTX_MAX_TYPES : 2;
 +#endif
  	}
@@ -384,7 +384,7 @@ index xxxxxxx..xxxxxxx 100644
  static int nvme_rdma_map_queues(struct blk_mq_tag_set *set)
  {
  	struct nvme_rdma_ctrl *ctrl = set->driver_data;
-+#ifdef HAVE_BLK_MQ_HCTX_TYPE
++#if defined(HAVE_BLK_MQ_HCTX_TYPE) && defined(HAVE_BLK_MQ_RDMA_MAP_QUEUES_MAP)
  	struct nvmf_ctrl_options *opts = ctrl->ctrl.opts;
  
  	if (opts->nr_write_queues && ctrl->io_queues[HCTX_TYPE_READ]) {

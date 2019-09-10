@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/nvme/target/tcp.c
 
 Signed-off-by: Tom Wu <tomwu@mellanox.com>
 ---
- drivers/nvme/target/tcp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/nvme/target/tcp.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
 index xxxxxxx..xxxxxxx 100644
@@ -20,3 +20,31 @@ index xxxxxxx..xxxxxxx 100644
  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
  #include <linux/module.h>
  #include <linux/init.h>
+@@ -1413,14 +1416,27 @@ static int nvmet_tcp_set_queue_sock(struct nvmet_tcp_queue *queue)
+ 	struct inet_sock *inet = inet_sk(sock->sk);
+ 	struct linger sol = { .l_onoff = 1, .l_linger = 0 };
+ 	int ret;
++#ifndef HAVE_KERNEL_GETSOCKNAME_2_PARAMS
++	int len;
++#endif
+ 
++#ifdef HAVE_KERNEL_GETSOCKNAME_2_PARAMS
+ 	ret = kernel_getsockname(sock,
+ 		(struct sockaddr *)&queue->sockaddr);
++#else
++	ret = kernel_getsockname(sock,
++		(struct sockaddr *)&queue->sockaddr, &len);
++#endif
+ 	if (ret < 0)
+ 		return ret;
+ 
++#ifdef HAVE_KERNEL_GETSOCKNAME_2_PARAMS
+ 	ret = kernel_getpeername(sock,
+ 		(struct sockaddr *)&queue->sockaddr_peer);
++#else
++	ret = kernel_getpeername(sock,
++		(struct sockaddr *)&queue->sockaddr_peer, &len);
++#endif
+ 	if (ret < 0)
+ 		return ret;
+ 
