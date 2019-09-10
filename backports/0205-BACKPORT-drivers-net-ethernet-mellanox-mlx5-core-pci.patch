@@ -3,18 +3,20 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
 
 Change-Id: I4357f1536382d593df2ea8478e60cbf24b59a654
 ---
- drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c | 105 +++++++++++++++++++++-
- 1 file changed, 103 insertions(+), 2 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/pci_irq.c | 113 +++++++++++++++++-
+ 1 file changed, 111 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
-@@ -99,13 +99,21 @@ static void irq_set_name(char *name, int vecidx)
+@@ -99,13 +99,23 @@ static void irq_set_name(char *name, int vecidx)
  
  static int request_irqs(struct mlx5_core_dev *dev, int nvec)
  {
++#if defined(HAVE_IRQ_SET_AFFINITY_HINT) && !defined(HAVE_PCI_IRQ_API)
 +	struct mlx5_priv *priv  = &dev->priv;
++#endif
  	char name[MLX5_MAX_IRQ_NAME];
  	int err;
  	int i;
@@ -32,7 +34,7 @@ index xxxxxxx..xxxxxxx 100644
  
  		irq_set_name(name, i);
  		ATOMIC_INIT_NOTIFIER_HEAD(&irq->nh);
-@@ -123,7 +131,14 @@ static int request_irqs(struct mlx5_core_dev *dev, int nvec)
+@@ -123,7 +133,14 @@ static int request_irqs(struct mlx5_core_dev *dev, int nvec)
  err_request_irq:
  	for (; i >= 0; i--) {
  		struct mlx5_irq *irq = mlx5_irq_get(dev, i);
@@ -47,7 +49,7 @@ index xxxxxxx..xxxxxxx 100644
  
  		free_irq(irqn, &irq->nh);
  	}
-@@ -157,8 +172,13 @@ static int irq_set_rmap(struct mlx5_core_dev *mdev)
+@@ -157,8 +174,13 @@ static int irq_set_rmap(struct mlx5_core_dev *mdev)
  
  	vecidx = MLX5_IRQ_VEC_COMP_BASE;
  	for (; vecidx < irq_table->nvec; vecidx++) {
@@ -61,12 +63,14 @@ index xxxxxxx..xxxxxxx 100644
  		if (err) {
  			mlx5_core_err(mdev, "irq_cpu_rmap_add failed. err %d",
  				      err);
-@@ -178,12 +198,21 @@ err_out:
+@@ -178,12 +200,23 @@ err_out:
  
  static int set_comp_irq_affinity_hint(struct mlx5_core_dev *mdev, int i)
  {
++#if defined(HAVE_IRQ_SET_AFFINITY_HINT) && !defined(HAVE_PCI_IRQ_API)
 +	struct mlx5_priv *priv  = &mdev->priv;
 +	struct msix_entry *msix;
++#endif
  	int vecidx = MLX5_IRQ_VEC_COMP_BASE + i;
  	struct mlx5_irq *irq;
  	int irqn;
@@ -84,12 +88,14 @@ index xxxxxxx..xxxxxxx 100644
  	if (!zalloc_cpumask_var(&irq->mask, GFP_KERNEL)) {
  		mlx5_core_warn(mdev, "zalloc_cpumask_var failed");
  		return -ENOMEM;
-@@ -201,12 +230,21 @@ static int set_comp_irq_affinity_hint(struct mlx5_core_dev *mdev, int i)
+@@ -201,12 +234,23 @@ static int set_comp_irq_affinity_hint(struct mlx5_core_dev *mdev, int i)
  
  static void clear_comp_irq_affinity_hint(struct mlx5_core_dev *mdev, int i)
  {
++#if defined(HAVE_IRQ_SET_AFFINITY_HINT) && !defined(HAVE_PCI_IRQ_API)
 +	struct mlx5_priv *priv  = &mdev->priv;
 +	struct msix_entry *msix;
++#endif
  	int vecidx = MLX5_IRQ_VEC_COMP_BASE + i;
  	struct mlx5_irq *irq;
  	int irqn;
@@ -107,7 +113,7 @@ index xxxxxxx..xxxxxxx 100644
  	irq_set_affinity_hint(irqn, NULL);
  	free_cpumask_var(irq->mask);
  }
-@@ -260,8 +298,13 @@ static void unrequest_irqs(struct mlx5_core_dev *dev)
+@@ -260,8 +304,13 @@ static void unrequest_irqs(struct mlx5_core_dev *dev)
  	int i;
  
  	for (i = 0; i < table->nvec; i++)
@@ -121,7 +127,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  int mlx5_irq_table_create(struct mlx5_core_dev *dev)
-@@ -273,6 +316,9 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
+@@ -273,6 +322,9 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
  		      1 << MLX5_CAP_GEN(dev, log_max_eq);
  	int nvec;
  	int err;
@@ -131,7 +137,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (mlx5_core_is_sf(dev))
  		return 0;
-@@ -284,9 +330,21 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
+@@ -284,9 +336,21 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
  		return -ENOMEM;
  
  	table->irq = kcalloc(nvec, sizeof(*table->irq), GFP_KERNEL);
@@ -153,7 +159,7 @@ index xxxxxxx..xxxxxxx 100644
  	nvec = pci_alloc_irq_vectors(dev->pdev, MLX5_IRQ_VEC_COMP_BASE + 1,
  				     nvec, PCI_IRQ_MSIX);
  	if (nvec < 0) {
-@@ -295,6 +353,31 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
+@@ -295,6 +359,31 @@ int mlx5_irq_table_create(struct mlx5_core_dev *dev)
  	}
  
  	table->nvec = nvec;
@@ -185,7 +191,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	err = irq_set_rmap(dev);
  	if (err)
-@@ -317,15 +400,23 @@ err_set_affinity:
+@@ -317,15 +406,25 @@ err_set_affinity:
  err_request_irqs:
  	irq_clear_rmap(dev);
  err_set_rmap:
@@ -205,11 +211,13 @@ index xxxxxxx..xxxxxxx 100644
  void mlx5_irq_table_destroy(struct mlx5_core_dev *dev)
  {
  	struct mlx5_irq_table *table = dev->priv.irq_table;
++#ifndef HAVE_PCI_IRQ_API
 +	struct mlx5_priv *priv  = &dev->priv;
++#endif
  	int i;
  
  	if (mlx5_core_is_sf(dev))
-@@ -338,8 +429,18 @@ void mlx5_irq_table_destroy(struct mlx5_core_dev *dev)
+@@ -338,8 +437,18 @@ void mlx5_irq_table_destroy(struct mlx5_core_dev *dev)
  	irq_clear_rmap(dev);
  	clear_comp_irqs_affinity_hints(dev);
  	for (i = 0; i < table->nvec; i++)

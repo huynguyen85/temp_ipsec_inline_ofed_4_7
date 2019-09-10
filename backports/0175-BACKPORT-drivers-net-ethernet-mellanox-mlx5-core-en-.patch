@@ -4,7 +4,7 @@ Subject: [PATCH] BACKPORT:
 
 Change-Id: I825c15ccd1e0004ffc7d727cfdd43903902c6fca
 ---
- .../ethernet/mellanox/mlx5/core/en/reporter_tx.c    | 21 +++++++++++++++++++--
+ .../mellanox/mlx5/core/en/reporter_tx.c       | 21 +++++++++++++++++--
  1 file changed, 19 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
@@ -46,7 +46,7 @@ index xxxxxxx..xxxxxxx 100644
  /* state lock cannot be grabbed within this function.
   * It can cause a dead lock or a read-after-free.
   */
-@@ -289,10 +300,14 @@ static const struct devlink_health_reporter_ops mlx5_tx_reporter_ops = {
+@@ -289,9 +300,13 @@ static const struct devlink_health_reporter_ops mlx5_tx_reporter_ops = {
  };
  
  #define MLX5_REPORTER_TX_GRACEFUL_PERIOD 500
@@ -54,14 +54,13 @@ index xxxxxxx..xxxxxxx 100644
 +#endif
  int mlx5e_tx_reporter_create(struct mlx5e_priv *priv)
  {
- 	struct mlx5_core_dev *mdev = priv->mdev;
 +#ifndef HAVE_DEVLINK_HEALTH_REPORT
 +	priv->tx_reporter = NULL;
 +	return 0;
 +#else
+ 	struct mlx5_core_dev *mdev = priv->mdev;
  	struct devlink *devlink = mlx5_core_to_devlink(mdev);
  
- 	priv->tx_reporter =
 @@ -304,12 +319,14 @@ int mlx5e_tx_reporter_create(struct mlx5e_priv *priv)
  			    "Failed to create tx reporter, err = %ld\n",
  			    PTR_ERR(priv->tx_reporter));
