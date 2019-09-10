@@ -209,6 +209,21 @@ ex()
         fi
 }
 
+check_kerver_list()
+{
+	local kver=$1
+	shift
+	local kverlist=$@
+
+	for i in $kverlist; do
+		if echo $kver | grep -q "\b$i" ; then
+			return 0
+		fi
+	done
+
+	return 1
+}
+
 # Compare 2 kernel versions
 check_kerver()
 {
@@ -356,6 +371,7 @@ CONFIG_BF_POWER_FAILURE_EVENT=${CONFIG_BF_POWER_FAILURE_EVENT:-''}
 CONFIG_ENABLE_MLX5_FS_DEBUGFS=${CONFIG_ENABLE_MLX5_FS_DEBUGFS:-''}
 
 SWITCH_SUPPORTED_KVERSION="4.9.0"
+SWITCH_SUPPORTED_KVERSION_LIST="3.10.0-862 3.10.0-957 3.10.0-693"
 KVERSION=${KVERSION:-$(uname -r)}
 
 main()
@@ -673,8 +689,10 @@ main()
                             CONFIG_MLX5_MPFS="y"
                             CONFIG_MLX5_ESWITCH="y"
     if ! check_kerver ${KVERSION} ${SWITCH_SUPPORTED_KVERSION}; then
+        if ! check_kerver_list $KVERSION $SWITCH_SUPPORTED_KVERSION_LIST; then
                             CONFIG_MLX5_ESWITCH=
-        echo "Error: CONFIG_MLX5_ESWITCH requires kernel version ${SWITCH_SUPPORTED_KVERSION} or higher (current: ${KVERSION})."
+            echo "Error: CONFIG_MLX5_ESWITCH requires kernel version ${SWITCH_SUPPORTED_KVERSION} or higher (current: ${KVERSION})."
+        fi
     fi
                             CONFIG_MLX5_CORE_IPOIB="y"
                             CONFIG_MLX5_EN_SPECIAL_SQ="y"

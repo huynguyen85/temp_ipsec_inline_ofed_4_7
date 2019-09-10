@@ -44,3 +44,4 @@ Change-Id=Ia2b5f2f40e941bb36eac2ecabbf5e929049cf521; subject=BACKPORTS: Add comp
 Change-Id=Iea1b7261f68943209a787ba1186a3cef2d095927; subject=BACKPORTS: Add backports to cls_api; feature=backports; upstream_status=ignore; general=;
 Change-Id=I49aeb1bd2b733ad15959d98601667e48e2fe0503; subject=BACKPORTS: Fix compilation error in pkt_cls.h; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=Iefd36982d0d1c39af70566fe1840d16f003cee26; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I921d0a40d92a45b7198d22ce5798954e409de554; subject=BACKPORTS: Support ASAP in 3.10.0-862 3.10.0-957 3.10.0-693 3.10.0-327; feature=ofed_scripts; upstream_status=ignore; general=;
