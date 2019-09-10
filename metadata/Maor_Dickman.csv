@@ -1,3 +1,4 @@
 sep=;
 Change-Id=I539c08b285415524f22416c635824fea2754bc15; subject=net/mlx5: Fix deadlock when on mlx5_intf_mutex in lag remove; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=Idb7bf3cf362e0044a27d06869da5983f49daaf58; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Id063cd2da946f1ab80cb64457dbc5b3d3000b106; subject=BACKPORTS: fix offload of chain non 0; feature=backports; upstream_status=ignore; general=;
