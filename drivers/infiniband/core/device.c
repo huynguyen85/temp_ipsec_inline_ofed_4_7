@@ -2516,7 +2516,6 @@ void ib_set_device_ops(struct ib_device *dev, const struct ib_device_ops *ops)
 	SET_DEVICE_OP(dev_ops, exp_set_context_attr);
 	SET_DEVICE_OP(dev_ops, exp_alloc_dm);
 	SET_DEVICE_OP(dev_ops, exp_free_dm);
-	SET_DEVICE_OP(dev_ops, exp_memcpy_dm);
 	SET_DEVICE_OP(dev_ops, exp_invalidate_range);
 	SET_DEVICE_OP(dev_ops, exp_prefetch_mr);
 

@@ -2572,25 +2572,6 @@ int mlx5_ib_exp_free_dm(struct ib_dm *ibdm,
 	return mlx5_ib_dealloc_dm(ibdm, attrs);
 }
 
-int mlx5_ib_exp_memcpy_dm(struct ib_dm *ibdm,
-			  struct ib_exp_memcpy_dm_attr *attr)
-{
-	struct mlx5_ib_dm *dm = to_mdm(ibdm);
-	uint64_t dm_addr = (uint64_t)dm->dm_base_addr + attr->dm_offset;
-
-	if ((attr->dm_offset + attr->length > ibdm->length) || (dm_addr & 0x3))
-		return -EINVAL;
-
-	if (attr->memcpy_dir == IBV_EXP_DM_CPY_TO_DEVICE)
-		memcpy_toio((void *)dm_addr, attr->host_addr, attr->length);
-	else
-		memcpy_fromio(attr->host_addr, (void *)dm_addr, attr->length);
-
-	mb();
-
-	return 0;
-}
-
 int mlx5_ib_exp_set_context_attr(struct ib_device *device,
 				 struct ib_ucontext *context,
 				 struct ib_exp_context_attr *attr)

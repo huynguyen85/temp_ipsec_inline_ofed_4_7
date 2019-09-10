@@ -6540,7 +6540,6 @@ static const struct ib_device_ops mlx5_ib_dev_dm_ops = {
 	.reg_dm_mr = mlx5_ib_reg_dm_mr,
 	.exp_alloc_dm = mlx5_ib_exp_alloc_dm,
 	.exp_free_dm = mlx5_ib_exp_free_dm,
-	.exp_memcpy_dm = mlx5_ib_exp_memcpy_dm,
 };
 
 static int mlx5_ib_stage_caps_init(struct mlx5_ib_dev *dev)

@@ -2586,8 +2586,6 @@ struct ib_device_ops {
 						   struct ib_udata *udata);
 	int                        (*exp_free_dm)(struct ib_dm *dm,
 						  struct uverbs_attr_bundle *attrs);
-	int                        (*exp_memcpy_dm)(struct ib_dm *dm,
-						    struct ib_exp_memcpy_dm_attr *attr);
 	struct ib_mr *             (*exp_alloc_mr)(struct ib_pd *pd,
 						   struct ib_mr_init_attr *attr);
 	int			(*exp_invalidate_range)(struct ib_device *device,

@@ -26,3 +26,4 @@ Change-Id=I5799cbb71190589da34e0b392c894b9dff394f30; subject=core: Experimental 
 Change-Id=I4a323a3d28e081608aea7e221ac23c5355210250; subject=BACKPORTS: access_ok can take 3 or 2 parameters; feature=backports; upstream_status=ignore; general=;
 Change-Id=I1230b1297cbc43266140b23a7db746500b4b05ee; subject=IB/core: Set ib_device's exp_flags with alloc and free DM; feature=mlx5_core_bugs; upstream_status=NA; general=;
 Change-Id=I7d23b552bf5571d6f797808801ebeda8e6d98426; subject=metadata: Update MD for Yonatan Cohen; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I2519b3212563e7e23f05961f71d6ae09594470a5; subject=IB/{mlx5,core}: Cleanup dead code exp_memcpy; feature=rebase; upstream_status=NA; general=;

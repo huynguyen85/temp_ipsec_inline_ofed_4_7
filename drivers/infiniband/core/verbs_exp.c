@@ -269,19 +269,6 @@ int ib_exp_free_dm(struct ib_dm *dm, struct uverbs_attr_bundle *attrs)
 }
 EXPORT_SYMBOL_GPL(ib_exp_free_dm);
 
-int ib_exp_memcpy_dm(struct ib_dm *dm, struct ib_exp_memcpy_dm_attr *attr)
-{
-	int err;
-
-	if (!dm->device->ops.exp_memcpy_dm)
-		return -ENOSYS;
-
-	err = dm->device->ops.exp_memcpy_dm(dm, attr);
-
-	return err;
-}
-EXPORT_SYMBOL_GPL(ib_exp_memcpy_dm);
-
 struct ib_mr *ib_exp_alloc_mr(struct ib_pd *pd, struct ib_mr_init_attr *attr)
 {
 	struct ib_mr *mr;
