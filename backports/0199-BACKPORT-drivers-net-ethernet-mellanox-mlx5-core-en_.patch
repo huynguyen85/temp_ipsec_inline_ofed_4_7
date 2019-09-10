@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
 
 Change-Id: I9f86790002164aea7b666ef5a4d23630a8db74c3
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 779 ++++++++++++++++++++----
- 1 file changed, 668 insertions(+), 111 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   | 784 +++++++++++++++---
+ 1 file changed, 673 insertions(+), 111 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
 index xxxxxxx..xxxxxxx 100644
@@ -252,7 +252,7 @@ index xxxxxxx..xxxxxxx 100644
  static int mlx5e_hairpin_get_prio(struct mlx5e_priv *priv,
  				  struct mlx5_flow_spec *spec, u8 *match_prio,
  				  struct netlink_ext_ack *extack)
-@@ -663,6 +767,7 @@ static int mlx5e_hairpin_get_prio(struct mlx5e_priv *priv,
+@@ -663,12 +767,14 @@ static int mlx5e_hairpin_get_prio(struct mlx5e_priv *priv,
  	u8 prio_val, prio_mask = 0;
  	bool vlan_present;
  
@@ -260,14 +260,13 @@ index xxxxxxx..xxxxxxx 100644
  #ifdef CONFIG_MLX5_CORE_EN_DCB
  	if (priv->dcbx_dp.trust_state != MLX5_QPTS_TRUST_PCP) {
  		NL_SET_ERR_MSG_MOD(extack,
-@@ -670,6 +775,7 @@ static int mlx5e_hairpin_get_prio(struct mlx5e_priv *priv,
+ 				   "only PCP trust state supported for hairpin");
  		return -EOPNOTSUPP;
  	}
- #endif
 +#endif
+ #endif
  	headers_c = MLX5_ADDR_OF(fte_match_param, spec->match_criteria, outer_headers);
  	headers_v = MLX5_ADDR_OF(fte_match_param, spec->match_value, outer_headers);
- 
 @@ -714,8 +820,7 @@ static int mlx5e_hairpin_flow_add(struct mlx5e_priv *priv,
  	}
  
@@ -1675,7 +1674,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (esw && esw->mode == MLX5_ESWITCH_OFFLOADS)
  		err = mlx5e_add_fdb_flow(priv, f, flow_flags,
-@@ -3805,15 +4273,25 @@ mlx5e_tc_add_flow(struct mlx5e_priv *priv,
+@@ -3805,15 +4273,30 @@ mlx5e_tc_add_flow(struct mlx5e_priv *priv,
  int mlx5e_configure_flower(struct net_device *dev, struct mlx5e_priv *priv,
  			   struct tc_cls_flower_offload *f, unsigned long flags)
  {
@@ -1688,6 +1687,11 @@ index xxxxxxx..xxxxxxx 100644
  	struct mlx5e_tc_flow *flow;
  	int err = 0;
  
++#ifdef HAVE_TC_CLS_FLOWER_OFFLOAD_HAS_EGRESS_DEV_FIELD
++	if (f->egress_dev)
++		flags |= MLX5_TC_FLAG(EGRESS);
++#endif
++
 +#ifdef CONFIG_COMPAT_CLS_FLOWER_MOD
 +	get_new_flags(priv, &flags);
 +#endif
@@ -1701,7 +1705,7 @@ index xxxxxxx..xxxxxxx 100644
  		netdev_warn_once(priv->netdev,
  				 "flow cookie %lx already exists, ignoring\n",
  				 f->cookie);
-@@ -3839,14 +4317,21 @@ err_free:
+@@ -3839,14 +4322,21 @@ err_free:
  out:
  	return err;
  }
@@ -1727,7 +1731,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  static void mlx5e_flow_defered_put(struct rcu_head *head)
-@@ -3894,7 +4379,11 @@ errout:
+@@ -3894,7 +4384,11 @@ errout:
  	rcu_read_unlock();
  	return err;
  }
@@ -1739,7 +1743,7 @@ index xxxxxxx..xxxxxxx 100644
  int mlx5e_stats_flower(struct net_device *dev, struct mlx5e_priv *priv,
  		       struct tc_cls_flower_offload *f, unsigned long flags)
  {
-@@ -3903,11 +4392,19 @@ int mlx5e_stats_flower(struct net_device *dev, struct mlx5e_priv *priv,
+@@ -3903,11 +4397,19 @@ int mlx5e_stats_flower(struct net_device *dev, struct mlx5e_priv *priv,
  	struct mlx5_eswitch *peer_esw;
  	struct mlx5e_tc_flow *flow;
  	struct mlx5_fc *counter;
@@ -1759,7 +1763,7 @@ index xxxxxxx..xxxxxxx 100644
  	rcu_read_lock();
  	flow = mlx5e_flow_get(rhashtable_lookup(tc_ht, &f->cookie,
  						tc_ht_params));
-@@ -3956,12 +4453,45 @@ int mlx5e_stats_flower(struct net_device *dev, struct mlx5e_priv *priv,
+@@ -3956,12 +4458,45 @@ int mlx5e_stats_flower(struct net_device *dev, struct mlx5e_priv *priv,
  no_peer_counter:
  	mlx5_devcom_release_peer_data(devcom, MLX5_DEVCOM_ESW_OFFLOADS);
  out:
@@ -1805,7 +1809,7 @@ index xxxxxxx..xxxxxxx 100644
  static void mlx5e_tc_hairpin_update_dead_peer(struct mlx5e_priv *priv,
  					      struct mlx5e_priv *peer_priv)
  {
-@@ -4026,15 +4556,19 @@ static int mlx5e_tc_netdev_event(struct notifier_block *this,
+@@ -4026,15 +4561,19 @@ static int mlx5e_tc_netdev_event(struct notifier_block *this,
  
  	return NOTIFY_DONE;
  }
@@ -1825,7 +1829,7 @@ index xxxxxxx..xxxxxxx 100644
  	mutex_init(&tc->hairpin_tbl_lock);
  	hash_init(tc->hairpin_tbl);
  
-@@ -4049,8 +4583,12 @@ int mlx5e_tc_nic_init(struct mlx5e_priv *priv)
+@@ -4049,8 +4588,12 @@ int mlx5e_tc_nic_init(struct mlx5e_priv *priv)
  	}
  
  	return err;
@@ -1838,7 +1842,7 @@ index xxxxxxx..xxxxxxx 100644
  static void _mlx5e_tc_del_flow(void *ptr, void *arg)
  {
  	struct mlx5e_tc_flow *flow = ptr;
-@@ -4059,15 +4597,19 @@ static void _mlx5e_tc_del_flow(void *ptr, void *arg)
+@@ -4059,15 +4602,19 @@ static void _mlx5e_tc_del_flow(void *ptr, void *arg)
  	mlx5e_tc_del_flow(priv, flow);
  	kfree(flow);
  }
@@ -1858,7 +1862,7 @@ index xxxxxxx..xxxxxxx 100644
  	mutex_destroy(&tc->hairpin_tbl_lock);
  
  	rhashtable_destroy(&tc->ht);
-@@ -4077,10 +4619,12 @@ void mlx5e_tc_nic_cleanup(struct mlx5e_priv *priv)
+@@ -4077,10 +4624,12 @@ void mlx5e_tc_nic_cleanup(struct mlx5e_priv *priv)
  		tc->t = NULL;
  	}
  	mutex_destroy(&tc->t_lock);
@@ -1871,7 +1875,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct rhashtable *tc_ht = get_tc_ht(priv, MLX5_TC_FLAG(ESW_OFFLOAD));
  	int err;
  
-@@ -4097,33 +4641,44 @@ int mlx5e_tc_esw_init(struct mlx5e_priv *priv)
+@@ -4097,33 +4646,44 @@ int mlx5e_tc_esw_init(struct mlx5e_priv *priv)
  err_tc_ht:
  	miniflow_cache_destroy(priv);
  	return err;
@@ -1916,7 +1920,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct mlx5_rep_uplink_priv *rpriv =
  		container_of(work, struct mlx5_rep_uplink_priv,
  			     reoffload_flows_work);
-@@ -4135,4 +4690,6 @@ void mlx5e_tc_reoffload_flows_work(struct work_struct *work)
+@@ -4135,4 +4695,6 @@ void mlx5e_tc_reoffload_flows_work(struct work_struct *work)
  			unready_flow_del(flow);
  	}
  	mutex_unlock(&rpriv->unready_flows_lock);
