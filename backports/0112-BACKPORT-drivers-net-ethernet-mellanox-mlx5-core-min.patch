@@ -3,27 +3,14 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
 
 Change-Id: Iec18e297e96ee83d4a7db4c65f0efa8d4589510f
 ---
- drivers/net/ethernet/mellanox/mlx5/core/miniflow.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/miniflow.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c b/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
-@@ -741,7 +741,11 @@ static int miniflow_add_fdb_flow(struct mlx5e_priv *priv,
- {
- 	int err;
- 
--	err = mlx5e_tc_add_fdb_flow(priv, mflow, NULL);
-+	err = mlx5e_tc_add_fdb_flow(priv, mflow
-+#ifdef HAVE_TC_CLS_OFFLOAD_EXTACK
-+		,NULL
-+#endif
-+	);
- 	complete_all(&mflow->init_done);
- 	if (err) {
- 		inc_debug_counter(&nr_of_total_mf_err_fdb_add);
-@@ -1081,6 +1085,7 @@ static int miniflow_cache_get(void)
+@@ -1081,6 +1081,7 @@ static int miniflow_cache_get(void)
  	if (!miniflow_cache)
  		return -ENOMEM;
  
