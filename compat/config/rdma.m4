@@ -4303,6 +4303,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if TCA_VLAN_ACT_MODIFY exists])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <uapi/linux/tc_act/tc_vlan.h>
+	],[
+		u16 x = TCA_VLAN_ACT_MODIFY;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_TCA_VLAN_ACT_MODIFY, 1,
+			  [TCA_VLAN_ACT_MODIFY exists])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if ETH_MIN_MTU exists])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <uapi/linux/if_ether.h>
