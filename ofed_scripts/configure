@@ -323,11 +323,13 @@ CONFIG_BLK_DEV_NVME=${CONFIG_BLK_DEV_NVME:-''}
 CONFIG_NVME_FABRICS=${CONFIG_NVME_FABRICS:-''}
 CONFIG_NVME_FC=${CONFIG_NVME_FC:-''}
 CONFIG_NVME_RDMA=${CONFIG_NVME_RDMA:-''}
+CONFIG_NVME_TCP=${CONFIG_NVME_TCP:-''}
 CONFIG_NVME_MULTIPATH=${CONFIG_NVME_MULTIPATH:-''}
 CONFIG_NVME_HOST_DUMMY=${CONFIG_NVME_HOST_DUMMY:-''}
 CONFIG_NVME_TARGET=${CONFIG_NVME_TARGET:-''}
 CONFIG_NVME_TARGET_LOOP=${CONFIG_NVME_TARGET_LOOP:-''}
 CONFIG_NVME_TARGET_RDMA=${CONFIG_NVME_TARGET_RDMA:-''}
+CONFIG_NVME_TARGET_TCP=${CONFIG_NVME_TARGET_TCP:-''}
 CONFIG_NVME_TARGET_FC=${CONFIG_NVME_TARGET_FC:-''}
 CONFIG_NVME_TARGET_FCLOOP=${CONFIG_NVME_TARGET_FCLOOP:-''}
 CONFIG_NVME_TARGET_DUMMY=${CONFIG_NVME_TARGET_DUMMY:-''}
@@ -912,6 +914,7 @@ main()
                             CONFIG_NVME_FABRICS=
                             CONFIG_NVME_FC=
                             CONFIG_NVME_RDMA=
+			    CONFIG_NVME_TCP=
                             CONFIG_NVME_MULTIPATH=
                             CONFIG_NVME_HOST_WITHOUT_FC=
                         ;;
@@ -926,6 +929,7 @@ main()
                             CONFIG_NVME_TARGET=
                             CONFIG_NVME_TARGET_LOOP=
                             CONFIG_NVME_TARGET_RDMA=
+                            CONFIG_NVME_TARGET_TCP=
                             CONFIG_NVME_TARGET_FC=
                             CONFIG_NVME_TARGET_FCLOOP=
                         ;;
@@ -936,10 +940,12 @@ main()
                             CONFIG_NVME_FABRICS=
                             CONFIG_NVME_FC=
                             CONFIG_NVME_RDMA=
+			    CONFIG_NVME_TCP=
                             CONFIG_NVME_MULTIPATH=
                             CONFIG_NVME_TARGET=
                             CONFIG_NVME_TARGET_LOOP=
                             CONFIG_NVME_TARGET_RDMA=
+                            CONFIG_NVME_TARGET_TCP=
                             CONFIG_NVME_TARGET_FC=
                             CONFIG_NVME_TARGET_FCLOOP=
                         ;;
@@ -955,6 +961,7 @@ main()
                             CONFIG_NVME_TARGET=
                             CONFIG_NVME_TARGET_LOOP=
                             CONFIG_NVME_TARGET_RDMA=
+                            CONFIG_NVME_TARGET_TCP=
                             CONFIG_NVME_TARGET_FC=
                             CONFIG_NVME_TARGET_FCLOOP=
                             CONFIG_NVME_HOST_WITHOUT_FC=
@@ -1200,6 +1207,7 @@ if [ "X$BUILD_DUMMY_MODS" == "X1" ]; then
    CONFIG_NVME_FABRICS=
    CONFIG_NVME_FC=
    CONFIG_NVME_RDMA=
+   CONFIG_NVME_TCP=
    CONFIG_NVME_MULTIPATH=
 
    # nvmf target
@@ -1207,6 +1215,7 @@ if [ "X$BUILD_DUMMY_MODS" == "X1" ]; then
    CONFIG_NVME_TARGET=
    CONFIG_NVME_TARGET_LOOP=
    CONFIG_NVME_TARGET_RDMA=
+   CONFIG_NVME_TARGET_TCP=
    CONFIG_NVME_TARGET_FC=
    CONFIG_NVME_TARGET_FCLOOP=
 
@@ -1412,11 +1421,13 @@ CONFIG_BLK_DEV_NVME=${CONFIG_BLK_DEV_NVME}
 CONFIG_NVME_FABRICS=${CONFIG_NVME_FABRICS}
 CONFIG_NVME_FC=${CONFIG_NVME_FC}
 CONFIG_NVME_RDMA=${CONFIG_NVME_RDMA}
+CONFIG_NVME_TCP=${CONFIG_NVME_TCP}
 CONFIG_NVME_MULTIPATH=${CONFIG_NVME_MULTIPATH}
 CONFIG_NVME_HOST_DUMMY=${CONFIG_NVME_HOST_DUMMY}
 CONFIG_NVME_TARGET=${CONFIG_NVME_TARGET}
 CONFIG_NVME_TARGET_LOOP=${CONFIG_NVME_TARGET_LOOP}
 CONFIG_NVME_TARGET_RDMA=${CONFIG_NVME_TARGET_RDMA}
+CONFIG_NVME_TARGET_TCP=${CONFIG_NVME_TARGET_TCP}
 CONFIG_NVME_TARGET_FC=${CONFIG_NVME_TARGET_FC}
 CONFIG_NVME_TARGET_FCLOOP=${CONFIG_NVME_TARGET_FCLOOP}
 CONFIG_NVME_TARGET_DUMMY=${CONFIG_NVME_TARGET_DUMMY}
@@ -1769,6 +1780,11 @@ if [ "X${CONFIG_NVME_RDMA}" == "Xm" ]; then
 else
         DEFINE_CONFIG_NVME_RDMA="#undef CONFIG_NVME_RDMA"
 fi
+if [ "X${CONFIG_NVME_TCP}" == "Xm" ]; then
+        DEFINE_CONFIG_NVME_TCP="#undef CONFIG_NVME_TCP\n#define CONFIG_NVME_TCP 1"
+else
+        DEFINE_CONFIG_NVME_TCP="#undef CONFIG_NVME_TCP"
+fi
 if [ "X${CONFIG_NVME_MULTIPATH}" == "Xy" ]; then
         DEFINE_CONFIG_NVME_MULTIPATH="#undef CONFIG_NVME_MULTIPATH\n#define CONFIG_NVME_MULTIPATH 1"
 else
@@ -1793,6 +1809,11 @@ if [ "X${CONFIG_NVME_TARGET_RDMA}" == "Xm" ]; then
         DEFINE_NVME_TARGET_RDMA="#undef CONFIG_NVME_TARGET_RDMA\n#define CONFIG_NVME_TARGET_RDMA 1"
 else
         DEFINE_NVME_TARGET_RDMA="#undef CONFIG_NVME_TARGET_RDMA"
+fi
+if [ "X${CONFIG_NVME_TARGET_TCP}" == "Xm" ]; then
+        DEFINE_NVME_TARGET_TCP="#undef CONFIG_NVME_TARGET_TCP\n#define CONFIG_NVME_TARGET_TCP 1"
+else
+        DEFINE_NVME_TARGET_TCP="#undef CONFIG_NVME_TARGET_TCP"
 fi
 if [ "X${CONFIG_NVME_TARGET_FC}" == "Xm" ]; then
         DEFINE_NVME_TARGET_FC="#undef CONFIG_NVME_TARGET_FC\n#define CONFIG_NVME_TARGET_FC 1"
@@ -1967,11 +1988,13 @@ $(echo -e "${DEFINE_CONFIG_BLK_DEV_NVME}" | grep -v undef)
 $(echo -e "${DEFINE_CONFIG_NVME_FABRICS}" | grep -v undef)
 $(echo -e "${DEFINE_CONFIG_NVME_FC}" | grep -v undef)
 $(echo -e "${DEFINE_CONFIG_NVME_RDMA}" | grep -v undef)
+$(echo -e "${DEFINE_CONFIG_NVME_TCP}" | grep -v undef)
 $(echo -e "${DEFINE_CONFIG_NVME_MULTIPATH}" | grep -v undef)
 $(echo -e "${DEFINE_NVME_HOST_DUMMY}" | grep -v undef)
 $(echo -e "${DEFINE_NVME_TARGET}" | grep -v undef)
 $(echo -e "${DEFINE_NVME_TARGET_LOOP}" | grep -v undef)
 $(echo -e "${DEFINE_NVME_TARGET_RDMA}" | grep -v undef)
+$(echo -e "${DEFINE_NVME_TARGET_TCP}" | grep -v undef)
 $(echo -e "${DEFINE_NVME_TARGET_FC}" | grep -v undef)
 $(echo -e "${DEFINE_NVME_TARGET_FCLOOP}" | grep -v undef)
 $(echo -e "${DEFINE_NVME_TARGET_DUMMY}" | grep -v undef)
@@ -2049,11 +2072,13 @@ $(echo -e "${DEFINE_CONFIG_ENABLE_MLX5_FS_DEBUGFS}" | grep -v undef)
 #undef CONFIG_NVME_FABRICS
 #undef CONFIG_NVME_FC
 #undef CONFIG_NVME_RDMA
+#undef CONFIG_NVME_TCP
 #undef CONFIG_NVME_MULTIPATH
 #undef CONFIG_NVME_HOST_DUMMY
 #undef CONFIG_NVME_TARGET
 #undef CONFIG_NVME_TARGET_LOOP
 #undef CONFIG_NVME_TARGET_RDMA
+#undef CONFIG_NVME_TARGET_TCP
 #undef CONFIG_NVME_TARGET_FC
 #undef CONFIG_NVME_TARGET_FCLOOP
 #undef CONFIG_NVME_TARGET_DUMMY
@@ -2151,6 +2176,7 @@ $(echo -e "${DEFINE_CONFIG_BLK_DEV_NVME}")
 $(echo -e "${DEFINE_CONFIG_NVME_FABRICS}")
 $(echo -e "${DEFINE_CONFIG_NVME_FC}")
 $(echo -e "${DEFINE_CONFIG_NVME_RDMA}")
+$(echo -e "${DEFINE_CONFIG_NVME_TCP}")
 $(echo -e "${DEFINE_CONFIG_NVME_MULTIPATH}")
 $(echo -e "${DEFINE_NVME_HOST_DUMMY}")
 $(echo -e "${DEFINE_NVME_TARGET}")
