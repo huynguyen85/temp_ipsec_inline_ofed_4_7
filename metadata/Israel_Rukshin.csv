@@ -51,3 +51,4 @@ Change-Id=Iecfe035e50f92c759f5cb52b2e38b720793696f1; subject=nvmet: Fix target o
 Change-Id=Id0ea3b5893c0c7b91dc206e4445f121643b2ba4c; subject=nvme: Remove redundant assignment of cq vector; feature=rebase; upstream_status=in_progress; general=;
 Change-Id=I9c6753ffabb93dd2d90a83a74f646de7dbe3fe97; subject=BACKPORTS: Fix nvme-core backports; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ibd8b14ffb9473794369dbc119ac7d90957e705c0; subject=BACKPORTS: Fix nvme compilation issues; feature=backports; upstream_status=ignore; general=;
+Change-Id=I2cab5845652bec9723756c2e5772715776cb135b; subject=BACKPORTS: Fix nvme compilation; feature=backports; upstream_status=ignore; general=;

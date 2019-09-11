@@ -13666,6 +13666,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	],[
 		AC_MSG_RESULT(no)
 	])
+
+	AC_MSG_CHECKING([if linux/net.h has kernel_getsockname 2 parameters])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/net.h>
+	],[
+		kernel_getsockname(NULL, NULL);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_KERNEL_GETSOCKNAME_2_PARAMS, 1,
+			  [linux/net.h has kernel_getsockname 2 parameters])
+	],[
+		AC_MSG_RESULT(no)
+	])
 ])
 #
 # COMPAT_CONFIG_HEADERS
