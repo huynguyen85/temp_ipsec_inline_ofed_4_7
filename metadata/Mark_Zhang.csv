@@ -41,3 +41,4 @@ Change-Id=If5282b0773a375f9891bdb75dfab7afef735fa5d; subject=net/mlx5: Fix mlx5_
 Change-Id=I5a9804180c3e6093eee42f694443bd03bdc30e03; subject=IB/mlx5: Support MLX5_CMD_OP_QUERY_LAG as a DEVX general command; feature=mlx5_ib_bugs; upstream_status=accepted; general=upstream commit ID: 7084ed30ae2a, tag: v5.4-rc1
 Change-Id=I54dae36109e76efd99b8897c04257fc15980cec9; subject=RDMA/mlx5: Track QPs created with exp_create_qp as user resources; feature=ib_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I2343d37c80f824c50cefa67ef14f3d2cfea0cb99; subject=RDMA/nldev: Align commands and attibutes with upstream and rdma-core; feature=ib_core_bugs; upstream_status=accepted; general=upstream commit ID: 0e2d00eb6fd4, tag: v5.2-rc1;
+Change-Id=Iad00ca4ffcd7082acb6c49f2fde11ca80fb339d7; subject=RDMA/counter: Prevent QP counter manual binding in auto mode; feature=ib_core_bugs; upstream_status=in_progress; general=;
