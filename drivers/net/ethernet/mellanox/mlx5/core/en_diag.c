@@ -127,8 +127,6 @@ static int dump_eq_info(struct mlx5_eq_comp *eq, void *buffer)
 	eqd->eqn = eq->core.eqn;
 	eqd->nent = eq->core.nent;
 	eqd->mask = 0;
-//	eqd->index = eq->index;
-//      eqd->group_id = eq->index;
 
 	return sizeof(*eqd);
 }

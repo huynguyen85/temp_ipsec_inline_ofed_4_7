@@ -1385,8 +1385,6 @@ struct mlx5_diag_eq {
 	u8 eqn;
 	int nent;
 	u64 mask;
-	int index;
-	u32 group_id;
 } __packed;
 
 struct mlx5_diag_blk {

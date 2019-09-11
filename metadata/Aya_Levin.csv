@@ -4,3 +4,4 @@ Change-Id=Id79e93159410f0d3c44f3e5a1f0826f217e7775e; subject=BACKPORTS: net/mlx5
 Change-Id=Ied9514def685f6aea58a6a92b27cb9c4dd3ef827; subject=net/mlx5: Expose IP-in-IP capability bit; feature=mlx5_ipip_tun_support; upstream_status=accepted; general=upstream commit ID: caa185473544, tag: v5.4-rc1;
 Change-Id=I643188120aacc286ff2a599c46187e87261d8b1c; subject=net/mlx5e: Change function's position to a more fitting file; feature=mlx5_ipip_tun_support; upstream_status=accepted; general=upstream commit ID: a49e1f31ae15, tag: v5.4-rc1;
 Change-Id=Id4d3ee2d01b720ce5ea00cde7762c7ba434ac2ac; subject=net/mlx5e: Support RSS for IP-in-IP and IPv6 tunneled packets; feature=mlx5_ipip_tun_support; upstream_status=accepted; general=upstream commit ID: a795d8db2a6d, tag: v5.4-rc1;
+Change-Id=I800f4f05f55cdd2d37086314e5fa8c3ec0a93eb3; subject=net/mlx5e: Remove index and group id from EQ dump; feature=mlx5_en_bugs; upstream_status=NA; general=;
