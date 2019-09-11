@@ -1918,6 +1918,74 @@ static int mlx5_alloc_sg_gaps_descs(struct ib_pd *pd, struct mlx5_ib_mr *mr,
 				      0, MLX5_MKC_ACCESS_MODE_KLMS, in, inlen);
 }
 
+static int mlx5_alloc_descs_common(struct ib_pd *pd, struct mlx5_ib_mr *mr,
+				     int ndescs, u32 *in, int inlen)
+{
+	struct mlx5_ib_dev *dev = to_mdev(pd->device);
+	void *mkc;
+	int err;
+
+	mkc = MLX5_ADDR_OF(create_mkey_in, in, memory_key_mkey_entry);
+	MLX5_SET(mkc, mkc, free, 1);
+	MLX5_SET(mkc, mkc, translations_octword_size, ndescs);
+	MLX5_SET(mkc, mkc, qpn, 0xffffff);
+	MLX5_SET(mkc, mkc, pd, to_mpd(pd)->pdn);
+
+	MLX5_SET(mkc, mkc, access_mode_1_0, mr->access_mode & 0x3);
+	MLX5_SET(mkc, mkc, access_mode_4_2, (mr->access_mode >> 2) & 0x7);
+	MLX5_SET(mkc, mkc, umr_en, 1);
+
+	mr->ibmr.device = pd->device;
+	err = mlx5_core_create_mkey(dev->mdev, &mr->mmkey, in, inlen);
+	if (err)
+		return err;
+
+	mr->mmkey.type = MLX5_MKEY_MR_USER;
+	mr->ibmr.pd = pd;
+	mr->ibmr.lkey = mr->mmkey.key;
+	mr->ibmr.rkey = mr->mmkey.key;
+	mr->umem = NULL;
+	mr->live = 1;
+
+	return err;
+}
+
+static int mlx5_alloc_indirect_descs(struct ib_pd *pd, struct mlx5_ib_mr *mr,
+				    int ndescs, u32 *in, int inlen,
+				    u32 max_num_sg)
+{
+	void *mkc;
+
+	mkc = MLX5_ADDR_OF(create_mkey_in, in, memory_key_mkey_entry);
+	MLX5_SET(mkc, mkc, translations_octword_size, ALIGN(max_num_sg + 1, 4));
+
+	mr->access_mode = MLX5_MKC_ACCESS_MODE_KLMS | MLX5_PERM_UMR_EN;
+	mr->max_descs = ndescs;
+	mr->desc_size = 0;
+
+	return mlx5_alloc_descs_common(pd, mr, ndescs, in, inlen);
+
+}
+
+
+static int mlx5_alloc_fixed_size_descs(struct ib_pd *pd, struct mlx5_ib_mr *mr,
+				       int ndescs, u32 *in, int inlen,
+				       u32 max_num_sg)
+{
+	void *mkc;
+
+	mkc = MLX5_ADDR_OF(create_mkey_in, in, memory_key_mkey_entry);
+	MLX5_SET(mkc, mkc, translations_octword_size, ALIGN(max_num_sg + 1, 4));
+	MLX5_SET(mkc, mkc, log_page_size, 31);
+
+	mr->access_mode = MLX5_MKC_ACCESS_MODE_KSM | MLX5_PERM_UMR_EN;
+	mr->max_descs = ndescs;
+	mr->desc_size = 0;
+
+	return mlx5_alloc_descs_common(pd, mr, ndescs, in, inlen);
+}
+
+
 static int mlx5_alloc_integrity_descs(struct ib_pd *pd, struct mlx5_ib_mr *mr,
 				      int max_num_sg, int max_num_meta_sg,
 				      u32 *in, int inlen)
@@ -2023,6 +2091,14 @@ static struct ib_mr *__mlx5_ib_alloc_mr(struct ib_pd *pd,
 	case IB_MR_TYPE_INTEGRITY:
 		err = mlx5_alloc_integrity_descs(pd, mr, max_num_sg,
 						 max_num_meta_sg, in, inlen);
+		break;
+	case IB_MR_INDIRECT_REG:
+		err = mlx5_alloc_indirect_descs(pd, mr, ndescs, in,
+						inlen, max_num_sg);
+		break;
+	case IB_MR_TYPE_FIXED_SIZE:
+		err = mlx5_alloc_fixed_size_descs(pd, mr, ndescs, in,
+						  inlen, max_num_sg);
 		break;
 	default:
 		mlx5_ib_warn(dev, "Invalid mr type %d\n", mr_type);
