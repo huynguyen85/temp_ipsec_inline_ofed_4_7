@@ -3,14 +3,22 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/ulp/iser/iser_memory.c
 
 Change-Id: Iaa63445373c9fc6a2ed7659241bbdea21e535ef2
 ---
- drivers/infiniband/ulp/iser/iser_memory.c | 364 +++++++++++++++++++++++++++++-
- 1 file changed, 361 insertions(+), 3 deletions(-)
+ drivers/infiniband/ulp/iser/iser_memory.c | 365 +++++++++++++++++++++-
+ 1 file changed, 362 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/infiniband/ulp/iser/iser_memory.c b/drivers/infiniband/ulp/iser/iser_memory.c
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/infiniband/ulp/iser/iser_memory.c
 +++ b/drivers/infiniband/ulp/iser/iser_memory.c
-@@ -67,6 +67,245 @@ static const struct iser_reg_ops fmr_ops = {
+@@ -36,6 +36,7 @@
+ #include <linux/mm.h>
+ #include <linux/highmem.h>
+ #include <linux/scatterlist.h>
++#include <linux/sizes.h>
+ 
+ #include "iscsi_iser.h"
+ static
+@@ -67,6 +68,245 @@ static const struct iser_reg_ops fmr_ops = {
  	.reg_desc_put	= iser_reg_desc_put_fmr,
  };
  
@@ -256,7 +264,7 @@ index xxxxxxx..xxxxxxx 100644
  void iser_reg_comp(struct ib_cq *cq, struct ib_wc *wc)
  {
  	iser_err_comp(wc, "memreg");
-@@ -159,6 +398,50 @@ static void iser_dump_page_vec(struct iser_page_vec *page_vec)
+@@ -159,6 +399,50 @@ static void iser_dump_page_vec(struct iser_page_vec *page_vec)
  		iser_err("vec[%d]: %llx\n", i, page_vec->pages[i]);
  }
  
@@ -307,7 +315,7 @@ index xxxxxxx..xxxxxxx 100644
  int iser_dma_map_task_data(struct iscsi_iser_task *iser_task,
  			    struct iser_data_buf *data,
  			    enum iser_data_dir iser_dir,
-@@ -306,8 +589,17 @@ iser_set_dif_domain(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs,
+@@ -306,8 +590,17 @@ iser_set_dif_domain(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs,
  		    struct ib_sig_domain *domain)
  {
  	domain->sig_type = IB_SIG_TYPE_T10_DIF;
@@ -325,7 +333,7 @@ index xxxxxxx..xxxxxxx 100644
  	/*
  	 * At the moment we hard code those, but in the future
  	 * we will take them from sc.
-@@ -315,8 +607,14 @@ iser_set_dif_domain(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs,
+@@ -315,8 +608,14 @@ iser_set_dif_domain(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs,
  	domain->sig.dif.apptag_check_mask = 0xffff;
  	domain->sig.dif.app_escape = true;
  	domain->sig.dif.ref_escape = true;
@@ -340,7 +348,7 @@ index xxxxxxx..xxxxxxx 100644
  };
  
  static int
-@@ -333,16 +631,30 @@ iser_set_sig_attrs(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs)
+@@ -333,16 +632,30 @@ iser_set_sig_attrs(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs)
  	case SCSI_PROT_WRITE_STRIP:
  		sig_attrs->wire.sig_type = IB_SIG_TYPE_NONE;
  		iser_set_dif_domain(sc, sig_attrs, &sig_attrs->mem);
@@ -371,7 +379,7 @@ index xxxxxxx..xxxxxxx 100644
  		break;
  	default:
  		iser_err("Unsupported PI operation %d\n",
-@@ -353,6 +665,7 @@ iser_set_sig_attrs(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs)
+@@ -353,6 +666,7 @@ iser_set_sig_attrs(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs)
  	return 0;
  }
  
@@ -379,7 +387,7 @@ index xxxxxxx..xxxxxxx 100644
  static inline void
  iser_set_prot_checks(struct scsi_cmnd *sc, u8 *mask)
  {
-@@ -362,6 +675,30 @@ iser_set_prot_checks(struct scsi_cmnd *sc, u8 *mask)
+@@ -362,6 +676,30 @@ iser_set_prot_checks(struct scsi_cmnd *sc, u8 *mask)
  	if (sc->prot_flags & SCSI_PROT_GUARD_CHECK)
  		*mask |= IB_SIG_CHECK_GUARD;
  }
@@ -410,7 +418,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static inline void
  iser_inv_rkey(struct ib_send_wr *inv_wr,
-@@ -395,8 +732,13 @@ iser_reg_sig_mr(struct iscsi_iser_task *iser_task,
+@@ -395,8 +733,13 @@ iser_reg_sig_mr(struct iscsi_iser_task *iser_task,
  	ret = iser_set_sig_attrs(iser_task->sc, sig_attrs);
  	if (ret)
  		goto err;
@@ -425,7 +433,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (rsc->mr_valid)
  		iser_inv_rkey(&tx_desc->inv_wr, mr, cqe, &wr->wr);
-@@ -505,11 +847,23 @@ int iser_reg_rdma_mem(struct iscsi_iser_task *task,
+@@ -505,11 +848,23 @@ int iser_reg_rdma_mem(struct iscsi_iser_task *task,
  	struct ib_conn *ib_conn = &task->iser_conn->ib_conn;
  	struct iser_device *device = ib_conn->device;
  	struct iser_data_buf *mem = &task->data[dir];
@@ -449,7 +457,7 @@ index xxxxxxx..xxxxxxx 100644
  	use_dma_key = mem->dma_nents == 1 && (all_imm || !iser_always_reg) &&
  		      scsi_get_prot_op(task->sc) == SCSI_PROT_NORMAL;
  
-@@ -523,8 +877,7 @@ int iser_reg_rdma_mem(struct iscsi_iser_task *task,
+@@ -523,8 +878,7 @@ int iser_reg_rdma_mem(struct iscsi_iser_task *task,
  		if (unlikely(err))
  			goto err_reg;
  	} else {
@@ -459,7 +467,7 @@ index xxxxxxx..xxxxxxx 100644
  		if (unlikely(err))
  			goto err_reg;
  
-@@ -536,6 +889,11 @@ int iser_reg_rdma_mem(struct iscsi_iser_task *task,
+@@ -536,6 +890,11 @@ int iser_reg_rdma_mem(struct iscsi_iser_task *task,
  err_reg:
  	if (desc)
  		device->reg_ops->reg_desc_put(ib_conn, desc);
