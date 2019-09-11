@@ -6844,6 +6844,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if iova.h has struct iova_rcache])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/iova.h>
+	],[
+		struct iova_rcache *c = NULL;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IOVA_RCACHE, 1,
+			  [struct iova_rcache is defined in iova.h])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	# this checker will test if the function exist
 	# it may get:  warning: ?*((void *)&dev+548)? is used uninitialized in this function [-Wuninitialized]
 	# but wont fail compilaton
