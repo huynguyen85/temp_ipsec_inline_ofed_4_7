@@ -43,3 +43,4 @@ Change-Id=Iec28427a6d945038a8e81351549898703a0c6d48; subject=BACKPORTS: fix back
 Change-Id=I6e2da439c563adec0e164c52e346502d28c79af2; subject=metadata: update Raed Salem MD (post bug fix); feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I65d3d95e20af36b9633ca46a44cbec810bdb8497; subject=net/mlx5e: Cleanup commented code from en_tc.c; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=I8e81e8462fa8ea5fa564de8ac8a5e34ea515f526; subject=BACKPORTS: Fix en_tc.c backport post previous fix; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ib357842f48831c0da38dbb2d3d5cfe50beaee04d; subject=BACKPORTS: fix wrong condition check  at tc_tun.c; feature=backports; upstream_status=ignore; general=;
