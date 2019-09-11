@@ -923,6 +923,7 @@ main()
                             CONFIG_NVME_FABRICS="m"
                             CONFIG_NVME_FC="m"
                             CONFIG_NVME_RDMA="m"
+                            CONFIG_NVME_TCP="m"
                             CONFIG_NVME_MULTIPATH="y"
                             CONFIG_NVME_HOST_WITHOUT_FC=
                         ;;
@@ -943,6 +944,7 @@ main()
                             CONFIG_NVME_FABRICS="m"
                             CONFIG_NVME_FC=
                             CONFIG_NVME_RDMA="m"
+                            CONFIG_NVME_TCP="m"
                             CONFIG_NVME_MULTIPATH="y"
                             CONFIG_NVME_TARGET=
                             CONFIG_NVME_TARGET_LOOP=
@@ -971,6 +973,7 @@ main()
                             CONFIG_NVME_TARGET="m"
                             CONFIG_NVME_TARGET_LOOP="m"
                             CONFIG_NVME_TARGET_RDMA="m"
+                            CONFIG_NVME_TARGET_TCP="m"
                             CONFIG_NVME_TARGET_FC="m"
                             CONFIG_NVME_TARGET_FCLOOP="m"
                             CONFIG_NVME_HOST_WITHOUT_FC=
@@ -1184,6 +1187,22 @@ if [ "X${CONFIG_INFINIBAND_ADDR_TRANS}" == "Xy" ]; then
     check_autofconf CONFIGFS_FS
     if [ X${CONFIGFS_FS} == "X1" ]; then
         CONFIG_INFINIBAND_ADDR_TRANS_CONFIGFS=y
+    fi
+fi
+
+# Enable nvme-tcp only when it is enabled in the kernel
+if [ "X${CONFIG_NVME_TCP}" == "Xm" ]; then
+    check_autofconf CONFIG_NVME_TCP
+    if [ X${CONFIG_NVME_TCP} == "X1" ]; then
+        CONFIG_NVME_TCP=m
+    fi
+fi
+
+# Enable nvmet-tcp only when it is enabled in the kernel
+if [ "X${CONFIG_NVME_TARGET_TCP}" == "Xm" ]; then
+    check_autofconf CONFIG_NVME_TARGET_TCP
+    if [ X${CONFIG_NVME_TARGET_TCP} == "X1" ]; then
+        CONFIG_NVME_TARGET_TCP=m
     fi
 fi
 

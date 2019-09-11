@@ -52,3 +52,4 @@ Change-Id=Id0ea3b5893c0c7b91dc206e4445f121643b2ba4c; subject=nvme: Remove redund
 Change-Id=I9c6753ffabb93dd2d90a83a74f646de7dbe3fe97; subject=BACKPORTS: Fix nvme-core backports; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ibd8b14ffb9473794369dbc119ac7d90957e705c0; subject=BACKPORTS: Fix nvme compilation issues; feature=backports; upstream_status=ignore; general=;
 Change-Id=I2cab5845652bec9723756c2e5772715776cb135b; subject=BACKPORTS: Fix nvme compilation; feature=backports; upstream_status=ignore; general=;
+Change-Id=I3a10e1b115d75fbda4de20042b838719f3964ebc; subject=ofed_scripts/configure: Fix enabling nvme-tcp; feature=ofed_scripts; upstream_status=ignore; general=;
