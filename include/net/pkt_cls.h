@@ -33,7 +33,7 @@ void __tc_indr_block_cb_unregister(struct net_device *dev,
 #include <uapi/linux/uapi/pkt_cls.h>
 
 
-#ifndef CONFIG_NET_SCHED_NEW
+#if !defined(CONFIG_NET_SCHED_NEW) && !defined(CONFIG_COMPAT_KERNEL_4_14)
 enum tc_fl_command {
 	TC_CLSFLOWER_REPLACE,
 	TC_CLSFLOWER_DESTROY,

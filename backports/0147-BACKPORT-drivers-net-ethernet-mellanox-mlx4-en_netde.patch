@@ -3,7 +3,7 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx4/en_netdev.c
 
 Change-Id: I2071c7236a02f0bbc470518e44e7fefc65ab9270
 ---
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c | 941 ++++++++++++++++++++++++-
+ .../net/ethernet/mellanox/mlx4/en_netdev.c    | 941 +++++++++++++++++-
  1 file changed, 928 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
@@ -1278,7 +1278,7 @@ index xxxxxxx..xxxxxxx 100644
 +#if defined(HAVE_NDO_SETUP_TC_4_PARAMS) || \
 +    defined(HAVE_NDO_SETUP_TC_TAKES_CHAIN_INDEX) || \
 +    defined(HAVE_TC_FLOWER_OFFLOAD) && \
-+    !defined(CONFIG_COMPAT_CLS_FLOWER_MOD)
++    !defined(CONFIG_COMPAT_CLS_FLOWER_MOD) || defined(CONFIG_COMPAT_KERNEL_4_14)
  	.ndo_setup_tc		= __mlx4_en_setup_tc,
 +#else
 +	.ndo_setup_tc           = mlx4_en_setup_tc,

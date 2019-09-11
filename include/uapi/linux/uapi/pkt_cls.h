@@ -1,6 +1,7 @@
 #ifndef _COMPAT_UAPI_PKT_CLS_H
 #define _COMPAT_UAPI_PKT_CLS_H 1
 
+#if !defined(CONFIG_COMPAT_KERNEL_4_14)
 #include "../../../../compat/config.h"
 
 /*
@@ -236,5 +237,5 @@ enum {
 #endif
 
 #endif /* CONFIG_COMPAT_CLS_FLOWER_MOD */
-
+#endif /* CONFIG_COMPAT_KERNEL_4_14 */
 #endif /* _COMPAT_UAPI_PKT_CLS_H */

@@ -28,3 +28,4 @@ Change-Id=I1d13bdab0f1fa83a9626cc8b83ae4210f0c22f67; subject=Backports: Fix egre
 Change-Id=Ie424527346afc513c0dc86ad11610c94aa1a99c4; subject=Backports: Fix warning messages; feature=backports; upstream_status=ignore; general=;
 Change-Id=I826c14b1cf6f5d66ce02b8fec38422e4ff1431d2; subject=Backports: Remove unused file; feature=backports; upstream_status=NA; general=;
 Change-Id=I21bf5a5f0e739c899f7a0d8d2fa640b077b61a10; subject=Backports: Implement HAVE_IS_TCF_TUNNEL; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia615f382a8bed1ed6554abfe98d0d21eaa63b15d; subject=Add GRE support for kernel 4.14; feature=backports; upstream_status=NA; general=;
