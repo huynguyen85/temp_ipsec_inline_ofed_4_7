@@ -3,14 +3,23 @@ Subject: [PATCH] BACKPORT: include/linux/mlx5/driver.h
 
 Change-Id: If205453569f232a2f5af33dcdc0a7acb33c0cd7b
 ---
- include/linux/mlx5/driver.h | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ include/linux/mlx5/driver.h | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
 diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
 index xxxxxxx..xxxxxxx 100644
 --- a/include/linux/mlx5/driver.h
 +++ b/include/linux/mlx5/driver.h
-@@ -57,7 +57,7 @@
+@@ -52,12 +52,16 @@
+ #include <linux/mlx5/device.h>
+ #include <linux/mlx5/doorbell.h>
+ #include <linux/mlx5/eq.h>
++#ifdef HAVE_TIMECOUNTER_H
+ #include <linux/timecounter.h>
++#else
++#include <linux/clocksource.h>
++#endif
+ #include <linux/ptp_clock_kernel.h>
  #ifdef CONFIG_CXL_LIB
  #include <misc/cxllib.h>
  #endif
@@ -19,7 +28,7 @@ index xxxxxxx..xxxxxxx 100644
  enum {
  	MLX5_BOARD_ID_LEN = 64,
  };
-@@ -541,8 +541,10 @@ struct mlx5_fc_pool {
+@@ -541,8 +545,10 @@ struct mlx5_fc_pool {
  };
  
  struct mlx5_fc_stats {
@@ -30,7 +39,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct list_head counters;
  	struct llist_head addlist;
  	struct llist_head dellist;
-@@ -553,6 +555,9 @@ struct mlx5_fc_stats {
+@@ -553,6 +559,9 @@ struct mlx5_fc_stats {
  	unsigned long sampling_interval; /* jiffies */
  	u32 *bulk_query_out;
  	struct mlx5_fc_pool fc_pool;
@@ -40,7 +49,7 @@ index xxxxxxx..xxxxxxx 100644
  };
  
  struct mlx5_events;
-@@ -594,6 +599,9 @@ struct mlx5_priv {
+@@ -594,6 +603,9 @@ struct mlx5_priv {
  	/* IRQ table valid only for real pci devices PF or VF */
  	struct mlx5_irq_table   *irq_table;
  	struct mlx5_eq_table	*eq_table;
@@ -50,7 +59,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	/* pages stuff */
  	struct mlx5_nb          pg_nb;
-@@ -899,8 +907,13 @@ struct mlx5_cmd_work_ent {
+@@ -899,8 +911,13 @@ struct mlx5_cmd_work_ent {
  	int			page_queue;
  	u8			status;
  	u8			token;
@@ -64,7 +73,7 @@ index xxxxxxx..xxxxxxx 100644
  	u16			op;
  	bool			polling;
  };
-@@ -1035,7 +1048,7 @@ void mlx5_cmd_use_polling(struct mlx5_core_dev *dev);
+@@ -1035,7 +1052,7 @@ void mlx5_cmd_use_polling(struct mlx5_core_dev *dev);
  struct mlx5_async_ctx {
  	struct mlx5_core_dev *dev;
  	atomic_t num_inflight;
