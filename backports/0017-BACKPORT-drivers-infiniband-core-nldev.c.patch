@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/nldev.c
 
 Change-Id: Icd883b6fd7044bc71e9e708b1f58b8203422a56a
 ---
- drivers/infiniband/core/nldev.c | 317 ++++++++++++++++++++++++++++++++++++----
- 1 file changed, 292 insertions(+), 25 deletions(-)
+ drivers/infiniband/core/nldev.c | 331 +++++++++++++++++++++++++++++---
+ 1 file changed, 306 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
 index xxxxxxx..xxxxxxx 100644
@@ -396,7 +396,7 @@ index xxxxxxx..xxxxxxx 100644
  		if (!entry_attr) {
  			ret = -EMSGSIZE;
  			rdma_restrack_put(res);
-@@ -1362,7 +1495,79 @@ msg_full:
+@@ -1362,7 +1495,93 @@ msg_full:
  
  res_err:
  	nla_nest_cancel(skb, table_attr);
@@ -429,10 +429,19 @@ index xxxxxxx..xxxxxxx 100644
 +			 * our next pass, once we will get ->next pointer.
 +			 */
 +			goto next;
- 
++
 +		filled = true;
 +
 +		up_read(&device->res->rwsem);
++#ifdef HAVE_NLA_NEST_START_NOFLAG
++		entry_attr = nla_nest_start_noflag(skb, fe->entry);
++#else
++		entry_attr = nla_nest_start(skb, fe->entry);
++#endif
++		if (!entry_attr) {
++			ret = -EMSGSIZE;
++			goto res_err;
++		}
 +		ret = fe->fill_res_func(skb, cb, res, port);
 +		down_read(&device->res->rwsem);
 +		/*
@@ -441,15 +450,20 @@ index xxxxxxx..xxxxxxx 100644
 +		 */
 +		rdma_restrack_put(res);
 +
-+		if (ret == -EMSGSIZE)
++		if (ret == -EMSGSIZE) {
++			nla_nest_cancel(skb, entry_attr);
 +			/*
 +			 * There is a chance to optimize here.
 +			 * It can be done by using list_prepare_entry
 +			 * and list_for_each_entry_continue afterwards.
 +			 */
 +			break;
-+		if (ret)
++		}
++		if (ret) {
++			nla_nest_cancel(skb, entry_attr);
 +			goto res_err;
++		}
++		nla_nest_end(skb, entry_attr);
 +next:		idx++;
 +	}
 +	up_read(&device->res->rwsem);
@@ -471,12 +485,12 @@ index xxxxxxx..xxxxxxx 100644
 +res_err:
 +	nla_nest_cancel(skb, table_attr);
 +	up_read(&device->res->rwsem);
-+
+ 
 +#endif  /*HAVE_XARRAY */
  err:
  	nlmsg_cancel(skb, nlh);
  
-@@ -1371,6 +1576,7 @@ err_index:
+@@ -1371,6 +1590,7 @@ err_index:
  	return ret;
  }
  
@@ -484,7 +498,7 @@ index xxxxxxx..xxxxxxx 100644
  #define RES_GET_FUNCS(name, type)                                              \
  	static int nldev_res_get_##name##_dumpit(struct sk_buff *skb,          \
  						 struct netlink_callback *cb)  \
-@@ -1383,6 +1589,19 @@ err_index:
+@@ -1383,6 +1603,19 @@ err_index:
  	{                                                                      \
  		return res_get_common_doit(skb, nlh, extack, type);            \
  	}
@@ -504,7 +518,7 @@ index xxxxxxx..xxxxxxx 100644
  
  RES_GET_FUNCS(qp, RDMA_RESTRACK_QP);
  RES_GET_FUNCS(cm_id, RDMA_RESTRACK_CM_ID);
-@@ -1426,8 +1645,11 @@ void rdma_link_unregister(struct rdma_link_ops *ops)
+@@ -1426,8 +1659,11 @@ void rdma_link_unregister(struct rdma_link_ops *ops)
  }
  EXPORT_SYMBOL(rdma_link_unregister);
  
@@ -518,7 +532,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct nlattr *tb[RDMA_NLDEV_ATTR_MAX];
  	char ibdev_name[IB_DEVICE_NAME_MAX];
-@@ -1437,7 +1659,11 @@ static int nldev_newlink(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -1437,7 +1673,11 @@ static int nldev_newlink(struct sk_buff *skb, struct nlmsghdr *nlh,
  	char type[IFNAMSIZ];
  	int err;
  
@@ -530,7 +544,7 @@ index xxxxxxx..xxxxxxx 100644
  				     nldev_policy, extack);
  	if (err || !tb[RDMA_NLDEV_ATTR_DEV_NAME] ||
  	    !tb[RDMA_NLDEV_ATTR_LINK_TYPE] || !tb[RDMA_NLDEV_ATTR_NDEV_NAME])
-@@ -1473,15 +1699,22 @@ static int nldev_newlink(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -1473,15 +1713,22 @@ static int nldev_newlink(struct sk_buff *skb, struct nlmsghdr *nlh,
  	return err;
  }
  
@@ -555,7 +569,7 @@ index xxxxxxx..xxxxxxx 100644
  				     nldev_policy, extack);
  	if (err || !tb[RDMA_NLDEV_ATTR_DEV_INDEX])
  		return -EINVAL;
-@@ -1500,8 +1733,11 @@ static int nldev_dellink(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -1500,8 +1747,11 @@ static int nldev_dellink(struct sk_buff *skb, struct nlmsghdr *nlh,
  	return 0;
  }
  
@@ -569,7 +583,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct nlattr *tb[RDMA_NLDEV_ATTR_MAX];
  	struct sk_buff *msg;
-@@ -1531,8 +1767,11 @@ static int nldev_sys_get_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -1531,8 +1781,11 @@ static int nldev_sys_get_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
  	return rdma_nl_unicast(sock_net(skb->sk), msg, NETLINK_CB(skb).portid);
  }
  
@@ -583,7 +597,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct nlattr *tb[RDMA_NLDEV_ATTR_MAX];
  	u8 enable;
-@@ -1552,8 +1791,11 @@ static int nldev_set_sys_set_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -1552,8 +1805,11 @@ static int nldev_set_sys_set_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
  	return err;
  }
  
@@ -597,7 +611,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	u32 index, port, mode, mask = 0, qpn, cntn = 0;
  	struct nlattr *tb[RDMA_NLDEV_ATTR_MAX];
-@@ -1637,8 +1879,11 @@ err:
+@@ -1637,8 +1893,11 @@ err:
  	return ret;
  }
  
@@ -611,7 +625,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct nlattr *tb[RDMA_NLDEV_ATTR_MAX];
  	struct ib_device *device;
-@@ -1707,8 +1952,12 @@ err:
+@@ -1707,8 +1966,12 @@ err:
  
  static int stat_get_doit_default_counter(struct sk_buff *skb,
  					 struct nlmsghdr *nlh,
@@ -624,7 +638,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct rdma_hw_stats *stats;
  	struct nlattr *table_attr;
-@@ -1799,7 +2048,11 @@ err:
+@@ -1799,7 +2062,11 @@ err:
  }
  
  static int stat_get_doit_qp(struct sk_buff *skb, struct nlmsghdr *nlh,
@@ -636,7 +650,7 @@ index xxxxxxx..xxxxxxx 100644
  
  {
  	static enum rdma_nl_counter_mode mode;
-@@ -1810,7 +2063,11 @@ static int stat_get_doit_qp(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -1810,7 +2077,11 @@ static int stat_get_doit_qp(struct sk_buff *skb, struct nlmsghdr *nlh,
  	int ret;
  
  	if (tb[RDMA_NLDEV_ATTR_STAT_COUNTER_ID])
@@ -648,7 +662,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (!tb[RDMA_NLDEV_ATTR_STAT_MODE] ||
  	    !tb[RDMA_NLDEV_ATTR_DEV_INDEX] || !tb[RDMA_NLDEV_ATTR_PORT_INDEX])
-@@ -1862,8 +2119,11 @@ err:
+@@ -1862,8 +2133,11 @@ err:
  	return ret;
  }
  
@@ -662,7 +676,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct nlattr *tb[RDMA_NLDEV_ATTR_MAX];
  	int ret;
-@@ -1874,11 +2134,18 @@ static int nldev_stat_get_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -1874,11 +2148,18 @@ static int nldev_stat_get_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
  		return -EINVAL;
  
  	if (!tb[RDMA_NLDEV_ATTR_STAT_RES])
