@@ -3542,12 +3542,6 @@ mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
 		goto err_free;
 	}
 
-//	if (f) {
-//		flow->cookie = f->cookie;
-//TODO VALENTINE SHOULD BE IN BACKPORT HAVE_TC_CLS_OFFLOAD_HANDLE
-//		parse_attr->spec.handle = f->common.handle;
-//	}
-
 	flow->flags = flow_flags;
 	flow->cookie = cookie;
 	flow->priv = priv;
