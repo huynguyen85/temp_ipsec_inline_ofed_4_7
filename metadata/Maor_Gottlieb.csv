@@ -78,3 +78,4 @@ Change-Id=Iab7d25cfa9390e79ea49f76f9b42c02975a5e0d5; subject=IB/mlx5: Add ingres
 Change-Id=I7771ffab7493ab9e1a567d7674f39d2b4eb03745; subject=net/mlx5: Eswitch, expose eswitch encap mode; feature=sw_steering; upstream_status=in_progress; general=;
 Change-Id=Ifddf7f229b50aa4a44d7db69ea847f4ac790778b; subject=RDMA/mlx5: Consider eswitch encap mode; feature=sw_steering; upstream_status=in_progress; general=;
 Change-Id=I507869cf9c2a7b6e21989735aa8e527d08ce60cb; subject=RDMA/mlx5: Check esw encap in switchdev only; feature=sw_steering; upstream_status=in_progress; general=;
+Change-Id=I2669dfcaa930f518cf357cbcb710544fb5cbb191; subject=net/mlx5: Fix possible deadlock in fs_core; feature=roce_sniffer; upstream_status=NA; general=;

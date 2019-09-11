@@ -2108,20 +2108,18 @@ void mlx5_del_flow_rules(struct mlx5_flow_handle *handle)
 	 * well as required handling of its parent.
 	 */
 	fs_get_obj(fte, handle->rule[0]->node.parent);
+	ns = get_ns(&fte->node);
+	if (ns)
+		down_read(&ns->ns_rw_sem);
 	down_write_ref_node(&fte->node, false);
 	for (i = handle->num_rules - 1; i >= 0; i--) {
 		rule = handle->rule[i];
-		ns = get_ns(&rule->node);
-		if (ns)
-			down_read(&ns->ns_rw_sem);
 		init_completion(&rule->complete);
 		notify_del_rule(rule);
 		if (atomic_read(&rule->users_refcount) == 0)
 			complete(&rule->complete);
 		wait_for_completion(&rule->complete);
 		tree_remove_node(&rule->node, true);
-		if (ns)
-			up_read(&ns->ns_rw_sem);
 	}
 	if (fte->modify_mask && fte->dests_size) {
 		modify_fte(fte);
@@ -2131,6 +2129,8 @@ void mlx5_del_flow_rules(struct mlx5_flow_handle *handle)
 		up_write(&fte->node.lock);
 		tree_put_node(&fte->node, false);
 	}
+	if (ns)
+		up_read(&ns->ns_rw_sem);
 
 	kfree(handle);
 }
