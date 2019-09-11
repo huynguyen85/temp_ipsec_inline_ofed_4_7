@@ -109,3 +109,4 @@ Change-Id=I35b734cfcf497a083fae49dece006ccf282283dd; subject=BACKPORTS: add miss
 Change-Id=I98ce86ee2c83f0928f3aab5e080ae9ce5a2dcfc0; subject=net/mlx5e: miniflow, fix handling flow dests; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=Ia485dc57afdeb0b5d8a2489d92bf53a9d6edf4f2; subject=net/mlx5e: miniflow, fix null deref with vxlan traffic; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=I5ce20ae795ef54dd35e73e4b41d753271520032a; subject=BACKPORTS: update miniflow.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=Iee8243ff4a0caddf03ba37eadfb07ec97b0d3977; subject=BACKPORTS: use nft flow offload in jd kernel; feature=backports; upstream_status=ignore; general=;

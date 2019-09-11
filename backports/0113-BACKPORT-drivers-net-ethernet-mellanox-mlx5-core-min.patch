@@ -4,23 +4,24 @@ Subject: [PATCH] BACKPORT:
 
 Change-Id: I0317ae29fe8b9d12d726e2fef71483d53ca067e8
 ---
- .../net/ethernet/mellanox/mlx5/core/miniflow_aging.c  | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ .../ethernet/mellanox/mlx5/core/miniflow_aging.c    | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/miniflow_aging.c b/drivers/net/ethernet/mellanox/mlx5/core/miniflow_aging.c
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/miniflow_aging.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/miniflow_aging.c
-@@ -1,6 +1,8 @@
+@@ -1,6 +1,9 @@
  // SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
  /* Copyright (c) 2019 Mellanox Technologies. */
  
 +#ifdef HAVE_MINIFLOW
++#ifndef CONFIG_COMPAT_NFT_GEN_FLOW_OFFLOAD
 +
  #include <linux/workqueue.h>
  #include <linux/spinlock.h>
  #include <linux/rhashtable.h>
-@@ -9,7 +11,6 @@
+@@ -9,7 +12,6 @@
  
  #include "miniflow.h"
  
@@ -28,7 +29,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static unsigned int offloaded_ct_timeout = 30;
  module_param(offloaded_ct_timeout, int, 0644);
-@@ -117,7 +118,11 @@ static void flow_offload_fixup_ct_state(struct nf_conn *ct)
+@@ -117,7 +119,11 @@ static void flow_offload_fixup_ct_state(struct nf_conn *ct)
  	if (l4num == IPPROTO_TCP)
  		flow_offload_fixup_tcp(&ct->proto.tcp);
  
@@ -40,7 +41,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (!l4proto)
  		return;
  
-@@ -128,7 +133,19 @@ static void flow_offload_fixup_ct_state(struct nf_conn *ct)
+@@ -128,7 +134,19 @@ static void flow_offload_fixup_ct_state(struct nf_conn *ct)
  	else
  		return;
  
@@ -60,3 +61,9 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  static void flow_offload_free(struct flow_offload *flow)
+@@ -569,4 +587,5 @@ int mlx5_ct_flow_offloaded_count(void)
+ 	return atomic_read(&offloaded_flow_cnt);
+ }
+ 
++#endif /* CONFIG_COMPAT_NFT_GEN_FLOW_OFFLOAD */
+ #endif /* HAVE_MINIFLOW */
