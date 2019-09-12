@@ -20,3 +20,4 @@ Change-Id=Ib542cb76b7fa3876cf16c2474538f74d714bc44c; subject=BACKPORTS: fix mmge
 Change-Id=I1d21fd5f0db98cf1bde7278159ad3cd4d73af2a5; subject=ofed_scripts/configure: Handle NVME_TARGET_TCP NVME_TARGET new configs; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=If77daedb06a4bfdff344b23088ce3a2b93a7bb67; subject=ofed_scripts/configure: Handle NVME_TARGET_TCP NVME_TARGET new configs Part_2; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I7e2478950f153a2b2962bde5dc02e42d4803f6d6; subject=BACKPORTS: Fix DEbian 8 backport missing include; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ib2d37a60cc335e55ae6bc0c011d4822dd6558ae5; subject=BACKPORTS: get_net_ns_by_fd backport for non exported function; feature=backports; upstream_status=ignore; general=;

@@ -6496,6 +6496,12 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	LB_CHECK_SYMBOL_EXPORT([get_net_ns_by_fd],
+		[net/core/net_namespace.c],
+		[AC_DEFINE(HAVE_GET_NET_NS_BY_FD_EXPORTED, 1,
+			[get_net_ns_by_fd is exported by the kernel])],
+	[])
+
 	LB_CHECK_SYMBOL_EXPORT([flow_rule_match_cvlan],
 		[net/core/flow_offload.c],
 		[AC_DEFINE(HAVE_FLOW_RULE_MATCH_CVLAN, 1,
@@ -9108,7 +9114,7 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 
 	AC_MSG_CHECKING([if netlink.h has netlink_ns_capable])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/netlink.h_SHOULD_BE_FXED_FAILED_ON_PURPOUSE>
+		#include <linux/netlink.h>
 	],[
 		netlink_ns_capable(NULL, NULL, 0);
 
