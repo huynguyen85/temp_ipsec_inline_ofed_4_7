@@ -1,0 +1,2 @@
+sep=;
+Change-Id=I0afa13e245b6736ed62e0e9b66139fa2d38b0554; subject=net/mlx5e: Preserve reg_c1 value on firmware loopback; feature=mlx5_asap; upstream_status=in_progress; general=;

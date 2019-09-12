@@ -613,9 +613,9 @@ static int esw_set_passing_vport_metadata(struct mlx5_eswitch *esw, bool enable)
 					 esw_vport_context.fdb_to_vport_reg_c_id);
 
 	if (enable)
-		fdb_to_vport_reg_c_id |= MLX5_FDB_TO_VPORT_REG_C_0;
+		fdb_to_vport_reg_c_id |= MLX5_FDB_TO_VPORT_REG_C_0 | MLX5_FDB_TO_VPORT_REG_C_1;
 	else
-		fdb_to_vport_reg_c_id &= ~MLX5_FDB_TO_VPORT_REG_C_0;
+		fdb_to_vport_reg_c_id &= ~MLX5_FDB_TO_VPORT_REG_C_0 & ~MLX5_FDB_TO_VPORT_REG_C_1;
 
 	MLX5_SET(modify_esw_vport_context_in, in,
 		 esw_vport_context.fdb_to_vport_reg_c_id, fdb_to_vport_reg_c_id);
