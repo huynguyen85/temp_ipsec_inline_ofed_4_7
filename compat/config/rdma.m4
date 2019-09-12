@@ -97,6 +97,19 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if has is_tcf_tunnel_set && is_tcf_tunnel_release])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+	#include <net/tc_act/tc_tunnel_key.h>
+	],[
+		return is_tcf_tunnel_set(NULL) && is_tcf_tunnel_release(NULL);
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IS_TCF_TUNNEL, 1,
+			[is_tcf_tunnel_set and is_tcf_tunnel_release are defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if has netdev_notifier_info_to_dev])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 	#include <linux/netdevice.h>
