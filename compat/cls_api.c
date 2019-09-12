@@ -144,13 +144,13 @@ EXPORT_SYMBOL(tc_setup_flow_action);
 #endif
 
 
-#ifdef HAVE_TCF_PEDIT_TCFP_KEYS_EX
 #ifndef HAVE_TCF_EXTS_NUM_ACTIONS
 #include <net/pkt_cls.h>
 #include <net/tc_act/tc_pedit.h>
 unsigned int tcf_exts_num_actions(struct tcf_exts *exts)
 {
         unsigned int num_acts = 0;
+#ifdef HAVE_TCF_PEDIT_TCFP_KEYS_EX
         struct tc_action *act;
         int i;
 
@@ -160,9 +160,9 @@ unsigned int tcf_exts_num_actions(struct tcf_exts *exts)
                 else
                 	num_acts++;
         }
+#endif
         return num_acts;
 }
 EXPORT_SYMBOL(tcf_exts_num_actions);
-#endif
 
 #endif
