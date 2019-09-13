@@ -59,6 +59,7 @@ struct mlx5_eswitch_rep {
 	u16		       vport_index;
 	u32		       vlan_refcount;
 	struct		       mlx5_eswitch *esw;
+	u32		       metadata_reg_c_0;
 };
 
 void mlx5_eswitch_register_vport_reps(struct mlx5_eswitch *esw,

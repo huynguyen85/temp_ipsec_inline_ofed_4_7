@@ -67,6 +67,7 @@ static void mlx5e_rep_bond_metadata_release(struct kref *kref)
 	struct mlx5_eswitch *esw = mdata->esw;
 
 	write_lock(&esw->offloads.rep_bond_metadata_lock);
+	esw_free_unique_metadata(esw, mdata->metadata_reg_c_0);
 	list_del(&mdata->list);
 	write_unlock(&esw->offloads.rep_bond_metadata_lock);
 	kfree(mdata);
@@ -93,6 +94,7 @@ int mlx5e_enslave_rep(struct mlx5_eswitch *esw, struct net_device *netdev,
 		INIT_LIST_HEAD(&mdata->slaves_list);
 		rwlock_init(&mdata->slaves_list_lock);
 		write_lock(&esw->offloads.rep_bond_metadata_lock);
+		mdata->metadata_reg_c_0 = esw_get_unique_metadata(esw);
 		list_add(&mdata->list, &esw->offloads.rep_bond_metadata_list);
 		write_unlock(&esw->offloads.rep_bond_metadata_lock);
 		esw_debug(esw->dev,
@@ -115,20 +117,26 @@ int mlx5e_enslave_rep(struct mlx5_eswitch *esw, struct net_device *netdev,
 				 struct mlx5e_rep_bond_shadow_entry, list);
 	write_unlock(&mdata->slaves_list_lock);
 
+	/* Elect first to be the primary rep */
 	if (s_entry == first) {
 		priv1 = netdev_priv(netdev);
 		rpriv1 = priv1->ppriv;
+		esw_modify_vport_ingress(esw, mdata->metadata_reg_c_0,
+					 rpriv1->rep);
 		esw_debug(esw->dev,
-			  "Master rep(%s) of bond_metadata(%d) modify_ingress_acl vport(%d)\n",
+			  "Primary rep(%s) metadata(%d) modify_ingress vport(%d)\n",
 			  netdev->name, mdata->metadata_reg_c_0, rpriv1->rep->vport);
 	} else {
 		priv1 = netdev_priv(first->netdev);
 		rpriv1 = priv1->ppriv;
 		priv2 = netdev_priv(s_entry->netdev);
 		rpriv2 = priv2->ppriv;
-		esw_debug(esw->dev,
-			  "Slave rep(%s) of bond_metadata(%d) modify_ingress_acl vport(%d)\n",
-			  s_entry->netdev->name, mdata->metadata_reg_c_0, rpriv2->rep->vport);
+		/* Modify the slave rep and bond it with the primary rep */
+		esw_modify_vport_ingress(esw, mdata->metadata_reg_c_0,
+					 rpriv2->rep);
+		esw_bond_vports_ingress(esw, rpriv1->rep, rpriv2->rep);
+		esw_debug(esw->dev, "Bond p-rep(%s) s-rep(%s) metadata(%d)\n",
+			  first->netdev->name, s_entry->netdev->name, mdata->metadata_reg_c_0);
 	}
 
 	return 0;
@@ -157,21 +165,26 @@ void mlx5e_unslave_rep(struct mlx5_eswitch *esw, const struct net_device *netdev
 	write_unlock(&mdata->slaves_list_lock);
 
 	if (s_entry == first && !list_empty(&mdata->slaves_list)) {
-		/* Unslave the master slave, elect the new master */
+		/* Unslave the primary rep, elect the new primary */
 		first = list_first_entry(&mdata->slaves_list,
 					 struct mlx5e_rep_bond_shadow_entry, list);
 		priv = netdev_priv(first->netdev);
 		rpriv = priv->ppriv;
+		/* First, reset this primary rep metadata and ingress */
+		esw_modify_vport_ingress(esw, 0, rpriv->rep);
+		esw_modify_vport_ingress(esw, mdata->metadata_reg_c_0,
+					 rpriv->rep);
 		esw_debug(esw->dev,
-			  "New master rep(%s) of bond_metadata(%d) modify_ingress_acl vport(%d)\n",
+			  "New primary rep(%s) metadata(%d) modify_ingress vport(%d)\n",
 			  first->netdev->name, mdata->metadata_reg_c_0, rpriv->rep->vport);
 	}
 
 	priv = netdev_priv(netdev);
 	rpriv = priv->ppriv;
-
+	/* Reset this slave rep metadata and ingress */
+	esw_modify_vport_ingress(esw, 0, rpriv->rep);
 	esw_debug(esw->dev,
-		  "Unslave rep(%s) of bond_metadata(%d) reset_ingress_acl vport(%d)\n",
+		  "Unslave rep(%s) metadata(%d) reset_ingress vport(%d)\n",
 		  s_entry->netdev->name, mdata->metadata_reg_c_0, rpriv->rep->vport);
 
 	kref_put(&mdata->refcnt, mlx5e_rep_bond_metadata_release);
