@@ -1976,8 +1976,8 @@ esw_offloads_unload_vport_reps(struct mlx5_eswitch *esw, u16 vport_num)
 		__esw_offloads_unload_rep(esw, rep, rep_type);
 }
 
-int esw_vport_ingress_common_config(struct mlx5_eswitch *esw,
-				    struct mlx5_vport *vport);
+int esw_vport_ingress_config(struct mlx5_eswitch *esw,
+			     struct mlx5_vport *vport);
 int esw_vport_egress_config(struct mlx5_eswitch *esw,
 			    struct mlx5_vport *vport);
 
@@ -1993,7 +1993,7 @@ int mlx5_eswitch_setup_sf_vport(struct mlx5_eswitch *esw, u16 vport_num)
 	esw_debug(esw->dev, "%s: setup vport=0x%x\n", __func__, vport_num);
 	mlx5_eswitch_enable_vport(esw, evport, 0);
 
-	ret = esw_vport_ingress_common_config(esw, evport);
+	ret = esw_vport_ingress_config(esw, evport);
 	if (ret) {
 		esw_warn(esw->dev, "vport(%d) configure ingress acl err(%d)\n",
 			 vport_num, ret);
@@ -2454,8 +2454,8 @@ int esw_vport_egress_config(struct mlx5_eswitch *esw,
 	return err;
 }
 
-int esw_vport_ingress_common_config(struct mlx5_eswitch *esw,
-				    struct mlx5_vport *vport)
+int esw_vport_ingress_config(struct mlx5_eswitch *esw,
+			     struct mlx5_vport *vport)
 {
 	int err;
 
@@ -2519,7 +2519,7 @@ static int esw_create_offloads_acl_tables(struct mlx5_eswitch *esw)
 		if (mlx5_eswitch_is_sf_vport(esw, vport->vport))
 			continue;
 
-		err = esw_vport_ingress_common_config(esw, vport);
+		err = esw_vport_ingress_config(esw, vport);
 		if (err)
 			goto err_ingress;
 
