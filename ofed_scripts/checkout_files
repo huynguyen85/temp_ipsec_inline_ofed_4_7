@@ -35,5 +35,7 @@ include/linux/nvme-fc.h
 include/linux/net_dim.h
 include/linux/lightnvm.h
 include/linux/mdev.h
+include/linux/sunrpc/svc_rdma.h
+include/linux/sunrpc/xprtrdma.h
 include/trace/events/ib_umad.h
 include/trace/events/ib_mad.h
