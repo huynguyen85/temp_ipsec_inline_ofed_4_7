@@ -416,6 +416,11 @@ void skb_flow_dissector_init(struct flow_dissector *flow_dissector,
 #endif
 int init_default_flow_dissectors(void);
 
+#ifdef HAVE_NET_FLOW_KEYS_H
+#undef flow_keys
+#undef flow_hash_from_keys
+#endif
+
 #endif
 
 #endif
