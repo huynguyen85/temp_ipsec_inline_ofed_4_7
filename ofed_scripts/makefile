@@ -247,7 +247,6 @@ kernel: $(COMPAT_CONFIG) $(COMPAT_AUTOCONF)
 		CONFIG_MLX4_FC=$(CONFIG_MLX4_FC) \
 		CONFIG_SUNRPC_XPRT_RDMA=$(CONFIG_SUNRPC_XPRT_RDMA) \
 		CONFIG_SUNRPC_XPRT_RDMA_DUMMY=$(CONFIG_SUNRPC_XPRT_RDMA_DUMMY) \
-		CONFIG_E_IPOIB=$(CONFIG_E_IPOIB) \
 		CONFIG_DTRACE= \
 		CONFIG_CTF= \
 		CONFIG_INFINIBAND_ON_DEMAND_PAGING=$(CONFIG_INFINIBAND_ON_DEMAND_PAGING) \
@@ -357,12 +356,6 @@ ifeq ($(CONFIG_INFINIBAND_IPOIB),m)
 ifeq ("$(wildcard $(INSTALL_MOD_PATH)/etc/modprobe.d/ib_ipoib.conf)","")
 	install -m 0644 ofed_scripts/ib_ipoib.conf $(INSTALL_MOD_PATH)/etc/modprobe.d
 endif
-endif
-
-ifeq ($(CONFIG_E_IPOIB),m)
-	install -d $(INSTALL_MOD_PATH)/sbin
-	install -m 0755 ofed_scripts/ipoibd $(INSTALL_MOD_PATH)/usr/sbin
-	install -m 0755 ofed_scripts/eipoib_daemon $(INSTALL_MOD_PATH)/usr/sbin
 endif
 
 	install -d $(INSTALL_MOD_PATH)/etc/udev/rules.d

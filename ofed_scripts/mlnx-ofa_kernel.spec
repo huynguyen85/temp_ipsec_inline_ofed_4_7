@@ -52,7 +52,6 @@
 
 # Kernel module packages to be included into kernel-ib
 %global build_ipoib %(if ( echo %{configure_options} | grep "with-ipoib-mod" > /dev/null ); then echo -n '1'; else echo -n '0'; fi)
-%global build_eipoib %(if ( echo %{configure_options} | grep "with-e_ipoib-mod" > /dev/null ); then echo -n '1'; else echo -n '0'; fi)
 %global build_oiscsi %(if ( echo %{configure_options} | grep "with-iscsi-mod" > /dev/null ); then echo -n '1'; else echo -n '0'; fi)
 %global build_mlx4 %(if ( echo %{configure_options} | grep "with-mlx4-mod" > /dev/null ); then echo -n '1'; else echo -n '0'; fi)
 %global build_mlx5 %(if ( echo %{configure_options} | grep "with-mlx5-mod" > /dev/null ); then echo -n '1'; else echo -n '0'; fi)

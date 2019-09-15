@@ -1142,18 +1142,6 @@ start()
                                     fi
                                 fi
                         ;;
-                        eth_ipoib)
-                                load_module $mod
-                                # Workaround for fixing udev naming bug #682750
-                                if (which udevadm &> /dev/null); then
-                                    for i in $(cat /sys/class/net/eth_ipoib_interfaces 2>/dev/null | awk '{print $1}' 2>/dev/null)
-                                    do
-                                        udevadm test /sys/class/net/$i &> /dev/null
-                                    done
-                                fi
-                                #load the deamon ipoibd
-                                /sbin/eipoib_daemon start
-                        ;;
                         *)
                                 load_module $mod
                         ;;
@@ -1536,14 +1524,6 @@ stop()
             mcastpid=$(pidof -x mcasthandle)
             if [ -n "${mcastpid:-}" ]; then
                 kill -9 ${mcastpid} > /dev/null 2>&1
-            fi
-        fi
-
-        # Stop ipoibd (for ipoib-pv module)
-        ipoibdpid=$(pidof -x ipoibd)
-        if [ -n "${ipoibdpid:-}" ]; then
-            if [ -e "/sbin/eipoib_daemon" ]; then
-                /sbin/eipoib_daemon stop
             fi
         fi
 		if [ -d /sys/class/infiniband_qlgc_vnic/ ]; then
