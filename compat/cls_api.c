@@ -81,7 +81,11 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 #endif /* HAVE_IS_TCF_VLAN */
 		} else if (is_tcf_tunnel_set(act)) {
 			entry->id = FLOW_ACTION_TUNNEL_ENCAP;
+#ifdef HAVE_IS_TCF_TUNNEL
 			entry->tunnel = tcf_tunnel_info(act);
+#else
+			entry->tunnel = NULL;
+#endif
 		} else if (is_tcf_tunnel_release(act)) {
 			entry->id = FLOW_ACTION_TUNNEL_DECAP;
 #ifdef HAVE_MINIFLOW
@@ -112,19 +116,19 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 		} else if (is_tcf_csum(act)) {
 			entry->id = FLOW_ACTION_CSUM;
 			entry->csum_flags = tcf_csum_update_flags(act);
+#ifdef HAVE_IS_TCF_SKBEDIT_MARK
 		} else if (is_tcf_skbedit_mark(act)) {
 			entry->id = FLOW_ACTION_MARK;
 			entry->mark = tcf_skbedit_mark(act);
-		}
+#endif
 #ifdef HAVE_IS_TCF_POLICE
-		else if (is_tcf_police(act)) {
+		} else if (is_tcf_police(act)) {
 			entry->id = FLOW_ACTION_POLICE;
 			entry->police.burst = tcf_police_tcfp_burst(act);
 			entry->police.rate_bytes_ps =
 				tcf_police_rate_bytes_ps(act);
-		}
 #endif
-		else {
+		} else {
 			goto err_out;
 		}
 
