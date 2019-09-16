@@ -45,3 +45,11 @@ Change-Id=Iea1b7261f68943209a787ba1186a3cef2d095927; subject=BACKPORTS: Add back
 Change-Id=I49aeb1bd2b733ad15959d98601667e48e2fe0503; subject=BACKPORTS: Fix compilation error in pkt_cls.h; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=Iefd36982d0d1c39af70566fe1840d16f003cee26; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I921d0a40d92a45b7198d22ce5798954e409de554; subject=BACKPORTS: Support ASAP in 3.10.0-862 3.10.0-957 3.10.0-693 3.10.0-327; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I8d7ec5a74154e54107a973f8e586e130e1e0da06; subject=BACKPORTS: put tc_tun in ifdef when tunnels are not supported; feature=backports; upstream_status=ignore; general=;
+Change-Id=Iaef37963cd7180fef9923ce0e26f8e2289034805; subject=BACKPORTS: fix compialion issues in en_rep; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia5129325b9f2d4fc26b5aa128d445cb35db8a655; subject=BACKPORTS: fix compialtion issues in cls_api.; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ib9468f5f631ff1e3c0f8c7e8d5dcaab5f3e11e50; subject=BACKPORTS: struct flow_keys had undefined fields; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I1623f65e583ae17dd50b943bc51665bf499793db; subject=BACKPORTS: Add missing file include/uapi/linux/tc_act/tc_vlan.h; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Ib2d5810fab1a009a2885c7f89c8006601db4978b; subject=BACKPORTS: Add missing file include/uapi/linux/tc_act/tc_tunnel_key.h; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=If191525df07b2034e25eff5bca4f0487526daa5c; subject=BACKPORTS: Support ASAP in 3.10.0-327; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I042d9434da19c31515a20f25d4e984579251e035; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
