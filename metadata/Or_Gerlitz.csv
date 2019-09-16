@@ -1,0 +1,3 @@
+sep=;
+Change-Id=I85dc0f84b9dbe8fd18752ea75bb91b78103df77d; subject=net/mlx5: E-Switch, Use change lower event to set egress acl forward-to-vport rule; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I223c348cd59dccbff4e2d0bc4f657c0370e0248e; subject=net/mlx5: E-Switch, Offload flow rules to active lower representor; feature=mlx5_sfs; upstream_status=in_progress; general=;

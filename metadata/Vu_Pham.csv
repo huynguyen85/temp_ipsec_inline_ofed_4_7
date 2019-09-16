@@ -13,3 +13,13 @@ Change-Id=Iab6168618698ebeba9090d7e1f25e3a63a5f2edc; subject=net/mlx5: E-Switch,
 Change-Id=I147b7b3befe1f5b2134ab02e2da1754505a75bc4; subject=net/mlx5: Add support for mediated devices in switchdev mode; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=Ib95ab2ebffbc8b33cf46132f70abdcc2dd35e213; subject=net/mlx5: E-Switch, Enable support match metadata reg_c for SF vports; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=I2be517f9dd2012da8b4ec5d31ef2638e6b2e37e9; subject=net/mlx5: E-Switch, Add peer miss rule for SF vports; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ie2401cb8ea664be08f490e1ec3d0253feba79d25; subject=net/mlx5: E-Switch, Refactor vport egress config in offloads mode; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Iaa72069a0ce1edaf6e62d0dd3c73d762201cefee; subject=net/mlx5: E-Switch, Rename ingress acl config in offloads mode; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I3bfefecdd3379d8528059b5946d63fa0135f5e4f; subject=net/mlx5: Introduce egress acl forward-to-vport capability; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I6d30264a8f6f42d756d43899faa780aae9e15b0e; subject=net/mlx5: E-Switch, Introduce APIs to enable egress acl forward-to-vport rule; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I8a03da552d7b29d757280c8189ba80e1c6badc02; subject=net/mlx5: E-Switch, Use change upper event to delete vport egress acl forward rule; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I64c1e09667f670380e3ba55863b6442db5ab65f1; subject=net/mlx5: E-Switch, Support tc block sharing for representors; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ibc4020fe775f6a9f2b09fa7bc848207068fe05a6; subject=net/mlx5: E-Switch, Add bond_metadata and its shadow entries; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Id6f86fd76639e1e611a56dcb5be1551685b2ff6c; subject=net/mlx5: E-Switch, Slave representors sharing ingress acl table and unique metadata; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=Ia1dbcc98458db4827573c686847284ead9f53bbe; subject=net/mlx5: E-Switch, Use change upper event to setup representors' bond_metadata; feature=mlx5_sfs; upstream_status=in_progress; general=;
+Change-Id=I96894064fb47c2b0cf279c0a56c61dd5e0c521e6; subject=BACPORTS: Egress and ingress ACLs; feature=backports; upstream_status=ignore; general=;
