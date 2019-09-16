@@ -338,7 +338,9 @@ EXPORT_SYMBOL_GPL(xas_nomem);
  * Return: true if memory was needed, and was successfully allocated.
  */
 static bool __xas_nomem(struct xa_state *xas, gfp_t gfp)
+#ifdef __must_hold
 	__must_hold(xas->xa->xa_lock)
+#endif
 {
 	unsigned int lock_type = xa_lock_type(xas->xa);
 

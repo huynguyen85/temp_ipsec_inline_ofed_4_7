@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/user_mad.c
 
 Change-Id: I135756e35348b8e0aa5df3feab86e2a290310e24
 ---
- drivers/infiniband/core/user_mad.c | 98 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 88 insertions(+), 10 deletions(-)
+ drivers/infiniband/core/user_mad.c | 112 +++++++++++++++++++++++++++++++++----
+ 1 file changed, 102 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
 index xxxxxxx..xxxxxxx 100644
@@ -125,7 +125,7 @@ index xxxxxxx..xxxxxxx 100644
  static DEVICE_ATTR_RO(port);
  
  static struct attribute *umad_class_dev_attrs[] = {
-@@ -1163,12 +1185,23 @@ static struct attribute *umad_class_dev_attrs[] = {
+@@ -1163,12 +1185,20 @@ static struct attribute *umad_class_dev_attrs[] = {
  	NULL,
  };
  ATTRIBUTE_GROUPS(umad_class_dev);
@@ -133,9 +133,6 @@ index xxxxxxx..xxxxxxx 100644
 +static DEVICE_ATTR(port, S_IRUGO, show_port, NULL);
 +#endif
  
-+#ifndef HAVE_CLASS_GROUPS
-+static CLASS_ATTR_STRING(abi_version, S_IRUGO, __stringify(IB_USER_MAD_ABI_VERSION));
-+#endif
 +#ifdef HAVE_CLASS_DEVNODE_UMODE_T
  static char *umad_devnode(struct device *dev, umode_t *mode)
 +#else
@@ -149,11 +146,22 @@ index xxxxxxx..xxxxxxx 100644
  static ssize_t abi_version_show(struct class *class,
  				struct class_attribute *attr, char *buf)
  {
-@@ -1181,12 +1214,17 @@ static struct attribute *umad_class_attrs[] = {
+@@ -1181,14 +1211,31 @@ static struct attribute *umad_class_attrs[] = {
  	NULL,
  };
  ATTRIBUTE_GROUPS(umad_class);
-+#endif
++#else
++#ifdef HAVE_CLASS_ATTR_STRING
++static CLASS_ATTR_STRING(abi_version, S_IRUGO,
++                         __stringify(IB_USER_MAD_ABI_VERSION));
++#else
++static ssize_t show_abi_version(struct class *class, char *buf)
++{
++	        return sprintf(buf, "%d\n", IB_USER_MAD_ABI_VERSION);
++}
++static CLASS_ATTR(abi_version, S_IRUGO, show_abi_version, NULL);
++#endif/*HAVE_CLASS_ATTR_STRING*/
++#endif/*HAVE_CLASS_GROUPS*/
  
  static struct class umad_class = {
  	.name		= "infiniband_mad",
@@ -166,8 +174,11 @@ index xxxxxxx..xxxxxxx 100644
 +#endif
  };
  
++
  static void ib_umad_release_port(struct device *device)
-@@ -1218,10 +1256,19 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+ {
+ 	struct ib_umad_port *port = dev_get_drvdata(device);
+@@ -1218,10 +1265,19 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
  	dev_t base_issm;
  	int ret;
  
@@ -187,7 +198,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (devnum >= IB_UMAD_NUM_FIXED_MINOR) {
  		base_umad = dynamic_umad_dev + devnum - IB_UMAD_NUM_FIXED_MINOR;
  		base_issm = dynamic_issm_dev + devnum - IB_UMAD_NUM_FIXED_MINOR;
-@@ -1247,6 +1294,12 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+@@ -1247,6 +1303,12 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
  	if (ret)
  		goto err_cdev;
  
@@ -200,7 +211,7 @@ index xxxxxxx..xxxxxxx 100644
  	ib_umad_init_port_dev(&port->sm_dev, port, device);
  	port->sm_dev.devt = base_issm;
  	dev_set_name(&port->sm_dev, "issm%d", port->dev_num);
-@@ -1257,14 +1310,28 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+@@ -1257,14 +1319,28 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
  	if (ret)
  		goto err_dev;
  
@@ -229,7 +240,7 @@ index xxxxxxx..xxxxxxx 100644
  	return ret;
  }
  
-@@ -1294,8 +1361,11 @@ static void ib_umad_kill_port(struct ib_umad_port *port)
+@@ -1294,8 +1370,11 @@ static void ib_umad_kill_port(struct ib_umad_port *port)
  
  	cdev_device_del(&port->sm_cdev, &port->sm_dev);
  	cdev_device_del(&port->cdev, &port->dev);
@@ -242,17 +253,22 @@ index xxxxxxx..xxxxxxx 100644
  	/* balances device_initialize() */
  	put_device(&port->sm_dev);
  	put_device(&port->dev);
-@@ -1389,6 +1459,14 @@ static int __init ib_umad_init(void)
+@@ -1389,6 +1468,19 @@ static int __init ib_umad_init(void)
  		goto out_chrdev;
  	}
  
 +#ifndef HAVE_CLASS_GROUPS
++#ifdef HAVE_CLASS_ATTR_STRING
 +	ret = class_create_file(&umad_class, &class_attr_abi_version.attr);
++#else
++	ret = class_create_file(&umad_class, &class_attr_abi_version);
++#endif/*HAVE_CLASS_ATTR_STRING*/
 +	if (ret) {
 +		pr_err("couldn't create abi_version attribute\n");
 +		goto out_class;
 +	}
-+#endif
++#endif/*HAVE_CLASS_GROUPS*/
++
 +
  	ret = ib_register_client(&umad_client);
  	if (ret) {

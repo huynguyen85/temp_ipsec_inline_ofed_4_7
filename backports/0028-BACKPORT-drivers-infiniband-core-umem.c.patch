@@ -3,24 +3,51 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/umem.c
 
 Change-Id: I51485baf119b4bc9bb31be5261ad3455376fba81
 ---
- drivers/infiniband/core/umem.c | 135 ++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 132 insertions(+), 3 deletions(-)
+ drivers/infiniband/core/umem.c | 146 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 143 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/infiniband/core/umem.c b/drivers/infiniband/core/umem.c
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/infiniband/core/umem.c
 +++ b/drivers/infiniband/core/umem.c
-@@ -37,6 +37,9 @@
+@@ -37,6 +37,10 @@
  #include <linux/sched/signal.h>
  #include <linux/sched/mm.h>
  #include <linux/export.h>
++#include <linux/scatterlist.h>
 +#if !defined(HAVE_FOLL_LONGTERM) && !defined(HAVE_GET_USER_PAGES_LONGTERM)
 +#include <linux/hugetlb.h>
 +#endif
  #include <linux/slab.h>
  #include <linux/pagemap.h>
  #include <rdma/ib_umem_odp.h>
-@@ -324,15 +327,27 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -127,15 +131,25 @@ static void peer_umem_release(struct ib_umem *umem)
+ 
+ static void __ib_umem_release(struct ib_device *dev, struct ib_umem *umem, int dirty)
+ {
++#ifdef HAVE_SG_PAGE_ITER
+ 	struct sg_page_iter sg_iter;
++#else
++	struct scatterlist *sg;
++	int i;
++#endif
+ 	struct page *page;
+ 
+ 	if (umem->nmap > 0)
+ 		ib_dma_unmap_sg(dev, umem->sg_head.sgl, umem->sg_nents,
+ 				DMA_BIDIRECTIONAL);
+ 
++#ifdef HAVE_SG_PAGE_ITER
+ 	for_each_sg_page(umem->sg_head.sgl, &sg_iter, umem->sg_nents, 0) {
+ 		page = sg_page_iter_page(&sg_iter);
++#else
++	for_each_sg(umem->sg_head.sgl, sg, umem->sg_nents, i) {
++		page = sg_page(sg);
++#endif
+ 		if (!PageDirty(page) && umem->writable && dirty)
+ 			set_page_dirty_lock(page);
+ 		put_page(page);
+@@ -324,15 +338,27 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  	struct ib_ucontext *context;
  	struct ib_umem *umem;
  	struct page **page_list;
@@ -48,7 +75,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (!udata)
  		return ERR_PTR(-EIO);
-@@ -343,7 +358,11 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -343,7 +369,11 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  		return ERR_PTR(-EIO);
  
  	if (dmasync)
@@ -60,7 +87,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	/*
  	 * If the combination of the addr and size requested for this memory
-@@ -403,13 +422,25 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -403,13 +433,25 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  			goto umem_kfree;
  		return umem;
  	}
@@ -87,7 +114,7 @@ index xxxxxxx..xxxxxxx 100644
  	npages = ib_umem_num_pages(umem);
  	if (npages == 0 || npages > UINT_MAX) {
  		pr_debug("%s: npages(%lu) isn't in the range 1..%u\n", __func__,
-@@ -420,15 +451,41 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -420,15 +462,41 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  
  	lock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
  
@@ -129,7 +156,7 @@ index xxxxxxx..xxxxxxx 100644
  	cur_base = addr & PAGE_MASK;
  
  	ret = sg_alloc_table(&umem->sg_head, npages, GFP_KERNEL);
-@@ -438,23 +495,58 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -438,23 +506,58 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  		goto vma;
  	}
  
@@ -188,7 +215,7 @@ index xxxxxxx..xxxxxxx 100644
  			up_read(&mm->mmap_sem);
  			goto umem_release;
  		}
-@@ -465,7 +557,15 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -465,7 +568,15 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  		sg = ib_umem_add_sg_table(sg, page_list, ret,
  			dma_get_max_seg_size(context->device->dma_device),
  			&umem->sg_nents);
@@ -205,7 +232,7 @@ index xxxxxxx..xxxxxxx 100644
  		up_read(&mm->mmap_sem);
  	}
  
-@@ -475,7 +575,11 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -475,7 +586,11 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  				  umem->sg_head.sgl,
  				  umem->sg_nents,
  				  DMA_BIDIRECTIONAL,
@@ -218,7 +245,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	if (!umem->nmap) {
  		pr_err("%s: failed to map scatterlist, npages=%lu\n", __func__,
-@@ -490,8 +594,22 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
+@@ -490,8 +605,22 @@ struct ib_umem *ib_umem_get(struct ib_udata *udata, unsigned long addr,
  umem_release:
  	__ib_umem_release(context->device, umem, 0);
  vma:
@@ -241,7 +268,7 @@ index xxxxxxx..xxxxxxx 100644
  	free_page((unsigned long) page_list);
  	/*
   	 * If the address belongs to peer memory client, then the first
-@@ -547,7 +665,18 @@ void ib_umem_release(struct ib_umem *umem)
+@@ -547,7 +676,18 @@ void ib_umem_release(struct ib_umem *umem)
  
  	__ib_umem_release(umem->context->device, umem, 1);
  

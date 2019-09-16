@@ -65,3 +65,4 @@ Change-Id=I70cf6b51bd82bc94fc2f8252c05a4d4d06212a40; subject=BACKPORTS: Add mde.
 Change-Id=Ia2b66c17b89e893f603dcb24d81910883bc34c05; subject=BACKPORTS: Fix NETDEV_XMIT_MORE typo; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ie45a8e0b0331f37f30d3cd11212d884d2b00bc8f; subject=BACKPORTS: Fix ESWITCH supported version; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Ibcc3db7cd3efd5d964ccb445bbfce9e1fbee30f1; subject=xarray: define radix_tree_node xa_node; feature=backports; upstream_status=ignore; general=;
+Change-Id=I437f503d9cce3ce9f35f935f5097bdbdce69e41f; subject=BACKPORTS: IB_CORE till 2.6; feature=backports; upstream_status=ignore; general=;

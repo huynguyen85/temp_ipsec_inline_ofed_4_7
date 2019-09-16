@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/restrack.c
 
 Change-Id: I2afdcd243906616208272ef9d27396f236ffbcfc
 ---
- drivers/infiniband/core/restrack.c | 83 +++++++++++++++++++++++++++++-
- 1 file changed, 82 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/restrack.c | 84 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 83 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/infiniband/core/restrack.c b/drivers/infiniband/core/restrack.c
 index xxxxxxx..xxxxxxx 100644
@@ -23,7 +23,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	return 0;
  }
-@@ -58,11 +62,16 @@ static const char *type2str(enum rdma_restrack_type type)
+@@ -58,11 +62,17 @@ static const char *type2str(enum rdma_restrack_type type)
   */
  void rdma_restrack_clean(struct ib_device *dev)
  {
@@ -36,12 +36,13 @@ index xxxxxxx..xxxxxxx 100644
  	char buf[TASK_COMM_LEN];
 -	bool found = false;
  	const char *owner;
++	COMPAT_HL_NODE;
 +#ifdef HAVE_XARRAY
 +	bool found = false;
  	int i;
  
  	for (i = 0 ; i < RDMA_RESTRACK_MAX; i++) {
-@@ -101,6 +110,37 @@ void rdma_restrack_clean(struct ib_device *dev)
+@@ -101,6 +111,37 @@ void rdma_restrack_clean(struct ib_device *dev)
  		pr_err("restrack: %s", CUT_HERE);
  
  	kfree(rt);
@@ -79,7 +80,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  /**
-@@ -112,6 +152,7 @@ void rdma_restrack_clean(struct ib_device *dev)
+@@ -112,6 +153,7 @@ void rdma_restrack_clean(struct ib_device *dev)
  int rdma_restrack_count(struct ib_device *dev, enum rdma_restrack_type type,
  			struct pid_namespace *ns)
  {
@@ -87,7 +88,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct rdma_restrack_root *rt = &dev->res[type];
  	struct rdma_restrack_entry *e;
  	XA_STATE(xas, &rt->xa, 0);
-@@ -126,6 +167,26 @@ int rdma_restrack_count(struct ib_device *dev, enum rdma_restrack_type type,
+@@ -126,6 +168,26 @@ int rdma_restrack_count(struct ib_device *dev, enum rdma_restrack_type type,
  	}
  	xa_unlock(&rt->xa);
  	return cnt;
@@ -114,7 +115,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  EXPORT_SYMBOL(rdma_restrack_count);
  
-@@ -211,16 +272,21 @@ void rdma_restrack_attach_task(struct rdma_restrack_entry *res,
+@@ -211,16 +273,21 @@ void rdma_restrack_attach_task(struct rdma_restrack_entry *res,
  static void rdma_restrack_add(struct rdma_restrack_entry *res)
  {
  	struct ib_device *dev = res_to_dev(res);
@@ -136,7 +137,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (res->type == RDMA_RESTRACK_QP) {
  		/* Special case to ensure that LQPN points to right QP */
  		struct ib_qp *qp = container_of(res, struct ib_qp, res);
-@@ -241,6 +307,12 @@ static void rdma_restrack_add(struct rdma_restrack_entry *res)
+@@ -241,6 +308,12 @@ static void rdma_restrack_add(struct rdma_restrack_entry *res)
  
  	if (!ret)
  		res->valid = true;
@@ -149,7 +150,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  /**
-@@ -333,15 +405,24 @@ void rdma_restrack_del(struct rdma_restrack_entry *res)
+@@ -333,15 +406,24 @@ void rdma_restrack_del(struct rdma_restrack_entry *res)
  	if (WARN_ON(!dev))
  		return;
  

@@ -18,6 +18,7 @@
 #define RADIX_TREE_TAG_LONGS	\
 	((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
 
+#ifdef HAVE_RADIX_TREE_NEXT_CHUNK
 struct radix_tree_node {
 	unsigned int	path;	/* Offset in parent & height from the bottom */
 	unsigned int	count;
@@ -36,6 +37,8 @@ struct radix_tree_node {
 	void __rcu	*slots[RADIX_TREE_MAP_SIZE];
 	unsigned long	tags[RADIX_TREE_MAX_TAGS][RADIX_TREE_TAG_LONGS];
 };
+#endif/*HAVE_RADIX_TREE_NEXT_CHUNK*/
+
 #endif /* HAVE_RADIX_TREE_NODE */
 #ifndef HAVE_IDR_PRELOAD_EXPORTED
 #define idr_preload LINUX_BACKPORT(idr_preload)

@@ -37,7 +37,7 @@ index xxxxxxx..xxxxxxx 100644
 -
 +#ifdef HAVE_XARRAY
  static DEFINE_XARRAY_ALLOC(ctx_id_table);
-+#elif HAVE_IDR_ALLOC
++#else
 +static DEFINE_MUTEX(ctx_id_mutex);
 +static DEFINE_IDR(ctx_id_table);
 +#endif
