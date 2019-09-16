@@ -178,7 +178,7 @@ static inline u32 mlx5e_decompress_cqes_start(struct mlx5e_rq *rq,
 	rq->handle_rx_cqe(rq, &cqd->title);
 	cqd->mini_arr_idx++;
 
-	return mlx5e_decompress_cqes_cont(rq, wq, 1, budget_rem) - 1;
+	return mlx5e_decompress_cqes_cont(rq, wq, 1, budget_rem);
 }
 
 static inline void mlx5e_rx_cache_page_swap(struct mlx5e_page_cache *cache,
@@ -1473,14 +1473,7 @@ int mlx5e_poll_rx_cq(struct mlx5e_cq *cq, int budget)
 	if (rq->cqd.left)
 		work_done += mlx5e_decompress_cqes_cont(rq, cqwq, 0, budget);
 
-	cqe = mlx5_cqwq_get_cqe(cqwq);
-	if (!cqe) {
-		if (unlikely(work_done))
-			goto out;
-		return 0;
-	}
-
-	do {
+	while ((work_done < budget) && (cqe = mlx5_cqwq_get_cqe(cqwq))) {
 		if (mlx5_get_cqe_format(cqe) == MLX5_COMPRESSED) {
 			work_done +=
 				mlx5e_decompress_cqes_start(rq, cqwq,
@@ -1491,9 +1484,12 @@ int mlx5e_poll_rx_cq(struct mlx5e_cq *cq, int budget)
 		mlx5_cqwq_pop(cqwq);
 
 		rq->handle_rx_cqe(rq, cqe);
-	} while ((++work_done < budget) && (cqe = mlx5_cqwq_get_cqe(cqwq)));
+		++work_done;
+	}
 
-out:
+	if (!work_done)
+		return 0;
+
 	if (rq->xdp_prog)
 		mlx5e_xdp_rx_poll_complete(rq);
 
