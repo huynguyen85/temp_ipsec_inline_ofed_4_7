@@ -30,7 +30,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct mlx5_core_dev *dev = cdevlink->mdev;
  	struct devlink *devlink = priv_to_devlink(dev);
 +#ifdef HAVE_NETLINK_EXT_ACK
- 	struct netlink_ext_ack ack = { ._msg = NULL };
+ 	static struct netlink_ext_ack ack = { ._msg = NULL };
 +#endif
  	const char *entname = attr->attr.name;
  	struct devlink_compat_op *op = 0;

@@ -117,7 +117,7 @@ static ssize_t esw_compat_write(struct kobject *kobj,
 						       devlink_kobj);
 	struct mlx5_core_dev *dev = cdevlink->mdev;
 	struct devlink *devlink = priv_to_devlink(dev);
-	struct netlink_ext_ack ack = { ._msg = NULL };
+	static struct netlink_ext_ack ack = { ._msg = NULL };
 	const char *entname = attr->attr.name;
 	struct devlink_compat_op *op = 0;
 	u16 set = 0;
