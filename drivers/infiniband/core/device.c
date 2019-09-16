@@ -2518,6 +2518,7 @@ void ib_set_device_ops(struct ib_device *dev, const struct ib_device_ops *ops)
 	SET_DEVICE_OP(dev_ops, exp_free_dm);
 	SET_DEVICE_OP(dev_ops, exp_invalidate_range);
 	SET_DEVICE_OP(dev_ops, exp_prefetch_mr);
+	SET_DEVICE_OP(dev_ops, exp_query_mkey);
 
 	SET_DEVICE_OP(dev_ops, create_nvmf_backend_ctrl);
 	SET_DEVICE_OP(dev_ops, destroy_nvmf_backend_ctrl);

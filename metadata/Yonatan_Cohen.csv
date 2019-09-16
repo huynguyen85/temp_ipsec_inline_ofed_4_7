@@ -28,3 +28,4 @@ Change-Id=I1230b1297cbc43266140b23a7db746500b4b05ee; subject=IB/core: Set ib_dev
 Change-Id=I7d23b552bf5571d6f797808801ebeda8e6d98426; subject=metadata: Update MD for Yonatan Cohen; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I2519b3212563e7e23f05961f71d6ae09594470a5; subject=IB/{mlx5,core}: Cleanup dead code exp_memcpy; feature=rebase; upstream_status=NA; general=;
 Change-Id=Ia11312e814eb514de13d575500bc69eba5a4b22d; subject=IB/mlx5: Added experimental MRs INDIRECT and FIXED_SIZE; feature=rebase; upstream_status=NA; general=;
+Change-Id=Iaff2af710553e54c56b2d32a04e9792d9d8eddb5; subject=IB/uverbs: Set exp_query_mkey to ib_ops; feature=exp_query_mkey; upstream_status=NA; general=;

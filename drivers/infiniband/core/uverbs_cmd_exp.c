@@ -799,8 +799,10 @@ int ib_uverbs_exp_query_mkey(struct uverbs_attr_bundle *attrs)
 		return -EINVAL;
 
 	ret = ib_exp_query_mkey(mr, 0, &mkey_attr);
-	if (ret)
+	if (ret) {
+		uobj_put_obj_read(mr);
 		return ret;
+	}
 
 	uobj_put_obj_read(mr);
 
