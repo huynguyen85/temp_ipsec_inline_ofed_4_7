@@ -17,3 +17,7 @@ Change-Id=I8390366db140f8d1856f2db06b69c763421a1e55; subject=BACKPORTS: net/mlx5
 Change-Id=Ice7c961e58af69c2a7c66706b6fc2c710f429675; subject=BACKPORTS: net/mlx5: Fix BP after adding ipip feature; feature=backports; upstream_status=ignore; general=;
 Change-Id=I9f503e013dc90cd13653fb7685ca9777f26d7239; subject=BACKPORTS: Fix backports after applying rdma-show-new-qps patches; feature=backports; upstream_status=ignore; general=;
 Change-Id=Iaf21c995309b80ee5d6a693f8b6bc51f88b12d0e; subject=BACKPORTS: Remove HAVE_NETIF_F_GSO_IPXIP4_6, unused any more; feature=backports; upstream_status=ignore; general=;
+Change-Id=I26566c50aaa559e884a4357cf01b31b75d52cec7; subject=compat: Define HAVE_IOVA_RCACHE to distinuguish between buggy/fixed kernel; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ib2235be1fe2654d2a4f84b27827f0b35818fb4d3; subject=Revert "net/mlx5e: Keep pages in RX cache DMA-unmapped"; feature=mlx5_en_bugs; upstream_status=NA; general=;
+Change-Id=If35241aef714949ebe3246b1733be0747c497c6a; subject=BACKPORTS: Fix backports after keeping pages in RX cache DMA-mapped; feature=backports; upstream_status=ignore; general=;
+Change-Id=I8e0e9f043d309a5277e4b809122618ff58e6e122; subject=BACKPORTS: Conditionally keep pages in RX cache DMA-unmapped; feature=backports; upstream_status=ignore; general=;
