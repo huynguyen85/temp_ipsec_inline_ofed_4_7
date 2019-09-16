@@ -10,3 +10,5 @@ Change-Id=I6c7ddf298776846d486205e6f36608c525538d20; subject=IB/mlx5: Support Mu
 Change-Id=I7055c1c9fbb9640f589c0d7baff42d70e69111cf; subject=IB/mlx5: Expose support for Multi-Packet WR over SRQ TM; feature=mp_wr; upstream_status=NA; general=;
 Change-Id=I150732511b1f2b10d54e1a07eac6ca9ebda8252c; subject=IB/mlx5: Support IB_EXP_SRQT_TAG_MATCHING in mlx5_cmd_create_srq; feature=mp_wr; upstream_status=NA; general=;
 Change-Id=I3ec9aecff6338f6dd8994f60e0a03a887e0b82f7; subject=metadata: Update MD; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I1a0d643b512f8b733ac90c999ac84c84549504c6; subject=IB/uverbs: Initialize experimental MD for user data; feature=ib_core_bugs; upstream_status=NA; general=;
+Change-Id=I7c411e74ac832eb6328bff13b8e1d8c3e88c1831; subject=metadata: Update MD; feature=ofed_scripts; upstream_status=ignore; general=;
