@@ -93,6 +93,9 @@ static inline bool tc_skip_hw(u32 flags)
 #if defined(CONFIG_NET_CLS_ACT) && defined(HAVE_TCF_EXTS_HAS_ACTIONS)
 #define tcf_exts_for_each_action(i, a, exts) \
 	for (i = 0; i < TCA_ACT_MAX_PRIO && ((a) = (exts)->actions[i]); i++)
+#elif defined tc_for_each_action
+#define tcf_exts_for_each_action(i, a, exts) \
+	(void)i; tc_for_each_action(a, exts)
 #else
 #define tcf_exts_for_each_action(i, a, exts) \
 	for (; 0; (void)(i), (void)(a), (void)(exts))
