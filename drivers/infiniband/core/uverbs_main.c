@@ -750,10 +750,6 @@ static ssize_t ib_uverbs_exp_write(struct file *filp,
 	struct uverbs_attr_bundle bundle;
 	int srcu_key;
 	u32 command;
-
-	struct ib_udata ucore;
-	struct ib_udata uhw;
-
 	ssize_t ret;
 
 	ret = process_exp_hdr(hdr, &command);
@@ -795,8 +791,8 @@ static ssize_t ib_uverbs_exp_write(struct file *filp,
 					 ex_hdr.provider_in_words * 8,
 					 ex_hdr.provider_out_words * 8);
 
-	bundle.ucore.src = IB_UDATA_EXP_CMD;
-	bundle.driver_udata.src = IB_UDATA_EXP_CMD;
+	bundle.ucore.is_exp = 1;
+	bundle.driver_udata.is_exp = 1;
 
 	ret = uverbs_exp_cmd_table[command](&bundle);
 	ret = (ret) ? : count;
@@ -868,6 +864,8 @@ static ssize_t ib_uverbs_write(struct file *filp, const char __user *buf,
 				bundle.driver_udata.inbuf = buf + in_len;
 			else
 				bundle.driver_udata.inbuf = NULL;
+
+			bundle.driver_udata.is_exp = 0;
 		} else {
 			memset(&bundle.driver_udata, 0,
 			       sizeof(bundle.driver_udata));

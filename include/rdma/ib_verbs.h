@@ -1535,12 +1535,6 @@ struct ib_uobject {
 	const struct uverbs_api_object *uapi_object;
 };
 
-enum ib_udate_src {
-	IB_UDATA_LEGACY_CMD,
-	IB_UDATA_EX_CMD,
-	IB_UDATA_EXP_CMD = 32,
-};
-
 struct ib_udata;
 struct ib_udata_ops {
 	int     (*copy_from)(void *dest, struct ib_udata *udata,
@@ -1555,7 +1549,7 @@ struct ib_udata {
 	void __user *outbuf;
 	size_t       inlen;
 	size_t       outlen;
-	enum ib_udate_src	src;
+	bool is_exp;
 };
 
 struct ib_pd {

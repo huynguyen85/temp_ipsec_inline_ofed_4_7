@@ -1213,7 +1213,7 @@ static int create_user_qp(struct mlx5_ib_dev *dev, struct ib_pd *pd,
 		goto err_free;
 	}
 
-	if (udata->src == IB_UDATA_EXP_CMD) {
+	if (udata->is_exp) {
 		set_exp_qp_resp_data(ucmd, &resp, dev, qp, attr);
 		err = ib_copy_to_udata(udata, &resp, min(udata->outlen, sizeof(resp)));
 	} else {
@@ -4515,7 +4515,7 @@ int mlx5_ib_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 	size_t required_cmd_sz;
 	int err = -EINVAL;
 	int port;
-	bool is_exp = udata && (udata->src == IB_UDATA_EXP_CMD);
+	bool is_exp = udata && udata->is_exp;
 
 	if (ibqp->rwq_ind_tbl)
 		return -ENOSYS;
@@ -6765,7 +6765,7 @@ static int prepare_user_rq(struct ib_pd *pd,
 	int err;
 	size_t required_cmd_sz;
 
-	if (udata->src == IB_UDATA_EXP_CMD) {
+	if (udata->is_exp) {
 		err = mlx5_ib_exp_get_cmd_data(dev, udata, &cmd_data);
 		if (err)
 			return err;
@@ -7025,7 +7025,7 @@ int mlx5_ib_modify_wq(struct ib_wq *wq, struct ib_wq_attr *wq_attr,
 	void *rqc;
 	void *in;
 
-	if (udata->src == IB_UDATA_EXP_CMD) {
+	if (udata->is_exp) {
 		if (ib_copy_from_udata(&eucmd, udata, min(sizeof(eucmd), udata->inlen)))
 			return -EFAULT;
 		goto common;
@@ -7066,7 +7066,7 @@ common:
 	MLX5_SET(modify_rq_in, in, uid, to_mpd(wq->pd)->uid);
 	MLX5_SET(rqc, rqc, state, wq_state);
 
-	if (udata->src == IB_UDATA_EXP_CMD) {
+	if (udata->is_exp) {
 		if (eucmd.attr_mask & MLX5_EXP_MODIFY_WQ_VLAN_OFFLOADS) {
 			if (!(MLX5_CAP_GEN(dev->mdev, eth_net_offloads) &&
 			      MLX5_CAP_ETH(dev->mdev, vlan_cap))) {

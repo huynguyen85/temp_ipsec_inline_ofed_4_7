@@ -84,7 +84,7 @@ ib_uverbs_init_udata(struct ib_udata *udata,
 	udata->outbuf = obuf;
 	udata->inlen  = ilen;
 	udata->outlen = olen;
-	udata->src = IB_UDATA_LEGACY_CMD;
+	udata->is_exp = 0;
 }
 
 static inline void
@@ -96,7 +96,6 @@ ib_uverbs_init_udata_buf_or_null(struct ib_udata *udata,
 	ib_uverbs_init_udata(udata,
 			     ilen ? ibuf : NULL, olen ? obuf : NULL,
 			     ilen, olen);
-	udata->src = IB_UDATA_EX_CMD;
 }
 
 /*

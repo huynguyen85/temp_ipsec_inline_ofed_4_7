@@ -57,7 +57,7 @@ static int create_srq_user(struct ib_pd *pd, struct mlx5_ib_srq *srq,
 	u32 offset;
 	u32 uidx = MLX5_IB_DEFAULT_UIDX;
 
-	if (udata->src == IB_UDATA_EXP_CMD) {
+	if (udata->is_exp) {
 		err = mlx5_ib_exp_create_srq_user(dev, in, udata, &ucmd);
 		if (err)
 			return err;

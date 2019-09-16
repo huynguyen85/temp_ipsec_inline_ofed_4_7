@@ -761,6 +761,10 @@ void uverbs_fill_udata(struct uverbs_attr_bundle *bundle,
 		udata->outbuf = NULL;
 		udata->outlen = 0;
 	}
+
+	/* There aren't experimental verbs over new uverbs infrastructure */
+	udata->is_exp = 0;
+
 }
 
 int uverbs_copy_to(const struct uverbs_attr_bundle *bundle, size_t idx,

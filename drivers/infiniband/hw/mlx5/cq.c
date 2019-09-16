@@ -729,7 +729,7 @@ static int create_cq_user(struct mlx5_ib_dev *dev, struct ib_udata *udata,
 
 	memset(&ucmd, 0, sizeof(ucmd));
 
-	if (udata->src == IB_UDATA_EXP_CMD)
+	if (udata->is_exp)
 		ucmdlen = min(sizeof(ucmd), udata->inlen);
 	else
 		ucmdlen = udata->inlen < sizeof(struct mlx5_ib_create_cq) ?

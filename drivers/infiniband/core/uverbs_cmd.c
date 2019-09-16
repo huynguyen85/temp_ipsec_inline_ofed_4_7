@@ -3074,7 +3074,7 @@ static int ib_uverbs_ex_modify_wq(struct uverbs_attr_bundle *attrs)
 	/* exp cmd can be without attr_mask, some values are passed via vendor
 	 * channel.
 	 */
-	if ((!cmd.attr_mask) && (attrs->ucore.src != IB_UDATA_EXP_CMD))
+	if ((!cmd.attr_mask) && !attrs->ucore.is_exp)
 		return -EINVAL;
 
 	if (cmd.attr_mask > (IB_WQ_STATE | IB_WQ_CUR_STATE | IB_WQ_FLAGS))
@@ -3520,7 +3520,7 @@ static int __uverbs_create_xsrq(struct uverbs_attr_bundle *attrs,
 	if (cmd->srq_type == IB_SRQT_XRC)
 		resp.srqn = srq->ext.xrc.srq_num;
 
-	if (udata->src == IB_UDATA_EXP_CMD) {
+	if (udata->is_exp) {
 		ret = ib_uverbs_exp_create_srq_resp(&resp, cmd->response);
 	} else {
 		if (copy_to_user(u64_to_user_ptr(cmd->response),
