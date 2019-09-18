@@ -79,15 +79,14 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 				goto err_out;
 			}
 #endif /* HAVE_IS_TCF_VLAN */
+#ifdef HAVE_IS_TCF_TUNNEL
 		} else if (is_tcf_tunnel_set(act)) {
 			entry->id = FLOW_ACTION_TUNNEL_ENCAP;
-#ifdef HAVE_IS_TCF_TUNNEL
 			entry->tunnel = tcf_tunnel_info(act);
-#else
 			entry->tunnel = NULL;
-#endif
 		} else if (is_tcf_tunnel_release(act)) {
 			entry->id = FLOW_ACTION_TUNNEL_DECAP;
+#endif
 #ifdef HAVE_MINIFLOW
 		} else if (is_tcf_ct(act)) {
 			entry->id = FLOW_ACTION_CT;
