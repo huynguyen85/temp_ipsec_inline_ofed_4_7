@@ -4,7 +4,9 @@
 #include "../../../compat/config.h"
 
 #ifndef CONFIG_COMPAT_TCF_TUNNEL_KEY_MOD
+#ifdef HAVE_IS_TCF_TUNNEL
 #include_next <net/tc_act/tc_tunnel_key.h>
+#endif
 #else
 
 #ifdef CONFIG_NET_SCHED_NEW
