@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_rep.h
 
 Change-Id: If510cac5261012c2d72aa76ee3c23fc36fa5bb6b
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.h | 53 ++++++++++++++++++++----
- 1 file changed, 44 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_rep.h | 49 +++++++++++++++++++-----
+ 1 file changed, 40 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.h b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.h
 index xxxxxxx..xxxxxxx 100644
@@ -35,17 +35,7 @@ index xxxxxxx..xxxxxxx 100644
  };
  
  struct mlx5_rep_uplink_priv {
-@@ -105,7 +110,9 @@ struct mlx5e_neigh {
- 		__be32	v4;
- 		struct in6_addr v6;
- 	} dst_ip;
-+#ifdef HAVE_TCF_TUNNEL_INFO
- 	int family;
-+#endif
- };
- 
- struct mlx5e_neigh_hash_entry {
-@@ -122,6 +129,7 @@ struct mlx5e_neigh_hash_entry {
+@@ -122,6 +127,7 @@ struct mlx5e_neigh_hash_entry {
  	/* protects encap list */
  	spinlock_t encap_list_lock;
  	/* encap list sharing the same neigh */
@@ -53,7 +43,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct list_head encap_list;
  
  	/* valid only when the neigh reference is taken during
-@@ -135,35 +143,55 @@ struct mlx5e_neigh_hash_entry {
+@@ -135,6 +141,7 @@ struct mlx5e_neigh_hash_entry {
  	 * it's used by the neigh notification call.
  	 */
  	refcount_t refcnt;
@@ -61,12 +51,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	/* Save the last reported time offloaded trafic pass over one of the
  	 * neigh hash entry flows. Use it to periodically update the neigh
- 	 * 'used' value and avoid neigh deleting by the kernel.
- 	 */
-+#ifdef HAVE_TCF_TUNNEL_INFO
- 	unsigned long reported_lastuse;
-+#endif
- 
+@@ -145,25 +152,42 @@ struct mlx5e_neigh_hash_entry {
  	struct rcu_head rcu;
  };
  
@@ -118,7 +103,7 @@ index xxxxxxx..xxxxxxx 100644
  	unsigned char h_dest[ETH_ALEN];	/* destination eth addr	*/
  
  	struct net_device *out_dev;
-@@ -171,14 +199,19 @@ struct mlx5e_encap_entry {
+@@ -171,14 +195,19 @@ struct mlx5e_encap_entry {
  	int tunnel_type;
  	int tunnel_hlen;
  	int reformat_type;
@@ -138,7 +123,7 @@ index xxxxxxx..xxxxxxx 100644
  
  struct mlx5e_rep_sq {
  	struct mlx5_flow_handle	*send_to_vport_rule;
-@@ -196,10 +229,12 @@ void mlx5e_remove_sqs_fwd_rules(struct mlx5e_priv *priv);
+@@ -196,10 +225,12 @@ void mlx5e_remove_sqs_fwd_rules(struct mlx5e_priv *priv);
  
  void mlx5e_handle_rx_cqe_rep(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe);
  
