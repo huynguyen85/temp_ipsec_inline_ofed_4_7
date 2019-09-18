@@ -125,7 +125,7 @@ index xxxxxxx..xxxxxxx 100644
  	return 0;
  }
  
-+#ifdef HAVE_GET_NET_NS_BY_FD_EXPORTED
++#ifdef HAVE_STRUCT_CLASS_NS_TYPE
  static const void *net_namespace(struct device *d)
  {
  	struct ib_core_device *coredev =
@@ -139,7 +139,7 @@ index xxxxxxx..xxxxxxx 100644
  	.name    = "infiniband",
  	.dev_release = ib_device_release,
  	.dev_uevent = ib_device_uevent,
-+#ifdef HAVE_GET_NET_NS_BY_FD_EXPORTED
++#ifdef HAVE_STRUCT_CLASS_NS_TYPE
  	.ns_type = &net_ns_type_operations,
  	.namespace = net_namespace,
 +#endif

@@ -88,7 +88,7 @@ index xxxxxxx..xxxxxxx 100644
 +#ifdef HAVE_XARRAY
  	if (xa_alloc(&ctx_id_table, &ctx->id, ctx, xa_limit_32b, GFP_KERNEL))
  		goto error;
-+#elif HAVE_IDR_ALLOC
++#elif defined(HAVE_IDR_ALLOC)
 + 	mutex_lock(&ctx_id_mutex);
 + 	ctx->id = idr_alloc(&ctx_id_table, ctx, 0, 0, GFP_KERNEL);
 + 	mutex_unlock(&ctx_id_mutex);

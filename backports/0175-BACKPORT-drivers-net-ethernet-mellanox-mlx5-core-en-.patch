@@ -4,14 +4,14 @@ Subject: [PATCH] BACKPORT:
 
 Change-Id: I825c15ccd1e0004ffc7d727cfdd43903902c6fca
 ---
- .../mellanox/mlx5/core/en/reporter_tx.c       | 21 +++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ .../ethernet/mellanox/mlx5/core/en/reporter_tx.c   | 25 ++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
-@@ -114,16 +114,26 @@ static int mlx5e_tx_reporter_err_cqe_recover(struct mlx5e_txqsq *sq)
+@@ -114,16 +114,30 @@ static int mlx5e_tx_reporter_err_cqe_recover(struct mlx5e_txqsq *sq)
  	return 0;
  }
  
@@ -26,7 +26,11 @@ index xxxxxxx..xxxxxxx 100644
 +#endif
  {
  	if (IS_ERR_OR_NULL(tx_reporter)) {
++#ifdef HAVE_DEVLINK_HEALTH_REPORT
  		netdev_err(err_ctx->sq->channel->netdev, err_str);
++#else
++		netdev_err(err_ctx->sq->channel->netdev, "%s: ", err_str);
++#endif
  		return err_ctx->recover(err_ctx->sq);
  	}
  
@@ -38,7 +42,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  void mlx5e_tx_reporter_err_cqe(struct mlx5e_txqsq *sq)
-@@ -177,6 +187,7 @@ int mlx5e_tx_reporter_timeout(struct mlx5e_txqsq *sq)
+@@ -177,6 +191,7 @@ int mlx5e_tx_reporter_timeout(struct mlx5e_txqsq *sq)
  				     &err_ctx);
  }
  
@@ -46,7 +50,7 @@ index xxxxxxx..xxxxxxx 100644
  /* state lock cannot be grabbed within this function.
   * It can cause a dead lock or a read-after-free.
   */
-@@ -289,9 +300,13 @@ static const struct devlink_health_reporter_ops mlx5_tx_reporter_ops = {
+@@ -289,9 +304,13 @@ static const struct devlink_health_reporter_ops mlx5_tx_reporter_ops = {
  };
  
  #define MLX5_REPORTER_TX_GRACEFUL_PERIOD 500
@@ -61,7 +65,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct mlx5_core_dev *mdev = priv->mdev;
  	struct devlink *devlink = mlx5_core_to_devlink(mdev);
  
-@@ -304,12 +319,14 @@ int mlx5e_tx_reporter_create(struct mlx5e_priv *priv)
+@@ -304,12 +323,14 @@ int mlx5e_tx_reporter_create(struct mlx5e_priv *priv)
  			    "Failed to create tx reporter, err = %ld\n",
  			    PTR_ERR(priv->tx_reporter));
  	return IS_ERR_OR_NULL(priv->tx_reporter);

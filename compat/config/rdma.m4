@@ -6802,6 +6802,23 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if device.h struct class has member ns_type])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/device.h>
+	],[
+		struct class x = {
+			.ns_type = NULL,
+		};
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_STRUCT_CLASS_NS_TYPE, 1,
+			  [struct class has member ns_type])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	AC_MSG_CHECKING([if route.h struct rtable has member rt_uses_gateway])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/route.h>
