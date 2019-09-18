@@ -31,13 +31,14 @@ void flow_rule_match_eth_addrs(const struct flow_rule *rule,
 }
 EXPORT_SYMBOL(flow_rule_match_eth_addrs);
 
+#ifdef HAVE_FLOW_DISSECTOR_KEY_VLAN
 void flow_rule_match_vlan(const struct flow_rule *rule,
 			  struct flow_match_vlan *out)
 {
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_VLAN, out);
 }
 EXPORT_SYMBOL(flow_rule_match_vlan);
-
+#endif
 
 void flow_rule_match_ipv4_addrs(const struct flow_rule *rule,
 				struct flow_match_ipv4_addrs *out)
@@ -87,12 +88,14 @@ void flow_rule_match_tcp(const struct flow_rule *rule,
 }
 EXPORT_SYMBOL(flow_rule_match_tcp);
 
+#ifdef FLOW_DISSECTOR_KEY_ENC_KEYID
 void flow_rule_match_icmp(const struct flow_rule *rule,
 			  struct flow_match_icmp *out)
 {
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_ICMP, out);
 }
 EXPORT_SYMBOL(flow_rule_match_icmp);
+#endif
 
 void flow_rule_match_mpls(const struct flow_rule *rule,
 			  struct flow_match_mpls *out)
@@ -103,6 +106,7 @@ void flow_rule_match_mpls(const struct flow_rule *rule,
 }
 EXPORT_SYMBOL(flow_rule_match_mpls);
 
+#ifdef FLOW_DISSECTOR_KEY_ENC_KEYID
 void flow_rule_match_enc_control(const struct flow_rule *rule,
 				 struct flow_match_control *out)
 {
@@ -123,6 +127,7 @@ void flow_rule_match_enc_ipv6_addrs(const struct flow_rule *rule,
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_ENC_IPV6_ADDRS, out);
 }
 EXPORT_SYMBOL(flow_rule_match_enc_ipv6_addrs);
+#endif /* FLOW_DISSECTOR_KEY_ENC_KEYID */
 
 void flow_rule_match_enc_ip(const struct flow_rule *rule,
                             struct flow_match_ip *out)
@@ -133,6 +138,7 @@ void flow_rule_match_enc_ip(const struct flow_rule *rule,
 }
 EXPORT_SYMBOL(flow_rule_match_enc_ip);
 
+#ifdef FLOW_DISSECTOR_KEY_ENC_KEYID
 void flow_rule_match_enc_ports(const struct flow_rule *rule,
 			       struct flow_match_ports *out)
 {
@@ -146,5 +152,6 @@ void flow_rule_match_enc_keyid(const struct flow_rule *rule,
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_ENC_KEYID, out);
 }
 EXPORT_SYMBOL(flow_rule_match_enc_keyid);
+#endif /* FLOW_DISSECTOR_KEY_ENC_KEYID */
 
 #endif
