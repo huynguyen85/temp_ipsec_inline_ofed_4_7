@@ -125,7 +125,7 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([check for rpc_reply_expected])
+	AC_MSG_CHECKING([for rpc_reply_expected])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/clnt.h>
 	],[
@@ -137,7 +137,7 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([check for xprt_request_get_cong])
+	AC_MSG_CHECKING([for xprt_request_get_cong])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/xprt.h>
 	],[
@@ -149,13 +149,15 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([Check for "xpt_remotebuf" inside "struct svc_xprt"])
+	AC_MSG_CHECKING([for "xpt_remotebuf" inside "struct svc_xprt"])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/svc_xprt.h>
 	],[
 		struct svc_xprt dummy_xprt;
 
 		dummy_xprt.xpt_remotebuf[0] = 0;
+
+		return 0;
 	],[
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE([HAVE_SVC_XPRT_XPT_REMOTEBUF], 1,
@@ -164,13 +166,15 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([Check for "xpo_prep_reply_hdr" inside "struct svc_xprt_ops"])
+	AC_MSG_CHECKING([for "xpo_prep_reply_hdr" inside "struct svc_xprt_ops"])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/svc_xprt.h>
 	],[
 		struct svc_xprt_ops dummy_svc_ops;
 
 		dummy_svc_ops.xpo_prep_reply_hdr = NULL;
+
+		return 0;
 	],[
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE([HAVE_SVC_XPRT_XPO_PREP_REPLY_HDR], 1,
@@ -179,13 +183,15 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([Check for "free_slot" inside "struct rpc_xprt_ops"])
+	AC_MSG_CHECKING([for "free_slot" inside "struct rpc_xprt_ops"])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/xprt.h>
 	],[
 		struct rpc_xprt_ops dummy_ops;
 
 		dummy_ops.free_slot = NULL;
+
+		return 0;
 	],[
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE([HAVE_RPC_XPRT_OPS_FREE_SLOT], 1,
@@ -194,13 +200,15 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([Check for "set_retrans_timeout" inside "struct rpc_xprt_ops"])
+	AC_MSG_CHECKING([for "set_retrans_timeout" inside "struct rpc_xprt_ops"])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/xprt.h>
 	],[
 		struct rpc_xprt_ops dummy_ops;
 
 		dummy_ops.set_retrans_timeout = NULL;
+
+		return 0;
 	],[
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE([HAVE_RPC_XPRT_OPS_SET_RETRANS_TIMEOUT], 1,
@@ -209,13 +217,15 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([Check for "wait_for_reply_request" inside "struct rpc_xprt_ops"])
+	AC_MSG_CHECKING([for "wait_for_reply_request" inside "struct rpc_xprt_ops"])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/xprt.h>
 	],[
 		struct rpc_xprt_ops dummy_ops;
 
 		dummy_ops.wait_for_reply_request = NULL;
+
+		return 0;
 	],[
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE([HAVE_RPC_XPRT_OPS_WAIT_FOR_REPLY_REQUEST], 1,
@@ -224,7 +234,7 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([Check for "queue_lock" inside "struct rpc_xprt"])
+	AC_MSG_CHECKING([for "queue_lock" inside "struct rpc_xprt"])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/xprt.h>
 	],[
@@ -232,6 +242,8 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		struct rpc_xprt dummy_xprt;
 
 		dummy_lock = &dummy_xprt.queue_lock;
+
+		return 0;
 	],[
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE([HAVE_XPRT_QUEUE_LOCK], 1,
@@ -295,7 +307,7 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([Check for "recv_lock" inside "struct rpc_xprt"])
+	AC_MSG_CHECKING([for "recv_lock" inside "struct rpc_xprt"])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/xprt.h>
 	],[
@@ -303,6 +315,8 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		struct rpc_xprt dummy_xprt;
 
 		dummy_lock = &dummy_xprt.recv_lock;
+
+		return 0;
 	],[
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE([HAVE_RPC_XPRT_RECV_LOCK], 1, [struct rpc_xprt has 'recv_lock' field])
@@ -344,7 +358,7 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([check for xdr_stream_remaining])
+	AC_MSG_CHECKING([for xdr_stream_remaining])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/xdr.h>
 	],[
@@ -376,7 +390,7 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 			[xprt_pin_rqst is exported by the sunrpc core])],
 	[])
 
-	AC_MSG_CHECKING([check for trace/events/rpcrdma.h])
+	AC_MSG_CHECKING([for trace/events/rpcrdma.h])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/svc_rdma.h>
 		#include "../../net/sunrpc/xprtrdma/xprt_rdma.h"
