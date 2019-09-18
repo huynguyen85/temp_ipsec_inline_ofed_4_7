@@ -3,14 +3,24 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
 
 Change-Id: Iec18e297e96ee83d4a7db4c65f0efa8d4589510f
 ---
- drivers/net/ethernet/mellanox/mlx5/core/miniflow.c | 52 +++++++++++++++++++++-
- 1 file changed, 50 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/miniflow.c | 57 +++++++++++++++++++++-
+ 1 file changed, 55 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c b/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
-@@ -72,6 +72,19 @@ DEFINE_PER_CPU(struct mlx5e_miniflow *, current_miniflow) = NULL;
+@@ -2,6 +2,9 @@
+ /* Copyright (c) 2019 Mellanox Technologies. */
+ 
+ #include <linux/atomic.h>
++#ifdef CONFIG_COMPAT_NFT_GEN_FLOW_OFFLOAD
++#include <net/netfilter/nft_gen_flow_offload.h>
++#endif
+ 
+ #include "lib/devcom.h"
+ #include "miniflow.h"
+@@ -72,6 +75,19 @@ DEFINE_PER_CPU(struct mlx5e_miniflow *, current_miniflow) = NULL;
  
  static DEFINE_SPINLOCK(miniflow_lock);
  
@@ -30,7 +40,17 @@ index xxxxxxx..xxxxxxx 100644
  static const struct rhashtable_params mf_ht_params = {
  	.head_offset = offsetof(struct mlx5e_miniflow, node),
  	.key_offset = offsetof(struct mlx5e_miniflow, path.cookies),
-@@ -562,7 +575,11 @@ static int miniflow_register_ct_tuple(struct mlx5e_ct_tuple *ct_tuple)
+@@ -105,7 +121,9 @@ ssize_t mlx5_show_counters_ct(char *buf)
+ 	p += _sprintf(p, buf, "nr_of_total_del_mf_succ                 : %lld\n", atomic64_read(&nr_of_total_del_mf_succ));
+ 	p += _sprintf(p, buf, "\n");
+ 	p += _sprintf(p, buf, "currently_in_hw                         : %d\n", atomic_read(&currently_in_hw));
++#ifndef CONFIG_COMPAT_NFT_GEN_FLOW_OFFLOAD
+ 	p += _sprintf(p, buf, "offloaded_flow_cnt                      : %d\n", mlx5_ct_flow_offloaded_count());
++#endif
+ 	p += _sprintf(p, buf, "\n");
+ 	p += _sprintf(p, buf, "nr_of_total_mf_err                      : %lld\n", atomic64_read(&nr_of_total_mf_err));
+ 	p += _sprintf(p, buf, "nr_of_total_mf_err_alloc_flow           : %lld\n", atomic64_read(&nr_of_total_mf_err_alloc_flow));
+@@ -562,7 +580,11 @@ static int miniflow_register_ct_tuple(struct mlx5e_ct_tuple *ct_tuple)
  	zone = &ct_tuple->zone;
  	tuple = &ct_tuple->tuple;
  
@@ -42,7 +62,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  static int miniflow_register_ct_flow(struct mlx5e_miniflow *miniflow)
-@@ -1081,19 +1098,23 @@ static int miniflow_cache_get(void)
+@@ -1081,19 +1103,23 @@ static int miniflow_cache_get(void)
  	if (!miniflow_cache)
  		return -ENOMEM;
  
@@ -68,7 +88,7 @@ index xxxxxxx..xxxxxxx 100644
  err_wq:
  	kmem_cache_destroy(miniflow_cache);
  	atomic_dec(&miniflow_cache_ref);
-@@ -1103,7 +1124,11 @@ err_wq:
+@@ -1103,7 +1129,11 @@ err_wq:
  static void miniflow_cache_put(void)
  {
  	if (atomic_dec_and_test(&miniflow_cache_ref)) {
@@ -80,7 +100,7 @@ index xxxxxxx..xxxxxxx 100644
  		destroy_workqueue(miniflow_wq);
  		kmem_cache_destroy(miniflow_cache);
  	}
-@@ -1369,6 +1394,28 @@ int ct_flow_offload_add(void *arg, struct list_head *head)
+@@ -1369,6 +1399,28 @@ int ct_flow_offload_add(void *arg, struct list_head *head)
  	return 0;
  }
  
@@ -94,7 +114,7 @@ index xxxxxxx..xxxxxxx 100644
 +
 +	list_for_each_entry_safe(flow, tmp, head, nft_node) {
 +		struct mlx5_fc *counter = flow->dummy_counter;
-+		int dir = !(atomic_read(&flow->flags) & MLX5E_TC_FLOW_CT_ORIG);
++		int dir = !(flow->flags & BIT(MLX5E_TC_FLOW_FLAG_CT_ORIG));
 +		u64 bytes, packets, lastuse;
 +
 +		if (counter) {
@@ -109,7 +129,7 @@ index xxxxxxx..xxxxxxx 100644
  void ct_flow_offload_get_stats(struct list_head *head, u64 *lastuse)
  {
  	struct mlx5e_tc_flow *flow, *tmp;
-@@ -1385,6 +1432,7 @@ void ct_flow_offload_get_stats(struct list_head *head, u64 *lastuse)
+@@ -1385,6 +1437,7 @@ void ct_flow_offload_get_stats(struct list_head *head, u64 *lastuse)
  		}
  	}
  }
