@@ -7,6 +7,10 @@
 #include "en/tc_tun.h"
 #include "en_tc.h"
 
+static char out_ifname[IFNAMSIZ] = "";
+module_param_string(out_ifname, out_ifname, sizeof(out_ifname),
+		    S_IRUGO | S_IWUSR);
+
 static int get_route_and_out_devs(struct mlx5e_priv *priv,
 				  struct net_device *dev,
 				  struct net_device **route_dev,
@@ -266,6 +270,12 @@ int mlx5e_tc_tun_create_header_ipv4(struct mlx5e_priv *priv,
 	if (err)
 		return err;
 
+	if (sysfs_streq("", out_ifname) == false) {
+		if (sysfs_streq(out_ifname, out_dev->name) == false) {
+			return -ENETUNREACH;
+		}
+	}
+
 	ipv4_encap_size =
 		(is_vlan_dev(route_dev) ? VLAN_ETH_HLEN : ETH_HLEN) +
 		sizeof(struct iphdr) +
@@ -383,6 +393,12 @@ int mlx5e_tc_tun_create_header_ipv6(struct mlx5e_priv *priv,
 				      &fl6, &n, &ttl);
 	if (err)
 		return err;
+
+	if (sysfs_streq("", out_ifname) == false) {
+		if (sysfs_streq(out_ifname, out_dev->name) == false) {
+			return -ENETUNREACH;
+		}
+	}
 
 	ipv6_encap_size =
 		(is_vlan_dev(route_dev) ? VLAN_ETH_HLEN : ETH_HLEN) +

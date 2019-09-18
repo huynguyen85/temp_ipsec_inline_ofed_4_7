@@ -111,3 +111,4 @@ Change-Id=Ia485dc57afdeb0b5d8a2489d92bf53a9d6edf4f2; subject=net/mlx5e: miniflow
 Change-Id=I5ce20ae795ef54dd35e73e4b41d753271520032a; subject=BACKPORTS: update miniflow.c; feature=backports; upstream_status=ignore; general=;
 Change-Id=Iee8243ff4a0caddf03ba37eadfb07ec97b0d3977; subject=BACKPORTS: use nft flow offload in jd kernel; feature=backports; upstream_status=ignore; general=;
 Change-Id=I35abae02d52b3712b7cb911253dd465716972019; subject=BACKPORTS: fix miniflow jd backport; feature=backports; upstream_status=ignore; general=;
+Change-Id=I9ee7eda6b2f16a26b081ea64f12e8caaec01b1d3; subject=net/mlx5e: workaround the race conditon for encap and route; feature=mlx5_asap; upstream_status=NA; general=;
