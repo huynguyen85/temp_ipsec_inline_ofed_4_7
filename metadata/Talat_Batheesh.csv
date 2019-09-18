@@ -67,3 +67,4 @@ Change-Id=Ie45a8e0b0331f37f30d3cd11212d884d2b00bc8f; subject=BACKPORTS: Fix ESWI
 Change-Id=Ibcc3db7cd3efd5d964ccb445bbfce9e1fbee30f1; subject=xarray: define radix_tree_node xa_node; feature=backports; upstream_status=ignore; general=;
 Change-Id=I437f503d9cce3ce9f35f935f5097bdbdce69e41f; subject=BACKPORTS: IB_CORE till 2.6; feature=backports; upstream_status=ignore; general=;
 Change-Id=I06dfb018190d8453932e359b92d5b82142a67f9d; subject=BACKPORTS: MLX5_MOD till 2.6; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ib6a9d78dc6d17b368fdd7be721750b86b425e624; subject=BACKPORTS: fix RH 6.5 compilation; feature=backports; upstream_status=ignore; general=;
