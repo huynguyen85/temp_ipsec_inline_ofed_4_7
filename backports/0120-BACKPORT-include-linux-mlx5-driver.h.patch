@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: include/linux/mlx5/driver.h
 
 Change-Id: If205453569f232a2f5af33dcdc0a7acb33c0cd7b
 ---
- include/linux/mlx5/driver.h | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ include/linux/mlx5/driver.h | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
 diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
 index xxxxxxx..xxxxxxx 100644
@@ -60,7 +60,21 @@ index xxxxxxx..xxxxxxx 100644
  
  	/* pages stuff */
  	struct mlx5_nb          pg_nb;
-@@ -899,8 +912,13 @@ struct mlx5_cmd_work_ent {
+@@ -726,9 +739,13 @@ struct mlx5_clock {
+ 	u32                        nominal_c_mult;
+ 	unsigned long              overflow_period;
+ 	struct delayed_work        overflow_work;
++#if defined (HAVE_PTP_CLOCK_INFO) && (defined (CONFIG_PTP_1588_CLOCK) || defined(CONFIG_PTP_1588_CLOCK_MODULE))
+ 	struct ptp_clock          *ptp;
+ 	struct ptp_clock_info      ptp_info;
++#ifdef HAVE_PTP_CLOCK_INFO_N_PINS
+ 	struct mlx5_pps            pps_info;
++#endif
++#endif
+ };
+ 
+ struct mlx5_mst_dump;
+@@ -899,8 +916,13 @@ struct mlx5_cmd_work_ent {
  	int			page_queue;
  	u8			status;
  	u8			token;
@@ -74,7 +88,7 @@ index xxxxxxx..xxxxxxx 100644
  	u16			op;
  	bool			polling;
  };
-@@ -1035,7 +1053,7 @@ void mlx5_cmd_use_polling(struct mlx5_core_dev *dev);
+@@ -1035,7 +1057,7 @@ void mlx5_cmd_use_polling(struct mlx5_core_dev *dev);
  struct mlx5_async_ctx {
  	struct mlx5_core_dev *dev;
  	atomic_t num_inflight;

@@ -14,7 +14,7 @@ index xxxxxxx..xxxxxxx 100644
  #include <linux/sched.h>
  #include <linux/if_link.h>
  #include <linux/firmware.h>
-+#ifdef HAVE_GETTIMEX64
++#if defined (HAVE_PTP_CLOCK_INFO) && (defined(CONFIG_PTP_1588_CLOCK) || defined(CONFIG_PTP_1588_CLOCK_MODULE))
  #include <linux/ptp_clock_kernel.h>
 +#endif
  #include <linux/mlx5/cq.h>
