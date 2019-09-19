@@ -4957,23 +4957,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if netdevice.h has netdev_for_each_lower_dev])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/netdevice.h>
-	],[
-		struct net_device *lag, *dev;
-		struct list_head *iter;
-		netdev_for_each_lower_dev(lag, dev, iter);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_NETDEV_FOR_EACH_LOWER_DEV, 1,
-			  [netdev_for_each_lower_dev is defined])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
 	AC_MSG_CHECKING([if irqdesc.h has irq_desc_get_irq_data])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/irq.h>
@@ -7783,21 +7766,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_IDA_ALLOC_MAX, 1,
 			  [ida_alloc_max is defined])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if idr.h has ida_alloc_range])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/idr.h>
-	],[
-		ida_alloc_range(NULL, 0, ~0, 0);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_IDA_ALLOC_RANGE, 1,
-			  [ida_alloc_range is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])
