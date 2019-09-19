@@ -317,3 +317,5 @@ name=ATS; type=feature; upstream_status=NA;
 name=Blueflame_for_vfs; type=feature; upstream_status=in_progress;
 name=odp_dc; type=feature; upstream_states=accepted;
 name=mlx5_ipip_tun_support; type=feature; upstream_status=accepted;
+name=mlx5e_tx_reporter; type=feature; upstream_status=accepted;
+

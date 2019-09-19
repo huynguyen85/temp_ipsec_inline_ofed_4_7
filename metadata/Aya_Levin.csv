@@ -5,3 +5,5 @@ Change-Id=Ied9514def685f6aea58a6a92b27cb9c4dd3ef827; subject=net/mlx5: Expose IP
 Change-Id=I643188120aacc286ff2a599c46187e87261d8b1c; subject=net/mlx5e: Change function's position to a more fitting file; feature=mlx5_ipip_tun_support; upstream_status=accepted; general=upstream commit ID: a49e1f31ae15, tag: v5.4-rc1;
 Change-Id=Id4d3ee2d01b720ce5ea00cde7762c7ba434ac2ac; subject=net/mlx5e: Support RSS for IP-in-IP and IPv6 tunneled packets; feature=mlx5_ipip_tun_support; upstream_status=accepted; general=upstream commit ID: a795d8db2a6d, tag: v5.4-rc1;
 Change-Id=I800f4f05f55cdd2d37086314e5fa8c3ec0a93eb3; subject=net/mlx5e: Remove index and group id from EQ dump; feature=mlx5_en_bugs; upstream_status=NA; general=;
+Change-Id=I755c8b1924fc096285ee2382f92f7ac3a432631e; subject=net/mlx5e: Fix tx reporter diagnose loop over SQs; feature=mlx5e_tx_reporter; upstream_status=accepted; general=upstream commit ID: 2d708887a4b1c, tag: v5.3.0-rc5;
+Change-Id=Iacbbfa78e682fa1a7afb8298fc5b835314556627; subject=net/mlx5e: Fix tx reporter's diagnose error flow; feature=mlx5e_tx_reporter; upstream_status=accepted; general=upstream commit ID: 99d31cbd8953, tag: v5.2.0;
