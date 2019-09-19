@@ -47,3 +47,4 @@ Change-Id=Ib357842f48831c0da38dbb2d3d5cfe50beaee04d; subject=BACKPORTS: fix wron
 Change-Id=Ied180d15c4ad8438d3adaa157e69830b7becb5d1; subject=BACKPORTS: fix backport to cls_api; feature=backports; upstream_status=ignore; general=;
 Change-Id=I19f921170cf3c2f4d2a6b6afe3b106bcd545640c; subject=BACKPORTS: fix encap/decap offlaod backport at cls_api; feature=backports; upstream_status=ignore; general=;
 Change-Id=I3e835b0d20bb4a2df60f1232f979328d40d7c7d4; subject=BACKPORTS: add stub functions in tc_tun when tunnels are not supported; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia48d9c4792bd5ef5805f16ea147d577f1d3c6fff; subject=BACKPORTS: Fix backports for tcf_exts_for_each_action; feature=backports; upstream_status=ignore; general=;

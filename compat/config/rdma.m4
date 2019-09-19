@@ -10829,18 +10829,18 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if net/pkt_cls.h has tcf_exts_has_actions])
+	AC_MSG_CHECKING([if struct  tcf_exts has actions as array])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <net/pkt_cls.h>
 	],[
-		struct tcf_exts exts;
-		tcf_exts_has_actions(&exts);
+		struct tcf_exts x;
+		x.actions = 0;
 
 		return 0;
 	],[
 		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_TCF_EXTS_HAS_ACTIONS, 1,
-			  [tcf_exts_has_actions is defined])
+		MLNX_AC_DEFINE(HAVE_TCF_EXTS_HAS_ARRAY_ACTIONS, 1,
+			  [struct  tcf_exts has actions as array])
 	],[
 		AC_MSG_RESULT(no)
 	])
