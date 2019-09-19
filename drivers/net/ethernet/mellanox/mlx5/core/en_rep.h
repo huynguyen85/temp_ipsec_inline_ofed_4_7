@@ -203,11 +203,6 @@ void mlx5e_rep_encap_entry_detach(struct mlx5e_priv *priv,
 
 void mlx5e_rep_queue_neigh_stats_work(struct mlx5e_priv *priv);
 
-int mlx5e_enslave_rep(struct mlx5_eswitch *esw, struct net_device *netdev,
-		      struct net_device *lag_dev);
-void mlx5e_unslave_rep(struct mlx5_eswitch *esw, const struct net_device *netdev,
-		       const struct net_device *lag_dev);
-
 bool mlx5e_eswitch_rep(struct net_device *netdev);
 
 #else /* CONFIG_MLX5_ESWITCH */

@@ -2571,9 +2571,6 @@ static int esw_create_offloads_acl_tables(struct mlx5_eswitch *esw)
 	if (esw_check_vport_match_metadata_supported(esw))
 		esw->flags |= MLX5_ESWITCH_VPORT_MATCH_METADATA;
 
-	INIT_LIST_HEAD(&esw->offloads.rep_bond_metadata_list);
-	rwlock_init(&esw->offloads.rep_bond_metadata_lock);
-
 	mlx5_esw_for_all_vports(esw, i, vport) {
 		if (mlx5_eswitch_is_sf_vport(esw, vport->vport))
 			continue;

@@ -219,8 +219,6 @@ struct mlx5_esw_offload {
 	u8 inline_mode;
 	atomic64_t num_flows;
 	u8 encap;
-	rwlock_t rep_bond_metadata_lock; /* protects rep_bond_metadata_list */
-	struct list_head rep_bond_metadata_list;
 };
 
 /* E-Switch MC FDB table hash node */
