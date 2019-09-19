@@ -4,6 +4,9 @@
 #include "../../../compat/config.h"
 
 #include_next <net/tc_act/tc_gact.h>
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,2,0)) && (LINUX_VERSION_CODE <= KERNEL_VERSION(4,5,7))
+#include <linux/tc_act/tc_gact.h>
+#endif
 
 #ifndef TC_ACT_GOTO_CHAIN
 #define __TC_ACT_EXT(local) ((local) << __TC_ACT_EXT_SHIFT)
