@@ -31,7 +31,6 @@
  */
 
 #include <linux/etherdevice.h>
-#include <linux/idr.h>
 #include <linux/mlx5/driver.h>
 #include <linux/mlx5/mlx5_ifc.h>
 #include <linux/mlx5/vport.h>
@@ -97,7 +96,7 @@ static void
 mlx5_eswitch_set_rule_source_port(struct mlx5_eswitch *esw,
 				  struct mlx5_flow_spec *spec,
 				  struct mlx5_eswitch *from_esw,
-				  u16 vport, u32 metadata)
+				  u16 vport)
 {
 	void *misc2;
 	void *misc;
@@ -107,12 +106,9 @@ mlx5_eswitch_set_rule_source_port(struct mlx5_eswitch *esw,
 	 */
 	if (mlx5_eswitch_vport_match_metadata_enabled(esw)) {
 		misc2 = MLX5_ADDR_OF(fte_match_param, spec->match_value, misc_parameters_2);
-		if (metadata)
-			MLX5_SET(fte_match_set_misc2, misc2, metadata_reg_c_0, metadata);
-		else
-			MLX5_SET(fte_match_set_misc2, misc2, metadata_reg_c_0,
-				 mlx5_eswitch_get_vport_metadata_for_match(from_esw,
-									   vport));
+		MLX5_SET(fte_match_set_misc2, misc2, metadata_reg_c_0,
+			 mlx5_eswitch_get_vport_metadata_for_match(from_esw,
+								   vport));
 
 		misc2 = MLX5_ADDR_OF(fte_match_param, spec->match_criteria, misc_parameters_2);
 		MLX5_SET_TO_ONES(fte_match_set_misc2, misc2, metadata_reg_c_0);
@@ -216,8 +212,7 @@ mlx5_eswitch_add_offloaded_rule(struct mlx5_eswitch *esw,
 
 	mlx5_eswitch_set_rule_source_port(esw, spec,
 					  attr->in_mdev->priv.eswitch,
-					  attr->in_rep->vport,
-					  attr->in_rep->metadata_reg_c_0);
+					  attr->in_rep->vport);
 
 	if (attr->outer_match_level != MLX5_MATCH_NONE)
 		spec->match_criteria_enable |= MLX5_MATCH_OUTER_HEADERS;
@@ -293,8 +288,7 @@ mlx5_eswitch_add_fwd_rule(struct mlx5_eswitch *esw,
 
 	mlx5_eswitch_set_rule_source_port(esw, spec,
 					  attr->in_mdev->priv.eswitch,
-					  attr->in_rep->vport,
-					  attr->in_rep->metadata_reg_c_0);
+					  attr->in_rep->vport);
 
 	if (attr->outer_match_level != MLX5_MATCH_NONE)
 		spec->match_criteria_enable |= MLX5_MATCH_OUTER_HEADERS;
@@ -577,7 +571,7 @@ mlx5_eswitch_add_send_to_vport_rule(struct mlx5_eswitch *on_esw,
 
 	/* source vport is the esw manager */
 	mlx5_eswitch_set_rule_source_port(on_esw, spec, from_esw,
-					  from_esw->manager_vport, 0);
+					  from_esw->manager_vport);
 
 	dest.type = MLX5_FLOW_DESTINATION_TYPE_VPORT;
 	dest.vport.num = rep->vport;
@@ -2392,55 +2386,6 @@ void esw_vport_del_ingress_acl_modify_metadata(struct mlx5_eswitch *esw,
 	}
 }
 
-u32 esw_get_unique_metadata(struct mlx5_eswitch *esw)
-{
-	unsigned int start_metadata, end_metadata;
-
-	/* E-Switch's vport_num layout:
-	 * 0(pf), 1...num_vfs(vfs), <available-to-use>, 0x8000...num_sfs,
-	 * ..., 0xfffe(ecpf), 0xffff(uplink).
-	 */
-	start_metadata =
-		mlx5_eswitch_get_vport_metadata_for_match(esw, esw->esw_funcs.num_vfs + 1);
-	end_metadata = start_metadata + esw->total_vports;
-
-	return ida_alloc_range(&esw->offloads.metadata_ida, start_metadata,
-			       end_metadata, GFP_ATOMIC);
-}
-
-void esw_free_unique_metadata(struct mlx5_eswitch *esw, u32 metadata)
-{
-	ida_free(&esw->offloads.metadata_ida, metadata);
-}
-
-/* Save, reset or modify to share the master/slave vports' ingress ACL */
-void esw_modify_vport_ingress(struct mlx5_eswitch *esw, u32 metadata,
-			      struct mlx5_eswitch_rep *rep)
-{
-	struct mlx5_vport *vport = mlx5_eswitch_get_vport(esw, rep->vport);
-
-	rep->metadata_reg_c_0 = metadata;
-	/* Save or reset the ingress acl */
-	if (metadata)
-		vport->ingress.saved_orig_acl = vport->ingress.acl;
-	else
-		vport->ingress.acl = vport->ingress.saved_orig_acl;
-}
-
-void esw_bond_vports_ingress(struct mlx5_eswitch *esw,
-			     struct mlx5_eswitch_rep *rep,
-			     struct mlx5_eswitch_rep *slave_rep)
-{
-	struct mlx5_vport *vport = mlx5_eswitch_get_vport(esw, rep->vport);
-	struct mlx5_vport *slave_vport =
-		mlx5_eswitch_get_vport(esw, slave_rep->vport);
-
-	slave_vport->ingress.saved_orig_acl = slave_vport->ingress.acl;
-
-	/* Two vports share the same ingress acl root */
-	slave_vport->ingress.acl = vport->ingress.acl;
-}
-
 static int esw_vport_egress_prio_tag_config(struct mlx5_eswitch *esw,
 					    struct mlx5_vport *vport)
 {
@@ -2818,7 +2763,6 @@ int esw_offloads_enable(struct mlx5_eswitch *esw)
 {
 	int err;
 
-	ida_init(&esw->offloads.metadata_ida);
 	err = esw_offloads_steering_init(esw);
 	if (err)
 		return err;
@@ -2904,7 +2848,6 @@ void esw_offloads_disable(struct mlx5_eswitch *esw)
 	mlx5_eswitch_disable_pf_vf_vports(esw);
 	esw_set_passing_vport_metadata(esw, false);
 	esw_offloads_steering_cleanup(esw);
-	ida_destroy(&esw->offloads.metadata_ida);
 }
 
 static int esw_mode_from_devlink(u16 mode, u16 *mlx5_mode)

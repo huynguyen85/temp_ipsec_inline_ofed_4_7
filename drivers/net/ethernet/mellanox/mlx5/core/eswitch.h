@@ -72,7 +72,6 @@
 
 struct vport_ingress {
 	struct mlx5_flow_table *acl;
-	struct mlx5_flow_table *saved_orig_acl;
 	struct mlx5_flow_group *allow_untagged_spoofchk_grp;
 	struct mlx5_flow_group *allow_tagged_spoofchk_grp;
 	struct mlx5_flow_group *drop_grp;
@@ -222,7 +221,6 @@ struct mlx5_esw_offload {
 	u8 encap;
 	rwlock_t rep_bond_metadata_lock; /* protects rep_bond_metadata_list */
 	struct list_head rep_bond_metadata_list;
-	struct ida metadata_ida;
 };
 
 /* E-Switch MC FDB table hash node */
@@ -346,13 +344,6 @@ void esw_sf_vport_del_fdb_peer_miss_rule(struct mlx5_eswitch *esw,
 int esw_set_egress_fwd2vport(struct mlx5_eswitch *esw, u16 esw_vport_num,
 			     u16 dst_vport_num);
 void esw_del_egress_fwd2vport(struct mlx5_eswitch *esw, u16 esw_vport_num);
-u32 esw_get_unique_metadata(struct mlx5_eswitch *esw);
-void esw_free_unique_metadata(struct mlx5_eswitch *esw, u32 metadata);
-void esw_modify_vport_ingress(struct mlx5_eswitch *esw, u32 metadata,
-			      struct mlx5_eswitch_rep *rep);
-void esw_bond_vports_ingress(struct mlx5_eswitch *esw,
-			     struct mlx5_eswitch_rep *rep,
-			     struct mlx5_eswitch_rep *slave_rep);
 
 /* E-Switch API */
 int mlx5_eswitch_init(struct mlx5_core_dev *dev);
