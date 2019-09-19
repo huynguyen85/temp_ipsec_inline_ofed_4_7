@@ -1,3 +1,3 @@
 sep=;
-Change-Id=I75dab3449eed77ceddd4e04419a0d6a84dbd573e; subject=net/mlx5e: Replace reciprocal_scale in TX select queue function; feature=rebase; upstream_status=accepted; general=;
+Change-Id=I75dab3449eed77ceddd4e04419a0d6a84dbd573e; subject=net/mlx5e: Replace reciprocal_scale in TX select queue function; feature=rebase; upstream_status=accepted; general=upstream commit ID: 57c70d8740f7, tag: v5.2-rc6;
 Change-Id=I34a82922fd9780cdd9e5f831c63cc78bef8b2419; subject=net/mlx5e: Added tx reporters' destroy on tx cleanup; feature=mlx5_devlink_sysfs_interface; upstream_status=NA; general=;

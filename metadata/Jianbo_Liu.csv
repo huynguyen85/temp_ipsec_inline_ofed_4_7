@@ -2,7 +2,7 @@ sep=;
 Change-Id=Ibc67a2f0eea5029be6fbc4944f8e218b685220b6; subject=net/sched: Add pedit munged flag for centos 7.2 default kernel; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=I28bb3b822a6755ede0a8ca70aa469842272de2c2; subject=net: sched: flower: Fix delete filter scheme; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=I71158093aeeffd42a6402a8337c8ad429697dfdf; subject=net/sched: Fix incorrect match on vlan packet in centos 7.2; feature=mlx5_asap; upstream_status=NA; general=;
-Change-Id=I1763d029be536c8a33eb26e9e542ecce7ca6967d; subject=net/mlx5e: Enable setting multiple match criteria for flow group; feature=mlx5_asap; upstream_status=accepted; general=;
+Change-Id=I1763d029be536c8a33eb26e9e542ecce7ca6967d; subject=net/mlx5e: Enable setting multiple match criteria for flow group; feature=mlx5_asap; upstream_status=accepted; general=upstream commit ID: d4a18e16c570, tag: v5.3-rc1;
 Change-Id=I75cebc835635834743e021c4029cca59607b8604; subject=net/mlx5: Introduce vport metadata matching bits and enum constants; feature=mlx5_asap; upstream_status=in_progress; general=;
 Change-Id=I18067457c9f25db47ee9f9e862e0214024ed8a56; subject=net/mlx5: Get vport ACL namespace by vport index; feature=mlx5_asap; upstream_status=in_progress; general=;
 Change-Id=I270f46879d23738da7b9c0bfa7ef06150358deab; subject=net/mlx5: Support allocating modify header context from ingress ACL; feature=mlx5_asap; upstream_status=in_progress; general=;
@@ -18,4 +18,4 @@ Change-Id=I3924d78b7586fe0d953296cd6e8aac2a0ae6406c; subject=net/mlx5: E-Switch,
 Change-Id=I163d7d3eca615673bf32820da1e7c3e7ca314098; subject=vf-net-link-name.sh: Fix the issues of renaming representors; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=If4e510117650c02a29a2a95adfac496a2979e923; subject=net/mlx5: Support egress and ingress ACLs in eswitch mode; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=I3fc5079f0bead71bab690b740622252d6a7f3e5b; subject=net/mlx5e: Don't add decap action for mirroring; feature=mlx5e_st_ct; upstream_status=NA; general=;
-Change-Id=Ifc6c141bf4d9f37422cdf30347cf7ab65c980e22; subject=net/mlx5e: Don't override vport admin link state in switchdev mode; feature=mlx5_asap; upstream_status=accepted; general=;
+Change-Id=Ifc6c141bf4d9f37422cdf30347cf7ab65c980e22; subject=net/mlx5e: Don't override vport admin link state in switchdev mode; feature=mlx5_asap; upstream_status=accepted; general=upstream commit ID: 84c9c8f2ac3c, tag: v4.17-rc1;

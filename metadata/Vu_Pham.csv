@@ -4,10 +4,10 @@ Change-Id=Ib94cf728b49e710b6c962977cb8ada1fb13d0fe4; subject=net/mlx5: E-Switch,
 Change-Id=I46002582a3356dea9f2d5076e570b2eef4f49d9e; subject=net/mlx5: E-Switch, Disallow transition to other modes if SF active; feature=mlx5_sfs; upstream_status=in_progress; general=;
 Change-Id=I536d19d27fa54c93d730074bef05b238a8fc3468; subject=vf-net-link-name.sh: Fix the issue of BlueField and SF representor names; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I0bb09246b3c11befff6dc968e8d9ab5c09beee0a; subject=net/mlx5: E-Switch, Add SF vport, vport-rep support; feature=mlx5_sfs; upstream_status=in_progress; general=;
-Change-Id=I09ad7e39f3fdc73ddc9c15fbddda28687a96bb44; subject=net/mlx5: E-Switch, Replace host_params event with functions_changed event; feature=mlx5_sfs; upstream_status=accepted; general=;
-Change-Id=I7a210df6c1cfc55b5c597c54c3b86d37f3090b21; subject=net/mlx5: E-Switch, Honor eswitch functions changed event cap; feature=mlx5_sfs; upstream_status=accepted; general=;
-Change-Id=I43eeba60aaec252a0acffec60b15a2384524b911; subject=net/mlx5e: Generalize vport type in vport representor; feature=mlx5_sfs; upstream_status=accepted; general=;
-Change-Id=Id6b9aaba0924df0a37d393df8feb147985dab565; subject=net/mlx5: E-Switch, Handle representors creation in handler context; feature=mlx5_sfs; upstream_status=accepted; general=;
+Change-Id=I09ad7e39f3fdc73ddc9c15fbddda28687a96bb44; subject=net/mlx5: E-Switch, Replace host_params event with functions_changed event; feature=mlx5_sfs; upstream_status=accepted; general=upstream commit ID: cd56f929e6a5, tag: v5.3-rc1;
+Change-Id=I7a210df6c1cfc55b5c597c54c3b86d37f3090b21; subject=net/mlx5: E-Switch, Honor eswitch functions changed event cap; feature=mlx5_sfs; upstream_status=accepted; general=upstream commit ID: 6706a3b94f89, tag: v5.3-rc1;
+Change-Id=I43eeba60aaec252a0acffec60b15a2384524b911; subject=net/mlx5e: Generalize vport type in vport representor; feature=mlx5_sfs; upstream_status=accepted; general=upstream commit ID: 9b81d5a9945b, tag: v5.3-rc1;
+Change-Id=Id6b9aaba0924df0a37d393df8feb147985dab565; subject=net/mlx5: E-Switch, Handle representors creation in handler context; feature=mlx5_sfs; upstream_status=accepted; general=upstream commit ID: ac35dcd6e4bd, tag: v5.3-rc1;
 Change-Id=I1f0b4b4342ed30346407c10b031046471c907d01; subject=net/mlx5: E-Switch, Exclude query_other_hca_cap_roce on SF vports; feature=mlx5_sfs; upstream_status=ignore; general=;
 Change-Id=Iab6168618698ebeba9090d7e1f25e3a63a5f2edc; subject=net/mlx5: E-Switch, Do not enable vports again; feature=mlx5_sfs; upstream_status=ignore; general=;
 Change-Id=I147b7b3befe1f5b2134ab02e2da1754505a75bc4; subject=net/mlx5: Add support for mediated devices in switchdev mode; feature=mlx5_sfs; upstream_status=in_progress; general=;

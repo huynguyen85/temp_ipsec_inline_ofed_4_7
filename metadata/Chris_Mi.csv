@@ -6,7 +6,7 @@ Change-Id=Ib87157c5995a165e988df94fe6962927324e835b; subject=net/mlx5e: Add argu
 Change-Id=I755c899bf0346139d5de65178691d08fc44d8c12; subject=compat: Forbid changing E-Switch mode in parallel; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=I6abaa77ccb76d5abb3c1fa350a59570fe68da68d; subject=IB/mlx5: Fix a panic in mlx5_ib_handle_event; feature=mlx5_ib_bugs; upstream_status=NA; general=;
 Change-Id=I6e7e2564cb26ebf0ddab37cb1847da3740519e79; subject=net/mlx5: Eswitch, Fix a panic when changing to legacy mode; feature=mlx5_asap; upstream_status=NA; general=;
-Change-Id=I52ac9b9f79eaef0502b2b7aae55b2c74f8f743af; subject=net/mlx5e: Add ndo_set_feature for uplink representor; feature=rebase; upstream_status=accepted; general=;
+Change-Id=I52ac9b9f79eaef0502b2b7aae55b2c74f8f743af; subject=net/mlx5e: Add ndo_set_feature for uplink representor; feature=rebase; upstream_status=accepted; general=upstream commit ID: d3cbd4254df8, tag: v5.2-rc6;
 Change-Id=I8824d138ee2d3d64979d8fa96f67f759a48bded1; subject=net/mlx5e: miniflow, Add lock when adding flows; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=Ic11841c9c37e86613bfcba3456ca26cb55eb6d1f; subject=net/mlx5: Miniflow, Avoid free twice if the flow is freed by aging; feature=mlx5e_st_ct; upstream_status=NA; general=;
 Change-Id=I2eaa19763b869507b3846cc04f78aedb626d25d2; subject=net/mlx5e: miniflow, Hold dep_lock when freeing flow; feature=mlx5e_st_ct; upstream_status=NA; general=;

@@ -1,2 +1,2 @@
 sep=;
-Change-Id=If1815572029622aff4f9d0efb28083f0d34c8a05; subject=net/mlx5: Update pci error handler entries and command translation; feature=rebase; upstream_status=accepted; general=;
+Change-Id=If1815572029622aff4f9d0efb28083f0d34c8a05; subject=net/mlx5: Update pci error handler entries and command translation; feature=rebase; upstream_status=accepted; general=upstream commit ID: 6a6fabbfa3e8, tag: v5.2-rc6;

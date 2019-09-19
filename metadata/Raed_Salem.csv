@@ -1,6 +1,6 @@
 sep=;
 Change-Id=Idd3f2642b1f33fb58e14c1ad0729be84e8538681; subject=net/mlx5: Avoid error message when devcom device is NULL; feature=mlx5_asap; upstream_status=in_progress; general=;
-Change-Id=I9e28eeadac5d735cb497a83a5c029643383ef3b2; subject=net/mlx5e: Fix source port matching in fdb peer flow rule; feature=rebase; upstream_status=accepted; general=;
+Change-Id=I9e28eeadac5d735cb497a83a5c029643383ef3b2; subject=net/mlx5e: Fix source port matching in fdb peer flow rule; feature=rebase; upstream_status=accepted; general=upstream commit ID: b83c0730167c, tag: v5.2-rc6;
 Change-Id=I72e55cc47815fdc3c87766455451f617bac4eac9; subject=Revert "net/mlx5e: Check for simple flow only if miniflow is configured"; feature=mlx5_asap; upstream_status=ignore; general=;
 Change-Id=Ie8ac6c6e95ea45b07e8fb3042704c1cdf93fe450; subject=Revert "net/mlx5e: Don't allow to loop back to chain zero"; feature=mlx5_asap; upstream_status=ignore; general=;
 Change-Id=Ie12a6e7424b99d96e008eeefa07044d5098e164c; subject=Revert "net/mlx5e: Don't support CT action without goto"; feature=mlx5_asap; upstream_status=ignore; general=;

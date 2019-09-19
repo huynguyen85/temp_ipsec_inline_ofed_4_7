@@ -16,7 +16,7 @@ Change-Id=I698aa5f694bebf6b27a9ba350f0cfe9a357c5471; subject=IB/ipoib: Add suppo
 Change-Id=I9843237937aeb50700b4d1d18f0e9035c95b90ac; subject=IB/ipoib: Add RSS support to ethtool get/set ring param; feature=ipoib_rss_tss; upstream_status=NA; general=;
 Change-Id=If004b9cab8114f0430ec58bed9c9a5b51885c2f5; subject=IB/ipoib: Add ipoib_enhanced module parameter; feature=ipoib_offloads_bugs; upstream_status=NA; general=;
 Change-Id=Ie1b9fbb2f9d374ceb681ef9c5cc4182fd17bd223; subject=IB/ipoib: Add multicast packets statistics - RSS; feature=ipoib_rss_tss; upstream_status=NA; general=;
-Change-Id=I0a35f53239a4fbda456549db992f33ee091a7303; subject=net/mlx5e: IPoIB, Add PTP ethtool support for child interface; feature=ipoib_ptp_offloads; upstream_status=accepted; general=;
+Change-Id=I0a35f53239a4fbda456549db992f33ee091a7303; subject=net/mlx5e: IPoIB, Add PTP ethtool support for child interface; feature=ipoib_ptp_offloads; upstream_status=accepted; general=upstream commit ID: 93b66472ce7392, tag: v4.16-rc1;
 Change-Id=I1d6dca7220af4c4da428c8df7c05b52c893ed4e4; subject=net/mlx5e: Add support for drop-less RQ; feature=mlx5_dropless_rq; upstream_status=in_progress; general=;
 Change-Id=I2b5bbb14b067d3222e4de4089f41f667678bc584; subject=IB/umem: Support for rsync invocation in ODP invalidation flow; feature=odp_mr; upstream_status=NA; general=;
 Change-Id=I01df6ba0ce30ebde87e7677ecdf477d9a69ecc91; subject=IB/ipoib: Fix operation state race between stop and light flush; feature=ipoib_bugs; upstream_status=in_progress; general=;
