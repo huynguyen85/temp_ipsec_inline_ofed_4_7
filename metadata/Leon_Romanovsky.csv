@@ -1,3 +1,5 @@
 sep=;
 Change-Id=I04cf3477a64a673302eadf3e0c5ec93da14a4434; subject=RDMA/mlx4: Avoid potential derefence warning; feature=rebase; upstream_status=in_progress; general=;
 Change-Id=I815d27c41b4a43b694f96827287471e238317db6; subject=RDMA/restrack: Add ability to create non-traceable restrack objects; feature=rdma_res_tracker; upstream_status=in_progress; general=;
+Change-Id=I069bcf14577f91161e737f45e5cbc6bb3881b4d0; subject=RDMA/restrack: Rewrite PID namespace check to be reliable; feature=ib_core_bugs; upstream_status=accepted; general=upstream commit ID: 60c78668ae50, tag: v5.3-rc6;
+Change-Id=I9916ddc62999c846ec528f4d4f1b709f01b49cc5; subject=RDMA/counters: Properly implement PID checks; feature=ib_core_bugs; upstream_status=accepted; general=upstream commit ID: c8b32408b407, tag: v5.3-rc6;
