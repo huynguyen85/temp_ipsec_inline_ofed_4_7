@@ -66,3 +66,16 @@ Change-Id=I232b38d70ed53dcb67ad2cd9895f7aa9d05197b9; subject=net/mlx5e: Avoid wa
 Change-Id=I86007024da099fdc71b6fb05b1635dd290cf4958; subject=mlx5/core: Initialize VF data correctly in init flow; feature=mlx5_core_bugs; upstream_status=NA; general=;
 Change-Id=Iaf8c98c27a3522f019473b40647fdd7956eb868d; subject=BACKPORTS: Fix ib umem get/release flow; feature=backports; upstream_status=ignore; general=;
 Change-Id=I8b70e0ed6a7a2677170c689e3b3e9944b080af65; subject=Compat: Zero allocated buffer if __GFP_ZERO passed; feature=ofed_scripts; upstream_status=NA; general=;
+Change-Id=I5d33c48b487b8e50fbb90cc673751bbc98c326dc; subject=Revert "BACPORTS: Egress and ingress ACLs"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=I4698192b78a1cb686307ae9bb268abe05708e695; subject=Revert "net/mlx5: E-Switch, Use change upper event to setup representors' bond_metadata"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=Ie42a2b7e983ac58c56e61fbe81c1375e816a8b79; subject=Revert "net/mlx5: E-Switch, Slave representors sharing ingress acl table and unique metadata"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=I8b2f952ac85e1c946339a74c655a53a55fd58c55; subject=Revert "net/mlx5: E-Switch, Add bond_metadata and its shadow entries"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=I731e08e372a8a4b32979cdbd166b03ee9bb42891; subject=Revert "net/mlx5: E-Switch, Offload flow rules to active lower representor"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=I36958914529038a7b3b9b324bf08eb5668bfc4da; subject=Revert "net/mlx5: E-Switch, Support tc block sharing for representors"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=Id3c3e9de7c282d6b4e4fe141c0887a8db89b6027; subject=Revert "net/mlx5: E-Switch, Use change upper event to delete vport egress acl forward rule"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=Id9e44d26328d7a9850251721d706efa4e7516fa9; subject=Revert "net/mlx5: E-Switch, Use change lower event to set egress acl forward-to-vport rule"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=Iae54d09e8545b2bff0e56206e3c447aca0aebe7a; subject=Revert "net/mlx5: E-Switch, Introduce APIs to enable egress acl forward-to-vport rule"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=I037e0bca942d63656108b78f9c8584840ea08697; subject=Revert "net/mlx5: Introduce egress acl forward-to-vport capability"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=Idb011f632d45e95871e72c6cc6227bcba44c8222; subject=Revert "net/mlx5: E-Switch, Rename ingress acl config in offloads mode"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=Ia120dd5b0164566883201bb78f59efc0f2e74424; subject=Revert "net/mlx5: E-Switch, Refactor vport egress config in offloads mode"; feature=mlx5_sfs; upstream_status=ignore; general=;
+Change-Id=Id060c7e86ce89e1310602718027d9b08fe1f975c; subject=Metadata: Metadata update; feature=ofed_scripts; upstream_status=ignore; general=;
