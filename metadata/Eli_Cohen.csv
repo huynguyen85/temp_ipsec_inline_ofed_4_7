@@ -31,3 +31,4 @@ Change-Id=I21bf5a5f0e739c899f7a0d8d2fa640b077b61a10; subject=Backports: Implemen
 Change-Id=Ia615f382a8bed1ed6554abfe98d0d21eaa63b15d; subject=Add GRE support for kernel 4.14; feature=backports; upstream_status=NA; general=;
 Change-Id=If4d04d1ddbd9a7faae5dc64d59685600d8f9f727; subject=Backports: Avoid use of local variable in deffered code; feature=backports; upstream_status=ignore; general=;
 Change-Id=I0f0a3756461ec39feff765fdd3fea4f47afdc8a5; subject=Backports: Enable switchdev on RHEL 7.2; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I289016a9cb3ca718e4ca7c9a416447e1fa4d4140; subject=Backports: Fix backports for RHEL 7.2; feature=backports; upstream_status=ignore; general=;
