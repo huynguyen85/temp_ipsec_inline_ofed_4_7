@@ -3131,6 +3131,10 @@ static int mlx5e_switch_priv_channels(struct mlx5e_priv *priv,
 
 	mlx5e_refresh_tirs(priv, false);
 activate_channels:
+	if (!netif_is_rxfh_configured(priv->netdev))
+		mlx5e_build_default_indir_rqt(priv->rss_params.indirection_rqt,
+					      MLX5E_INDIR_RQT_SIZE,
+					      priv->channels.params.num_channels);
 	mlx5e_activate_priv_channels(priv);
 rl_init:
 #ifdef CONFIG_MLX5_EN_SPECIAL_SQ
