@@ -53,3 +53,18 @@ Change-Id=I1623f65e583ae17dd50b943bc51665bf499793db; subject=BACKPORTS: Add miss
 Change-Id=Ib2d5810fab1a009a2885c7f89c8006601db4978b; subject=BACKPORTS: Add missing file include/uapi/linux/tc_act/tc_tunnel_key.h; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=If191525df07b2034e25eff5bca4f0487526daa5c; subject=BACKPORTS: Support ASAP in 3.10.0-327; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I042d9434da19c31515a20f25d4e984579251e035; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Ie98cc83e948cf7fc0add925cfcd827227972dee3; subject=BACKPORTS: compat/cls_api.c: Fix tcf tunnel check; feature=backports; upstream_status=ignore; general=;
+Change-Id=I11eeb4fada8058fad9bcd535756b0b4990f3c19d; subject=BACKPORTS: include/net/tc_act/tc_vlan.h; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Ided6dd5f118237a59a1dc1455b2a16f1e7f5815b; subject=BACKPORTS: include/net/tc_act/tc_tunnel_key.h; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I414f4926542f902a5049ad027641dff143ddb01e; subject=BACKPORTS: compat: flow_offload.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ife4170f3088878d2c141122e92d0fe448a54cc35; subject=BACKPORTS: fix warning of unused extack var; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I80434ef9eabcf6b428f8b36c6c7f4d8c50c4986d; subject=BACKPORTS: fix asap checks; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia5d1f8d70a37fd90e5d769a625ba3fff695bfdd5; subject=BACKPORTS: fix tunnel backport check; feature=backports; upstream_status=ignore; general=;
+Change-Id=I62ecf07ce82dbae5dcf35bf95cffbb497eee55a4; subject=BACKPORTS: Change ESWITCH supported version to 4.8; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Ib6b53655e29fe126a16568fda11b8193de6df7ca; subject=BACKPORTS: Fix tc_for_each_action for broken kernels; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I57476b46f2a7273eec3a164f5e499757095a5710; subject=BACKPORTS: Change ESWITCH supported version to 4.6; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Iff82f3d767c388a1008008b5fb55c6de7ae016ef; subject=BACKPORTS: tc_gact.h: fix backport for older kernels; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=Ib53f9897f4f108bdeff8cb20d12c8a1754880a35; subject=metadata: update; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I106789bbdf10400167aa393bcea3ea089af96acd; subject=BACKPORTS: fix asap compat with older kernels; feature=mlx5_asap; upstream_status=NA; general=;
+Change-Id=I7e26401e1ae4e7e853ff909579b038f95fc055e2; subject=BACKPORTS: Change ESWITCH supported version to 4.3; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=I2c6cdc3a7730cbbbbdc4e78d3c0123fc2f5f6289; subject=BACKPORTS: fix compat switchdev_port_same_parent_id for kernel 4.4; feature=backports; upstream_status=ignore; general=;
