@@ -2578,10 +2578,7 @@ int esw_offloads_reload_reps(struct mlx5_eswitch *esw)
 	if (!esw || esw->mode != MLX5_ESWITCH_OFFLOADS)
 		return 0;
 
-	err = esw_offloads_load_all_reps(esw);
-	if (err)
-		return err;
-	return esw_offloads_load_vf_reps(esw, esw->esw_funcs.num_vfs);
+	return __load_reps_all_vport(esw, REP_IB);
 }
 
 static int esw_offloads_steering_init(struct mlx5_eswitch *esw)
