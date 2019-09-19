@@ -50,7 +50,6 @@
 #endif
 #include <net/arp.h>
 #include <net/ipv6_stubs.h>
-#include <net/bonding.h>
 #include "en.h"
 #include "en_rep.h"
 #include "en_tc.h"
@@ -3111,18 +3110,6 @@ static int parse_tc_vlan_action(struct mlx5e_priv *priv,
 	return 0;
 }
 
-/* This must be called under rcu_read_lock() */
-static struct net_device *get_active_rep_dev_from_lag(struct net_device *lag_dev)
-{
-	struct net_device *active;
-	bool found = false;
-
-	active = bond_option_active_slave_get_rcu(netdev_priv(lag_dev));
-	if (active && mlx5e_eswitch_rep(active))
-		found = true;
-	return found ? active : NULL;
-}
-
 static int add_vlan_push_action(struct mlx5e_priv *priv,
 				struct mlx5_esw_flow_attr *attr,
 				struct net_device **out_dev,
@@ -3233,8 +3220,8 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 			return -EOPNOTSUPP;
 		case FLOW_ACTION_REDIRECT:
 		case FLOW_ACTION_MIRRED: {
-			struct net_device *out_dev, *rep_dev;
 			struct mlx5e_priv *out_priv;
+			struct net_device *out_dev;
 
 			out_dev = act->dev;
 			if (!out_dev) {
@@ -3267,14 +3254,6 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
 				    netif_is_lag_master(uplink_upper) &&
 				    uplink_upper == out_dev)
 					out_dev = uplink_dev;
-				else if (netif_is_lag_master(out_dev)) {
-					rep_dev = get_active_rep_dev_from_lag(out_dev);
-					if (!rep_dev)
-						return -EOPNOTSUPP;
-					else if (netdev_port_same_parent_id(rep_dev, out_dev))
-						return -EINVAL;
-					out_dev = rep_dev;
-				}
 				rcu_read_unlock();
 
 				if (is_vlan_dev(out_dev)) {
