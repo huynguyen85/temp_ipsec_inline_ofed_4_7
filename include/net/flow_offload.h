@@ -238,6 +238,21 @@ struct flow_rule {
 
 struct flow_rule *flow_rule_alloc(unsigned int num_actions);
 
+#if !defined(HAVE_FLOW_DISSECTOR_USES_KEY) && !defined(CONFIG_COMPAT_FLOW_DISSECTOR)
+static bool dissector_uses_key(const struct flow_dissector *flow_dissector,
+			       enum flow_dissector_key_id key_id)
+{
+	return flow_dissector->used_keys & (1 << key_id);
+}
+
+static void *skb_flow_dissector_target(struct flow_dissector *flow_dissector,
+				       enum flow_dissector_key_id key_id,
+				       void *target_container)
+{
+	return ((char *) target_container) + flow_dissector->offset[key_id];
+}
+#endif
+
 static inline bool flow_rule_match_key(const struct flow_rule *rule,
 				       enum flow_dissector_key_id key)
 {

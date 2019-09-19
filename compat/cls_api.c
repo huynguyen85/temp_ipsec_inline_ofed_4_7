@@ -40,8 +40,10 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 		entry = &flow_action->entries[j];
 		if (is_tcf_gact_ok(act)) {
 			entry->id = FLOW_ACTION_ACCEPT;
+#ifdef HAVE_IS_TCF_GACT_SHOT
 		} else if (is_tcf_gact_shot(act)) {
 			entry->id = FLOW_ACTION_DROP;
+#endif
 #ifdef HAVE_IS_TCF_GACT_GOTO_CHAIN
 		} else if (is_tcf_gact_trap(act)) {
 			entry->id = FLOW_ACTION_TRAP;

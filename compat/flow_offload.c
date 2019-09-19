@@ -3,6 +3,7 @@
 #include <linux/slab.h>
 #include <net/flow_offload.h>
 #ifndef HAVE_FLOW_RULE_MATCH_CVLAN
+
 #define FLOW_DISSECTOR_MATCH(__rule, __type, __out)				\
 	const struct flow_match *__m = &(__rule)->match;			\
 	struct flow_dissector *__d = (__m)->dissector;				\
