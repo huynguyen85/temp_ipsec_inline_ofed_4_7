@@ -90,6 +90,12 @@ static inline bool tc_skip_hw(u32 flags)
 
 #endif
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)) && (LINUX_VERSION_CODE <= KERNEL_VERSION(4,7,10))
+#undef tc_for_each_action
+#define tc_for_each_action(_a, _exts) \
+	list_for_each_entry(_a, &(_exts)->actions, list)
+#endif
+
 #if defined(CONFIG_NET_CLS_ACT) && defined(HAVE_TCF_EXTS_HAS_ACTIONS)
 #define tcf_exts_for_each_action(i, a, exts) \
 	for (i = 0; i < TCA_ACT_MAX_PRIO && ((a) = (exts)->actions[i]); i++)
