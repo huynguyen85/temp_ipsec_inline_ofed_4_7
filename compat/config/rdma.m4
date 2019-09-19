@@ -8087,18 +8087,34 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if device.h has struct dev_arch_dmadata])
+	AC_MSG_CHECKING([if device.h(ppc) has struct dev_arch_dmadata])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/device.h>
 	],[
 		struct dev_arch_dmadata x;
-                x.dma_offset = 0;
+		x.dma_offset = 0;
 
 		return 0;
 	],[
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_DEV_ARCH_DMADATA_DMA_OFFSET, 1,
-			  [device.h has struct dev_arch_dmadata])
+			  [device.h(ppc) has struct dev_arch_dmadata])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if device.h(ppc) has struct dev_archdata with dma_data union and dma_offset in it])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/device.h>
+	],[
+		struct dev_archdata x;
+		x.dma_data.dma_offset = 0;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_DEV_ARCHDATA_DMA_OFFSET_IN_DMA_DATA_UNION, 1,
+			  [if device.h(ppc) has struct dev_archdata with dma_data union and dma_offset in it])
 	],[
 		AC_MSG_RESULT(no)
 	])
