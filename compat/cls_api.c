@@ -85,7 +85,6 @@ int tc_setup_flow_action(struct flow_action *flow_action,
 		} else if (is_tcf_tunnel_set(act)) {
 			entry->id = FLOW_ACTION_TUNNEL_ENCAP;
 			entry->tunnel = tcf_tunnel_info(act);
-			entry->tunnel = NULL;
 		} else if (is_tcf_tunnel_release(act)) {
 			entry->id = FLOW_ACTION_TUNNEL_DECAP;
 #endif
