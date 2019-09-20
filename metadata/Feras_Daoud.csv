@@ -80,3 +80,4 @@ Change-Id=Idb011f632d45e95871e72c6cc6227bcba44c8222; subject=Revert "net/mlx5: E
 Change-Id=Ia120dd5b0164566883201bb78f59efc0f2e74424; subject=Revert "net/mlx5: E-Switch, Refactor vport egress config in offloads mode"; feature=mlx5_sfs; upstream_status=ignore; general=;
 Change-Id=Id060c7e86ce89e1310602718027d9b08fe1f975c; subject=Metadata: Metadata update; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I187c5fc9c104d2512586d06d73f64c7fb5508cc3; subject=BACKPORTS: Apply CONFIG_MLX5_ESWITCH check with all configure flags; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=If3b4736a399feeed567c268678db3efe03fef701; subject=BACKPORTS: Clean unused HAVE defines; feature=backports; upstream_status=ignore; general=;
