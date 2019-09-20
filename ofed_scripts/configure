@@ -679,12 +679,6 @@ main()
                             CONFIG_MLX5_EN_RXNFC="y"
                             CONFIG_MLX5_MPFS="y"
                             CONFIG_MLX5_ESWITCH="y"
-    if ! check_kerver ${KVERSION} ${SWITCH_SUPPORTED_KVERSION}; then
-        if ! check_kerver_list $KVERSION $SWITCH_SUPPORTED_KVERSION_LIST; then
-                            CONFIG_MLX5_ESWITCH=
-            echo "Error: CONFIG_MLX5_ESWITCH requires kernel version ${SWITCH_SUPPORTED_KVERSION} or higher (current: ${KVERSION})."
-        fi
-    fi
                             CONFIG_MLX5_CORE_IPOIB="y"
                             CONFIG_MLX5_EN_SPECIAL_SQ="y"
                             CONFIG_MLX5_INFINIBAND="m"
@@ -1081,6 +1075,13 @@ if [ -z "$KSRC_OBJ" ]; then
 		KSRC_OBJ=$KSRC
 		KSRC=${sources_dir}
 	fi
+fi
+
+if ! check_kerver ${KVERSION} ${SWITCH_SUPPORTED_KVERSION}; then
+    if ! check_kerver_list $KVERSION $SWITCH_SUPPORTED_KVERSION_LIST; then
+                        CONFIG_MLX5_ESWITCH=
+        echo "Error: CONFIG_MLX5_ESWITCH requires kernel version ${SWITCH_SUPPORTED_KVERSION} or higher (current: ${KVERSION})."
+    fi
 fi
 
 KSRC_OBJ=${KSRC_OBJ:-"$KSRC"}
