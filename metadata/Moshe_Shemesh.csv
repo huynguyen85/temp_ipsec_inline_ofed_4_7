@@ -9,3 +9,5 @@ Change-Id=Ifb82c8fe102f395966fa044ce0609cfe67522de3; subject=net/mlx5: Fix force
 Change-Id=I0712611dcab86ff851fc4a3c7abe27b002c708a5; subject=net/mlx5: Fix use after free of command outbox; feature=mlx5_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I1d9f3f9dc236677a7c8e835793d54028276d9201; subject=net/mlx5: Avoid access command output after teardown; feature=mlx5_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I35fc32490bc6ea35414533d849fa6e631e163c64; subject=BACKPORTS: fix backports cmd.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=I6974a957602ec864b76e3028d2a3c931e800bd85; subject=net/mlx5e: Fix set indirect rqt before reactivating channels; feature=mlx5_en_bugs; upstream_status=NA; general=;
+Change-Id=I5ab0cfad336c77881e1598352a682d2889cf12b9; subject=BACKPORTS: Fix backports; feature=backports; upstream_status=ignore; general=;
