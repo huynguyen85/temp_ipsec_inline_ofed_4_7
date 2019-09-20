@@ -89,7 +89,7 @@ void flow_rule_match_tcp(const struct flow_rule *rule,
 }
 EXPORT_SYMBOL(flow_rule_match_tcp);
 
-#ifdef FLOW_DISSECTOR_KEY_ENC_KEYID
+#ifdef HAVE_FLOW_DISSECTOR_KEY_ENC_KEYID
 void flow_rule_match_icmp(const struct flow_rule *rule,
 			  struct flow_match_icmp *out)
 {
@@ -101,13 +101,13 @@ EXPORT_SYMBOL(flow_rule_match_icmp);
 void flow_rule_match_mpls(const struct flow_rule *rule,
 			  struct flow_match_mpls *out)
 {
-#ifdef FLOW_DISSECTOR_KEY_MPLS
+#ifdef HAVE_FLOW_DISSECTOR_KEY_MPLS
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_MPLS, out);
 #endif
 }
 EXPORT_SYMBOL(flow_rule_match_mpls);
 
-#ifdef FLOW_DISSECTOR_KEY_ENC_KEYID
+#ifdef HAVE_FLOW_DISSECTOR_KEY_ENC_KEYID
 void flow_rule_match_enc_control(const struct flow_rule *rule,
 				 struct flow_match_control *out)
 {
@@ -128,18 +128,18 @@ void flow_rule_match_enc_ipv6_addrs(const struct flow_rule *rule,
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_ENC_IPV6_ADDRS, out);
 }
 EXPORT_SYMBOL(flow_rule_match_enc_ipv6_addrs);
-#endif /* FLOW_DISSECTOR_KEY_ENC_KEYID */
+#endif /* HAVE_FLOW_DISSECTOR_KEY_ENC_KEYID */
 
 void flow_rule_match_enc_ip(const struct flow_rule *rule,
                             struct flow_match_ip *out)
 {
-#ifdef FLOW_DISSECTOR_KEY_ENC_IP
+#ifdef HAVE_FLOW_DISSECTOR_KEY_ENC_IP
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_ENC_IP, out);
 #endif
 }
 EXPORT_SYMBOL(flow_rule_match_enc_ip);
 
-#ifdef FLOW_DISSECTOR_KEY_ENC_KEYID
+#ifdef HAVE_FLOW_DISSECTOR_KEY_ENC_KEYID
 void flow_rule_match_enc_ports(const struct flow_rule *rule,
 			       struct flow_match_ports *out)
 {
@@ -153,6 +153,6 @@ void flow_rule_match_enc_keyid(const struct flow_rule *rule,
 	FLOW_DISSECTOR_MATCH(rule, FLOW_DISSECTOR_KEY_ENC_KEYID, out);
 }
 EXPORT_SYMBOL(flow_rule_match_enc_keyid);
-#endif /* FLOW_DISSECTOR_KEY_ENC_KEYID */
+#endif /* HAVE_FLOW_DISSECTOR_KEY_ENC_KEYID */
 
-#endif
+#endif /* HAVE_FLOW_RULE_MATCH_CVLAN */

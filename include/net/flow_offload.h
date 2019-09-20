@@ -69,7 +69,6 @@ struct flow_match_enc_opts {
 
 struct flow_rule;
 
-#ifndef HAVE_FLOW_RULE_MATCH_CVLAN
 #define  flow_rule_match_basic LINUX_BACKPORT(flow_rule_match_basic)
 void flow_rule_match_basic(const struct flow_rule *rule,
 			   struct flow_match_basic *out);
@@ -130,7 +129,6 @@ void flow_rule_match_enc_opts(const struct flow_rule *rule,
 #define flow_rule_match_cvlan LINUX_BACKPORT(flow_rule_match_cvlan)
 void flow_rule_match_cvlan(const struct flow_rule *rule,
                            struct flow_match_vlan *out);
-#endif
 
 enum flow_action_id {
 	FLOW_ACTION_ACCEPT		= 0,
@@ -272,5 +270,5 @@ static inline void flow_stats_update(struct flow_stats *flow_stats,
 	flow_stats->bytes	+= bytes;
 	flow_stats->lastused	= max_t(u64, flow_stats->lastused, lastused);
 }
-#endif
+#endif /* HAVE_FLOW_RULE_MATCH_CVLAN */
 #endif /* _NET_FLOW_OFFLOAD_H */
