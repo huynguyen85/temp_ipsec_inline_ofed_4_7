@@ -1,0 +1,2 @@
+sep=;
+Change-Id=Ie432346be49cf7517bd84cc0581b63e139e89e2d; subject=net/mlx5e: Fix handling of compressed CQEs in case of low NAPI budget; feature=mlx5_en_bugs; upstream_status=in_progress; general=;
