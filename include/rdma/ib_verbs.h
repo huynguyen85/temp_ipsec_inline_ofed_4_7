@@ -4824,11 +4824,6 @@ int rdma_init_netdev(struct ib_device *device, u8 port_num,
 		     struct net_device *netdev,
 		     int force_fail);
 
-#ifndef HAVE_NET_DEVICE_NEEDS_FREE_NETDEV
-int rdma_uninit_netdev(struct ib_device *device, struct net_device *netdev,
-		       u8 port_num, enum rdma_netdev_t type, int force_fail);
-#endif
-
 /**
  * rdma_set_device_sysfs_group - Set device attributes group to have
  *				 driver specific sysfs entries at

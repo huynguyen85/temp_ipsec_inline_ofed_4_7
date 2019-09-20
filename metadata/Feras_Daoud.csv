@@ -30,7 +30,7 @@ Change-Id=Ib4adae85516149fbd17ea1324e5be4da331d74af; subject=mlx5/core: Check FW
 Change-Id=Ief90dfec4abcc7b7c96c863ac6c0226047930e23; subject=net/mlx5: IPoIB, Fix mlx5e_get_netdev_max_channels for mlx5i profile; feature=ipoib_bugs; upstream_status=NA; general=;
 Change-Id=I5886505ae3288bdaed732c6a84143e9ce9f9d1e7; subject=mlx5/core: Remove free IRQs from the fast shutdown call; feature=mlx5_fast_driver_unload; upstream_status=in_progress; general=;
 Change-Id=Ib235ff4fe51b199e31be5997ec5a85235a89164f; subject=mlx5/core: Return success if device state is internal error; feature=mlx5_fast_driver_unload; upstream_status=in_progress; general=;
-Change-Id=Ia2815599a6cd1ab89cc4599bab43d280b651fae7; subject=BACKPORTS: Fix IPoIB free resources; feature=ipoib_bugs; upstream_status=NA; general=;
+Change-Id=Ia2815599a6cd1ab89cc4599bab43d280b651fae7; subject=BACKPORTS: Fix IPoIB free resources; feature=ipoib_bugs; upstream_status=ignore; general=;
 Change-Id=I08e40ea69b552c98f0bcfd7a08cfb919a287784e; subject=Revert "IB/mlx5: Fix handling of SIGERR SQD event for user QPs"; feature=mlx5_core_bugs; upstream_status=NA; general=;
 Change-Id=I7e6334e12ba2a9c718786ebe8393d438c4ff1505; subject=Revert "IB/{mlx5,core}: Introduce and implement new IB_PROT_CRC32"; feature=mlx5_core_bugs; upstream_status=NA; general=;
 Change-Id=Ief1fa3547ae98845f2f4ec98ed369cebca93d40a; subject=Revert "{IB,net}/mlx5: Handover SIGERR SQD to userspace"; feature=mlx5_core_bugs; upstream_status=NA; general=;
