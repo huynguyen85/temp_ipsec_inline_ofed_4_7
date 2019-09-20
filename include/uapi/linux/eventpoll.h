@@ -1,7 +1,7 @@
 #ifndef _COMPAT_UAPI_LINUX_EVENTPOLL_H
 #define _COMPAT_UAPI_LINUX_EVENTPOLL_H
 
-#include "../../compat/config.h"
+#include "../../../compat/config.h"
 
 #ifdef HAVE_UAPI_LINUX_EVENTPOLL_H
 #include_next <uapi/linux/eventpoll.h>

@@ -23,3 +23,5 @@ Change-Id=I7e2478950f153a2b2962bde5dc02e42d4803f6d6; subject=BACKPORTS: Fix DEbi
 Change-Id=Ib2d37a60cc335e55ae6bc0c011d4822dd6558ae5; subject=BACKPORTS: get_net_ns_by_fd backport for non exported function; feature=backports; upstream_status=ignore; general=;
 Change-Id=I2d4970dc673685241db4a637c5880c8f89e88a00; subject=BACKPORT: Fix SLES11SP4 PPC compilation; feature=backports; upstream_status=ignore; general=;
 Change-Id=I4f8060b655d309e8c757e6c164f548f63b577a25; subject=BACKPORTS: RHEL 7.7 fpga idr_remove backport --with-innova-flex; feature=backports; upstream_status=ignore; general=;
+Change-Id=Iaf5d78f4f14e2859772839f5b85a8d0d64771180; subject=BACKPORT: rdma.m4 Fix not existing defines; feature=backports; upstream_status=ignore; general=;
+Change-Id=I692cf971fb245f6ce74672fcb6c238ba3205dac9; subject=BACKPORTS: eventpoll.h fix path to compat/config.h; feature=backports; upstream_status=ignore; general=;
