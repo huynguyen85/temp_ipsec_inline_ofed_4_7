@@ -68,3 +68,4 @@ Change-Id=Ib53f9897f4f108bdeff8cb20d12c8a1754880a35; subject=metadata: update; f
 Change-Id=I106789bbdf10400167aa393bcea3ea089af96acd; subject=BACKPORTS: fix asap compat with older kernels; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=I7e26401e1ae4e7e853ff909579b038f95fc055e2; subject=BACKPORTS: Change ESWITCH supported version to 4.3; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I2c6cdc3a7730cbbbbdc4e78d3c0123fc2f5f6289; subject=BACKPORTS: fix compat switchdev_port_same_parent_id for kernel 4.4; feature=backports; upstream_status=ignore; general=;
+Change-Id=I3cc43b2baba682f323e6c22e2bc9fc3802f33831; subject=BACKPORTS: remove duplicated definition: HAVE_FLOW_DISSECTOR_KEY_VLAN; feature=backports; upstream_status=ignore; general=;
