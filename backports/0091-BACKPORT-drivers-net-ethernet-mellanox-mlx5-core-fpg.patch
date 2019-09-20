@@ -3,14 +3,14 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/fpga/tls.h
 
 Change-Id: I138d6bc1c0658a457e6241fe41df012123caee8e
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fpga/tls.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/fpga/tls.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fpga/tls.h b/drivers/net/ethernet/mellanox/mlx5/core/fpga/tls.h
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/fpga/tls.h
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/fpga/tls.h
-@@ -31,6 +31,8 @@
+@@ -31,12 +31,19 @@
   *
   */
  
@@ -19,7 +19,18 @@ index xxxxxxx..xxxxxxx 100644
  #ifndef __MLX5_FPGA_TLS_H__
  #define __MLX5_FPGA_TLS_H__
  
-@@ -72,3 +74,5 @@ int mlx5_fpga_tls_resync_rx(struct mlx5_core_dev *mdev, u32 handle, u32 seq,
+ #include <linux/mlx5/driver.h>
+ 
++#ifdef HAVE_NET_TLS_H
+ #include <net/tls.h>
++#else
++#include <uapi/linux/tls.h>
++#endif
++
+ #include "fpga/core.h"
+ 
+ struct mlx5_fpga_tls {
+@@ -72,3 +79,5 @@ int mlx5_fpga_tls_resync_rx(struct mlx5_core_dev *mdev, u32 handle, u32 seq,
  			    u64 rcd_sn);
  
  #endif /* __MLX5_FPGA_TLS_H__ */
