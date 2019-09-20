@@ -5,7 +5,7 @@
 
 #include_next <linux/sunrpc/auth.h>
 
-#ifndef HAVE_RPCAUTH_AUTH_DATATOUCH
+#ifndef RPCAUTH_AUTH_DATATOUCH
 /* rpc_auth au_flags */
 #define RPCAUTH_AUTH_DATATOUCH 0x00000002
 #endif

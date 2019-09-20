@@ -77,10 +77,26 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 				AC_MSG_RESULT(no)
 			])
 		],[
+	 	])
 			AC_MSG_RESULT(no)
-		])
-	])
+			AC_MSG_CHECKING([if struct netns_frags contains rhashtable])
+			MLNX_BG_LB_LINUX_TRY_COMPILE([
+				#include <linux/in6.h>
+				#include <net/inet_frag.h>
+			],[
+				struct netns_frags x;
+				struct rhashtable rh;
+				rh = x.rhashtable;
 
+				return 0;
+			],[
+				AC_MSG_RESULT(yes)
+				MLNX_AC_DEFINE(HAVE_NETNS_FRAGS_RHASHTABLE, 1,
+					[struct netns_frags has rhashtable])
+			],[
+				AC_MSG_RESULT(no)
+			])
+		])
 	AC_MSG_CHECKING([if *xpo_secure_port returns void])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/svc_xprt.h>
@@ -2897,6 +2913,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_FLOW_DISSECTOR_KEY_TCP, 1,
 			  [FLOW_DISSECTOR_KEY_TCP is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if flow_dissector.h enum flow_dissector_key_keyid has FLOW_DISSECTOR_KEY_MPLS])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/flow_dissector.h>
+	],[
+		enum flow_dissector_key_id keyid = FLOW_DISSECTOR_KEY_MPLS;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_FLOW_DISSECTOR_KEY_MPLS, 1,
+			  [FLOW_DISSECTOR_KEY_MPLS is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])
@@ -10301,21 +10332,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_REQ_IDLE, 1,
 			[blk_types.h has REQ_IDLE])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if blkdev.h has blk_mq_poll])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/blkdev.h>
-	],[
-		blk_mq_poll(NULL, 0);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_BLK_MQ_POLL, 1,
-			[blk_mq_poll exist])
 	],[
 		AC_MSG_RESULT(no)
 	])
