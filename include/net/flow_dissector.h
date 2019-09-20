@@ -11,6 +11,7 @@
 #define HAVE_FLOW_DISSECTOR_KEY_IP 1
 #define HAVE_FLOW_DISSECTOR_KEY_TCP 1
 #define HAVE_FLOW_DISSECTOR_KEY_ENC_IP 1
+#define HAVE_FLOW_DISSECTOR_KEY_ENC_KEYID 1
 
 #include <linux/types.h>
 #include <linux/in6.h>
