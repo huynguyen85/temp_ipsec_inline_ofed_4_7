@@ -111,8 +111,8 @@ index xxxxxxx..xxxxxxx 100644
 +    !defined(HAVE_SWITCHDEV_PORT_SAME_PARENT_ID)
 +#include <net/bonding.h>
 +
-+static bool switchdev_port_same_parent_id(struct net_device *a,
-+					  struct net_device *b)
++bool switchdev_port_same_parent_id(struct net_device *a,
++				   struct net_device *b)
 +{
 +	struct mlx5e_priv *priv_a, *priv_b;
 +	struct mlx5_eswitch *peer_esw;

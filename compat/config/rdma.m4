@@ -6547,6 +6547,21 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
+	AC_MSG_CHECKING([if ipv6.h has ip6_make_flowinfo])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <net/ipv6.h>
+	],[
+		ip6_make_flowinfo(0, 0);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_IP6_MAKE_FLOWINFO, 1,
+		[ip6_make_flowinfo is defined])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
 	LB_CHECK_SYMBOL_EXPORT([irq_to_desc],
 		[kernel/irq/irqdesc.c],
 		[AC_DEFINE(HAVE_IRQ_TO_DESC_EXPORTED, 1,

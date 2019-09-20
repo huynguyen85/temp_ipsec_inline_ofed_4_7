@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/en_tc.h
 
 Change-Id: I2ae58906dd10b4d56f33216d5a3abf516fc8797c
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.h | 34 ++++++++++++++++++++-----
- 1 file changed, 28 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.h | 39 +++++++++++++++++++++----
+ 1 file changed, 33 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.h b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.h
 index xxxxxxx..xxxxxxx 100644
@@ -110,10 +110,15 @@ index xxxxxxx..xxxxxxx 100644
  int mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
  		     u64 cookie, unsigned long flow_flags, gfp_t flags,
  		     struct mlx5e_tc_flow_parse_attr **__parse_attr,
-@@ -226,6 +247,7 @@ int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
+@@ -226,6 +247,12 @@ int alloc_mod_hdr_actions(struct mlx5e_priv *priv,
  bool mlx5e_is_valid_eswitch_fwd_dev(struct mlx5e_priv *priv,
  				    struct net_device *out_dev);
  
++#if !defined(HAVE_SWITCHDEV_PORT_SAME_PARENT_ID)
++bool switchdev_port_same_parent_id(struct net_device *a,
++				   struct net_device *b);
++#endif
++
 +#endif /* HAVE_TC_FLOWER_OFFLOAD */
  #else /* CONFIG_MLX5_ESWITCH */
  static inline int  mlx5e_tc_nic_init(struct mlx5e_priv *priv) { return 0; }
