@@ -766,7 +766,7 @@ static struct mlx5e_etype_proto ttc_tunnel_rules[] = {
 
 };
 
-bool mlx5e_tunnel_proto_supported(struct mlx5_core_dev *mdev, u8 proto_type)
+static bool mlx5e_tunnel_proto_supported(struct mlx5_core_dev *mdev, u8 proto_type)
 {
 	switch (proto_type) {
 	case IPPROTO_GRE:
@@ -779,7 +779,7 @@ bool mlx5e_tunnel_proto_supported(struct mlx5_core_dev *mdev, u8 proto_type)
 	}
 }
 
-bool mlx5e_any_tunnel_proto_supported(struct mlx5_core_dev *mdev)
+static bool mlx5e_any_tunnel_proto_supported(struct mlx5_core_dev *mdev)
 {
 	int tt;
 
