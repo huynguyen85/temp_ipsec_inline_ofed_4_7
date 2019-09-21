@@ -106,3 +106,4 @@ Change-Id=If847ff421c100b7142ff0d121beed60bbbab5cdd; subject=RDMA/mlx5: Introduc
 Change-Id=I002fa12d1f842903ef2bb826ffe9e764c84b5092; subject=RDMA/core: Validate integrity handover device cap; feature=mlx5_pi; upstream_status=accepted; general=upstream commit ID: 185eddc45798, tag: v5.3-rc1;
 Change-Id=I18e10bfe62c95d11c65fb26d909ae875daa68902; subject=RDMA/mlx5: Use PA mapping for PI handover; feature=mlx5_pi; upstream_status=accepted; general=upstream commit ID: 2563e2f30acb, tag: v5.3-rc1;
 Change-Id=Ic6c4f955de26fdaa61eca15fe086f2a7e4f849b4; subject=RDMA/mlx5: Refactor MR descriptors allocation; feature=mlx5_pi; upstream_status=accepted; general=upstream commit ID: 7796d2a3bb40, tag: v5.3-rc1;
+Change-Id=I0635b10c5a2199c676568b5d9e7ee44472b62886; subject=nvme-rdma: Fix max_hw_sectors calculation; feature=rebase; upstream_status=in_progress; general=;
