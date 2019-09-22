@@ -16,3 +16,4 @@ Change-Id=I947e420944c078ab24b86e23f5084d4c5cba11fd; subject=net/mlx5e: Complete
 Change-Id=I8390366db140f8d1856f2db06b69c763421a1e55; subject=BACKPORTS: net/mlx5: Fix definition of IS_HW_LRO, IS_SW_LRO and such; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ice7c961e58af69c2a7c66706b6fc2c710f429675; subject=BACKPORTS: net/mlx5: Fix BP after adding ipip feature; feature=backports; upstream_status=ignore; general=;
 Change-Id=I9f503e013dc90cd13653fb7685ca9777f26d7239; subject=BACKPORTS: Fix backports after applying rdma-show-new-qps patches; feature=backports; upstream_status=ignore; general=;
+Change-Id=Iaf21c995309b80ee5d6a693f8b6bc51f88b12d0e; subject=BACKPORTS: Remove HAVE_NETIF_F_GSO_IPXIP4_6, unused any more; feature=backports; upstream_status=ignore; general=;

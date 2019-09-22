@@ -6829,21 +6829,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if struct netdev_features.h has NETIF_F_GSO_IPXIP4/6])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/netdev_features.h>
-	],[
-		int x = NETIF_F_GSO_IPXIP4 | NETIF_F_GSO_IPXIP6;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_NETIF_F_GSO_IPXIP4_6, 1,
-			  [NETIF_F_GSO_IPXIP4/6 is defined in netdev_features.h])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
 	# this checker will test if the function exist
 	# it may get:  warning: ?*((void *)&dev+548)? is used uninitialized in this function [-Wuninitialized]
 	# but wont fail compilaton
