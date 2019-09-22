@@ -49,4 +49,3 @@ Change-Id=I19f921170cf3c2f4d2a6b6afe3b106bcd545640c; subject=BACKPORTS: fix enca
 Change-Id=I3e835b0d20bb4a2df60f1232f979328d40d7c7d4; subject=BACKPORTS: add stub functions in tc_tun when tunnels are not supported; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ia48d9c4792bd5ef5805f16ea147d577f1d3c6fff; subject=BACKPORTS: Fix backports for tcf_exts_for_each_action; feature=backports; upstream_status=ignore; general=;
 Change-Id=I028ba5ab7c78a8dbc6ffef80239056765e4f3876; subject=BACKPORTS: Add missing HAVE_FLOW_DISSECTOR_KEY_ENC_KEYID at flow_dissector.h; feature=mlx5_asap; upstream_status=NA; general=;
-Change-Id=I3371991361e25d15cc2f4a37208ddecdbe0036e1; subject=BACKPORTS: re-add stub functions in tc_tun when tunnels are not supported; feature=backports; upstream_status=ignore; general=;
