@@ -27,3 +27,4 @@ Change-Id=Iaf5d78f4f14e2859772839f5b85a8d0d64771180; subject=BACKPORT: rdma.m4 F
 Change-Id=I692cf971fb245f6ce74672fcb6c238ba3205dac9; subject=BACKPORTS: eventpoll.h fix path to compat/config.h; feature=backports; upstream_status=ignore; general=;
 Change-Id=Iacf10430949ea47d5907f075768d8aea009fdfa5; subject=Revert "BACKPORTS: Fix IPoIB free resources"; feature=backports; upstream_status=ignore; general=;
 Change-Id=Iec2f7777ea626f575820927d38fd0c2882b82fa4; subject=BACKPORTS: move ib_verbs,h HAVE_* to backports; feature=backports; upstream_status=ignore; general=;
+Change-Id=I771382341a00ec530abcc09b850499c682c5cb27; subject=BACKPORTS: fix rdma.m4 BP_CHECK_RHTABLE section; feature=backports; upstream_status=ignore; general=;

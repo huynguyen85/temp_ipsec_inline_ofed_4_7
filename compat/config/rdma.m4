@@ -1,5 +1,7 @@
 dnl Examine kernel functionality
 
+# DO NOT insert new defines in this section!!! 
+# Add your defines ONLY in LINUX_CONFIG_COMPAT section
 AC_DEFUN([BP_CHECK_RHTABLE],
 [
 	AC_MSG_CHECKING([if file include/linux/rhashtable-types.h exists])
@@ -77,7 +79,6 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 				AC_MSG_RESULT(no)
 			])
 		],[
-	 	])
 			AC_MSG_RESULT(no)
 			AC_MSG_CHECKING([if struct netns_frags contains rhashtable])
 			MLNX_BG_LB_LINUX_TRY_COMPILE([
@@ -97,7 +98,9 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 				AC_MSG_RESULT(no)
 			])
 		])
+	])
 ])
+
 
 AC_DEFUN([LINUX_CONFIG_COMPAT],
 [
