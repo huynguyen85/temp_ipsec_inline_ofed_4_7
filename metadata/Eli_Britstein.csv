@@ -9,3 +9,5 @@ Change-Id=I3c3ac6a0b6080e9bdaf58cc0cdcf616cba37092b; subject=net/mlx5e: Deny mir
 Change-Id=I67ae28962c4765e95ed29a27906786d832d49870; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I92dc792920d0852a07427c50e0d1d50cc12280eb; subject=BACKPORTS: Fix backports for tcf_exts_for_each_action; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=I69d298e9391d5b1f06b940b6c40c266ffbcbd5cb; subject=Update meatadata; feature=ofed_scripts; upstream_status=ignore; general=;
+Change-Id=Ie69a71a50861454ad68a813703fa899078926135; subject=net/mlx5e: Fix port tunnel GRE entropy control; feature=mlx5_asap; upstream_status=accepted; general=;
+Change-Id=I12a53e4278e486cc1fe99ad7b872f3a2204b4d7d; subject=Update metadata; feature=ofed_scripts; upstream_status=ignore; general=;
