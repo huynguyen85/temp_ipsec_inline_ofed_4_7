@@ -56,3 +56,4 @@ Change-Id=I3a10e1b115d75fbda4de20042b838719f3964ebc; subject=ofed_scripts/config
 Change-Id=Id75e5df6b7b155cdfaa1b34ad50f9d76fb6c6a09; subject=nvme/_makefile_: Fix rpm compilation error; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=Ia960efae02c6098a4cb33c94646d0cd4c123a32d; subject=BACKPORTS: Fix nvme-rdma disconnect flow; feature=backports; upstream_status=ignore; general=;
 Change-Id=I00e1ab20fd0bed5bb221a4c89e4b90f5027f0fdd; subject=BACKPORTS: Fix nvme-rdma timeout error flow; feature=backports; upstream_status=ignore; general=;
+Change-Id=I1fc545c80e5a27c2b375ca4f1a5745cb7237fa66; subject=BACKPORTS: Fix nvme-core compilation warning; feature=backports; upstream_status=ignore; general=;
