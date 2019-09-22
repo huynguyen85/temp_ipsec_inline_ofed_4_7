@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/cm.c
 
 Change-Id: I8bec3cb8a6df4aa561802b0d90115032524e0d21
 ---
- drivers/infiniband/core/cm.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ drivers/infiniband/core/cm.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
 index xxxxxxx..xxxxxxx 100644
@@ -20,40 +20,7 @@ index xxxxxxx..xxxxxxx 100644
  
  static const char * const ibcm_rej_reason_strs[] = {
  	[IB_CM_REJ_NO_QP]			= "no QP",
-@@ -632,6 +635,7 @@ static int cm_init_av_by_path(struct sa_path_rec *path,
- 
- static int cm_alloc_id(struct cm_id_private *cm_id_priv)
- {
-+#ifdef HAVE_IDR_ALLOC_CYCLIC
- 	int err;
- 	u32 id;
- 
-@@ -640,6 +644,24 @@ static int cm_alloc_id(struct cm_id_private *cm_id_priv)
- 
- 	cm_id_priv->id.local_id = (__force __be32)id ^ cm.random_id_operand;
- 	return err;
-+#else
-+	unsigned long flags;
-+	int ret, id;
-+	static int next_id;
-+
-+	do {
-+		spin_lock_irqsave(&cm.lock, flags);
-+		ret = idr_get_new_above(&cm.local_id_table, cm_id_priv,
-+					next_id, &id);
-+		if (!ret)
-+			next_id = max(id + 1, 0);
-+
-+		spin_unlock_irqrestore(&cm.lock, flags);
-+	} while( (ret == -EAGAIN) && idr_pre_get(&cm.local_id_table, GFP_KERNEL) );
-+
-+	cm_id_priv->id.local_id = (__force __be32)id ^ cm.random_id_operand;
-+	return ret;
-+#endif
- }
- 
- static u32 cm_local_id(__be32 local_id)
-@@ -4304,7 +4326,11 @@ static ssize_t cm_show_counter(struct kobject *obj, struct attribute *attr,
+@@ -4304,7 +4307,11 @@ static ssize_t cm_show_counter(struct kobject *obj, struct attribute *attr,
  		       atomic_long_read(&group->counter[cm_attr->index]));
  }
  
@@ -65,7 +32,7 @@ index xxxxxxx..xxxxxxx 100644
  	.show = cm_show_counter
  };
  
-@@ -4313,7 +4339,11 @@ static struct kobj_type cm_counter_obj_type = {
+@@ -4313,7 +4320,11 @@ static struct kobj_type cm_counter_obj_type = {
  	.default_attrs = cm_counter_default_attrs
  };
  

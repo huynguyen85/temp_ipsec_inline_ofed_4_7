@@ -3,7 +3,7 @@ Subject: [PATCH] BACKPORT: drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
 
 Change-Id: I4357f1536382d593df2ea8478e60cbf24b59a654
 ---
- .../net/ethernet/mellanox/mlx5/core/pci_irq.c | 113 +++++++++++++++++-
+ drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c | 113 +++++++++++++++++++++-
  1 file changed, 111 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c

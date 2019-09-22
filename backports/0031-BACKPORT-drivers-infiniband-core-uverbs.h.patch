@@ -3,25 +3,18 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/uverbs.h
 
 Change-Id: Ib933ada9ee9aea012c3908b64ebd41eeb15f9be7
 ---
- drivers/infiniband/core/uverbs.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/uverbs.h | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/drivers/infiniband/core/uverbs.h b/drivers/infiniband/core/uverbs.h
 index xxxxxxx..xxxxxxx 100644
 --- a/drivers/infiniband/core/uverbs.h
 +++ b/drivers/infiniband/core/uverbs.h
-@@ -186,8 +186,13 @@ struct ib_uverbs_file {
+@@ -185,7 +185,6 @@ struct ib_uverbs_file {
  	struct mutex umap_lock;
  	struct list_head umaps;
  	struct page *disassociate_page;
 -
-+#ifdef HAVE_XARRAY
  	struct xarray		idr;
-+#else
-+	struct idr              idr;
-+	 /* spinlock protects write access to idr */
-+	spinlock_t              idr_lock;
-+#endif
  };
  
- struct ib_uverbs_event {

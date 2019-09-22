@@ -7263,21 +7263,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(no)
 	])
 
-	AC_MSG_CHECKING([if idr.h has idr_alloc_cyclic])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/idr.h>
-	],[
-		idr_alloc_cyclic(NULL, NULL, 0, 0, 0);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_IDR_ALLOC_CYCLIC, 1,
-			  [idr_alloc_cyclic is defined])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
 	AC_MSG_CHECKING([if idr.h has idr_alloc])
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/idr.h>
@@ -7336,23 +7321,6 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_IDA_SIMPLE_GET, 1,
 			  [ida_simple_get is defined])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if idr.h has idr_lock])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/idr.h>
-	],[
-		static DEFINE_IDR(tmp_idr);
-
-		idr_lock(&tmp_idr);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_IDR_LOCK, 1,
-			  [idr_lock is defined])
 	],[
 		AC_MSG_RESULT(no)
 	])

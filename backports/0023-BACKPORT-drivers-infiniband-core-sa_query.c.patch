@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/sa_query.c
 
 Change-Id: I51c4b21196e6d528c9daf725f2fa1eb7fddb26bf
 ---
- drivers/infiniband/core/sa_query.c | 92 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 87 insertions(+), 5 deletions(-)
+ drivers/infiniband/core/sa_query.c | 48 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 43 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
 index xxxxxxx..xxxxxxx 100644
@@ -22,16 +22,7 @@ index xxxxxxx..xxxxxxx 100644
  #include <rdma/ib_pack.h>
  #include <rdma/ib_cache.h>
  #include <rdma/rdma_netlink.h>
-@@ -186,6 +190,8 @@ static struct ib_client sa_client = {
- static DEFINE_XARRAY_FLAGS(queries, XA_FLAGS_ALLOC | XA_FLAGS_LOCK_IRQ);
- 
- static DEFINE_SPINLOCK(tid_lock);
-+static DEFINE_SPINLOCK(idr_lock);
-+static DEFINE_IDR(query_idr);
- static u32 tid;
- 
- #define PATH_REC_FIELD(field) \
-@@ -759,7 +765,8 @@ static void ib_nl_set_path_rec_attrs(struct sk_buff *skb,
+@@ -759,7 +763,8 @@ static void ib_nl_set_path_rec_attrs(struct sk_buff *skb,
  	query->mad_buf->context[1] = NULL;
  
  	/* Construct the family header first */
@@ -41,7 +32,7 @@ index xxxxxxx..xxxxxxx 100644
  	memcpy(header->device_name, dev_name(&query->port->agent->device->dev),
  	       LS_DEVICE_NAME_MAX);
  	header->port_num = query->port->port_num;
-@@ -1012,9 +1019,15 @@ static void ib_nl_request_timeout(struct work_struct *work)
+@@ -1012,9 +1017,15 @@ static void ib_nl_request_timeout(struct work_struct *work)
  }
  
  int ib_nl_handle_set_timeout(struct sk_buff *skb,
@@ -57,7 +48,7 @@ index xxxxxxx..xxxxxxx 100644
  	int timeout, delta, abs_delta;
  	const struct nlattr *attr;
  	unsigned long flags;
-@@ -1024,11 +1037,23 @@ int ib_nl_handle_set_timeout(struct sk_buff *skb,
+@@ -1024,11 +1035,23 @@ int ib_nl_handle_set_timeout(struct sk_buff *skb,
  	int ret;
  
  	if (!(nlh->nlmsg_flags & NLM_F_REQUEST) ||
@@ -83,7 +74,7 @@ index xxxxxxx..xxxxxxx 100644
  	attr = (const struct nlattr *)tb[LS_NLA_TYPE_TIMEOUT];
  	if (ret || !attr)
  		goto settimeout_out;
-@@ -1079,8 +1104,13 @@ static inline int ib_nl_is_good_resolve_resp(const struct nlmsghdr *nlh)
+@@ -1079,8 +1102,13 @@ static inline int ib_nl_is_good_resolve_resp(const struct nlmsghdr *nlh)
  	if (nlh->nlmsg_flags & RDMA_NL_LS_F_ERR)
  		return 0;
  
@@ -97,7 +88,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (ret)
  		return 0;
  
-@@ -1088,8 +1118,12 @@ static inline int ib_nl_is_good_resolve_resp(const struct nlmsghdr *nlh)
+@@ -1088,8 +1116,12 @@ static inline int ib_nl_is_good_resolve_resp(const struct nlmsghdr *nlh)
  }
  
  int ib_nl_handle_resolve_resp(struct sk_buff *skb,
@@ -110,7 +101,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	unsigned long flags;
  	struct ib_sa_query *query;
-@@ -1099,7 +1133,15 @@ int ib_nl_handle_resolve_resp(struct sk_buff *skb,
+@@ -1099,7 +1131,15 @@ int ib_nl_handle_resolve_resp(struct sk_buff *skb,
  	int ret;
  
  	if ((nlh->nlmsg_flags & NLM_F_REQUEST) ||
@@ -126,69 +117,17 @@ index xxxxxxx..xxxxxxx 100644
  		return -EPERM;
  
  	spin_lock_irqsave(&ib_nl_request_lock, flags);
-@@ -1369,13 +1411,47 @@ static int send_mad(struct ib_sa_query *query, unsigned long timeout_ms,
+@@ -1369,13 +1409,11 @@ static int send_mad(struct ib_sa_query *query, unsigned long timeout_ms,
  {
  	unsigned long flags;
  	int ret, id;
 -
-+#ifdef HAVE_XARRAY
  	xa_lock_irqsave(&queries, flags);
  	ret = __xa_alloc(&queries, &id, query, xa_limit_32b, gfp_mask);
  	xa_unlock_irqrestore(&queries, flags);
  	if (ret < 0)
  		return ret;
 -
-+#else /* HAVE_XARRAY */
-+
-+#ifdef HAVE_IDR_ALLOC
-+#ifdef __GFP_WAIT
-+	bool preload = !!(gfp_mask & __GFP_WAIT);
-+#else
-+	bool preload = gfpflags_allow_blocking(gfp_mask);
-+#endif
-+#endif
-+
-+#ifdef HAVE_IDR_ALLOC
-+	if (preload)
-+		idr_preload(gfp_mask);
-+	spin_lock_irqsave(&idr_lock, flags);
-+
-+	id = idr_alloc(&query_idr, query, 0, 0, GFP_NOWAIT);
-+
-+	spin_unlock_irqrestore(&idr_lock, flags);
-+	if (preload)
-+		idr_preload_end();
-+	if (id < 0)
-+		return id;
-+#else
-+retry:
-+	if (!idr_pre_get(&query_idr, gfp_mask))
-+		return -ENOMEM;
-+	spin_lock_irqsave(&idr_lock, flags);
-+	ret = idr_get_new(&query_idr, query, &id);
-+	spin_unlock_irqrestore(&idr_lock, flags);
-+	if (ret == -EAGAIN)
-+		goto retry;
-+	if (ret)
-+		return ret;
-+#endif /*HAVE_IDR_ALLOC*/
-+#endif /*HAVE_XARRAY*/
  	query->mad_buf->timeout_ms  = timeout_ms;
  	query->mad_buf->retries = retries;
  	query->mad_buf->context[0] = query;
-@@ -1392,9 +1468,15 @@ static int send_mad(struct ib_sa_query *query, unsigned long timeout_ms,
- 
- 	ret = ib_post_send_mad(query->mad_buf, NULL);
- 	if (ret) {
-+#ifdef HAVE_XARRAY
- 		xa_lock_irqsave(&queries, flags);
- 		__xa_erase(&queries, id);
- 		xa_unlock_irqrestore(&queries, flags);
-+#else
-+		spin_lock_irqsave(&idr_lock, flags);
-+		idr_remove(&query_idr, id);
-+		spin_unlock_irqrestore(&idr_lock, flags);
-+#endif /*HAVE_XARRAY*/
- 	}
- 
- 	/*
