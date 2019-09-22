@@ -97,329 +97,6 @@ AC_DEFUN([BP_CHECK_RHTABLE],
 				AC_MSG_RESULT(no)
 			])
 		])
-	AC_MSG_CHECKING([if *xpo_secure_port returns void])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/svc_xprt.h>
-
-		void secure_port(struct svc_rqst *rqstp)
-		{
-			return;
-		}
-	],[
-		struct svc_xprt_ops check_rdma_ops;
-
-		check_rdma_ops.xpo_secure_port = secure_port;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_XPO_SECURE_PORT_NO_RETURN, 1,
-			[xpo_secure_port is defined and returns void])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if *send_request has 'struct rpc_rqst *req' as a param])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xprt.h>
-
-		int send_request(struct rpc_rqst *req)
-		{
-			return 0;
-		}
-	],[
-		struct rpc_xprt_ops ops;
-
-		ops.send_request = send_request;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_XPRT_OPS_SEND_REQUEST_RQST_ARG, 1,
-			[*send_request has 'struct rpc_rqst *req' as a param])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([for rpc_reply_expected])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/clnt.h>
-	],[
-		return rpc_reply_expected(NULL);
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_RPC_REPLY_EXPECTED, 1, [rpc reply expected])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([for xprt_request_get_cong])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xprt.h>
-	],[
-		return xprt_request_get_cong(NULL, NULL);
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_XPRT_REQUEST_GET_CONG, 1, [get cong request])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([for "xpt_remotebuf" inside "struct svc_xprt"])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/svc_xprt.h>
-	],[
-		struct svc_xprt dummy_xprt;
-
-		dummy_xprt.xpt_remotebuf[0] = 0;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_SVC_XPRT_XPT_REMOTEBUF, 1,
-			[struct svc_xprt has 'xpt_remotebuf' field])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([for "xpo_prep_reply_hdr" inside "struct svc_xprt_ops"])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/svc_xprt.h>
-	],[
-		struct svc_xprt_ops dummy_svc_ops;
-
-		dummy_svc_ops.xpo_prep_reply_hdr = NULL;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_SVC_XPRT_XPO_PREP_REPLY_HDR, 1,
-			[struct svc_xprt_ops 'xpo_prep_reply_hdr' field])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([for "free_slot" inside "struct rpc_xprt_ops"])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xprt.h>
-	],[
-		struct rpc_xprt_ops dummy_ops;
-
-		dummy_ops.free_slot = NULL;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_RPC_XPRT_OPS_FREE_SLOT, 1,
-			[struct rpc_xprt_ops has 'free_slot' field])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([for "set_retrans_timeout" inside "struct rpc_xprt_ops"])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xprt.h>
-	],[
-		struct rpc_xprt_ops dummy_ops;
-
-		dummy_ops.set_retrans_timeout = NULL;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_RPC_XPRT_OPS_SET_RETRANS_TIMEOUT, 1,
-			[struct rpc_xprt_ops has 'set_retrans_timeout' field])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([for "wait_for_reply_request" inside "struct rpc_xprt_ops"])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xprt.h>
-	],[
-		struct rpc_xprt_ops dummy_ops;
-
-		dummy_ops.wait_for_reply_request = NULL;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_RPC_XPRT_OPS_WAIT_FOR_REPLY_REQUEST, 1,
-			[struct rpc_xprt_ops has 'wait_for_reply_request' field])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([for "queue_lock" inside "struct rpc_xprt"])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xprt.h>
-	],[
-		spinlock_t *dummy_lock;
-		struct rpc_xprt dummy_xprt;
-
-		dummy_lock = &dummy_xprt.queue_lock;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_XPRT_QUEUE_LOCK, 1,
-			[struct rpc_xprt has 'queue_lock' field])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if 'struct rpc_xprt_ops *ops' field is const inside 'struct rpc_xprt'])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xprt.h>
-	],[
-		const struct rpc_xprt_ops ops = {0};
-		struct rpc_xprt xprt;
-		const struct rpc_xprt_ops *ptr = &ops;
-
-		xprt.ops = ptr;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_RPC_XPRT_OPS_CONST, 1,
-			  [struct rpc_xprt_ops *ops' field is const inside 'struct rpc_xprt'])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if 'struct svc_xprt_ops *xcl_ops' field is const inside 'struct svc_xprt_class'])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/svc_xprt.h>
-	],[
-		const struct svc_xprt_ops xcl_ops = {0};
-		struct svc_xprt_class xprt;
-		const struct svc_xprt_ops *ptr = &xcl_ops;
-
-		xprt.xcl_ops = ptr;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_SVC_XPRT_CLASS_XCL_OPS_CONST, 1,
-			  ['struct svc_xprt_ops *xcl_ops' field is const inside 'struct svc_xprt_class'])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if xprt_wait_for_buffer_space has xprt as a parameter])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xprt.h>
-	],[
-		struct rpc_xprt xprt = {0};
-
-		xprt_wait_for_buffer_space(&xprt);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_XPRT_WAIT_FOR_BUFFER_SPACE_RQST_ARG, 1,
-			  [xprt_wait_for_buffer_space has xprt as a parameter])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([for "recv_lock" inside "struct rpc_xprt"])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xprt.h>
-	],[
-		spinlock_t *dummy_lock;
-		struct rpc_xprt dummy_xprt;
-
-		dummy_lock = &dummy_xprt.recv_lock;
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_RPC_XPRT_RECV_LOCK, 1, [struct rpc_xprt has 'recv_lock' field])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if xdr_init_encode has rqst as a parameter])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xdr.h>
-	],[
-		struct rpc_rqst rqst = {0};
-
-		xdr_init_encode(NULL, NULL, NULL, &rqst);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_XDR_INIT_ENCODE_RQST_ARG, 1,
-			  [xdr_init_encode has rqst as a parameter])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if xdr_init_decode has rqst as a parameter])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xdr.h>
-	],[
-		struct rpc_rqst rqst = {0};
-
-		xdr_init_decode(NULL, NULL, NULL, &rqst);
-
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_XDR_INIT_DECODE_RQST_ARG, 1,
-			  [xdr_init_decode has rqst as a parameter])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([for xdr_stream_remaining])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/xdr.h>
-	],[
-		return xdr_stream_remaining(NULL);
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_XDR_STREAM_REMAINING, 1,
-			  [xdr_stream_remaining function definition])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	AC_MSG_CHECKING([if sg_alloc_table_chained has 4 params])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/scatterlist.h>
-	],[
-		return sg_alloc_table_chained(NULL, 0, GFP_ATOMIC, NULL);
-	],[
-		AC_MSG_RESULT(yes)
-		MLNX_AC_DEFINE(HAVE_SG_ALLOC_TABLE_CHAINED_GFP_MASK, 1,
-			  [sg_alloc_table_chained has 4 params])
-	],[
-		AC_MSG_RESULT(no)
-	])
-
-	LB_CHECK_SYMBOL_EXPORT([xprt_pin_rqst],
-		[net/sunrpc/xprt.c],
-		[AC_DEFINE(HAVE_XPRT_PIN_RQST, 1,
-			[xprt_pin_rqst is exported by the sunrpc core])],
-	[])
-
-	AC_MSG_CHECKING([for trace/events/rpcrdma.h])
-	MLNX_BG_LB_LINUX_TRY_COMPILE([
-		#include <linux/sunrpc/svc_rdma.h>
-		#include "../../net/sunrpc/xprtrdma/xprt_rdma.h"
-
-		#include <trace/events/rpcrdma.h>
-	],[
-		return 0;
-	],[
-		AC_MSG_RESULT(yes)
-		AC_DEFINE(HAVE_TRACE_RPCRDMA_H, 1, [rpcrdma.h exists])
-	],[
-		AC_MSG_RESULT(no)
-	])
 ])
 
 AC_DEFUN([LINUX_CONFIG_COMPAT],
@@ -13915,6 +13592,330 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		AC_MSG_RESULT(yes)
 		MLNX_AC_DEFINE(HAVE_UAPI_LINUX_EVENTPOLL_H, 1,
 			  [uapi/linux/eventpoll.h exists])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if *xpo_secure_port returns void])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/svc_xprt.h>
+
+		void secure_port(struct svc_rqst *rqstp)
+		{
+			return;
+		}
+	],[
+		struct svc_xprt_ops check_rdma_ops;
+
+		check_rdma_ops.xpo_secure_port = secure_port;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_XPO_SECURE_PORT_NO_RETURN, 1,
+			[xpo_secure_port is defined and returns void])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if *send_request has 'struct rpc_rqst *req' as a param])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xprt.h>
+
+		int send_request(struct rpc_rqst *req)
+		{
+			return 0;
+		}
+	],[
+		struct rpc_xprt_ops ops;
+
+		ops.send_request = send_request;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_XPRT_OPS_SEND_REQUEST_RQST_ARG, 1,
+			[*send_request has 'struct rpc_rqst *req' as a param])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([for rpc_reply_expected])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/clnt.h>
+	],[
+		return rpc_reply_expected(NULL);
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_RPC_REPLY_EXPECTED, 1, [rpc reply expected])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([for xprt_request_get_cong])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xprt.h>
+	],[
+		return xprt_request_get_cong(NULL, NULL);
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_XPRT_REQUEST_GET_CONG, 1, [get cong request])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([for "xpt_remotebuf" inside "struct svc_xprt"])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/svc_xprt.h>
+	],[
+		struct svc_xprt dummy_xprt;
+
+		dummy_xprt.xpt_remotebuf[0] = 0;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_SVC_XPRT_XPT_REMOTEBUF, 1,
+			[struct svc_xprt has 'xpt_remotebuf' field])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([for "xpo_prep_reply_hdr" inside "struct svc_xprt_ops"])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/svc_xprt.h>
+	],[
+		struct svc_xprt_ops dummy_svc_ops;
+
+		dummy_svc_ops.xpo_prep_reply_hdr = NULL;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_SVC_XPRT_XPO_PREP_REPLY_HDR, 1,
+			[struct svc_xprt_ops 'xpo_prep_reply_hdr' field])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([for "free_slot" inside "struct rpc_xprt_ops"])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xprt.h>
+	],[
+		struct rpc_xprt_ops dummy_ops;
+
+		dummy_ops.free_slot = NULL;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_RPC_XPRT_OPS_FREE_SLOT, 1,
+			[struct rpc_xprt_ops has 'free_slot' field])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([for "set_retrans_timeout" inside "struct rpc_xprt_ops"])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xprt.h>
+	],[
+		struct rpc_xprt_ops dummy_ops;
+
+		dummy_ops.set_retrans_timeout = NULL;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_RPC_XPRT_OPS_SET_RETRANS_TIMEOUT, 1,
+			[struct rpc_xprt_ops has 'set_retrans_timeout' field])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([for "wait_for_reply_request" inside "struct rpc_xprt_ops"])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xprt.h>
+	],[
+		struct rpc_xprt_ops dummy_ops;
+
+		dummy_ops.wait_for_reply_request = NULL;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_RPC_XPRT_OPS_WAIT_FOR_REPLY_REQUEST, 1,
+			[struct rpc_xprt_ops has 'wait_for_reply_request' field])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([for "queue_lock" inside "struct rpc_xprt"])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xprt.h>
+	],[
+		spinlock_t *dummy_lock;
+		struct rpc_xprt dummy_xprt;
+
+		dummy_lock = &dummy_xprt.queue_lock;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_XPRT_QUEUE_LOCK, 1,
+			[struct rpc_xprt has 'queue_lock' field])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if 'struct rpc_xprt_ops *ops' field is const inside 'struct rpc_xprt'])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xprt.h>
+	],[
+		const struct rpc_xprt_ops ops = {0};
+		struct rpc_xprt xprt;
+		const struct rpc_xprt_ops *ptr = &ops;
+
+		xprt.ops = ptr;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_RPC_XPRT_OPS_CONST, 1,
+			  [struct rpc_xprt_ops *ops' field is const inside 'struct rpc_xprt'])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if 'struct svc_xprt_ops *xcl_ops' field is const inside 'struct svc_xprt_class'])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/svc_xprt.h>
+	],[
+		const struct svc_xprt_ops xcl_ops = {0};
+		struct svc_xprt_class xprt;
+		const struct svc_xprt_ops *ptr = &xcl_ops;
+
+		xprt.xcl_ops = ptr;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_SVC_XPRT_CLASS_XCL_OPS_CONST, 1,
+			  ['struct svc_xprt_ops *xcl_ops' field is const inside 'struct svc_xprt_class'])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if xprt_wait_for_buffer_space has xprt as a parameter])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xprt.h>
+	],[
+		struct rpc_xprt xprt = {0};
+
+		xprt_wait_for_buffer_space(&xprt);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_XPRT_WAIT_FOR_BUFFER_SPACE_RQST_ARG, 1,
+			  [xprt_wait_for_buffer_space has xprt as a parameter])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([for "recv_lock" inside "struct rpc_xprt"])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xprt.h>
+	],[
+		spinlock_t *dummy_lock;
+		struct rpc_xprt dummy_xprt;
+
+		dummy_lock = &dummy_xprt.recv_lock;
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_RPC_XPRT_RECV_LOCK, 1, [struct rpc_xprt has 'recv_lock' field])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if xdr_init_encode has rqst as a parameter])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xdr.h>
+	],[
+		struct rpc_rqst rqst = {0};
+
+		xdr_init_encode(NULL, NULL, NULL, &rqst);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_XDR_INIT_ENCODE_RQST_ARG, 1,
+			  [xdr_init_encode has rqst as a parameter])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if xdr_init_decode has rqst as a parameter])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xdr.h>
+	],[
+		struct rpc_rqst rqst = {0};
+
+		xdr_init_decode(NULL, NULL, NULL, &rqst);
+
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_XDR_INIT_DECODE_RQST_ARG, 1,
+			  [xdr_init_decode has rqst as a parameter])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([for xdr_stream_remaining])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/xdr.h>
+	],[
+		return xdr_stream_remaining(NULL);
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_XDR_STREAM_REMAINING, 1,
+			  [xdr_stream_remaining function definition])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	AC_MSG_CHECKING([if sg_alloc_table_chained has 4 params])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/scatterlist.h>
+	],[
+		return sg_alloc_table_chained(NULL, 0, GFP_ATOMIC, NULL);
+	],[
+		AC_MSG_RESULT(yes)
+		MLNX_AC_DEFINE(HAVE_SG_ALLOC_TABLE_CHAINED_GFP_MASK, 1,
+			  [sg_alloc_table_chained has 4 params])
+	],[
+		AC_MSG_RESULT(no)
+	])
+
+	LB_CHECK_SYMBOL_EXPORT([xprt_pin_rqst],
+		[net/sunrpc/xprt.c],
+		[AC_DEFINE(HAVE_XPRT_PIN_RQST, 1,
+			[xprt_pin_rqst is exported by the sunrpc core])],
+	[])
+
+	AC_MSG_CHECKING([for trace/events/rpcrdma.h])
+	MLNX_BG_LB_LINUX_TRY_COMPILE([
+		#include <linux/sunrpc/svc_rdma.h>
+		#include "../../net/sunrpc/xprtrdma/xprt_rdma.h"
+
+		#include <trace/events/rpcrdma.h>
+	],[
+		return 0;
+	],[
+		AC_MSG_RESULT(yes)
+		AC_DEFINE(HAVE_TRACE_RPCRDMA_H, 1, [rpcrdma.h exists])
 	],[
 		AC_MSG_RESULT(no)
 	])
