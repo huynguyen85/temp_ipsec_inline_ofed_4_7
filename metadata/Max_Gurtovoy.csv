@@ -108,3 +108,4 @@ Change-Id=I18e10bfe62c95d11c65fb26d909ae875daa68902; subject=RDMA/mlx5: Use PA m
 Change-Id=Ic6c4f955de26fdaa61eca15fe086f2a7e4f849b4; subject=RDMA/mlx5: Refactor MR descriptors allocation; feature=mlx5_pi; upstream_status=accepted; general=upstream commit ID: 7796d2a3bb40, tag: v5.3-rc1;
 Change-Id=I0635b10c5a2199c676568b5d9e7ee44472b62886; subject=nvme-rdma: Fix max_hw_sectors calculation; feature=rebase; upstream_status=in_progress; general=;
 Change-Id=I35eecbd42b58f8df7f14da93f7430c76625428b2; subject=IB/MLX5: Use ctrl_list to track nvmf backend controllers; feature=nvmf_offload; upstream_status=in_progress; general=;
+Change-Id=I45a1e7056c87f6bb4b4a562de25c7e4923bb782a; subject=nvme-rdma: fix NULL pointer deref during port toggling; feature=rebase; upstream_status=in_progress; general=;
