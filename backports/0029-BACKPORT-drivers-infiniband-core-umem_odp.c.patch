@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/umem_odp.c
 
 Change-Id: I0d7ec33ae7f5197f1743af46234b8168fcb1a22d
 ---
- drivers/infiniband/core/umem_odp.c | 176 +++++++++++++++++++++++++++++++++++--
- 1 file changed, 169 insertions(+), 7 deletions(-)
+ drivers/infiniband/core/umem_odp.c | 186 +++++++++++++++++++++++++++++++++++--
+ 1 file changed, 179 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/infiniband/core/umem_odp.c b/drivers/infiniband/core/umem_odp.c
 index xxxxxxx..xxxxxxx 100644
@@ -107,7 +107,7 @@ index xxxxxxx..xxxxxxx 100644
  		down_read(&per_mm->umem_rwsem);
  	else if (!down_read_trylock(&per_mm->umem_rwsem))
  		return -EAGAIN;
-@@ -178,15 +238,45 @@ static int ib_umem_notifier_invalidate_range_start(struct mmu_notifier *mn,
+@@ -178,15 +238,55 @@ static int ib_umem_notifier_invalidate_range_start(struct mmu_notifier *mn,
  		return 0;
  	}
  
@@ -134,6 +134,16 @@ index xxxxxxx..xxxxxxx 100644
 +
 +	//ib_ucontext_notifier_start_account(context);
 +	down_read(&per_mm->umem_rwsem);
++
++	if (!per_mm->active) {
++		up_read(&per_mm->umem_rwsem);
++		/*
++		 * At this point active is permanently set and visible to this
++		 * CPU without a lock, that fact is relied on to skip the unlock
++		 * in range_end.
++		 */
++		return;
++	}
 +	rbt_ib_umem_for_each_in_range(&per_mm->umem_tree, start, end,
 +			invalidate_range_start_trampoline,
 +			&call_rsync);
@@ -154,7 +164,7 @@ index xxxxxxx..xxxxxxx 100644
  }
  
  static int invalidate_range_end_trampoline(struct ib_umem_odp *item, u64 start,
-@@ -197,7 +287,13 @@ static int invalidate_range_end_trampoline(struct ib_umem_odp *item, u64 start,
+@@ -197,7 +297,13 @@ static int invalidate_range_end_trampoline(struct ib_umem_odp *item, u64 start,
  }
  
  static void ib_umem_notifier_invalidate_range_end(struct mmu_notifier *mn,
@@ -169,7 +179,7 @@ index xxxxxxx..xxxxxxx 100644
  {
  	struct ib_ucontext_per_mm *per_mm =
  		container_of(mn, struct ib_ucontext_per_mm, mn);
-@@ -205,9 +301,19 @@ static void ib_umem_notifier_invalidate_range_end(struct mmu_notifier *mn,
+@@ -205,9 +311,19 @@ static void ib_umem_notifier_invalidate_range_end(struct mmu_notifier *mn,
  	if (unlikely(!per_mm->active))
  		return;
  
@@ -191,7 +201,7 @@ index xxxxxxx..xxxxxxx 100644
  	up_read(&per_mm->umem_rwsem);
  }
  
-@@ -237,6 +343,9 @@ static const struct mmu_notifier_ops ib_umem_notifiers = {
+@@ -237,6 +353,9 @@ static const struct mmu_notifier_ops ib_umem_notifiers = {
  #ifdef CONFIG_CXL_LIB
  	.invalidate_range	    = ib_umem_notifier_invalidate_range,
  #endif
@@ -201,7 +211,7 @@ index xxxxxxx..xxxxxxx 100644
  };
  
  static void add_umem_to_per_mm(struct ib_umem_odp *umem_odp)
-@@ -277,7 +386,11 @@ static struct ib_ucontext_per_mm *alloc_per_mm(struct ib_ucontext *ctx,
+@@ -277,7 +396,11 @@ static struct ib_ucontext_per_mm *alloc_per_mm(struct ib_ucontext *ctx,
  
  	per_mm->context = ctx;
  	per_mm->mm = mm;
@@ -214,7 +224,7 @@ index xxxxxxx..xxxxxxx 100644
  	init_rwsem(&per_mm->umem_rwsem);
  	per_mm->active = true;
  
-@@ -365,7 +478,9 @@ static void put_per_mm(struct ib_umem_odp *umem_odp)
+@@ -365,7 +488,9 @@ static void put_per_mm(struct ib_umem_odp *umem_odp)
  	per_mm->active = false;
  	up_write(&per_mm->umem_rwsem);
  
@@ -224,7 +234,7 @@ index xxxxxxx..xxxxxxx 100644
  	mmu_notifier_unregister_no_release(&per_mm->mn, per_mm->mm);
  	put_pid(per_mm->tgid);
  	mmu_notifier_call_srcu(&per_mm->rcu, free_per_mm);
-@@ -455,6 +570,11 @@ int ib_umem_odp_get(struct ib_umem_odp *umem_odp, int access)
+@@ -455,6 +580,11 @@ int ib_umem_odp_get(struct ib_umem_odp *umem_odp, int access)
  		h = hstate_vma(vma);
  		umem->page_shift = huge_page_shift(h);
  		up_read(&mm->mmap_sem);
@@ -236,7 +246,7 @@ index xxxxxxx..xxxxxxx 100644
  	}
  
  	mutex_init(&umem_odp->umem_mutex);
-@@ -642,7 +762,9 @@ int ib_umem_odp_map_dma_pages(struct ib_umem_odp *umem_odp, u64 user_virt,
+@@ -642,7 +772,9 @@ int ib_umem_odp_map_dma_pages(struct ib_umem_odp *umem_odp, u64 user_virt,
  	struct page       **local_page_list = NULL;
  	u64 page_mask, off;
  	int j, k, ret = 0, start_idx, npages = 0, page_shift;
@@ -246,7 +256,7 @@ index xxxxxxx..xxxxxxx 100644
  	phys_addr_t p = 0;
  
  	if (access_mask == 0)
-@@ -673,8 +795,10 @@ int ib_umem_odp_map_dma_pages(struct ib_umem_odp *umem_odp, u64 user_virt,
+@@ -673,8 +805,10 @@ int ib_umem_odp_map_dma_pages(struct ib_umem_odp *umem_odp, u64 user_virt,
  		goto out_put_task;
  	}
  
@@ -257,7 +267,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	start_idx = (user_virt - ib_umem_start(umem)) >> page_shift;
  	k = start_idx;
-@@ -692,9 +816,29 @@ int ib_umem_odp_map_dma_pages(struct ib_umem_odp *umem_odp, u64 user_virt,
+@@ -692,9 +826,29 @@ int ib_umem_odp_map_dma_pages(struct ib_umem_odp *umem_odp, u64 user_virt,
  		 * complex (and doesn't gain us much performance in most use
  		 * cases).
  		 */
@@ -287,7 +297,7 @@ index xxxxxxx..xxxxxxx 100644
  		up_read(&owning_mm->mmap_sem);
  
  		if (npages < 0) {
-@@ -743,9 +887,14 @@ int ib_umem_odp_map_dma_pages(struct ib_umem_odp *umem_odp, u64 user_virt,
+@@ -743,9 +897,14 @@ int ib_umem_odp_map_dma_pages(struct ib_umem_odp *umem_odp, u64 user_virt,
  			 * to hit an error was already released by
  			 * ib_umem_odp_map_dma_single_page().
  			 */
@@ -302,7 +312,7 @@ index xxxxxxx..xxxxxxx 100644
  			break;
  		}
  	}
-@@ -827,10 +976,16 @@ EXPORT_SYMBOL(ib_umem_odp_unmap_dma_pages);
+@@ -827,10 +986,16 @@ EXPORT_SYMBOL(ib_umem_odp_unmap_dma_pages);
  /* @last is not a part of the interval. See comment for function
   * node_last.
   */
@@ -319,7 +329,7 @@ index xxxxxxx..xxxxxxx 100644
  				  void *cookie)
  {
  	int ret_val = 0;
-@@ -843,8 +998,10 @@ int rbt_ib_umem_for_each_in_range(struct rb_root_cached *root,
+@@ -843,8 +1008,10 @@ int rbt_ib_umem_for_each_in_range(struct rb_root_cached *root,
  	for (node = rbt_ib_umem_iter_first(root, start, last - 1);
  			node; node = next) {
  		/* TODO move the blockable decision up to the callback */
@@ -330,7 +340,7 @@ index xxxxxxx..xxxxxxx 100644
  		next = rbt_ib_umem_iter_next(node, start, last - 1);
  		umem = container_of(node, struct ib_umem_odp, interval_tree);
  		ret_val = cb(umem, start, last, cookie) || ret_val;
-@@ -853,8 +1010,13 @@ int rbt_ib_umem_for_each_in_range(struct rb_root_cached *root,
+@@ -853,8 +1020,13 @@ int rbt_ib_umem_for_each_in_range(struct rb_root_cached *root,
  	return ret_val;
  }
  EXPORT_SYMBOL(rbt_ib_umem_for_each_in_range);
