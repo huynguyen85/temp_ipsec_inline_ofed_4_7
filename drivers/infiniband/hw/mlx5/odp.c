@@ -683,7 +683,6 @@ static int pagefault_mr(struct mlx5_ib_dev *dev, struct mlx5_ib_mr *mr,
 			u32 flags)
 {
 	int npages = 0, current_seq, page_shift, ret, np, np_stat;
-	bool implicit = false;
 	struct ib_umem_odp *odp_mr = to_ib_umem_odp(mr->umem);
 	bool downgrade = flags & MLX5_PF_FLAGS_DOWNGRADE;
 	bool prefetch = flags & MLX5_PF_FLAGS_PREFETCH;
@@ -698,10 +697,11 @@ static int pagefault_mr(struct mlx5_ib_dev *dev, struct mlx5_ib_mr *mr,
 
 		if (IS_ERR(odp))
 			return PTR_ERR(odp);
+		imr = mr;
 		mr = odp->private;
-		implicit = true;
 	} else {
 		odp = odp_mr;
+		imr = NULL;
 	}
 
 next_mr:

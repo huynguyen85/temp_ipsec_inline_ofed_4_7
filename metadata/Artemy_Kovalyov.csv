@@ -32,3 +32,4 @@ Change-Id=I0759c8ac5f202da093055f47d93607b2327e5860; subject=IB/{uverbs,mlx5}: P
 Change-Id=I57d7a666250855b745fbc7dccee0128f986b1098; subject={IB,net}/mlx5: Handover SIGERR SQD to userspace; feature=signature_pipeline; upstream_status=NA; general=;
 Change-Id=Idc6793c4b4574f7378f9bd494cfdc49aa1de95fc; subject=IB/mlx5: Fix DCT min_rnr_timer; feature=mlx5_ib_bugs; upstream_status=NA; general=;
 Change-Id=I3041a13b03c4372b050cb43a8f5e712c97df5626; subject=IB/mlx5: Add mlx5_ib_pgprot_writecombine; feature=mlx5_ib_bugs; upstream_status=NA; general=;
+Change-Id=Ia6f127822de1f1752154b41fe59b4235fe95e598; subject=IB/mlx5: Fix implicit MR locking - rebase fix; feature=mlx5_ib_bugs; upstream_status=NA; general=;
