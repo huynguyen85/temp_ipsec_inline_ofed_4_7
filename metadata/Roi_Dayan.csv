@@ -115,3 +115,4 @@ Change-Id=I9ee7eda6b2f16a26b081ea64f12e8caaec01b1d3; subject=net/mlx5e: workarou
 Change-Id=I512fd1d30b4b0b35898a6f7c2812f0c49ee0924b; subject=BACKPORTS: fix flow_offload api backport checks; feature=mlx5_asap; upstream_status=NA; general=;
 Change-Id=I12d3e3c939e748a5c6985ae130eb3fd5b4c2e64e; subject=Revert "Backports: Fix egress_dev indication for old kernels"; feature=backports; upstream_status=ignore; general=;
 Change-Id=I571d1e29b6326fcfa47ded5ace100e8f7d48e6fa; subject=BACKPORTS: fix tunnel backport in cls_api.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=I7bfe93c2eff119fc11cf1b96816e07629955c82d; subject=BACKPORTS: fix exposing phys switch id; feature=backports; upstream_status=ignore; general=;
