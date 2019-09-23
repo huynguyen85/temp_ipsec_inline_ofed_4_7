@@ -207,7 +207,7 @@ index xxxxxxx..xxxxxxx 100644
  				     PAGE_SIZE / sizeof(struct page *)),
  			       gup_flags);
 +#else
-+			pr_err("%s: failed to get user pages, nr_pages=%lu\n", __func__,
++			pr_debug("%s: failed to get user pages, nr_pages=%lu\n", __func__,
 +			       min_t(unsigned long, npages,
 +				     PAGE_SIZE / sizeof(struct page *)));
 +#endif
