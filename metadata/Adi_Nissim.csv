@@ -69,3 +69,4 @@ Change-Id=I106789bbdf10400167aa393bcea3ea089af96acd; subject=BACKPORTS: fix asap
 Change-Id=I7e26401e1ae4e7e853ff909579b038f95fc055e2; subject=BACKPORTS: Change ESWITCH supported version to 4.3; feature=ofed_scripts; upstream_status=ignore; general=;
 Change-Id=I2c6cdc3a7730cbbbbdc4e78d3c0123fc2f5f6289; subject=BACKPORTS: fix compat switchdev_port_same_parent_id for kernel 4.4; feature=backports; upstream_status=ignore; general=;
 Change-Id=I3cc43b2baba682f323e6c22e2bc9fc3802f33831; subject=BACKPORTS: remove duplicated definition: HAVE_FLOW_DISSECTOR_KEY_VLAN; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ifdd27e2ebadb49926d9d6c381c78d49a54f2f7d5; subject=BACKPORTS: Fix egress flag for old kernel versions in egdev mechanism; feature=mlx5_asap; upstream_status=NA; general=;
