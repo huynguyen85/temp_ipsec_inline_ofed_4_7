@@ -2689,12 +2689,13 @@ static bool actions_match_supported(struct mlx5e_priv *priv,
 	else
 		actions = flow->nic_attr->action;
 
+#if 0
 	if (flow_flag_test(flow, EGRESS) &&
 	    !((actions & MLX5_FLOW_CONTEXT_ACTION_DECAP) ||
 	      (actions & MLX5_FLOW_CONTEXT_ACTION_VLAN_POP) ||
 	      (actions & MLX5_FLOW_CONTEXT_ACTION_DROP)))
 		return false;
-
+#endif
 	if (actions & MLX5_FLOW_CONTEXT_ACTION_MOD_HDR)
 		return modify_header_match_supported(&parse_attr->spec,
 						     flow_action, actions,
