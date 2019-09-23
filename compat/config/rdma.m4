@@ -13829,9 +13829,9 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/xdr.h>
 	],[
-		struct rpc_rqst rqst = {0};
+		struct rpc_rqst *rqst = NULL;
 
-		xdr_init_encode(NULL, NULL, NULL, &rqst);
+		xdr_init_encode(NULL, NULL, NULL, rqst);
 
 		return 0;
 	],[
@@ -13846,9 +13846,9 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 	MLNX_BG_LB_LINUX_TRY_COMPILE([
 		#include <linux/sunrpc/xdr.h>
 	],[
-		struct rpc_rqst rqst = {0};
+		struct rpc_rqst *rqst = NULL;
 
-		xdr_init_decode(NULL, NULL, NULL, &rqst);
+		xdr_init_decode(NULL, NULL, NULL, rqst);
 
 		return 0;
 	],[
@@ -13901,7 +13901,7 @@ AC_DEFUN([LINUX_CONFIG_COMPAT],
 		return 0;
 	],[
 		AC_MSG_RESULT(yes)
-		AC_DEFINE(HAVE_TRACE_RPCRDMA_H, 1, [rpcrdma.h exists])
+		MLNX_AC_DEFINE(HAVE_TRACE_RPCRDMA_H, 1, [rpcrdma.h exists])
 	],[
 		AC_MSG_RESULT(no)
 	])
