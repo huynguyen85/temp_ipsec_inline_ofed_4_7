@@ -62,3 +62,4 @@ Change-Id=I815947aa7672af816593d31a2deaff5737f4add5; subject=net/mlx5e: Build tc
 Change-Id=I4e83253f636cf7f125db28385cfd23b7d67c2153; subject=net/mlx5: Make sure we put ldev even if lag is active; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
 Change-Id=Ia3affcec55b5a3318541eb22efabdd1fa065ba76; subject=IB/addr: Check if IPV6 module is enabled; feature=ib_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I353e533eb3d546e7608a51a1b22f9f5ed3143ee1; subject=net/mlx5: E-Switch, Reload only IB reps; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;
+Change-Id=I99ad04ed0a3061a87f54b23f8f8b54f286e193ed; subject=net/mlx5: E-Switch, Don't race with setting switchdev and bond; feature=mlx5_single_fdb_lag; upstream_status=in_progress; general=;

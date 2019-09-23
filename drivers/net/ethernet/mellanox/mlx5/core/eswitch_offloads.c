@@ -1418,7 +1418,6 @@ static int esw_offloads_start_imp(struct mlx5_eswitch *esw,
 		return -EINVAL;
 	}
 
-	mlx5_lag_disable(esw->dev);
 	mlx5_eswitch_disable(esw);
 	mlx5_eswitch_update_num_of_vfs(esw, esw->dev->priv.sriov.num_vfs);
 	err = mlx5_eswitch_enable(esw, MLX5_ESWITCH_OFFLOADS);
@@ -2742,7 +2741,6 @@ static int esw_offloads_stop_imp(struct mlx5_eswitch *esw,
 	if (!can_cleanup)
 		return -EBUSY;
 
-	mlx5_lag_disable(esw->dev);
 	mlx5_eswitch_disable(esw);
 	err = mlx5_eswitch_enable(esw, MLX5_ESWITCH_LEGACY);
 	if (err) {
@@ -2907,6 +2905,7 @@ int mlx5_devlink_eswitch_mode_set(struct devlink *devlink, u16 mode,
 	if (atomic_inc_return(&esw->handler.in_progress) > 1)
 		return -EBUSY;
 
+	mlx5_lag_disable(esw->dev);
 	if (mode == DEVLINK_ESWITCH_MODE_SWITCHDEV)
 		return esw_offloads_start(esw, extack);
 	else if (mode == DEVLINK_ESWITCH_MODE_LEGACY)
