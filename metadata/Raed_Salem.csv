@@ -52,3 +52,4 @@ Change-Id=I028ba5ab7c78a8dbc6ffef80239056765e4f3876; subject=BACKPORTS: Add miss
 Change-Id=I3371991361e25d15cc2f4a37208ddecdbe0036e1; subject=BACKPORTS: re-add stub functions in tc_tun when tunnels are not supported; feature=backports; upstream_status=ignore; general=;
 Change-Id=Iba5359f92804152ee8cad681e9ce662b7ad56b31; subject=Revert "BACKPORTS: re-add stub functions in tc_tun when tunnels are not supported"; feature=backports; upstream_status=ignore; general=;
 Change-Id=I5b577381c383f1605b5a8b09033dea8e1078ff07; subject=BACKPORTS: Use the right define in tc_tun.c to check for tunnels support; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ifea0cc978a7866d05ce9582379360f67d66dd45b; subject=BACKPORTS: add missing define at include/net/tc_act/tc_tunnel_key.h; feature=backports; upstream_status=ignore; general=;
