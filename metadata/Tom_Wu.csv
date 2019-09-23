@@ -1,2 +1,3 @@
 sep=;
 Change-Id=If6168881dcc8e31f1acffd240da19a09a40ecba4; subject=BACKPORT: add nvme-tcp and nvmet-tcp support; feature=backports; upstream_status=ignore; general=;
+Change-Id=I23776aa85eb77b00bf2cb5aa0cd7ba79259d7506; subject=nvmet: fix data units read and written counters in SMART log; feature=rebase; upstream_status=in_progress; general=;
