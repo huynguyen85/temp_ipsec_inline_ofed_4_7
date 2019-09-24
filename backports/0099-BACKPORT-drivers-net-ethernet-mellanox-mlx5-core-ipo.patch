@@ -4,8 +4,8 @@ Subject: [PATCH] BACKPORT:
 
 Change-Id: I7d37649c73b876a2223e40dce5a71a230f5cf39c
 ---
- .../ethernet/mellanox/mlx5/core/ipoib/ipoib_vlan.c | 29 +++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+ .../ethernet/mellanox/mlx5/core/ipoib/ipoib_vlan.c | 44 +++++++++++++++++++++-
+ 1 file changed, 43 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib_vlan.c b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib_vlan.c
 index xxxxxxx..xxxxxxx 100644
@@ -43,19 +43,40 @@ index xxxxxxx..xxxxxxx 100644
  };
  
  /* Child NDOs */
-@@ -164,7 +174,11 @@ static int mlx5i_pkey_dev_init(struct net_device *dev)
+@@ -159,13 +169,32 @@ static int mlx5i_pkey_dev_init(struct net_device *dev)
+ 	struct mlx5e_priv *priv = mlx5i_epriv(dev);
+ 	struct mlx5i_priv *ipriv, *parent_ipriv;
+ 	struct net_device *parent_dev;
++#ifdef HAVE_NDO_GET_IFLINK
+ 	int parent_ifindex;
++#else
++	char parent_name[IFNAMSIZ];
++	int i = 0;
++#endif
+ 
  	ipriv = priv->ppriv;
  
  	/* Get QPN to netdevice hash table from parent */
 +#ifdef HAVE_NDO_GET_IFLINK
  	parent_ifindex = dev->netdev_ops->ndo_get_iflink(dev);
-+#else
-+	parent_ifindex = dev->ifindex;
-+#endif
  	parent_dev = dev_get_by_index(dev_net(dev), parent_ifindex);
++#else
++	strcpy(parent_name, dev->name);
++	while (i < strlen(dev->name)) {
++		if (parent_name[i] == '.') {
++			parent_name[i] = 0;
++			break;
++		}
++		i++;
++	}
++	if (i == strlen(dev->name))
++		return -EINVAL;
++	parent_dev = dev_get_by_name(dev_net(dev), parent_name);
++#endif
  	if (!parent_dev) {
  		mlx5_core_warn(priv->mdev, "failed to get parent device\n");
-@@ -288,11 +302,24 @@ static int mlx5i_pkey_init(struct mlx5_core_dev *mdev,
+ 		return -EINVAL;
+@@ -288,11 +317,24 @@ static int mlx5i_pkey_init(struct mlx5_core_dev *mdev,
  	if (err)
  		return err;
  
