@@ -526,6 +526,9 @@ static int create_xrq_cmd(struct mlx5_ib_dev *dev, struct mlx5_core_srq *srq,
 
 	srq->srqn = MLX5_GET(create_xrq_out, create_out, xrqn);
 
+	if (in->type == IB_EXP_SRQT_NVMF)
+		INIT_LIST_HEAD(&srq->ctrl_list);
+
 	if (in->flags & MLX5_SRQ_FLAG_SET_DC_OP)
 		err = set_xrq_dc_params_entry(dev, srq, &in->dc_op);
 
