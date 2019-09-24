@@ -33,3 +33,4 @@ Change-Id=Id192daee217d3b4233138aa1bcd8d82970fd1b20; subject=net/mlx5e: Protect 
 Change-Id=I47e68dc8afdf8adb857c508cbf9512e5c73ea8b2; subject=net/mlx5e: Refactor neigh used value update for concurrent execution; feature=mlx5_asap; upstream_status=in_progress; general=;
 Change-Id=I3aa014d182885d2d073df48d1f7685962cbfaea3; subject=net/mlx5e: Refactor neigh update for concurrent execution; feature=mlx5_asap; upstream_status=in_progress; general=;
 Change-Id=Idd545aae8434a0db60582deff34b43e96c96c49d; subject=net/mlx5e: Only access fully initialized flows in neigh update; feature=mlx5_asap; upstream_status=in_progress; general=;
+Change-Id=Ic8755d93f62e33b00b77ec70f334e860904d95b8; subject=net/mlx5e: Only skip encap flows update when encap init failed; feature=mlx5_asap; upstream_status=NA; general=;
