@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/hw/mlx5/main.c
 
 Change-Id: Id81a8fee200ee23e1323bd945409bd1ecbce3d3f
 ---
- drivers/infiniband/hw/mlx5/main.c | 54 +++++++++++++++++++++++++++++++++------
- 1 file changed, 46 insertions(+), 8 deletions(-)
+ drivers/infiniband/hw/mlx5/main.c | 57 +++++++++++++++++++++++++++++++++------
+ 1 file changed, 49 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
 index xxxxxxx..xxxxxxx 100644
@@ -137,7 +137,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (flow_attr->type == IB_FLOW_ATTR_NORMAL) {
  		enum mlx5_flow_namespace_type fn_type;
  
-@@ -4051,7 +4078,9 @@ _get_flow_table(struct mlx5_ib_dev *dev,
+@@ -4050,7 +4077,9 @@ _get_flow_table(struct mlx5_ib_dev *dev,
  		struct mlx5_ib_flow_matcher *fs_matcher,
  		bool mcast)
  {
@@ -147,7 +147,7 @@ index xxxxxxx..xxxxxxx 100644
  	struct mlx5_flow_namespace *ns = NULL;
  	struct mlx5_ib_flow_prio *prio = NULL;
  	int max_table_size = 0;
-@@ -4059,11 +4088,12 @@ _get_flow_table(struct mlx5_ib_dev *dev,
+@@ -4058,11 +4087,12 @@ _get_flow_table(struct mlx5_ib_dev *dev,
  	u32 flags = 0;
  	int priority;
  
@@ -161,7 +161,7 @@ index xxxxxxx..xxxxxxx 100644
  	if (mcast)
  		priority = MLX5_IB_FLOW_MCAST_PRIO;
  	else
-@@ -6272,11 +6302,11 @@ static void mlx5_ib_stage_init_cleanup(struct mlx5_ib_dev *dev)
+@@ -6271,11 +6301,11 @@ static void mlx5_ib_stage_init_cleanup(struct mlx5_ib_dev *dev)
  	struct mlx5_core_dev *mdev = dev->mdev;
  
  	mlx5_ib_cleanup_multiport_master(dev);
@@ -175,7 +175,7 @@ index xxxxxxx..xxxxxxx 100644
  
  	WARN_ON(!bitmap_empty(dev->dm.memic_alloc_pages, MLX5_MAX_MEMIC_PAGES));
  
-@@ -6443,7 +6473,9 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
+@@ -6442,7 +6472,9 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
  	.destroy_qp = mlx5_ib_destroy_qp,
  	.destroy_srq = mlx5_ib_destroy_srq,
  	.detach_mcast = mlx5_ib_mcg_detach,
@@ -185,7 +185,17 @@ index xxxxxxx..xxxxxxx 100644
  	.drain_rq = mlx5_ib_drain_rq,
  	.drain_sq = mlx5_ib_drain_sq,
  	.enable_driver = mlx5_ib_enable_driver,
-@@ -6518,10 +6550,16 @@ static const struct ib_device_ops mlx5_ib_dev_frontend_ns_context_ops = {
+@@ -6488,6 +6520,9 @@ static const struct ib_device_ops mlx5_ib_dev_ops = {
+ #ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
+ 	.exp_prefetch_mr	= mlx5_ib_prefetch_mr,
+ #endif
++#ifdef HAVE_MM_STRUCT_FREE_AREA_CACHE
++	.exp_get_unmapped_area = mlx5_ib_exp_get_unmapped_area,
++#endif
+ 
+ 
+ 	INIT_RDMA_OBJ_SIZE(ib_ah, mlx5_ib_ah, ibah),
+@@ -6517,10 +6552,16 @@ static const struct ib_device_ops mlx5_ib_dev_frontend_ns_context_ops = {
  };
  
  static const struct ib_device_ops mlx5_ib_dev_sriov_ops = {
