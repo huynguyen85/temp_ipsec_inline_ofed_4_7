@@ -43,3 +43,4 @@ Change-Id=I54dae36109e76efd99b8897c04257fc15980cec9; subject=RDMA/mlx5: Track QP
 Change-Id=I2343d37c80f824c50cefa67ef14f3d2cfea0cb99; subject=RDMA/nldev: Align commands and attibutes with upstream and rdma-core; feature=ib_core_bugs; upstream_status=accepted; general=upstream commit ID: 0e2d00eb6fd4, tag: v5.2-rc1;
 Change-Id=Iad00ca4ffcd7082acb6c49f2fde11ca80fb339d7; subject=RDMA/counter: Prevent QP counter manual binding in auto mode; feature=ib_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I33b63b640d1d0ac9d8f1c9dcf443264216e93e39; subject=Backports: Fix HAVE_XARRAY backports in nldev.c and netlink.c; feature=backports; upstream_status=ignore; general=;
+Change-Id=I346d40b467dc6ba6f4e98e9c93a24e687f620dab; subject=net/mlx5: Add XRQ DC offload params support; feature=mlx5_ib_bugs; upstream_status=NA; general=;
