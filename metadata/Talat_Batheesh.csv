@@ -70,3 +70,4 @@ Change-Id=I06dfb018190d8453932e359b92d5b82142a67f9d; subject=BACKPORTS: MLX5_MOD
 Change-Id=Ib6a9d78dc6d17b368fdd7be721750b86b425e624; subject=BACKPORTS: fix RH 6.5 compilation; feature=backports; upstream_status=ignore; general=;
 Change-Id=I2266de338d31c77eebf60a5844b14223d6298ec1; subject=BACKPORTS: fix 2.6-2XX compilation; feature=backports; upstream_status=ignore; general=;
 Change-Id=Id44924e6198cc3aff3efc61f693980d2ec267784; subject=BACKPORTS: use compat xarray when available; feature=backports; upstream_status=ignore; general=;
+Change-Id=Ia9e82bead34d87ba210ef368c8a65947c7ba996b; subject=BACKPORTS: fix unknown symbols perf_trace_buf_prepare; feature=backports; upstream_status=ignore; general=;
