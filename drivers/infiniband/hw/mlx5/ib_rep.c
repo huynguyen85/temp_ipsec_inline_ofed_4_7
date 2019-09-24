@@ -8,16 +8,15 @@
 #include "srq.h"
 
 static int
-mlx5_ib_set_vport_rep(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
+mlx5_ib_set_vport_rep(struct mlx5_core_dev *dev,
+		      struct mlx5_eswitch_rep *rep,
+		      int vport_index)
 {
 	struct mlx5_ib_dev *ibdev;
-	int vport_index;
 
 	ibdev = mlx5_ib_get_uplink_ibdev(dev->priv.eswitch);
 	if (!ibdev)
 		return -EINVAL;
-
-	vport_index = rep->vport_index;
 
 	ibdev->port[vport_index].rep = rep;
 	rep->rep_data[REP_IB].priv = ibdev;
@@ -40,6 +39,8 @@ mlx5_ib_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 	struct mlx5_ib_dev *ibdev;
 	int vport_index;
 
+	vport_index = rep->vport_index;
+
 	if (mlx5_lag_is_shared_fdb(dev)) {
 		peer_dev = mlx5_lag_get_peer_mdev(dev);
 		if (mlx5_lag_is_master(dev)) {
@@ -49,13 +50,14 @@ mlx5_ib_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 		} else {
 			if (rep->vport == MLX5_VPORT_UPLINK)
 				return 0;
+			vport_index += mlx5_eswitch_get_total_vports(peer_dev);
 			dev = peer_dev;
 		}
 	}
 	if (rep->vport == MLX5_VPORT_UPLINK)
 		profile = &ib_profile;
 	else
-		return mlx5_ib_set_vport_rep(dev, rep);
+		return mlx5_ib_set_vport_rep(dev, rep, vport_index);
 
 	ibdev = ib_alloc_device(mlx5_ib_dev, ib_dev);
 	if (!ibdev)
@@ -69,7 +71,6 @@ mlx5_ib_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
 	}
 
 	ibdev->is_rep = true;
-	vport_index = rep->vport_index;
 	ibdev->port[vport_index].rep = rep;
 	ibdev->port[vport_index].roce.netdev =
 		mlx5_ib_get_rep_netdev(dev->priv.eswitch, rep->vport);
