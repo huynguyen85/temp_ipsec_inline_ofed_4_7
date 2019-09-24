@@ -23,3 +23,4 @@ Change-Id=I4ec98c2916ba572d146ab562a82870da98d96aa4; subject=BACKPORTS: Remove u
 Change-Id=I9c148a1858608649d63b39066fe1f210dddd7b1c; subject=BACKPORTS: Fix iser compilation on RHEL 7.2; feature=backports; upstream_status=ignore; general=;
 Change-Id=I0c65c42925fb409bdfa2a4ebbb9173eacc206212; subject=BACKPORTS: Fix location of the epoll event masks; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ie54319d4a1d557466eceec2b44ffddde86a3022b; subject=IB/iser: Support up to 16MB data transfer in a single command; feature=ib_iser_bugs; upstream_status=in_progress; general=;
+Change-Id=I76785f47b6123dd9eaf58131ec3a7d3abd5cd8a1; subject=IB/isert: Fix NULL pointer dereference if MR registration is failed; feature=signature_pipeline; upstream_status=NA; general=;

@@ -2247,7 +2247,7 @@ isert_put_datain(struct iscsi_conn *conn, struct iscsi_cmd *cmd)
 		rc = isert_post_recv(isert_conn, isert_cmd->rx_desc);
 		if (rc) {
 			isert_err("ib_post_recv failed with %d\n", rc);
-			return rc;
+			goto err;
 		}
 
 		chain_wr = &isert_cmd->tx_desc.send_wr;
@@ -2256,6 +2256,12 @@ isert_put_datain(struct iscsi_conn *conn, struct iscsi_cmd *cmd)
 	rc = isert_rdma_rw_ctx_post(isert_cmd, isert_conn, cqe, chain_wr);
 	isert_dbg("Cmd: %p posted RDMA_WRITE for iSER Data READ rc: %d\n",
 		  isert_cmd, rc);
+	if (rc)
+		goto err;
+
+	return 0;
+err:
+	isert_cmd->send_sig_pipelined = false;
 	return rc;
 }
 
