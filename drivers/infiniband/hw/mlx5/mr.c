@@ -1927,7 +1927,6 @@ static int mlx5_alloc_descs_common(struct ib_pd *pd, struct mlx5_ib_mr *mr,
 
 	mkc = MLX5_ADDR_OF(create_mkey_in, in, memory_key_mkey_entry);
 	MLX5_SET(mkc, mkc, free, 1);
-	MLX5_SET(mkc, mkc, translations_octword_size, ndescs);
 	MLX5_SET(mkc, mkc, qpn, 0xffffff);
 	MLX5_SET(mkc, mkc, pd, to_mpd(pd)->pdn);
 
