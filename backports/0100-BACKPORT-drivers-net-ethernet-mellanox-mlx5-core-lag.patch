@@ -411,7 +411,7 @@ index xxxxxxx..xxxxxxx 100644
 +#ifdef MLX_LAG_SUPPORTED
  	mutex_lock(&lag_mutex);
  	ldev = mlx5_lag_dev_get(dev);
- 	if (ldev && __mlx5_lag_is_roce(ldev)) {
+ 	if (ldev && __mlx5_lag_is_active(ldev)) {
 @@ -1047,6 +1205,10 @@ int mlx5_lag_query_cong_counters(struct mlx5_core_dev *dev,
  		num_ports = 1;
  		mdev[0] = dev;
