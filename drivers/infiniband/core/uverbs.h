@@ -182,6 +182,7 @@ struct ib_uverbs_file {
 	spinlock_t		uobjects_lock;
 	struct list_head	uobjects;
 
+	u64 uverbs_exp_cmd_mask;
 	struct mutex umap_lock;
 	struct list_head umaps;
 	struct page *disassociate_page;

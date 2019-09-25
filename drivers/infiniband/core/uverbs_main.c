@@ -687,8 +687,9 @@ static int (*uverbs_exp_cmd_table[])(struct uverbs_attr_bundle *attrs) = {
 
 static bool verify_exp_command_mask(struct ib_uverbs_file *ufile, u32 command)
 {
-	return ufile->device->ib_dev->uverbs_exp_cmd_mask & BIT_ULL(command);
+	return ufile->uverbs_exp_cmd_mask & BIT_ULL(command);
 }
+
 static ssize_t verify_exp_hdr(struct ib_uverbs_cmd_hdr *hdr,
 			  struct ib_uverbs_ex_cmd_hdr *ex_hdr,
 			  size_t count)
@@ -1244,6 +1245,7 @@ static int ib_uverbs_open(struct inode *inode, struct file *filp)
 	INIT_LIST_HEAD(&file->umaps);
 
 	filp->private_data = file;
+	file->uverbs_exp_cmd_mask = ib_dev->uverbs_exp_cmd_mask;
 	list_add_tail(&file->list, &dev->uverbs_file_list);
 	mutex_unlock(&dev->lists_mutex);
 	srcu_read_unlock(&dev->disassociate_srcu, srcu_key);
