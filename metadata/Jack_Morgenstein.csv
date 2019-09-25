@@ -22,3 +22,4 @@ Change-Id=I8659ed4b610ef61a7ec31da0542dcff3294e975c; subject=RDMA/devices: Do no
 Change-Id=Idd7ac0cd5af826ca4fd33b852733b258c94ce407; subject=RDMA: Fix double-free in srq creation error flow; feature=ib_core_bugs; upstream_status=in_progress; general=;
 Change-Id=I95468f0422e8038ba8a5e4b336fca56be273f0e5; subject=BACKPORTS: Disable pernet and namespace in core device for old kernels; feature=backports; upstream_status=ignore; general=;
 Change-Id=Ib22aba2e2703bff2b9c1333d9f098b3dddd38b7d; subject=IB/ipoib: Fix crash when do not have ndo_get_iflink; feature=backports; upstream_status=ignore; general=;
+Change-Id=I5659039807b76fafe6d2170d782eedcf61064da8; subject=Backports: Fix rhel6.10 crash; feature=backports; upstream_status=ignore; general=;

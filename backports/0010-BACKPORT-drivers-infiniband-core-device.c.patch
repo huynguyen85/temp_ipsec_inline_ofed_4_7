@@ -3,8 +3,8 @@ Subject: [PATCH] BACKPORT: drivers/infiniband/core/device.c
 
 Change-Id: I8d810fb71e2704f5f751d860e4f450c87a49fd5d
 ---
- drivers/infiniband/core/device.c | 218 ++++++++++++++++++++++++++++++++++++---
- 1 file changed, 201 insertions(+), 17 deletions(-)
+ drivers/infiniband/core/device.c | 230 ++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 213 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
 index xxxxxxx..xxxxxxx 100644
@@ -447,7 +447,22 @@ index xxxxxxx..xxxxxxx 100644
  	if (!ib_comp_unbound_wq) {
  		ret = -ENOMEM;
  		goto err_comp;
-@@ -2595,28 +2766,35 @@ static int __init ib_core_init(void)
+@@ -2577,6 +2748,14 @@ static int __init ib_core_init(void)
+ 		goto err_comp_unbound;
+ 	}
+ 
++#if !(defined(HAVE_STRUCT_CLASS_NS_TYPE) && defined(HAVE_PERENT_OPERATIONS_ID))
++	ret = rdma_nl_init();
++	if (ret) {
++		pr_warn("Couldn't init IB netlink interface: err %d\n", ret);
++		goto err_sysfs;
++	}
++#endif
++
+ 	ret = addr_init();
+ 	if (ret) {
+ 		pr_warn("Could't init IB address resolution\n");
+@@ -2595,33 +2774,44 @@ static int __init ib_core_init(void)
  		goto err_mad;
  	}
  
@@ -489,7 +504,16 @@ index xxxxxxx..xxxxxxx 100644
  err_mad:
  	ib_mad_cleanup();
  err_addr:
-@@ -2637,8 +2815,12 @@ static void __exit ib_core_cleanup(void)
+ 	addr_cleanup();
+ err_ibnl:
++#if !(defined(HAVE_STRUCT_CLASS_NS_TYPE) && defined(HAVE_PERENT_OPERATIONS_ID))
++	rdma_nl_exit();
++err_sysfs:
++#endif
+ 	class_unregister(&ib_class);
+ err_comp_unbound:
+ 	destroy_workqueue(ib_comp_unbound_wq);
+@@ -2637,8 +2827,12 @@ static void __exit ib_core_cleanup(void)
  	roce_gid_mgmt_cleanup();
  	nldev_exit();
  	rdma_nl_unregister(RDMA_NL_LS);
@@ -502,7 +526,7 @@ index xxxxxxx..xxxxxxx 100644
  	ib_sa_cleanup();
  	ib_mad_cleanup();
  	addr_cleanup();
-@@ -2648,7 +2830,9 @@ static void __exit ib_core_cleanup(void)
+@@ -2648,7 +2842,9 @@ static void __exit ib_core_cleanup(void)
  	destroy_workqueue(ib_comp_wq);
  	/* Make sure that any pending umem accounting work is done. */
  	destroy_workqueue(ib_wq);
