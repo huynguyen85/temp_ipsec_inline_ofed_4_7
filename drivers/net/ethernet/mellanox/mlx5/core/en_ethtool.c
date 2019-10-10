@@ -33,6 +33,7 @@
 #include "en.h"
 #include "en/port.h"
 #include "lib/clock.h"
+#include "ipsec_steering.h"
 
 void mlx5e_ethtool_get_drvinfo(struct mlx5e_priv *priv,
 			       struct ethtool_drvinfo *drvinfo)
@@ -1930,6 +1931,11 @@ int mlx5e_ethtool_set_pauseparam(struct mlx5e_priv *priv,
 		netdev_err(priv->netdev, "%s: mlx5_set_port_pause failed:0x%x\n",
 			   __func__, err);
 	}
+
+	if (pauseparam->rx_pause)
+		mlx5e_ipsec_create_ft(priv);
+	else
+		mlx5e_ipsec_destroy_ft(priv);
 
 	return err;
 }

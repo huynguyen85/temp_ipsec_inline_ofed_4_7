@@ -2370,7 +2370,7 @@ out_no_mem:
 static int esw_vport_add_ingress_acl_modify_metadata(struct mlx5_eswitch *esw,
 						     struct mlx5_vport *vport)
 {
-	u8 action[MLX5_UN_SZ_BYTES(set_action_in_add_action_in_auto)] = {};
+	u8 action[MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)] = {};
 	struct mlx5_flow_act flow_act = {};
 	struct mlx5_flow_spec *spec;
 	int err = 0;

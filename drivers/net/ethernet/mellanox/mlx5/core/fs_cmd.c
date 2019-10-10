@@ -808,6 +808,7 @@ int mlx5_modify_header_alloc(struct mlx5_core_dev *dev,
 		table_type = FS_FT_NIC_RX;
 		break;
 	case MLX5_FLOW_NAMESPACE_EGRESS:
+	case MLX5_FLOW_NAMESPACE_EGRESS_KERNEL:
 		max_actions = MLX5_CAP_FLOWTABLE_NIC_TX(dev, max_modify_header_actions);
 		table_type = FS_FT_NIC_TX;
 		break;
@@ -825,7 +826,7 @@ int mlx5_modify_header_alloc(struct mlx5_core_dev *dev,
 		return -EOPNOTSUPP;
 	}
 
-	actions_size = MLX5_UN_SZ_BYTES(set_action_in_add_action_in_auto) * num_actions;
+	actions_size = MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto) * num_actions;
 	inlen = MLX5_ST_SZ_BYTES(alloc_modify_header_context_in) + actions_size;
 
 	in = kzalloc(inlen, GFP_KERNEL);

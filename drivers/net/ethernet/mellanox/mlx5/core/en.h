@@ -845,7 +845,14 @@ struct mlx5e_tir {
 
 enum {
 	MLX5E_TC_PRIO = 0,
+	MLX5E_IPSEC_PRIO,
 	MLX5E_NIC_PRIO
+};
+
+/* IPSEC prio FTS */
+enum {
+	MLX5E_IPSEC_FT_LEVEL = 0,
+	MLX5E_IPSEC_ERR_FT_LEVEL,
 };
 
 struct mlx5e_ecn_rp_attributes {

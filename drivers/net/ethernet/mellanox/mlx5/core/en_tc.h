@@ -167,7 +167,7 @@ struct mlx5e_tc_flow_parse_attr {
 };
 #endif /* HAVE_TC_FLOWER_OFFLOAD */
 
-#define MLX5_MH_ACT_SZ MLX5_UN_SZ_BYTES(set_action_in_add_action_in_auto)
+#define MLX5_MH_ACT_SZ MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)
 
 struct pedit_headers {
 	struct ethhdr  eth;

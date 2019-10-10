@@ -26,7 +26,7 @@ mlx5_core-$(CONFIG_ENABLE_MLX5_FS_DEBUGFS) += fs_debugfs.o
 mlx5_core-$(CONFIG_MLX5_CORE_EN) += en_main.o en_common.o en_fs.o en_ethtool.o \
 		en_tx.o en_rx.o en_dim.o en_txrx.o en/xdp.o en_stats.o en_sysfs.o en_ecn.o \
 		en_selftest.o en/port.o en/monitor_stats.o en/reporter_tx.o \
-		en/params.o en_debugfs.o en_sniffer.o
+		en/params.o en_debugfs.o en_sniffer.o ipsec_steering.o
 
 #
 # Netdev extra

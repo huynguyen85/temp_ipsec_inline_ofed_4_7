@@ -6128,6 +6128,12 @@ static int mlx5e_init_nic_tx(struct mlx5e_priv *priv)
 {
 	int err;
 
+	priv->fs.egress_ns = mlx5_get_flow_namespace(priv->mdev,
+						     MLX5_FLOW_NAMESPACE_EGRESS_KERNEL);
+	netdev_err(priv->netdev, "mlx5e_init_nic_tx fs.egress_ns=%p\n", priv->fs.egress_ns);
+	if (!priv->fs.egress_ns)
+        	return -EOPNOTSUPP;
+
 	err = mlx5e_create_tises(priv);
 	if (err) {
 		mlx5_core_warn(priv->mdev, "create tises failed, %d\n", err);

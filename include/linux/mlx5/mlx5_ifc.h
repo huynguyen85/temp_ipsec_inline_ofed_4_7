@@ -5687,15 +5687,32 @@ struct mlx5_ifc_add_action_in_bits {
 	u8         data[0x20];
 };
 
-union mlx5_ifc_set_action_in_add_action_in_auto_bits {
-	struct mlx5_ifc_set_action_in_bits set_action_in;
-	struct mlx5_ifc_add_action_in_bits add_action_in;
+struct mlx5_ifc_copy_action_in_bits {
+	u8         action_type[0x4];
+	u8         src_field[0xc];
+	u8         reserved_at_10[0x3];
+	u8         src_offset[0x5];
+	u8         reserved_at_18[0x3];
+	u8         length[0x5];
+
+	u8         reserved_at_20[0x4];
+	u8         dst_field[0xc];
+	u8         reserved_at_30[0x3];
+	u8         dst_offest[0x5];
+	u8         reserved_at_38[0x8];
+};
+
+union mlx5_ifc_set_add_copy_action_in_auto_bits {
+	struct mlx5_ifc_set_action_in_bits  set_action_in;
+	struct mlx5_ifc_add_action_in_bits  add_action_in;
+	struct mlx5_ifc_copy_action_in_bits copy_action_in;
 	u8         reserved_at_0[0x40];
 };
 
 enum {
 	MLX5_ACTION_TYPE_SET   = 0x1,
 	MLX5_ACTION_TYPE_ADD   = 0x2,
+	MLX5_ACTION_TYPE_COPY  = 0x3,
 };
 
 enum {
@@ -5750,7 +5767,7 @@ struct mlx5_ifc_alloc_modify_header_context_in_bits {
 	u8         reserved_at_68[0x10];
 	u8         num_of_actions[0x8];
 
-	union mlx5_ifc_set_action_in_add_action_in_auto_bits actions[0];
+	union mlx5_ifc_set_add_copy_action_in_auto_bits actions[0];
 };
 
 struct mlx5_ifc_dealloc_modify_header_context_out_bits {
