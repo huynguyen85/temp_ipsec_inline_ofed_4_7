@@ -65,6 +65,7 @@
 #ifdef HAVE_TC_FLOWER_OFFLOAD
 #include "miniflow.h"
 #endif
+#include "ipsec_steering.h"
 
 struct mlx5e_rq_param {
 	u32			rqc[MLX5_ST_SZ_DW(rqc)];
@@ -5986,6 +5987,8 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
 	mlx5e_set_netdev_dev_addr(netdev);
 	mlx5e_ipsec_build_netdev(priv);
 	mlx5e_tls_build_netdev(priv);
+
+	quick_ipsec_ops(priv);
 }
 
 void mlx5e_create_q_counters(struct mlx5e_priv *priv)
