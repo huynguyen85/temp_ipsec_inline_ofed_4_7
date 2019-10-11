@@ -5698,7 +5698,7 @@ struct mlx5_ifc_copy_action_in_bits {
 	u8         reserved_at_20[0x4];
 	u8         dst_field[0xc];
 	u8         reserved_at_30[0x3];
-	u8         dst_offest[0x5];
+	u8         dst_offset[0x5];
 	u8         reserved_at_38[0x8];
 };
 
@@ -5740,6 +5740,7 @@ enum {
 	MLX5_ACTION_IN_FIELD_OUT_DIPV4         = 0x16,
 	MLX5_ACTION_IN_FIELD_OUT_FIRST_VID     = 0x17,
 	MLX5_ACTION_IN_FIELD_OUT_IPV6_HOPLIMIT = 0x47,
+	MLX5_ACTION_IN_FIELD_METADATA_REG_B    = 0x50,
 	MLX5_ACTION_IN_FIELD_METADATA_REG_C_0  = 0x51,
 };
 

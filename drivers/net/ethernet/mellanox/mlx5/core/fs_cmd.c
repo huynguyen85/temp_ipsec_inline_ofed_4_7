@@ -255,9 +255,12 @@ static int mlx5_cmd_create_flow_table(struct mlx5_flow_root_namespace *ns,
 	}
 
 	err = mlx5_cmd_exec(dev, in, sizeof(in), out, sizeof(out));
-	if (!err)
+	if (!err) {
 		ft->id = MLX5_GET(create_flow_table_out, out,
 				  table_id);
+		mlx5_core_err(dev, "table_id=%x\n", ft->id);
+	}
+
 	return err;
 }
 
