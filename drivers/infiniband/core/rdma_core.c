@@ -79,7 +79,13 @@ static int uverbs_try_lock_object(struct ib_uobject *uobj,
 	 */
 	switch (mode) {
 	case UVERBS_LOOKUP_READ:
+#ifdef HAVE_ATOMIC_FETCH_ADD_UNLESS
 		return atomic_fetch_add_unless(&uobj->usecnt, 1, -1) == -1 ?
+#elif defined(HAVE___ATOMIC_ADD_UNLESS)
+		return __atomic_add_unless(&uobj->usecnt, 1, -1) == -1 ?
+#else
+		return atomic_add_unless(&uobj->usecnt, 1, -1) == -1 ?
+#endif
 			-EBUSY : 0;
 	case UVERBS_LOOKUP_WRITE:
 		/* lock is exclusive */
@@ -437,15 +443,19 @@ alloc_begin_idr_uobject(const struct uverbs_api_object *obj,
 	if (ret)
 		goto uobj_put;
 
+#ifdef HAVE_CGROUP_RDMA_H
 	ret = ib_rdmacg_try_charge(&uobj->cg_obj, uobj->context->device,
 				   RDMACG_RESOURCE_HCA_OBJECT);
 	if (ret)
 		goto remove;
 
+#endif
 	return uobj;
 
+#ifdef HAVE_CGROUP_RDMA_H
 remove:
 	xa_erase(&ufile->idr, uobj->id);
+#endif
 uobj_put:
 	uverbs_uobject_put(uobj);
 	return ERR_PTR(ret);
@@ -503,9 +513,10 @@ struct ib_uobject *rdma_alloc_begin_uobject(const struct uverbs_api_object *obj,
 
 static void alloc_abort_idr_uobject(struct ib_uobject *uobj)
 {
+#ifdef HAVE_CGROUP_RDMA_H
 	ib_rdmacg_uncharge(&uobj->cg_obj, uobj->context->device,
 			   RDMACG_RESOURCE_HCA_OBJECT);
-
+#endif
 	xa_erase(&uobj->ufile->idr, uobj->id);
 }
 
@@ -529,15 +540,17 @@ static int __must_check destroy_hw_idr_uobject(struct ib_uobject *uobj,
 	if (why == RDMA_REMOVE_ABORT)
 		return 0;
 
+#ifdef HAVE_CGROUP_RDMA_H
 	ib_rdmacg_uncharge(&uobj->cg_obj, uobj->context->device,
 			   RDMACG_RESOURCE_HCA_OBJECT);
-
+#endif
 	return 0;
 }
 
 static void remove_handle_idr_uobject(struct ib_uobject *uobj)
 {
 	xa_erase(&uobj->ufile->idr, uobj->id);
+
 	/* Matches the kref in alloc_commit_idr_uobject */
 	uverbs_uobject_put(uobj);
 }
@@ -579,7 +592,6 @@ static int alloc_commit_idr_uobject(struct ib_uobject *uobj)
 	 */
 	old = xa_store(&ufile->idr, uobj->id, uobj, GFP_KERNEL);
 	WARN_ON(old != NULL);
-
 	return 0;
 }
 
@@ -811,8 +823,10 @@ static void ufile_destroy_ucontext(struct ib_uverbs_file *ufile,
 			ib_dev->ops.disassociate_ucontext(ucontext);
 	}
 
+#ifdef HAVE_CGROUP_RDMA_H
 	ib_rdmacg_uncharge(&ucontext->cg_obj, ib_dev,
 			   RDMACG_RESOURCE_HCA_HANDLE);
+#endif
 
 	rdma_restrack_del(&ucontext->res);
 
