@@ -29,11 +29,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef MLX_DISABLE_TRACEPOINTS
 #define CREATE_TRACE_POINTS
-#include "lib/eq.h"
-#include "fw_tracer.h"
 #include "fw_tracer_tracepoint.h"
+#endif
+#include "fw_tracer.h"
 
+#include "lib/eq.h"
 static int mlx5_query_mtrc_caps(struct mlx5_fw_tracer *tracer)
 {
 	u32 *string_db_base_address_out = tracer->str_db.base_address_out;
@@ -420,8 +422,9 @@ static struct tracer_string_format *mlx5_tracer_message_find(struct hlist_head *
 							     u8 event_id, u32 tmsn)
 {
 	struct tracer_string_format *message;
+	COMPAT_HL_NODE
 
-	hlist_for_each_entry(message, head, hlist)
+	compat_hlist_for_each_entry(message, head, hlist)
 		if (message->event_id == event_id && message->tmsn == tmsn)
 			return message;
 
@@ -505,10 +508,11 @@ static void mlx5_fw_tracer_clean_print_hash(struct mlx5_fw_tracer *tracer)
 {
 	struct tracer_string_format *str_frmt;
 	struct hlist_node *n;
+	COMPAT_HL_NODE
 	int i;
 
 	for (i = 0; i < MESSAGE_HASH_SIZE; i++) {
-		hlist_for_each_entry_safe(str_frmt, n, &tracer->hash[i], hlist)
+		compat_hlist_for_each_entry_safe(str_frmt, n, &tracer->hash[i], hlist)
 			mlx5_tracer_clean_message(str_frmt);
 	}
 }
@@ -537,8 +541,14 @@ static void mlx5_tracer_print_trace(struct tracer_string_format *str_frmt,
 		 str_frmt->params[5],
 		 str_frmt->params[6]);
 
+#ifndef MLX_DISABLE_TRACEPOINTS
 	trace_mlx5_fw(dev->tracer, trace_timestamp, str_frmt->lost,
 			str_frmt->event_id, tracer->ready_string);
+#else
+	pr_debug("%s %llu %d %d %s\n", dev_name(&dev->pdev->dev),
+		 trace_timestamp, str_frmt->lost,
+		 str_frmt->event_id, tracer->ready_string);
+#endif
 
 	/* remove it from hash */
 	mlx5_tracer_clean_message(str_frmt);
@@ -947,4 +957,6 @@ static int fw_tracer_event(struct notifier_block *nb, unsigned long action, void
 	return NOTIFY_OK;
 }
 
+#ifndef MLX_DISABLE_TRACEPOINTS
 EXPORT_TRACEPOINT_SYMBOL(mlx5_fw);
+#endif
