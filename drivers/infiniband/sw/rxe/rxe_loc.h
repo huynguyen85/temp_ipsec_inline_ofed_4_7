@@ -213,8 +213,13 @@ static inline void rxe_advance_resp_resource(struct rxe_qp *qp)
 		qp->resp.res_head = 0;
 }
 
+#ifdef HAVE_TIMER_SETUP
 void retransmit_timer(struct timer_list *t);
 void rnr_nak_timer(struct timer_list *t);
+#else
+void retransmit_timer(unsigned long data);
+void rnr_nak_timer(unsigned long data);
+#endif
 
 /* rxe_srq.c */
 #define IB_SRQ_INIT_MASK (~IB_SRQ_LIMIT)
@@ -231,6 +236,10 @@ int rxe_srq_from_attr(struct rxe_dev *rxe, struct rxe_srq *srq,
 		      struct rxe_modify_srq_cmd *ucmd, struct ib_udata *udata);
 
 void rxe_dealloc(struct ib_device *ib_dev);
+
+#ifndef HAVE_DEVICE_DMA_OPS
+extern struct ib_dma_mapping_ops rxe_dma_mapping_ops;
+#endif
 
 int rxe_completer(void *arg);
 int rxe_requester(void *arg);
