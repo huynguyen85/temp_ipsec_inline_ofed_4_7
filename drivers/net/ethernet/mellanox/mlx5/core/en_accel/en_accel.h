@@ -121,9 +121,10 @@ mlx5e_accel_handle_tx(struct sk_buff *skb,
 			return NULL;
 	}
 #endif
-
+#ifdef HAVE_NETIF_F_GSO_UDP_L4 
 	if (skb_is_gso(skb) && skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4)
 		mlx5e_udp_gso_handle_tx_skb(skb);
+#endif
 
 	return skb;
 }
