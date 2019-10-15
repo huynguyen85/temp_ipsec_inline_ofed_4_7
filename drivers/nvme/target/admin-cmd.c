@@ -287,8 +287,10 @@ out:
 	nvmet_req_complete(req, status);
 }
 
+#ifdef HAVE_BLKDEV_ISSUE_ZEROOUT
 static bool nvmet_is_write_zeroes(struct nvmet_ctrl *ctrl)
 {
+#ifdef HAVE_BDEV_WRITE_ZEROES_SECTORS
 	struct nvmet_ns *ns;
 
 	rcu_read_lock();
@@ -299,7 +301,11 @@ static bool nvmet_is_write_zeroes(struct nvmet_ctrl *ctrl)
 		}
 	rcu_read_unlock();
 	return true;
+#else
+	return false;
+#endif
 }
+#endif
 
 static void nvmet_execute_identify_ctrl(struct nvmet_req *req)
 {
@@ -379,11 +385,15 @@ static void nvmet_execute_identify_ctrl(struct nvmet_req *req)
 
 	id->nn = cpu_to_le32(ctrl->subsys->max_nsid);
 	id->mnan = cpu_to_le32(NVMET_MAX_NAMESPACES);
+#ifdef HAVE_BLKDEV_ISSUE_ZEROOUT
 	if (!req->port->offload || nvmet_is_write_zeroes(ctrl))
 		id->oncs = cpu_to_le16(NVME_CTRL_ONCS_DSM |
 				NVME_CTRL_ONCS_WRITE_ZEROES);
 	else
 		id->oncs = cpu_to_le16(NVME_CTRL_ONCS_DSM);
+#else
+	id->oncs = cpu_to_le16(NVME_CTRL_ONCS_DSM);
+#endif
 
 	/* XXX: don't report vwc if the underlying device is write through */
 	id->vwc = NVME_CTRL_VWC_PRESENT;
@@ -607,9 +617,11 @@ static u16 nvmet_write_protect_flush_sync(struct nvmet_req *req)
 {
 	u16 status;
 
+#ifdef HAVE_FS_HAS_KIOCB
 	if (req->ns->file)
 		status = nvmet_file_flush(req);
 	else
+#endif
 		status = nvmet_bdev_flush(req);
 
 	if (status)
