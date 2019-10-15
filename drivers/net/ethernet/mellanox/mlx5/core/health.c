@@ -442,9 +442,17 @@ void mlx5_trigger_health_work(struct mlx5_core_dev *dev)
 	spin_unlock_irqrestore(&health->wq_lock, flags);
 }
 
+#ifdef HAVE_TIMER_SETUP
 static void poll_health(struct timer_list *t)
+#else
+static void poll_health(unsigned long data)
+#endif
 {
+#ifdef HAVE_TIMER_SETUP
 	struct mlx5_core_dev *dev = from_timer(dev, t, priv.health.timer);
+#else
+	struct mlx5_core_dev *dev = (struct mlx5_core_dev *)data;
+#endif
 	struct mlx5_core_health *health = &dev->priv.health;
 	u32 fatal_error;
 	u32 count;
@@ -481,7 +489,13 @@ void mlx5_start_health_poll(struct mlx5_core_dev *dev)
 {
 	struct mlx5_core_health *health = &dev->priv.health;
 
+#ifdef HAVE_TIMER_SETUP
 	timer_setup(&health->timer, poll_health, 0);
+#else
+	init_timer(&health->timer);
+	health->timer.data = (unsigned long)dev;
+	health->timer.function = poll_health;
+#endif
 	health->fatal_error = MLX5_SENSOR_NO_ERR;
 	clear_bit(MLX5_DROP_NEW_HEALTH_WORK, &health->flags);
 	clear_bit(MLX5_DROP_NEW_RECOVERY_WORK, &health->flags);
