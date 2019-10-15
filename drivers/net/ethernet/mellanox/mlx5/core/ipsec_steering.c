@@ -211,7 +211,7 @@ static int mlx5e_xfrm_add_rule(struct xfrm_state *x,
 		rule_tmp = mlx5_add_flow_rules(ipsec_t, spec, &flow_act, &dest, 1);
 	} else {
 		flow_act.action = MLX5_FLOW_CONTEXT_ACTION_ALLOW;
-		rule_tmp = mlx5_add_flow_rules(ipsec_t, spec, &flow_act, NULL, 0);
+		rule_tmp = mlx5_add_flow_rules(ipsec_tx_t, spec, &flow_act, NULL, 0);
 	}
 
 	if (IS_ERR(rule_tmp)) {
