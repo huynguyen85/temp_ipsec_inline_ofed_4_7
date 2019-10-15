@@ -10,7 +10,8 @@ struct mlx5_flow_table *ipsec_t = NULL;
 struct mlx5_flow_handle *copy_fte = NULL;
 struct mlx5_flow_handle *ipsec_fte = NULL;
 struct mlx5_flow_table *ipsec_tx_t = NULL;
-
+struct mlx5_flow_handle *ipsec_rule = NULL;
+u32 ipsec_obj_id = 0xABCD;
 u32 copy_modify_header_id = 0;
 
 static int mlx5e_add_ipsec_copy_action_rule(struct mlx5_core_dev *mdev)
@@ -143,16 +144,110 @@ void mlx5e_ipsec_destroy_ft(struct mlx5e_priv *priv)
 	}
 }
 
+static int mlx5e_xfrm_add_rule(struct xfrm_state *x,
+			       u32 ipsec_obj_id,
+			       struct mlx5_flow_handle **rule)
+{
+	struct mlx5_flow_destination dest = {};
+	struct mlx5_flow_handle *rule_tmp = NULL;
+	struct mlx5_flow_act flow_act = {0};
+	struct mlx5_flow_spec *spec = NULL;
+	u16 ethertype;
+	int err = 0;
+
+	ethertype = x->props.family == AF_INET6 ? ETH_P_IPV6 : ETH_P_IP;
+
+	spec = kvzalloc(sizeof(*spec), GFP_KERNEL);
+	if (!spec) {
+		err = -ENOMEM;
+		goto out;
+	}
+
+	spec->match_criteria_enable = MLX5_MATCH_OUTER_HEADERS;
+	MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria,
+			 outer_headers.ethertype);
+	MLX5_SET(fte_match_param, spec->match_value, outer_headers.ethertype,
+		 ethertype);
+
+	if (ethertype == ETH_P_IP) {
+		memcpy(MLX5_ADDR_OF(fte_match_param, spec->match_value,
+				    outer_headers.src_ipv4_src_ipv6.ipv4_layout.ipv4),
+		       &x->props.saddr.a4,
+		       4);
+		memcpy(MLX5_ADDR_OF(fte_match_param, spec->match_value,
+				    outer_headers.dst_ipv4_dst_ipv6.ipv4_layout.ipv4),
+		       &x->id.daddr.a4,
+		       4);
+		MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria,
+				 outer_headers.src_ipv4_src_ipv6.ipv4_layout.ipv4);
+		MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria,
+				 outer_headers.dst_ipv4_dst_ipv6.ipv4_layout.ipv4);
+	} else {
+		memcpy(MLX5_ADDR_OF(fte_match_param, spec->match_value,
+				    outer_headers.src_ipv4_src_ipv6.ipv6_layout.ipv6),
+		       &x->props.saddr.a6,
+		       16);
+		memcpy(MLX5_ADDR_OF(fte_match_param, spec->match_value,
+				    outer_headers.dst_ipv4_dst_ipv6.ipv6_layout.ipv6),
+		       &x->id.daddr.a6,
+		       16);
+		memset(MLX5_ADDR_OF(fte_match_param, spec->match_criteria,
+				    outer_headers.src_ipv4_src_ipv6.ipv6_layout.ipv6),
+		       0xff,
+		       16);
+		memset(MLX5_ADDR_OF(fte_match_param, spec->match_criteria,
+				    outer_headers.dst_ipv4_dst_ipv6.ipv6_layout.ipv6),
+		       0xff,
+		       16);
+	}
+
+	/* XFRM_OFFLOAD_INBOUND destination is error FT.
+	 * Outbound action is ALLOW.
+	 */
+	if (x->xso.flags & XFRM_OFFLOAD_INBOUND) {
+		flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
+		dest.type = MLX5_FLOW_DESTINATION_TYPE_FLOW_TABLE;
+		dest.ft = err_t;
+		rule_tmp = mlx5_add_flow_rules(ipsec_t, spec, &flow_act, &dest, 1);
+	} else {
+		flow_act.action = MLX5_FLOW_CONTEXT_ACTION_ALLOW;
+		rule_tmp = mlx5_add_flow_rules(ipsec_t, spec, &flow_act, NULL, 0);
+	}
+
+	if (IS_ERR(rule_tmp)) {
+		err = PTR_ERR(rule_tmp);
+		pr_err("Fail to add ipsec rule\n");
+	} else {
+		*rule = rule_tmp;
+	}
+
+out:
+	kvfree(spec);
+	return err;
+}
+
 static int mlx5e_xfrm_add_state(struct xfrm_state *x)
 {
 	pr_err("mlx5e_xfrm_add_state 001\n");
+        pr_err("x->props.family=%x\n", x->props.family);
+        pr_err("x->props.saddr.a4=%x\n", be32_to_cpu(x->props.saddr.a4));
+        pr_err("x->id.daddr.a4=%x\n", be32_to_cpu(x->id.daddr.a4));
+	pr_err("x->id.spi=%d\n", be32_to_cpu(x->id.spi));
+	pr_err("x->xso.flags=%x\n", x->xso.flags);
+
+	mlx5e_xfrm_add_rule(x, ipsec_obj_id, &ipsec_rule);
+
 	return 0;
 }
 
 static void mlx5e_xfrm_del_state(struct xfrm_state *x)
 {
 	pr_err("mlx5e_xfrm_del_state 001\n");
-	//return 0;
+
+	if (!IS_ERR_OR_NULL(ipsec_rule)) {
+		mlx5_del_flow_rules(ipsec_rule);
+		ipsec_rule = NULL;
+	}
 }
 
 static bool mlx5e_ipsec_offload_ok(struct sk_buff *skb, struct xfrm_state *x)
