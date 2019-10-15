@@ -13,7 +13,7 @@ struct lag_mp {
 	struct fib_info           *mfi; /* used in tracking fib events */
 };
 
-#ifdef CONFIG_MLX5_ESWITCH
+#if defined(CONFIG_MLX5_ESWITCH) && defined(HAVE_FIB_NH_NOTIFIER_INFO)
 
 int mlx5_lag_mp_init(struct mlx5_lag *ldev);
 void mlx5_lag_mp_cleanup(struct mlx5_lag *ldev);
