@@ -31,7 +31,9 @@
  * SOFTWARE.
  */
 
+#ifdef HAVE_DEVICE_DMA_OPS
 #include <linux/dma-mapping.h>
+#endif
 #include <net/addrconf.h>
 #include <rdma/uverbs_ioctl.h>
 #include "rxe.h"
@@ -982,9 +984,13 @@ static int rxe_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata)
 	rxe_drop_ref(mr);
 	return 0;
 }
-
+#ifdef HAVE_NDO_ALLOC_MR_HAS_4_PARAMS
+struct ib_mr *rxe_alloc_mr(struct ib_pd *ibpd, enum ib_mr_type mr_type,
+			   u32 max_num_sg, struct ib_udata *udata)
+#else
 static struct ib_mr *rxe_alloc_mr(struct ib_pd *ibpd, enum ib_mr_type mr_type,
-				  u32 max_num_sg, struct ib_udata *udata)
+				  u32 max_num_sg)
+#endif
 {
 	struct rxe_dev *rxe = to_rdev(ibpd->device);
 	struct rxe_pd *pd = to_rpd(ibpd);
@@ -1180,7 +1186,11 @@ int rxe_register_device(struct rxe_dev *rxe, const char *ibdev_name)
 	dev->local_dma_lkey = 0;
 	addrconf_addr_eui48((unsigned char *)&dev->node_guid,
 			    rxe->ndev->dev_addr);
+#ifdef HAVE_DEVICE_DMA_OPS
 	dev->dev.dma_ops = &dma_virt_ops;
+#else
+	dev->ops.dma_ops = &rxe_dma_mapping_ops;
+#endif
 	dma_coerce_mask_and_coherent(&dev->dev,
 				     dma_get_required_mask(&dev->dev));
 
