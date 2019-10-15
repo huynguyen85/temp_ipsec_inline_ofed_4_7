@@ -31,6 +31,8 @@
  *
  */
 
+#ifdef HAVE_UAPI_LINUX_TLS_H
+
 #include <linux/mlx5/device.h>
 
 #include "accel/tls.h"
@@ -78,3 +80,5 @@ void mlx5_accel_tls_cleanup(struct mlx5_core_dev *mdev)
 {
 	mlx5_fpga_tls_cleanup(mdev);
 }
+
+#endif
