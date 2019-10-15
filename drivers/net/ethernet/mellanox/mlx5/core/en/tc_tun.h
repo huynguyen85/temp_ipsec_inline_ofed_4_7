@@ -4,6 +4,8 @@
 #ifndef __MLX5_EN_TC_TUNNEL_H__
 #define __MLX5_EN_TC_TUNNEL_H__
 
+#ifdef HAVE_TCF_TUNNEL_INFO
+
 #include <linux/netdevice.h>
 #include <linux/mlx5/fs.h>
 #include <net/pkt_cls.h>
@@ -39,6 +41,11 @@ int mlx5e_tc_tun_parse(struct net_device *filter_dev,
 		       struct mlx5_flow_spec *spec,
 		       struct tc_cls_flower_offload *f,
 		       void *headers_c,
-		       void *headers_v, u8 *match_level);
+		       void *headers_v, u8 *match_level
+#ifndef HAVE_TC_SETUP_FLOW_ACTION
+		       , struct flow_rule *rule
+#endif
+						       );
 
+#endif /* HAVE_TCF_TUNNEL_INFO */
 #endif //__MLX5_EN_TC_TUNNEL_H__
