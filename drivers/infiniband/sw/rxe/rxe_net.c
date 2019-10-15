@@ -430,9 +430,17 @@ int rxe_send(struct rxe_pkt_info *pkt, struct sk_buff *skb)
 	atomic_inc(&pkt->qp->skb_out);
 
 	if (skb->protocol == htons(ETH_P_IP)) {
+#ifdef HAVE_IP_LOCAL_OUT_3_PARAMS
 		err = ip_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
+#else
+		err = ip_local_out(skb);
+#endif
 	} else if (skb->protocol == htons(ETH_P_IPV6)) {
+#ifdef HAVE_IP_LOCAL_OUT_3_PARAMS
 		err = ip6_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
+#else
+		err = ip6_local_out(skb);
+#endif
 	} else {
 		pr_err("Unknown layer 3 protocol: %d\n", skb->protocol);
 		atomic_dec(&pkt->qp->skb_out);
