@@ -44,6 +44,7 @@
 
 static void mlx5_ib_cq_comp(struct mlx5_core_cq *cq, struct mlx5_eqe *eqe)
 {
+#ifdef HAVE_PNV_PCI_AS_NOTIFY
 	struct mlx5_ib_cq *mlx5ib_cq = to_mibcq(cq);
 	struct ib_cq *ibcq = &mlx5ib_cq->ibcq;
 
@@ -51,6 +52,11 @@ static void mlx5_ib_cq_comp(struct mlx5_core_cq *cq, struct mlx5_eqe *eqe)
 
 	if (unlikely(mlx5ib_cq->tsk))
 		kick_process(mlx5ib_cq->tsk);
+#else
+	struct ib_cq *ibcq = &to_mibcq(cq)->ibcq;
+
+	ibcq->comp_handler(ibcq, ibcq->cq_context);
+#endif
 }
 
 static void mlx5_ib_cq_event(struct mlx5_core_cq *mcq, enum mlx5_event type)
