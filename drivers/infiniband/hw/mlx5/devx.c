@@ -15,9 +15,14 @@
 #include <linux/mlx5/eswitch.h>
 #include <linux/mlx5/vport.h>
 #include <linux/mlx5/fs.h>
+#include <linux/eventpoll.h>
+#include <linux/file.h>
+#include <linux/srcu.h>
 #include "mlx5_ib.h"
 #include "ib_rep.h"
 #include <linux/xarray.h>
+#include <linux/eventfd.h>
+
 
 #define UVERBS_MODULE_NAME mlx5_ib
 #include <rdma/uverbs_named_ioctl.h>
@@ -1475,10 +1480,12 @@ static int devx_handle_mkey_create(struct mlx5_ib_dev *dev,
 	return 0;
 }
 
+#if defined(CONFIG_INFINIBAND_ON_DEMAND_PAGING) && defined(HAVE_CALL_SRCU)
 static void devx_free_indirect_mkey(struct rcu_head *rcu)
 {
 	kfree(container_of(rcu, struct devx_obj, devx_mr.rcu));
 }
+#endif
 
 /* This function to delete from the radix tree needs to be called before
  * destroying the underlying mkey. Otherwise a race might occur in case that
@@ -1563,11 +1570,19 @@ static int devx_obj_cleanup(struct ib_uobject *uobject,
 		devx_cleanup_subscription(dev, sub_entry);
 	mutex_unlock(&devx_event_table->event_xa_lock);
 
+#ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
 	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY) {
-		call_srcu(&dev->mr_srcu, &obj->devx_mr.rcu,
-			  devx_free_indirect_mkey);
-		return ret;
-	}
+#ifdef HAVE_CALL_SRCU
+       	call_srcu(&dev->mr_srcu, &obj->devx_mr.rcu,
+       		  devx_free_indirect_mkey);
+#else
+		synchronize_srcu(&dev->mr_srcu);
+		kfree(obj);
+#endif
+
+       	return ret;
+       }
+#endif
 
 	kfree(obj);
 	return ret;
@@ -1953,7 +1968,7 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_DEVX_OBJ_ASYNC_QUERY)(
 	async_data->mdev = mdev;
 	async_data->fd_uobj = fd_uobj;
 
-	get_file(fd_uobj->object);
+	get_file((struct file *)fd_uobj->object);
 	MLX5_SET(general_obj_in_cmd_hdr, cmd_in, uid, uid);
 	err = mlx5_cmd_exec_cb(&ev_file->async_ctx, cmd_in,
 		    uverbs_attr_get_len(attrs,
