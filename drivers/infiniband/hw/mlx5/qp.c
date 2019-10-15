@@ -7173,9 +7173,18 @@ static void handle_drain_completion(struct ib_cq *cq,
 		if (triggered) {
 			/* Wait for any scheduled/running task to be ended */
 			switch (cq->poll_ctx) {
+#if IS_ENABLED(CONFIG_IRQ_POLL) || !defined(HAVE_IRQ_POLL_H)
 			case IB_POLL_SOFTIRQ:
+#if defined(HAVE_IRQ_POLL_H)
+#if IS_ENABLED(CONFIG_IRQ_POLL)
 				irq_poll_disable(&cq->iop);
 				irq_poll_enable(&cq->iop);
+#endif
+#else
+				blk_iopoll_disable(&cq->iop);
+				blk_iopoll_enable(&cq->iop);
+#endif
+#endif
 				break;
 			case IB_POLL_WORKQUEUE:
 				cancel_work_sync(&cq->work);
